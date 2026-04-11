@@ -15,11 +15,19 @@ def english_public_docs(repo: Path) -> list[Path]:
     readme = repo / "README.md"
     if readme.exists():
         docs.append(readme)
+    for root_doc in ["CHANGELOG.md", "RELEASE.md"]:
+        path = repo / root_doc
+        if path.exists():
+            docs.append(path)
     docs_dir = repo / "docs"
     if docs_dir.exists():
         for path in sorted(docs_dir.rglob("*.md")):
             if path.name.endswith(".zh-CN.md"):
                 continue
+            docs.append(path)
+    integrations_dir = repo / "integrations"
+    if integrations_dir.exists():
+        for path in sorted(integrations_dir.rglob("README.md")):
             docs.append(path)
     return docs
 
@@ -50,6 +58,15 @@ def command_language_warning(path: Path, text: str, english_doc: bool) -> str | 
     return None
 
 
+def mixed_language_structure_warning(path: Path, text: str, english_doc: bool) -> str | None:
+    lowered = text.lower()
+    if english_doc and ("[中文](#中文)" in lowered or "\n## 中文" in text or "\n### 中文" in text):
+        return f"{path} mixes Chinese anchor sections into an English public doc"
+    if not english_doc and ("[english](#english)" in lowered or "\n## English" in text or "\n### English" in text):
+        return f"{path} mixes English anchor sections into a Chinese public doc"
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate switchable bilingual public docs.")
     parser.add_argument("repo", type=Path, help="Repository root")
@@ -74,10 +91,16 @@ def main() -> int:
             warnings.append(f"{chinese.relative_to(repo)} missing language switch line")
         en_warning = command_language_warning(english.relative_to(repo), en_text, True)
         zh_warning = command_language_warning(chinese.relative_to(repo), zh_text, False)
+        en_mix_warning = mixed_language_structure_warning(english.relative_to(repo), en_text, True)
+        zh_mix_warning = mixed_language_structure_warning(chinese.relative_to(repo), zh_text, False)
         if en_warning:
             warnings.append(en_warning)
         if zh_warning:
             warnings.append(zh_warning)
+        if en_mix_warning:
+            warnings.append(en_mix_warning)
+        if zh_mix_warning:
+            warnings.append(zh_mix_warning)
 
     ok = not missing and not warnings
     payload = {"ok": ok, "missing": missing, "warnings": warnings}

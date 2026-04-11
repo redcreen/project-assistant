@@ -32,7 +32,7 @@ def main() -> int:
             warnings.append("README.md missing Quick Start section")
         if "## Documentation Map" not in readme and "## Docs" not in readme:
             warnings.append("README.md missing Documentation Map section")
-    installable = (repo / "install.sh").exists() or (repo / "VERSION").exists()
+    installable = (repo / "install.sh").exists() or (repo / "scripts/install.sh").exists() or (repo / "VERSION").exists()
     if installable:
         if "## Install" not in readme:
             warnings.append("README.md missing Install section for installable repo")
@@ -51,6 +51,23 @@ def main() -> int:
         else:
             if not has_all(docs_home, ["## Start Here", "## By Goal"]):
                 warnings.append("docs/README.md missing landing sections")
+            docs_home_links = [
+                ("architecture.md", repo / "docs/architecture.md"),
+                ("roadmap.md", repo / "docs/roadmap.md"),
+                ("adr/", repo / "docs/adr"),
+            ]
+            for label, path in docs_home_links:
+                if label in docs_home and not path.exists():
+                    warnings.append(f"docs/README.md links to missing {label}")
+            recommended_existing = [
+                ("architecture.md", repo / "docs/architecture.md"),
+                ("requirements.md", repo / "docs/requirements.md"),
+                ("signing-and-notarization-plan.md", repo / "docs/signing-and-notarization-plan.md"),
+                ("RELEASE.md", repo / "RELEASE.md"),
+            ]
+            for label, path in recommended_existing:
+                if path.exists() and label not in docs_home:
+                    warnings.append(f"docs/README.md should link to existing {label}")
 
         test_plan = read_text(repo / "docs/test-plan.md")
         if not test_plan:

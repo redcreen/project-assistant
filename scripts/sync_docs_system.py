@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 from control_surface_lib import parse_tier, read_text
@@ -65,17 +66,12 @@ DOCS_HOME_TEMPLATE = """# Docs Home
 
 ## Start Here
 - Getting started: [README](../README.md)
-- Architecture: [architecture.md](architecture.md)
-- Roadmap: [roadmap.md](roadmap.md)
 - Testing: [test-plan.md](test-plan.md)
-- ADRs: [adr/](adr/)
 
 ## By Goal
 | Goal | Read This |
 | --- | --- |
 | Try the project quickly | [README](../README.md) |
-| Understand the system | [architecture.md](architecture.md) |
-| See what is next | [roadmap.md](roadmap.md) |
 | Verify correctness | [test-plan.md](test-plan.md) |
 """
 
@@ -86,17 +82,12 @@ DOCS_HOME_ZH_TEMPLATE = """# 文档首页
 
 ## 从这里开始
 - 快速了解项目：[README](../README.zh-CN.md)
-- 架构：[architecture.zh-CN.md](architecture.zh-CN.md)
-- 路线图：[roadmap.zh-CN.md](roadmap.zh-CN.md)
 - 测试：[test-plan.zh-CN.md](test-plan.zh-CN.md)
-- ADR：[adr/README.zh-CN.md](adr/README.zh-CN.md)
 
 ## 按目标阅读
 | 目标 | 阅读这里 |
 | --- | --- |
 | 快速试用项目 | [README](../README.zh-CN.md) |
-| 理解系统结构 | [architecture.zh-CN.md](architecture.zh-CN.md) |
-| 了解下一步计划 | [roadmap.zh-CN.md](roadmap.zh-CN.md) |
 | 了解验证方式 | [test-plan.zh-CN.md](test-plan.zh-CN.md) |
 """
 
@@ -323,6 +314,15 @@ def ensure_bilingual_pair(en_path: Path, zh_path: Path, en_template: str, zh_tem
 
 
 def project_name(repo: Path) -> str:
+    package_json = repo / "package.json"
+    if package_json.exists():
+        try:
+            payload = json.loads(package_json.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            payload = {}
+        name = payload.get("name")
+        if isinstance(name, str) and name.strip():
+            return name.strip()
     return repo.name
 
 
@@ -346,6 +346,33 @@ def ensure_switch_line(path: Path, english: Path, chinese: Path) -> bool:
     return True
 
 
+def replace_when_stale(path: Path, content: str, markers: list[str]) -> bool:
+    text = read_text(path)
+    if not text:
+        return False
+    if not all(marker in text for marker in markers):
+        return False
+    normalized = content
+    if text.rstrip() == normalized.rstrip():
+        return False
+    path.write_text(normalized, encoding="utf-8")
+    return True
+
+
+def replace_if_scaffold(path: Path, scaffolds: list[str], content: str) -> bool:
+    text = read_text(path)
+    if not text:
+        return False
+    normalized = text.rstrip()
+    known = {item.rstrip() for item in scaffolds}
+    if normalized not in known:
+        return False
+    if normalized == content.rstrip():
+        return False
+    path.write_text(content, encoding="utf-8")
+    return True
+
+
 def append_doc_map_if_missing(readme_path: Path) -> bool:
     text = read_text(readme_path)
     if not text:
@@ -356,8 +383,6 @@ def append_doc_map_if_missing(readme_path: Path) -> bool:
 
 ## Documentation Map
 - [Docs Home](docs/README.md)
-- [Architecture](docs/architecture.md)
-- [Roadmap](docs/roadmap.md)
 - [Test Plan](docs/test-plan.md)
 """
     readme_path.write_text(text.rstrip() + addition + "\n", encoding="utf-8")
@@ -376,6 +401,51 @@ See [docs/README.md](docs/README.md) for the full documentation map.
 """
     readme_path.write_text(text.rstrip() + addition + "\n", encoding="utf-8")
     return True
+
+
+def docs_home_templates(tier: str) -> tuple[str, str]:
+    if tier == "large":
+        return (
+            """# Docs Home
+
+[English](README.md) | [中文](README.zh-CN.md)
+
+## Start Here
+- Getting started: [README](../README.md)
+- Architecture: [architecture.md](architecture.md)
+- Roadmap: [roadmap.md](roadmap.md)
+- Testing: [test-plan.md](test-plan.md)
+- ADRs: [adr/](adr/)
+
+## By Goal
+| Goal | Read This |
+| --- | --- |
+| Try the project quickly | [README](../README.md) |
+| Understand the system | [architecture.md](architecture.md) |
+| See what is next | [roadmap.md](roadmap.md) |
+| Verify correctness | [test-plan.md](test-plan.md) |
+""",
+            """# 文档首页
+
+[English](README.md) | [中文](README.zh-CN.md)
+
+## 从这里开始
+- 快速了解项目：[README](../README.zh-CN.md)
+- 架构：[architecture.zh-CN.md](architecture.zh-CN.md)
+- 路线图：[roadmap.zh-CN.md](roadmap.zh-CN.md)
+- 测试：[test-plan.zh-CN.md](test-plan.zh-CN.md)
+- ADR：[adr/README.zh-CN.md](adr/README.zh-CN.md)
+
+## 按目标阅读
+| 目标 | 阅读这里 |
+| --- | --- |
+| 快速试用项目 | [README](../README.zh-CN.md) |
+| 理解系统结构 | [architecture.zh-CN.md](architecture.zh-CN.md) |
+| 了解下一步计划 | [roadmap.zh-CN.md](roadmap.zh-CN.md) |
+| 了解验证方式 | [test-plan.zh-CN.md](test-plan.zh-CN.md) |
+""",
+        )
+    return DOCS_HOME_TEMPLATE, DOCS_HOME_ZH_TEMPLATE
 
 
 def main() -> int:
@@ -397,20 +467,69 @@ def main() -> int:
     readme_zh = repo / "README.zh-CN.md"
     if ensure_file(readme, README_TEMPLATE.format(project_name=project_name(repo))):
         created.append("README.md")
-    if ensure_file(readme_zh, README_ZH_TEMPLATE.format(project_name=project_name(repo))):
+    created_zh = ensure_file(readme_zh, README_ZH_TEMPLATE.format(project_name=project_name(repo)))
+    if created_zh:
         created.append("README.zh-CN.md")
-    else:
-        if append_doc_map_if_missing(readme):
-            touched.append("README.md")
-        if append_quick_start_if_missing(readme) and "README.md" not in touched:
-            touched.append("README.md")
+    if append_doc_map_if_missing(readme):
+        touched.append("README.md")
+    if append_quick_start_if_missing(readme) and "README.md" not in touched:
+        touched.append("README.md")
     if ensure_switch_line(readme, readme, readme_zh) and "README.md" not in touched:
         touched.append("README.md")
-    if ensure_switch_line(readme_zh, readme, readme_zh):
+    if ensure_switch_line(readme_zh, readme, readme_zh) and not created_zh:
         touched.append("README.zh-CN.md")
 
     if tier in {"medium", "large"}:
-        ensure_bilingual_pair(docs_dir / "README.md", docs_dir / "README.zh-CN.md", DOCS_HOME_TEMPLATE, DOCS_HOME_ZH_TEMPLATE, created, touched, repo)
+        docs_home_template, docs_home_zh_template = docs_home_templates(tier)
+        ensure_bilingual_pair(docs_dir / "README.md", docs_dir / "README.zh-CN.md", docs_home_template, docs_home_zh_template, created, touched, repo)
+        docs_home_scaffolds = [
+            """# Docs Home
+
+[English](README.md) | [中文](README.zh-CN.md)
+
+## Start Here
+- Getting started: [README](../README.md)
+- Architecture: [architecture.md](architecture.md)
+- Roadmap: [roadmap.md](roadmap.md)
+- Testing: [test-plan.md](test-plan.md)
+- ADRs: [adr/](adr/)
+
+## By Goal
+| Goal | Read This |
+| --- | --- |
+| Try the project quickly | [README](../README.md) |
+| Understand the system | [architecture.md](architecture.md) |
+| See what is next | [roadmap.md](roadmap.md) |
+| Verify correctness | [test-plan.md](test-plan.md) |
+""",
+            DOCS_HOME_TEMPLATE,
+        ]
+        if replace_if_scaffold(docs_dir / "README.md", docs_home_scaffolds, docs_home_template) and "docs/README.md" not in touched:
+            touched.append("docs/README.md")
+        docs_home_zh_scaffolds = [
+            """# 文档首页
+
+[English](README.md) | [中文](README.zh-CN.md)
+
+## 从这里开始
+- 快速了解项目：[README](../README.zh-CN.md)
+- 架构：[architecture.zh-CN.md](architecture.zh-CN.md)
+- 路线图：[roadmap.zh-CN.md](roadmap.zh-CN.md)
+- 测试：[test-plan.zh-CN.md](test-plan.zh-CN.md)
+- ADR：[adr/README.zh-CN.md](adr/README.zh-CN.md)
+
+## 按目标阅读
+| 目标 | 阅读这里 |
+| --- | --- |
+| 快速试用项目 | [README](../README.zh-CN.md) |
+| 理解系统结构 | [architecture.zh-CN.md](architecture.zh-CN.md) |
+| 了解下一步计划 | [roadmap.zh-CN.md](roadmap.zh-CN.md) |
+| 了解验证方式 | [test-plan.zh-CN.md](test-plan.zh-CN.md) |
+""",
+            DOCS_HOME_ZH_TEMPLATE,
+        ]
+        if replace_if_scaffold(docs_dir / "README.zh-CN.md", docs_home_zh_scaffolds, docs_home_zh_template) and "docs/README.zh-CN.md" not in touched:
+            touched.append("docs/README.zh-CN.md")
         ensure_bilingual_pair(docs_dir / "test-plan.md", docs_dir / "test-plan.zh-CN.md", TEST_PLAN_TEMPLATE, TEST_PLAN_ZH_TEMPLATE, created, touched, repo)
 
     if tier == "large":

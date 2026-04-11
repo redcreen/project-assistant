@@ -37,6 +37,100 @@ TODO: define the next concrete checkpoint.
 """
 
 
+BRIEF_TEMPLATE = """# Project Brief
+
+## Delivery Tier
+- Tier: `{tier}`
+- Why this tier: {why_tier}
+- Last reviewed: TODO
+
+## Outcome
+
+TODO: define the outcome this repo is meant to deliver.
+
+## Scope
+
+- TODO
+
+## Non-Goals
+
+- TODO
+
+## Constraints
+
+- TODO
+
+## Definition of Done
+
+- TODO
+"""
+
+
+PLAN_TEMPLATE = """# Project Plan
+
+## Current Phase
+
+{current_phase}
+
+## Slices
+- Slice: control-surface alignment
+  - Objective: establish or refresh `.codex/brief.md`, `.codex/plan.md`, `.codex/status.md`, and `.codex/COMMANDS.md`
+  - Dependencies: current repo structure
+  - Risks: control docs drift from actual repo state
+  - Validation: `validate_control_surface.py` returns `ok: True`
+  - Exit Condition: control surface exists and is coherent
+
+- Slice: durable-doc alignment
+  - Objective: align `README` and `docs/*` with the project-assistant document standards
+  - Dependencies: existing repo docs, `sync_docs_system.py`, `validate_docs_system.py`
+  - Risks: docs pass structure checks but still read like scaffolding
+  - Validation: docs validators pass and README remains accurate
+  - Exit Condition: public docs are readable and recoverable
+
+- Slice: next execution selection
+  - Objective: make the next implementation or maintenance slice explicit
+  - Dependencies: current retrofit result
+  - Risks: repo falls back into ad hoc maintenance
+  - Validation: `status.md` records the next 3 actions
+  - Exit Condition: next slice is concrete
+"""
+
+
+STATUS_TEMPLATE = """# Project Status
+
+## Delivery Tier
+- Tier: `{tier}`
+- Why this tier: {why_tier}
+- Last reviewed: TODO
+
+## Current Phase
+
+Retrofit in progress.
+
+## Active Slice
+
+Control surface and durable-doc alignment.
+
+## Done
+
+- repository scanned
+
+## In Progress
+
+- establish `.codex` control surface
+- align public docs with current standards
+
+## Blockers / Open Decisions
+
+- TODO
+
+## Next 3 Actions
+1. Finish the control-surface retrofit.
+2. Run validation and verify the public docs.
+3. Select the next concrete maintenance or feature slice.
+"""
+
+
 COMMANDS_TEMPLATE = """# Commands
 
 ## Chinese
@@ -68,6 +162,20 @@ COMMANDS_TEMPLATE = """# Commands
 - Use the language that matches the user.
 - Natural-language variations are fine as long as intent stays clear.
 """
+
+
+def tier_reason(tier: str) -> str:
+    if tier == "large":
+        return "multiple modules, workstreams, or adapters require explicit status, plan, and module structure"
+    if tier == "medium":
+        return "multi-session maintenance needs a lightweight but durable control surface"
+    return "single short execution cycle with low structural overhead"
+
+
+def ensure_core_doc(path: Path, content: str) -> None:
+    if path.exists():
+        return
+    path.write_text(content, encoding="utf-8")
 
 
 DEFAULT_ENTRY_RULES = """- 当前状态，以 [status.md](status.md) 为准
@@ -233,6 +341,15 @@ def main() -> int:
 
     tier = parse_tier(repo)
     official_modules = parse_official_modules(repo)
+    why_tier = tier_reason(tier)
+    ensure_core_doc(codex_dir / "brief.md", BRIEF_TEMPLATE.format(tier=tier, why_tier=why_tier))
+    ensure_core_doc(
+        codex_dir / "plan.md",
+        PLAN_TEMPLATE.format(
+            current_phase="Retrofit and baseline alignment." if tier != "large" else "Retrofit, module alignment, and baseline execution."
+        ),
+    )
+    ensure_core_doc(codex_dir / "status.md", STATUS_TEMPLATE.format(tier=tier, why_tier=why_tier))
     write_control_surface_config(repo, tier, official_modules)
 
     if tier == "large" and official_modules:
