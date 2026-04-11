@@ -142,6 +142,8 @@ project-assistant/
 - `scripts/validate_docs_system.py`
 - `scripts/validate_public_docs_i18n.py`
 - `scripts/validate_markdown_governance.py`
+- `scripts/validate_doc_quality.py`
+- `scripts/validate_gate_set.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
 - `scripts/release_skill.py`
@@ -153,6 +155,9 @@ python3 scripts/validate_control_surface.py /path/to/repo --format text
 python3 scripts/validate_docs_system.py /path/to/repo --format text
 python3 scripts/validate_public_docs_i18n.py /path/to/repo --format text
 python3 scripts/validate_markdown_governance.py /path/to/repo --format text
+python3 scripts/validate_doc_quality.py /path/to/repo --format text
+python3 scripts/validate_gate_set.py /path/to/repo --profile fast
+python3 scripts/validate_gate_set.py /path/to/repo --profile deep
 ```
 
 ### 发布

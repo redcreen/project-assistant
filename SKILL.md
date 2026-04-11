@@ -124,6 +124,10 @@ Prefer the bundled scripts when present:
   中文：校验公开文档是否具备中英文成对文件和语言切换入口
 - `scripts/validate_markdown_governance.py`
   中文：校验全仓 Markdown 是否已经完成职责收口
+- `scripts/validate_doc_quality.py`
+  中文：校验公开文档是否仍然停留在模板态、假双语或坏链接状态
+- `scripts/validate_gate_set.py`
+  中文：按 `fast` / `deep` 分层运行门禁
 - `scripts/progress_snapshot.py`
   中文：生成机器校验过的项目进展面板
 - `scripts/context_handoff.py`
@@ -209,11 +213,16 @@ If scripts exist:
 2. run `scripts/sync_docs_system.py`
 3. run `scripts/sync_markdown_governance.py`
 4. apply or refine content as needed
-5. run `scripts/validate_control_surface.py`
-6. run `scripts/validate_docs_system.py`
-7. if the repo requires bilingual public docs, run `scripts/validate_public_docs_i18n.py`
-8. run `scripts/validate_markdown_governance.py`
-9. do not declare completion unless the required validations pass
+5. during active work, prefer `scripts/validate_gate_set.py --profile fast`
+6. before declaring retrofit complete, run `scripts/validate_gate_set.py --profile deep`
+7. do not declare completion unless the required validations pass
+
+Gate policy:
+
+- `fast` = `validate_control_surface.py` + `validate_docs_system.py` + `validate_public_docs_i18n.py`
+- `deep` = `fast` + `validate_markdown_governance.py` + `validate_doc_quality.py`
+- `整改` and `文档整改` must finish on `deep`
+- `发布` must pass `deep` before tagging
 
 For large projects with first-class modules, retrofit is not complete without the module layer.
 

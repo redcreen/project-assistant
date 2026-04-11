@@ -22,12 +22,15 @@
 | 上下文交接 | 长会话仓库有 active slice | 运行交接流程 | 生成可复制恢复包 |
 | 文档整改 | 仓库已有公开文档 | 运行文档整改 | README 与 docs 系统被规范化且通过校验 |
 | 公开文档双语 | 仓库要求双语公开文档 | 运行双语校验脚本 | 中英文文档对和切换链接齐全 |
+| 公开文档质量 | 仓库已有公开文档 | 运行质量校验脚本 | 公开文档不再包含模板占位、空图示或坏链接 |
 
 ## 自动化覆盖
 
 - `scripts/validate_control_surface.py`
 - `scripts/validate_docs_system.py`
 - `scripts/validate_public_docs_i18n.py`
+- `scripts/validate_gate_set.py`
+- `scripts/validate_doc_quality.py`
 
 ## 手工检查
 
@@ -48,3 +51,5 @@
 - skill 仓库自身通过控制面校验
 - skill 仓库自身通过文档系统校验
 - skill 仓库自身通过公开文档双语校验
+- skill 仓库自身通过分层门禁校验
+- skill 仓库自身通过文档质量校验

@@ -52,6 +52,8 @@ If available, use:
 - `scripts/validate_docs_system.py` to enforce documentation completion gates
 - `scripts/sync_markdown_governance.py` to converge the full Markdown tree
 - `scripts/validate_markdown_governance.py` to enforce full-tree Markdown ownership gates
+- `scripts/validate_doc_quality.py` to enforce that public docs are no longer scaffold-like or broken
+- `scripts/validate_gate_set.py` to run the layered `fast` / `deep` gate sets
 
 ## Mandatory Self-Check
 
@@ -214,6 +216,13 @@ If any gate fails, retrofit is incomplete.
 Run the validation script when present instead of relying only on manual inspection.
 For documentation retrofit, `validate_docs_system.py` is part of the gate set when present.
 For full Markdown retrofit, `validate_markdown_governance.py` is also part of the gate set when present.
+For public-doc quality, `validate_doc_quality.py` is part of the gate set when present.
+
+Use layered gates:
+
+- `fast` during iterative work
+- `deep` before declaring retrofit complete
+- `deep` before release
 
 ## Documentation Retrofit Rule
 

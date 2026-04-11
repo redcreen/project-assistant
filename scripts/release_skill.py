@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -11,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILE = ROOT / "VERSION"
 README_FILES = [ROOT / "README.md", ROOT / "README.zh-CN.md"]
 INSTALL_FILE = ROOT / "install.sh"
+GATE_SCRIPT = ROOT / "scripts" / "validate_gate_set.py"
 
 
 def run(*args: str) -> str:
@@ -64,6 +66,18 @@ def ensure_clean() -> None:
         raise SystemExit("working tree must be clean before release")
 
 
+def ensure_deep_gates() -> None:
+    result = subprocess.run(
+        [sys.executable, str(GATE_SCRIPT), str(ROOT), "--profile", "deep"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        detail = (result.stdout + "\n" + result.stderr).strip()
+        raise SystemExit(f"deep validation gates failed before release\n{detail}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Bump project-assistant version, update install refs, commit, and tag.")
     parser.add_argument("mode", help="patch | minor | major | explicit version like 0.2.0")
@@ -71,6 +85,7 @@ def main() -> int:
     args = parser.parse_args()
 
     ensure_clean()
+    ensure_deep_gates()
     current = read_version()
     next_version = bump(current, args.mode)
     tag = f"v{next_version}"

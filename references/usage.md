@@ -29,6 +29,11 @@ English simple commands:
 - `project assistant handoff`
 - `project assistant release patch`
 
+Gate commands:
+
+- `python3 scripts/validate_gate_set.py /path/to/repo --profile fast`
+- `python3 scripts/validate_gate_set.py /path/to/repo --profile deep`
+
 ## Start or Bootstrap | 启动
 
 - `用 $project-assistant 启动这个项目，先明确目标、约束、DoD，再生成最小控制面。`
@@ -104,6 +109,8 @@ English simple commands:
 - `.codex/doc-governance.json` = 文档治理配置入口，用来声明公开文档范围、根目录保留文档和 Markdown 所有权
 - 如果项目要求公开文档双语，则整改还应补齐中英文可切换文档对
 - 如果仓库仍有 legacy 深层文档树，整改应把它们迁入 `docs/reference/`、`docs/workstreams/` 或 `docs/archive/`
+- 完成前还应通过 `validate_doc_quality.py`，避免公开文档停留在模板态、假双语或坏链接状态
+- 日常迭代优先跑 `fast` 门禁；整改收口和发布前必须跑 `deep` 门禁
 
 ## Close a Phase | 阶段收口
 

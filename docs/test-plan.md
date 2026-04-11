@@ -22,12 +22,15 @@ Primary risks:
 | Context handoff | long-running repo with active slice | run handoff flow | compact resume pack with copy-paste commands |
 | Docs retrofit | repo has public docs | run docs retrofit flow | README and docs system are normalized and validate |
 | Public-doc i18n | repo requires bilingual public docs | run i18n validator | English/Chinese doc pairs and switch links exist |
+| Public-doc quality | repo has public docs | run doc-quality validator | public docs contain no placeholder prose, empty diagrams, or broken local links |
 
 ## Automation Coverage
 
 - `scripts/validate_control_surface.py`
 - `scripts/validate_docs_system.py`
 - `scripts/validate_public_docs_i18n.py`
+- `scripts/validate_gate_set.py`
+- `scripts/validate_doc_quality.py`
 
 ## Manual Checks
 
@@ -48,3 +51,5 @@ Before calling the skill update complete:
 - control-surface validation passes on the skill repo
 - docs-system validation passes on the skill repo
 - public-doc i18n validation passes on the skill repo
+- layered gate-set validation passes on the skill repo
+- doc-quality validation passes on the skill repo
