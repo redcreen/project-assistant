@@ -5,6 +5,7 @@ Use these prompt patterns to invoke the skill cleanly.
 ## Simple Commands | 简单指令
 
 - 推荐总入口：`项目助手`
+- Recommended English entry: `project assistant`
 - `启动` = `bootstrap`
 - `规划` = `plan`
 - `执行` = `execute`
@@ -15,6 +16,18 @@ Use these prompt patterns to invoke the skill cleanly.
 - `发布` = `release`
 - `收口` = `closeout`
 - `压缩上下文 / 交接` = `handoff`
+
+English simple commands:
+
+- `project assistant menu`
+- `project assistant start this project`
+- `project assistant plan the next phase`
+- `project assistant resume current status`
+- `project assistant progress`
+- `project assistant retrofit`
+- `project assistant docs retrofit`
+- `project assistant handoff`
+- `project assistant release patch`
 
 ## Start or Bootstrap | 启动
 
@@ -30,6 +43,7 @@ Use these prompt patterns to invoke the skill cleanly.
 
 - `用 $project-assistant 恢复当前项目状态，然后继续下一步。`
 - `Use $project-assistant to resume this repo from the current status and continue execution.`
+- `project assistant resume current status`
 
 ## Ask for Progress | 查看进展
 
@@ -37,17 +51,21 @@ Use these prompt patterns to invoke the skill cleanly.
 - `用 $project-assistant 告诉我这个大项目的模块进展，用全局视角、模块视角和图示输出。`
 - `用 $project-assistant 先跑进展快照，再告诉我项目当前进展。`
 - `Use $project-assistant to give me a concise progress dashboard with a Mermaid diagram.`
+- `project assistant progress`
 
 ## Compress Context | 压缩上下文
 
 - `用 $project-assistant 压缩当前上下文，并给我一个可复制的新对话恢复包。`
 - `用 $project-assistant 生成恢复包，包含恢复、进展、继续执行并验证的命令。`
 - `Use $project-assistant to compress the current context and emit a resume pack for the next thread.`
+- `project assistant handoff`
 
 ## Retrofit an Existing Repo | 整改现有仓库
 
 - `项目助手 整改`
 - `项目助手 文档整改`
+- `project assistant retrofit`
+- `project assistant docs retrofit`
 - `用 $project-assistant 对这个仓库做整改审计（retrofit audit），先不要改文件。`
 - `用 $project-assistant 审计这个仓库并给出 retrofit plan，先不要改文件。`
 - `用 $project-assistant 引导式整改这个仓库，先审计、再给方案、再实施。`
@@ -66,6 +84,8 @@ Use these prompt patterns to invoke the skill cleanly.
 - `项目助手 发布 minor`
 - `项目助手 打标 patch`
 - `用 $project-assistant 发布这个 skill，并更新 tag 安装地址。`
+- `project assistant release patch`
+- `project assistant release minor`
 
 默认语义：
 

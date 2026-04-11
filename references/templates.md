@@ -397,6 +397,12 @@ Use when the session is long and the user needs a new-thread restore pack.
 项目助手 继续当前切片，并先运行验证：...
 ```
 
+```text
+project assistant resume current status and continue the active slice: ...
+project assistant progress
+project assistant continue the active slice and run validation first: ...
+```
+
 ## Next 3 Actions
 1.
 2.
@@ -479,20 +485,32 @@ Use when a slice or phase completes.
 Use for `.codex/COMMANDS.md` when the repo needs a human-facing quick reminder.
 
 ```md
-# 项目助手命令速查
+# Commands
 
-推荐入口：
-- 项目助手
+## Chinese
 
-常用命令：
-- 项目助手 启动这个项目
-- 项目助手 规划下一阶段
-- 项目助手 恢复当前状态
-- 项目助手 告诉我项目进展
-- 项目助手 先做整改审计
-- 项目助手 直接整改这个仓库
-- 项目助手 收口当前阶段
+- `项目助手 菜单`
+- `项目助手 启动这个项目`
+- `项目助手 规划下一阶段`
+- `项目助手 恢复当前状态`
+- `项目助手 告诉我项目进展`
+- `项目助手 先做整改审计`
+- `项目助手 直接整改这个仓库`
+- `项目助手 收口当前阶段`
 
-提示：
-- 不需要记精确命令，直接说自然语言也可以。
+## English
+
+- `project assistant menu`
+- `project assistant start this project`
+- `project assistant plan the next phase`
+- `project assistant resume current status`
+- `project assistant progress`
+- `project assistant retrofit audit`
+- `project assistant retrofit this repo`
+- `project assistant close out the current phase`
+
+## Notes
+
+- Use the language that matches the user.
+- Natural-language variations are fine as long as intent stays clear.
 ```

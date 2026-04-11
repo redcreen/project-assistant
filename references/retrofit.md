@@ -17,6 +17,11 @@ Short Chinese commands:
 - `项目助手 整改`
 - `项目助手 文档整改`
 
+Short English commands:
+
+- `project assistant retrofit`
+- `project assistant docs retrofit`
+
 ## Core Rule
 
 Retrofit is a convergence task.

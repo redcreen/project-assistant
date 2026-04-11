@@ -115,13 +115,23 @@ def has_required_headings(text: str, headings: list[str]) -> bool:
     return all(f"## {heading}" in text for heading in headings)
 
 
+def validate_commands_doc(text: str) -> list[str]:
+    warnings: list[str] = []
+    lowered = text.lower()
+    if "项目助手" not in text:
+        warnings.append(".codex/COMMANDS.md missing Chinese simple commands")
+    if "project assistant" not in lowered:
+        warnings.append(".codex/COMMANDS.md missing English simple commands")
+    return warnings
+
+
 def validate_repo(repo: Path) -> ValidationResult:
     tier = parse_tier(repo)
     official_modules = parse_official_modules(repo)
     missing: list[str] = []
     warnings: list[str] = []
 
-    required = [".codex/brief.md", ".codex/status.md"]
+    required = [".codex/brief.md", ".codex/status.md", ".codex/COMMANDS.md"]
     if tier in {"medium", "large"}:
         required.append(".codex/plan.md")
     if tier == "large":
@@ -134,6 +144,10 @@ def validate_repo(repo: Path) -> ValidationResult:
     status_text = read_text(repo / ".codex/status.md")
     if tier == "large" and "retrofit" in status_text.lower():
         warnings.append("status still contains retrofit-oriented language")
+
+    commands_text = read_text(repo / ".codex/COMMANDS.md")
+    if commands_text:
+        warnings.extend(validate_commands_doc(commands_text))
 
     if tier == "large" and official_modules:
         module_dir = repo / ".codex/modules"

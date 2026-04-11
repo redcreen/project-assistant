@@ -7,6 +7,7 @@ Use this reference when the user asks for help, menu, available commands, or wha
 Prefer the alias:
 
 - `项目助手`
+- `project assistant`
 
 Common help requests:
 
@@ -17,7 +18,11 @@ Common help requests:
 
 ## Default Menu Shape
 
-Return a short menu like this:
+If the user is writing in Chinese, return a Chinese-first menu.
+
+If the user is writing in English, return an English-first menu.
+
+Chinese menu:
 
 ```md
 项目助手可用命令：
@@ -36,6 +41,28 @@ Return a short menu like this:
 - 项目助手 先做整改审计
 
 不需要记精确名字，直接用自然语言也可以。
+```
+
+English menu:
+
+```md
+Project Assistant commands:
+
+- start: create the control surface
+- plan: clarify goals, slices, and validation
+- execute: continue the active slice
+- resume: recover state and continue
+- progress: show global or module progress
+- retrofit: align the repo to the operating model
+- docs retrofit: normalize the doc system
+- handoff: prepare a new-thread resume pack
+
+Examples:
+- project assistant start this project
+- project assistant progress
+- project assistant retrofit
+
+You do not need to memorize exact names. Natural language is fine.
 ```
 
 ## Concision Rule

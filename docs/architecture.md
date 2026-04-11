@@ -42,9 +42,9 @@ flowchart LR
 
 ## Interfaces and Contracts
 
-- `项目助手 整改`
+- `project assistant retrofit`
   includes control-surface retrofit and documentation retrofit by default
-- `项目助手 文档整改`
+- `project assistant docs retrofit`
   focuses on durable docs while preserving control-surface correctness
 - `validate_control_surface.py`
   enforces control-surface gates

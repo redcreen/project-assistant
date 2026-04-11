@@ -38,8 +38,9 @@ def bullet_lines(text: str) -> list[str]:
     return items
 
 
-def detect_commands(repo: Path) -> tuple[str, list[str]]:
-    primary_test = "根据仓库测试入口执行验证"
+def detect_commands(repo: Path) -> tuple[str, str, list[str]]:
+    primary_test_cn = "根据仓库测试入口执行验证"
+    primary_test_en = "run the repo's primary test entry"
     extra_checks: list[str] = []
 
     package_json = repo / "package.json"
@@ -49,19 +50,20 @@ def detect_commands(repo: Path) -> tuple[str, list[str]]:
         except json.JSONDecodeError:
             scripts = {}
         if "test" in scripts:
-            primary_test = "npm test"
+            primary_test_cn = "npm test"
+            primary_test_en = "npm test"
         for name in ["eval:smoke-promotion", "test:smoke", "lint", "build"]:
             if name in scripts:
                 extra_checks.append(f"npm run {name}")
-        return primary_test, extra_checks
+        return primary_test_cn, primary_test_en, extra_checks
 
     if (repo / "pyproject.toml").exists() or (repo / "pytest.ini").exists():
-        return "pytest", extra_checks
+        return "pytest", "pytest", extra_checks
 
     if (repo / "Cargo.toml").exists():
-        return "cargo test", extra_checks
+        return "cargo test", "cargo test", extra_checks
 
-    return primary_test, extra_checks
+    return primary_test_cn, primary_test_en, extra_checks
 
 
 def main() -> int:
@@ -88,7 +90,7 @@ def main() -> int:
                 active_module = line.split(":", 1)[1].strip()
                 break
 
-    primary_test, extra_checks = detect_commands(repo)
+    primary_test_cn, primary_test_en, extra_checks = detect_commands(repo)
     restore_docs = [
         ".codex/status.md",
         ".codex/plan.md",
@@ -109,18 +111,35 @@ def main() -> int:
     for idx, item in enumerate(restore_docs, start=1):
         print(f"{idx}. `{item}`")
 
+    docs_cn = "、".join(restore_docs)
+    docs_en = ", ".join(restore_docs)
+
     print("\n## Copy-Paste Commands")
+    print("\n### Chinese")
     print("```text")
     print(
         f"项目助手 恢复当前项目状态，然后继续执行当前切片：{active_slice}。先读取 "
-        + "、".join(restore_docs)
+        + docs_cn
         + "。"
     )
     print("项目助手 告诉我这个项目当前进展，用全局视角、模块视角和图示输出。")
-    test_line = f"项目助手 继续当前切片，并先运行验证：{primary_test}"
+    test_line = f"项目助手 继续当前切片，并先运行验证：{primary_test_cn}"
     if extra_checks:
         test_line += "；补充检查：" + "，".join(extra_checks)
     print(test_line + "。")
+    print("```")
+
+    print("\n### English")
+    print("```text")
+    print(
+        f"project assistant resume current status and continue the active slice: {active_slice}. "
+        f"Read {docs_en} first."
+    )
+    print("project assistant progress")
+    test_line = f"project assistant continue the active slice and run validation first: {primary_test_en}"
+    if extra_checks:
+        test_line += "; extra checks: " + ", ".join(extra_checks)
+    print(test_line + ".")
     print("```")
 
     print("\n## Next 3 Actions")
@@ -131,8 +150,9 @@ def main() -> int:
         print("1. No next actions recorded.")
 
     print("\n## Notes")
-    print("- 如果需要开新对话，优先把这份输出连同仓库路径一起带过去。")
-    print("- 如果是大项目，恢复后先看 `.codex/module-dashboard.md`，再看 `modules/*.md`。")
+    print("- Start a new thread with this output and the repo path when you need a clean context.")
+    print("- For large projects, read `.codex/module-dashboard.md` before `modules/*.md` after restore.")
+    print("- 如果使用中文继续，也可以直接复制上面的中文命令。")
     return 0
 
 

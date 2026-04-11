@@ -14,6 +14,8 @@ Treat these as invoking this skill:
 - `项目助手`
 - `项目操作系统`
 - `项目治理`
+- `project assistant`
+- `project helper`
 - `$project-assistant`
 
 Primary modes:
@@ -32,8 +34,19 @@ Primary modes:
 Also trigger this skill when the user clearly asks for project startup, rescue, progress, retrofit, recovery, or handoff, even if the exact alias is not used.
 Treat `文档整改`, `文档重构`, and `整理文档系统` as the documentation-focused variant of `retrofit`.
 Treat `发布`, `打标`, and `发版` as the release flow when the repo supports versioned install docs.
+Treat `docs retrofit`, `release`, and `handoff` as the English-friendly variants of those flows.
 
-When using English operation names in user-facing output, explain them in Chinese the first time. Prefer Chinese in normal conversation.
+Choose command examples to match the user's language:
+
+- Chinese user -> show Chinese simple commands first
+- English user -> show English simple commands first
+
+If public docs are bilingual, keep command examples localized per file:
+
+- English doc -> English simple commands
+- Chinese doc -> Chinese simple commands
+
+When using English operation names in Chinese user-facing output, explain them in Chinese the first time. Do not force Chinese command examples into English docs.
 
 ## Menu Behavior
 

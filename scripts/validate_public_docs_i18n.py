@@ -40,6 +40,16 @@ def has_switch_line(text: str, english: Path, chinese: Path) -> bool:
     return english.name in first_lines and chinese.name in first_lines and "[English]" in first_lines and "[中文]" in first_lines
 
 
+def command_language_warning(path: Path, text: str, english_doc: bool) -> str | None:
+    has_chinese_command = "项目助手" in text
+    has_english_command = "project assistant" in text.lower() or "$project-assistant" in text
+    if english_doc and has_chinese_command and not has_english_command:
+        return f"{path} uses Chinese-only command examples in an English public doc"
+    if not english_doc and has_english_command and not has_chinese_command:
+        return f"{path} uses English-only command examples in a Chinese public doc"
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate switchable bilingual public docs.")
     parser.add_argument("repo", type=Path, help="Repository root")
@@ -62,6 +72,12 @@ def main() -> int:
             warnings.append(f"{english.relative_to(repo)} missing language switch line")
         if not has_switch_line(zh_text, english, chinese):
             warnings.append(f"{chinese.relative_to(repo)} missing language switch line")
+        en_warning = command_language_warning(english.relative_to(repo), en_text, True)
+        zh_warning = command_language_warning(chinese.relative_to(repo), zh_text, False)
+        if en_warning:
+            warnings.append(en_warning)
+        if zh_warning:
+            warnings.append(zh_warning)
 
     ok = not missing and not warnings
     payload = {"ok": ok, "missing": missing, "warnings": warnings}

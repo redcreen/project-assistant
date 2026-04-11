@@ -21,7 +21,7 @@ curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.1/i
 Manual install:
 
 ```bash
-git clone --branch v0.1.0 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
+git clone --branch v0.1.1 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
 
 ## Minimal Configuration
@@ -32,7 +32,7 @@ Simplest path:
 
 1. install to `~/.codex/skills/project-assistant`
 2. start a new Codex session
-3. run `项目助手 菜单`
+3. run `project assistant menu`
 
 Optional overrides:
 
@@ -44,17 +44,17 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 
 Use one simple entry:
 
-- `项目助手`
+- `project assistant`
 
 Common commands:
 
-- `项目助手 菜单`
-- `项目助手 启动这个项目`
-- `项目助手 恢复当前状态`
-- `项目助手 进展`
-- `项目助手 整改`
-- `项目助手 文档整改`
-- `项目助手 压缩上下文`
+- `project assistant menu`
+- `project assistant start this project`
+- `project assistant resume current status`
+- `project assistant progress`
+- `project assistant retrofit`
+- `project assistant docs retrofit`
+- `project assistant handoff`
 
 ## Core Capabilities
 
@@ -70,19 +70,19 @@ Common commands:
 ### Start or take over a project
 
 ```text
-项目助手 启动这个项目
+project assistant start this project
 ```
 
 ### Report current progress
 
 ```text
-项目助手 进展
+project assistant progress
 ```
 
 ### Retrofit the whole repo
 
 ```text
-项目助手 整改
+project assistant retrofit
 ```
 
 Default scope:
@@ -94,13 +94,13 @@ Default scope:
 ### Focus on docs only
 
 ```text
-项目助手 文档整改
+project assistant docs retrofit
 ```
 
 ### Prepare a new thread
 
 ```text
-项目助手 压缩上下文
+project assistant handoff
 ```
 
 ## Documentation Map
@@ -155,7 +155,7 @@ python3 scripts/validate_public_docs_i18n.py /path/to/repo --format text
 When a feature improvement is stable and validations pass, use a short release command:
 
 ```text
-项目助手 发布 patch
+project assistant release patch
 ```
 
 Equivalent script command:
@@ -175,7 +175,7 @@ What it does:
 Short release hint for maintainers:
 
 ```text
-可发布。执行：项目助手 发布 patch
+Ready to release. Run: project assistant release patch
 ```
 
 ## License

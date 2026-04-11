@@ -37,6 +37,39 @@ TODO: define the next concrete checkpoint.
 """
 
 
+COMMANDS_TEMPLATE = """# Commands
+
+## Chinese
+
+- `项目助手 菜单`
+- `项目助手 启动这个项目`
+- `项目助手 规划下一阶段`
+- `项目助手 恢复当前状态`
+- `项目助手 告诉我项目进展`
+- `项目助手 先做整改审计`
+- `项目助手 整改这个仓库`
+- `项目助手 文档整改这个仓库`
+- `项目助手 收口当前阶段`
+
+## English
+
+- `project assistant menu`
+- `project assistant start this project`
+- `project assistant plan the next phase`
+- `project assistant resume current status`
+- `project assistant progress`
+- `project assistant retrofit audit`
+- `project assistant retrofit this repo`
+- `project assistant docs retrofit this repo`
+- `project assistant close out the current phase`
+
+## Notes
+
+- Use the language that matches the user.
+- Natural-language variations are fine as long as intent stays clear.
+"""
+
+
 DEFAULT_ENTRY_RULES = """- 当前状态，以 [status.md](status.md) 为准
 - 模块边界，以 [../docs/module-map.md](../docs/module-map.md) 为准
 - 模块内状态，以 `modules/*.md` 为准
@@ -179,6 +212,15 @@ def render_dashboard(repo: Path, official_modules: list[str]) -> str:
 """
 
 
+def ensure_commands_doc(repo: Path) -> None:
+    path = repo / ".codex/COMMANDS.md"
+    text = path.read_text(encoding="utf-8") if path.exists() else ""
+    lowered = text.lower()
+    if "项目助手" in text and "project assistant" in lowered:
+        return
+    path.write_text(COMMANDS_TEMPLATE, encoding="utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create missing control-surface artifacts without overwriting existing content.")
     parser.add_argument("repo", type=Path, help="Repository root")
@@ -187,6 +229,7 @@ def main() -> int:
     repo = args.repo.resolve()
     codex_dir = repo / ".codex"
     codex_dir.mkdir(exist_ok=True)
+    ensure_commands_doc(repo)
 
     tier = parse_tier(repo)
     official_modules = parse_official_modules(repo)

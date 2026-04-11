@@ -347,6 +347,13 @@ Rules:
 - keep file names and anchors stable, with English as the unsuffixed canonical path
 - when a public doc exists in one language, its counterpart must also exist
 - README and docs landing pages must expose the language pair clearly
+- command examples must match the file language
+
+Command-localization rule:
+
+- English public docs should show English simple commands such as `project assistant progress`
+- Chinese public docs should show Chinese simple commands such as `项目助手 进展`
+- do not make English readers learn Chinese command snippets from the English doc
 
 ## Naming and Path Rules
 

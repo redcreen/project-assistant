@@ -21,7 +21,7 @@ curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.1/i
 手动安装：
 
 ```bash
-git clone --branch v0.1.0 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
+git clone --branch v0.1.1 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
 
 ## 最简配置
