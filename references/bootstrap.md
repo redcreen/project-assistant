@@ -18,7 +18,8 @@ Create the smallest reliable control surface that lets Codex and the user:
 3. write `status`
 4. write `plan` if the work is `medium` or `large`
 5. add `subprojects/` only if multiple active workstreams exist
-6. create durable docs only when they answer a distinct question
+6. for `large` projects with first-class modules, add `module-dashboard.md` and `modules/*.md`
+7. create durable docs only when they answer a distinct question
 
 ## Bootstrap Questions
 
@@ -43,6 +44,8 @@ Default targets:
   status.md
   plan.md
   subprojects/
+  module-dashboard.md
+  modules/
 ```
 
 Optional durable docs:
@@ -63,4 +66,5 @@ Bootstrap is complete when:
 - the goal and constraints are explicit
 - the current phase is explicit
 - the next 3 actions are explicit
+- the module layer exists for large projects that need module-level clarity
 - the next slice is implementable without re-planning from zero

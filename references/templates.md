@@ -99,6 +99,47 @@ Use for one feature, subproject, or multi-session milestone.
 ## Next 3 Actions
 ```
 
+## Module Dashboard Template
+
+Use for `large` projects with first-class modules or subsystems.
+
+```md
+# Module Dashboard
+
+## Summary
+- Overall:
+- Current Phase:
+- Active Module:
+- Main Risk:
+
+## Modules
+| Module | Status | Already Implemented | Remaining Steps | Completion Signal | Next Checkpoint |
+| --- | --- | --- | --- | --- | --- |
+```
+
+## Module Status Template
+
+Use for one large-project module or subsystem.
+
+```md
+# Module Status
+
+## Ownership
+
+## Current Status
+
+## Already Implemented
+
+## Remaining Steps
+1.
+2.
+3.
+
+## Completion Signal
+
+## Next Checkpoint
+```
+
 ## Subproject Status Template
 
 Use only for active or blocked subprojects.
@@ -181,6 +222,15 @@ Use when the user asks for project progress on a medium or large project.
 | Area | Status | Current Focus | Exit Condition |
 | --- | --- | --- | --- |
 
+## Module View
+| Module | Status | Already Implemented | Remaining Steps | Completion Signal | Next Checkpoint |
+| --- | --- | --- | --- | --- | --- |
+
+## Module Flow
+```mermaid
+flowchart TB
+```
+
 ## Subprojects
 | Subproject | Status | Current Focus | Next Checkpoint |
 | --- | --- | --- | --- |
@@ -188,6 +238,39 @@ Use when the user asks for project progress on a medium or large project.
 ## Evidence
 - Tests:
 - Evals / Reports:
+
+## Next 3 Actions
+1.
+2.
+3.
+```
+
+## Context Handoff Template
+
+Use when the session is long and the user needs a new-thread restore pack.
+
+```md
+# Context Handoff
+
+## Summary
+- Repo:
+- Tier:
+- Current Phase:
+- Active Slice:
+- Active Module:
+- Main Risk:
+
+## Restore Order
+1. `.codex/status.md`
+2. `.codex/plan.md`
+3. `.codex/module-dashboard.md`
+
+## Copy-Paste Commands
+```text
+项目助手 恢复当前项目状态，然后继续执行当前切片：...
+项目助手 告诉我这个项目当前进展，用全局视角、模块视角和图示输出。
+项目助手 继续当前切片，并先运行验证：...
+```
 
 ## Next 3 Actions
 1.
@@ -220,6 +303,30 @@ Use when aligning an existing repository to this operating model.
 1.
 2.
 3.
+```
+
+## Retrofit Completion Checklist Template
+
+Use internally when verifying that retrofit has actually converged.
+
+```md
+# Retrofit Completion Checklist
+
+## Tier
+- Tier:
+
+## Required Gates
+- [ ] brief is usable
+- [ ] status is usable
+- [ ] plan is usable when required
+- [ ] verification surface exists when required
+- [ ] module-dashboard exists when required
+- [ ] module status files exist when required
+- [ ] no conflicting active status source remains
+- [ ] current state is recoverable from the control surface
+
+## Remaining Delta
+- None / list remaining gaps
 ```
 
 ## Phase Closeout Template

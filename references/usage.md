@@ -12,6 +12,7 @@ Use these prompt patterns to invoke the skill cleanly.
 - `进展` = `progress`
 - `整改` = `retrofit`
 - `收口` = `closeout`
+- `压缩上下文 / 交接` = `handoff`
 
 ## Start or Bootstrap | 启动
 
@@ -31,7 +32,15 @@ Use these prompt patterns to invoke the skill cleanly.
 ## Ask for Progress | 查看进展
 
 - `用 $project-assistant 告诉我这个项目当前进展，用全局视角、子项目视角和图示输出。`
+- `用 $project-assistant 告诉我这个大项目的模块进展，用全局视角、模块视角和图示输出。`
+- `用 $project-assistant 先跑进展快照，再告诉我项目当前进展。`
 - `Use $project-assistant to give me a concise progress dashboard with a Mermaid diagram.`
+
+## Compress Context | 压缩上下文
+
+- `用 $project-assistant 压缩当前上下文，并给我一个可复制的新对话恢复包。`
+- `用 $project-assistant 生成恢复包，包含恢复、进展、继续执行并验证的命令。`
+- `Use $project-assistant to compress the current context and emit a resume pack for the next thread.`
 
 ## Retrofit an Existing Repo | 整改现有仓库
 
@@ -39,6 +48,10 @@ Use these prompt patterns to invoke the skill cleanly.
 - `用 $project-assistant 审计这个仓库并给出 retrofit plan，先不要改文件。`
 - `用 $project-assistant 引导式整改这个仓库，先审计、再给方案、再实施。`
 - `用 $project-assistant 直接整改这个仓库，按最小安全改动补齐规范。`
+- `用 $project-assistant 整改这个仓库，按当前最新规范自动补齐到目标结构。`
+- `用 $project-assistant 整改这个仓库，一次性补齐到最新版规范，不要停在中间状态。`
+- `用 $project-assistant 把这个大项目整改到模块视角，补 module dashboard 和 modules 状态文件。`
+- `用 $project-assistant 整改这个仓库，并通过脚本校验后再结束。`
 - `Use $project-assistant to align this repo to the operating model and apply the minimum safe changes.`
 
 ## Close a Phase | 阶段收口
@@ -57,6 +70,9 @@ Use these prompt patterns to invoke the skill cleanly.
 - `先做整改审计`
 - `直接整改这个仓库`
 - `收口当前阶段`
+- `压缩当前上下文`
+- `生成恢复包`
+- `给我新对话恢复指令`
 
 ## Best Memory Shortcut | 最好记的用法
 

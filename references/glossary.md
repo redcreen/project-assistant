@@ -29,6 +29,8 @@ Use this glossary in user-facing communication. Prefer the Chinese alias in norm
 | `active slice` | `当前切片`，当前正在执行的最小工作单元 |
 | `phase closeout` | `阶段收口`，确认当前阶段完成并定义下阶段入口 |
 | `progress dashboard` | `进展面板`，用于汇总全局、子项目、证据和下一步的简洁状态视图 |
+| `module dashboard` | `模块面板`，用于汇总大项目各模块当前状态、已有能力和下一步 |
+| `module layer` | `模块层控制面`，指 `.codex/module-dashboard.md` 与 `.codex/modules/*.md` |
 
 ## User-Facing Rule
 

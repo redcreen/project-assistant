@@ -10,7 +10,7 @@ Start with Codex's first-pass classification, then let the user override if need
 | --- | --- | --- | --- |
 | `small` | one task, one session, low cross-cutting risk | `brief`, inline acceptance checks, `status` | `plan` |
 | `medium` | one feature or subproject across multiple sessions | `brief`, `plan`, `status`, `test-plan` | `architecture`, `adr` |
-| `large` | multi-milestone, multi-system, or architecture-heavy work | `brief`, `plan`, `status`, `roadmap`, `test-plan`, `architecture` | `adr`, `migration-plan`, `release-plan`, `ownership-map`, `deployment-topology` |
+| `large` | multi-milestone, multi-system, or architecture-heavy work | `brief`, `plan`, `status`, `roadmap`, `test-plan`, `architecture` | `module-dashboard`, `modules/*.md`, `adr`, `migration-plan`, `release-plan`, `ownership-map`, `deployment-topology` |
 
 ## Sizing Heuristics
 
@@ -64,6 +64,25 @@ Must answer:
 - blockers or open decisions
 - next 3 actions
 
+### module-dashboard
+
+Must answer:
+
+- which modules or subsystems matter now
+- what state each module is in
+- what each module already has
+- what each module needs next
+
+### module status
+
+Must answer:
+
+- what that module owns
+- current status
+- already implemented capability
+- remaining steps
+- next checkpoint
+
 ### architecture
 
 Must answer:
@@ -106,6 +125,18 @@ Archive:
 
 - archive obsolete reports or superseded plans so the active surface stays small
 
+## Retrofit Completion Rule
+
+For each tier, retrofit is complete only when the repo has reached the required control structure for that tier.
+
+- `small`: `brief` and `status` exist and are usable
+- `medium`: `brief`, `plan`, `status`, and the needed verification surface exist and are usable
+- `large`: `brief`, `plan`, `status`, plus the module layer when module-level progress matters, are all present and usable
+
+If the repo is still missing a required element, retrofit remains in progress.
+
+Usable means the file is not merely present; it must answer its required operational question clearly enough to drive the next session.
+
 ## Session Resume Protocol
 
 When resuming, read in this order:
@@ -113,7 +144,8 @@ When resuming, read in this order:
 1. `status`
 2. `brief`
 3. `plan`
-4. any directly relevant durable doc for the active slice
-5. code and recent diffs
+4. `module-dashboard` and active module files for large projects
+5. any directly relevant durable doc for the active slice
+6. code and recent diffs
 
 Do not start from architecture or historical reports unless the active slice depends on them.

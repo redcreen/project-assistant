@@ -12,6 +12,36 @@ Choose one mode explicitly:
 
 When the user says "先不要动" or asks for a plan first, use `audit-only`.
 
+## Core Rule
+
+Retrofit is a convergence task.
+
+That means each run should:
+
+1. derive the current target structure from the latest skill rules and the repo tier
+2. compare the repo against that target
+3. apply or propose the remaining delta
+4. stop only when the repo has reached the applicable target structure
+
+Do not treat retrofit as "one helpful pass". Treat it as "bring the repo into compliance with the current model".
+
+If available, use:
+
+- `scripts/sync_control_surface.py` to scaffold missing control-surface artifacts
+- `scripts/validate_control_surface.py` to enforce completion gates
+
+## Mandatory Self-Check
+
+After applying a retrofit, run a self-check against the target structure.
+
+If any required item fails:
+
+- report the remaining gap
+- keep the retrofit in progress
+- continue applying the minimum safe changes
+
+Do not report retrofit as complete while a required target element is still missing, stale, or contradicted by another active document.
+
 ## Retrofit Steps
 
 ### 1. Inventory the Current System
@@ -56,11 +86,15 @@ For medium and large repos, the default target is:
   plan.md
   status.md
   subprojects/
+  module-dashboard.md
+  modules/
 docs/
 reports/generated/
 ```
 
 Allow existing paths to remain if they already fulfill these roles cleanly.
+
+Define completion against this target structure. If required elements are still missing after a retrofit run, the retrofit is incomplete.
 
 ### 4. Plan the Delta
 
@@ -80,10 +114,11 @@ Use this sequence:
 
 1. create `.codex` control files
 2. populate them from the best current sources
-3. update or add subproject status files if needed
-4. reassign overlapping docs to one owner each
-5. move generated evidence out of planning paths
-6. update navigation in `README` or doc indexes
+3. for large repos, add the module layer from roadmap and architecture docs
+4. update or add subproject status files if needed
+5. reassign overlapping docs to one owner each
+6. move generated evidence out of planning paths
+7. update navigation in `README` or doc indexes
 
 ### 6. Verify Alignment
 
@@ -92,8 +127,40 @@ Confirm:
 - the current project state is answerable from `status`
 - the next execution order is answerable from `plan`
 - the project goal and constraints are answerable from `brief`
+- for large repos, module-level progress is answerable from `module-dashboard` and `modules/*.md`
 - roadmap and architecture docs no longer act as session logs
 - generated reports are not being used as the control surface
+
+If any required target element is still missing, do not report success. Report the remaining delta explicitly.
+
+### 7. Check Tier Gates
+
+Check the required gate set for the current tier.
+
+#### `small`
+
+- `brief` exists and is usable
+- `status` exists and is usable
+- no parallel file is still acting as the real active status source
+
+#### `medium`
+
+- `brief`, `plan`, and `status` exist and are usable
+- verification surface exists when needed
+- current work can be resumed from the control surface
+
+#### `large`
+
+- `brief`, `plan`, and `status` exist and are usable
+- `module-dashboard` exists and is usable
+- `modules/*.md` exists when first-class modules or subsystems exist
+- when an explicit first-class module list exists, `modules/*.md` reflects that list or explicitly justifies any merge
+- the global status is no longer retrofit-oriented when retrofit has already finished
+- module-level progress is answerable from the control surface
+
+If any gate fails, retrofit is incomplete.
+
+Run the validation script when present instead of relying only on manual inspection.
 
 ## Retrofit Heuristics
 
@@ -103,6 +170,26 @@ Use these heuristics during retrofit:
 - if two files both answer "what is next", keep one and demote the other
 - if reports contain durable strategy, promote that strategy into `docs/` and leave the report as evidence
 - if the repo has good stable docs but no live control files, add `.codex` without restructuring everything else
+- if the repo is large and already has module roadmaps, create the module layer instead of forcing all progress into one global status file
+
+## Idempotence Rule
+
+Running retrofit multiple times should converge the repo toward one stable structure.
+
+- preserve already-correct structure
+- fill missing required pieces
+- reconcile drift
+- never require the user to invent a second "special retrofit" command just to finish a previously incomplete retrofit
+
+## Large-Project Special Rule
+
+For large repos, do not accept a halfway state such as:
+
+- global control surface exists but module layer is missing
+- module dashboard exists but module status files are missing
+- a few broad subproject files exist but the official first-class modules still have no module files
+- module files exist but do not answer capability, remaining steps, and next checkpoint
+- status still describes the project as "doing retrofit" when execution should already have resumed
 
 ## Retrofit Deliverable Template
 

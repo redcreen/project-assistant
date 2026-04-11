@@ -16,11 +16,20 @@ Build the answer from these sources in order:
 1. `.codex/status.md`
 2. `.codex/brief.md`
 3. `.codex/plan.md`
-4. `.codex/subprojects/*.md` for active or blocked areas
-5. roadmap documents
-6. tests, evals, audits, and generated reports as evidence
+4. `.codex/module-dashboard.md` and `.codex/modules/*.md` for large projects
+5. `.codex/subprojects/*.md` for active or blocked areas
+6. roadmap documents
+7. tests, evals, audits, and generated reports as evidence
 
 If the top three are missing, say the project lacks a reliable control surface and fall back to the best available docs with that caveat.
+
+If `scripts/progress_snapshot.py` exists, run it first to generate a quick machine-checked control-surface summary.
+
+If the session is visibly long or the user is losing track, suggest:
+
+- `项目助手 压缩上下文`
+
+Use `scripts/context_handoff.py` for that when available.
 
 ## Required Output Shape
 
@@ -37,9 +46,18 @@ Use this layout for medium and large projects:
 | Area | Status | Current focus | Exit condition |
 | --- | --- | --- | --- |
 
+## Module View
+| Module | Status | Already implemented | Remaining steps | Completion signal | Next checkpoint |
+| --- | --- | --- | --- | --- | --- |
+
 ## Subprojects
 | Subproject | Status | Current focus | Next checkpoint |
 | --- | --- | --- | --- |
+
+## Module Flow
+```mermaid
+flowchart TB
+```
 
 ## Evidence
 - Tests:
@@ -84,6 +102,8 @@ flowchart LR
 ## Concision Rules
 
 - report only active, blocked, or recently completed workstreams
+- for large projects, include the key modules even if they are not active, when that improves orientation
+- prefer one meaningful Mermaid diagram over several partial diagrams
 - avoid repeating roadmap prose
 - convert detailed evidence into one-line conclusions
 - if confidence is low because the status docs are stale, say so in one line
