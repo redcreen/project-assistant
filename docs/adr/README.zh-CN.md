@@ -2,14 +2,14 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-This directory records durable architecture and governance decisions for `project-assistant`.
+这里记录 `project-assistant` 的持久化架构与治理决策。
 
-Suggested naming:
+建议命名：
 
 - `0001-title.md`
 - `0002-title.md`
 
-Each ADR should include:
+每条 ADR 至少包含：
 
 - Status
 - Context

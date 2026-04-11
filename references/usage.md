@@ -63,6 +63,7 @@ Use these prompt patterns to invoke the skill cleanly.
 
 - `整改` = 控制面整改 + 文档整改
 - `文档整改` = 以文档系统为主，但不破坏控制面一致性
+- 如果项目要求公开文档双语，则整改还应补齐中英文可切换文档对
 
 ## Close a Phase | 阶段收口
 

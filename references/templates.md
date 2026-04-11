@@ -171,6 +171,8 @@ Use for multi-milestone or architecture-heavy work.
 ```md
 # README
 
+[English](README.md) | [中文](README.zh-CN.md)
+
 > One-line value proposition.
 
 ## Who This Is For
@@ -195,6 +197,8 @@ Use for multi-milestone or architecture-heavy work.
 ```md
 # Docs Home
 
+[English](README.md) | [中文](README.zh-CN.md)
+
 ## Start Here
 - Getting started:
 - Architecture:
@@ -215,6 +219,8 @@ Use for multi-milestone or architecture-heavy work.
 
 ```md
 # Architecture
+
+[English](architecture.md) | [中文](architecture.zh-CN.md)
 
 ## Purpose and Scope
 
@@ -249,6 +255,8 @@ flowchart LR
 ```md
 # Roadmap
 
+[English](roadmap.md) | [中文](roadmap.zh-CN.md)
+
 ## Scope
 
 ## Now / Next / Later
@@ -274,6 +282,8 @@ flowchart LR
 ```md
 # Test Plan
 
+[English](test-plan.md) | [中文](test-plan.zh-CN.md)
+
 ## Scope and Risk
 
 ## Acceptance Cases
@@ -291,6 +301,8 @@ flowchart LR
 
 ```md
 # ADR 0001: Title
+
+[English](0001-title.md) | [中文](0001-title.zh-CN.md)
 
 ## Status
 

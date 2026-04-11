@@ -214,6 +214,7 @@ Documentation retrofit should:
 - improve navigation
 - add tables where they reduce scanning cost
 - add Mermaid only where it clarifies structure or flow
+- when bilingual public docs are required, create English/Chinese file pairs with switch links and validate them
 
 Do not rewrite project truth just to fit a prettier template.
 

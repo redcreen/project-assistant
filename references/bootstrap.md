@@ -62,6 +62,7 @@ docs/
 ```
 
 When creating durable docs, use the standard shapes in [document-standards.md](document-standards.md) instead of inventing ad hoc section orders.
+If the repo requires public bilingual docs, create switchable English/Chinese pairs for `README` and public `docs/*` pages at bootstrap time.
 
 ## Bootstrap Success Criteria
 

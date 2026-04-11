@@ -315,11 +315,32 @@ Default repo rule:
 - living docs under `.codex/` should use one primary language
 - durable public docs may be bilingual only if the repo explicitly wants that
 
-If bilingual output is required:
+When a repo requires bilingual public docs, use a switchable pair structure.
 
-- do not do sentence-by-sentence duplication across the whole page
-- prefer one primary language body and a short bilingual intro / section labels
-- keep file names and anchors stable, usually in English
+Public docs in this context means:
+
+- `README.md`
+- public pages under `docs/`
+
+Required pattern:
+
+- English canonical file: `README.md`, `docs/architecture.md`
+- Chinese counterpart: `README.zh-CN.md`, `docs/architecture.zh-CN.md`
+
+Required switch block at the top of both paired files:
+
+```md
+[English](README.md) | [中文](README.zh-CN.md)
+```
+
+Rules:
+
+- do not do sentence-by-sentence duplication inside one file
+- keep one language per file
+- keep file pairs structurally aligned
+- keep file names and anchors stable, with English as the unsuffixed canonical path
+- when a public doc exists in one language, its counterpart must also exist
+- README and docs landing pages must expose the language pair clearly
 
 ## Naming and Path Rules
 

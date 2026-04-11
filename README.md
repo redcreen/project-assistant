@@ -1,20 +1,22 @@
 # Project Assistant
 
-> A Codex skill for project planning, retrofit, progress reporting, and context handoff.
+[English](README.md) | [中文](README.zh-CN.md)
+
+> A Codex skill for project planning, retrofit, progress reporting, documentation governance, and context handoff.
 
 ## Who This Is For
 
-- 想让 Codex 按稳定流程推进项目的人
-- 想把项目状态、模块进展、下一步和文档系统都固定下来的人
-- 想避免“每个项目都重新想一次流程”和“做一半后不知道当前在哪”的人
+- Teams or solo developers who want Codex to drive delivery with a stable operating rhythm
+- Repositories that need recoverable status, convergent retrofit, and readable docs
+- Projects where “current phase”, “next step”, and “what changed” must stay clear across sessions
 
 ## Quick Start
 
-平时只需要记住一个入口：
+Use one simple entry:
 
 - `项目助手`
 
-常用命令：
+Common commands:
 
 - `项目助手 菜单`
 - `项目助手 启动这个项目`
@@ -26,45 +28,46 @@
 
 ## Core Capabilities
 
-- 启动项目：建立 `.codex` 控制面
-- 规划阶段：明确目标、约束、切片和验证方式
-- 整改项目：控制面和文档系统一起收敛
-- 汇报进展：输出全局 + 模块 + 图示面板
-- 压缩上下文：生成新对话恢复包
+- Create and maintain `.codex` control surfaces
+- Plan work in verifiable slices
+- Retrofit existing repos to convergence
+- Report progress with global and module views
+- Normalize durable docs into a standard system
+- Emit a compact context handoff for the next thread
 
 ## Common Workflows
 
-### 1. 启动或接管项目
+### Start or take over a project
 
 ```text
 项目助手 启动这个项目
 ```
 
-### 2. 看当前进展
+### Report current progress
 
 ```text
 项目助手 进展
 ```
 
-### 3. 一次性整改仓库
+### Retrofit the whole repo
 
 ```text
 项目助手 整改
 ```
 
-默认包含：
+Default scope:
 
-- 控制面整改
-- 文档整改
-- 脚本验收
+- control-surface retrofit
+- documentation retrofit
+- validation gates
 
-### 4. 只重点整理文档
+### Focus on docs only
 
 ```text
 项目助手 文档整改
 ```
 
-### 5. 新开对话前交接
+### Prepare a new thread
 
 ```text
 项目助手 压缩上下文
@@ -76,6 +79,7 @@
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Test Plan](docs/test-plan.md)
+- [ADR Index](docs/adr/README.md)
 - [Skill Contract](SKILL.md)
 - [References](references/)
 
@@ -88,6 +92,7 @@ project-assistant/
 ├── .codex/
 ├── SKILL.md
 ├── README.md
+├── README.zh-CN.md
 ├── docs/
 ├── agents/
 ├── references/
@@ -100,6 +105,7 @@ project-assistant/
 - `scripts/validate_control_surface.py`
 - `scripts/sync_docs_system.py`
 - `scripts/validate_docs_system.py`
+- `scripts/validate_public_docs_i18n.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
 
@@ -108,13 +114,9 @@ project-assistant/
 ```bash
 python3 scripts/validate_control_surface.py /path/to/repo --format text
 python3 scripts/validate_docs_system.py /path/to/repo --format text
+python3 scripts/validate_public_docs_i18n.py /path/to/repo --format text
 ```
-
-理想结果：
-
-- 控制面验收通过
-- 文档系统验收通过
 
 ## License
 
-Use the repository's chosen license and project policy.
+Use the repository's chosen license and contribution policy.

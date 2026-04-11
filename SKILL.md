@@ -88,6 +88,7 @@ Document ownership and templates live in:
 - [references/module-layer.md](references/module-layer.md)
 
 When generating `README`, `docs/README`, `architecture`, `roadmap`, `test-plan`, or ADRs, follow the document constraints in `references/document-standards.md`. Do not improvise a new structure when the standard already covers that doc type.
+When a repo requires bilingual public docs, generate switchable English/Chinese file pairs for `README` and public `docs/*` pages, and validate that the language switch exists.
 
 ## Script-First Execution
 
@@ -101,6 +102,8 @@ Prefer the bundled scripts when present:
   中文：同步 durable 文档系统到标准结构
 - `scripts/validate_docs_system.py`
   中文：按文档标准校验 README / docs / architecture / roadmap / test-plan
+- `scripts/validate_public_docs_i18n.py`
+  中文：校验公开文档是否具备中英文成对文件和语言切换入口
 - `scripts/progress_snapshot.py`
   中文：生成机器校验过的项目进展面板
 - `scripts/context_handoff.py`
@@ -174,7 +177,8 @@ If scripts exist:
 3. apply or refine content as needed
 4. run `scripts/validate_control_surface.py`
 5. run `scripts/validate_docs_system.py`
-6. do not declare completion unless the required validations pass
+6. if the repo requires bilingual public docs, run `scripts/validate_public_docs_i18n.py`
+7. do not declare completion unless the required validations pass
 
 For large projects with first-class modules, retrofit is not complete without the module layer.
 
