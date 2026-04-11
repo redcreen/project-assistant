@@ -24,6 +24,7 @@ def main() -> int:
     warnings: list[str] = []
 
     readme = read_text(repo / "README.md")
+    readme_zh = read_text(repo / "README.zh-CN.md")
     if not readme:
         missing.append("README.md")
     else:
@@ -31,6 +32,17 @@ def main() -> int:
             warnings.append("README.md missing Quick Start section")
         if "## Documentation Map" not in readme and "## Docs" not in readme:
             warnings.append("README.md missing Documentation Map section")
+    installable = (repo / "install.sh").exists() or (repo / "VERSION").exists()
+    if installable:
+        if "## Install" not in readme:
+            warnings.append("README.md missing Install section for installable repo")
+        if "## Minimal Configuration" not in readme:
+            warnings.append("README.md missing Minimal Configuration section for installable repo")
+        if readme_zh:
+            if "## 安装" not in readme_zh:
+                warnings.append("README.zh-CN.md missing 安装 section for installable repo")
+            if "## 最简配置" not in readme_zh:
+                warnings.append("README.zh-CN.md missing 最简配置 section for installable repo")
 
     docs_home = read_text(repo / "docs/README.md")
     if tier in {"medium", "large"}:

@@ -71,6 +71,12 @@ Must answer:
 - how to run or try it in the simplest path
 - where deeper docs live
 
+For installable tools or skills, `README.md` should also include:
+
+- an `Install` section
+- a `Minimal Configuration` section
+- a stable tag-based install example when release tags are part of the distribution model
+
 Must not become:
 
 - a full architecture dump

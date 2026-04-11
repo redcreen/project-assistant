@@ -12,6 +12,7 @@ Use these prompt patterns to invoke the skill cleanly.
 - `进展` = `progress`
 - `整改` = `retrofit`
 - `文档整改` = `docs-retrofit`
+- `发布` = `release`
 - `收口` = `closeout`
 - `压缩上下文 / 交接` = `handoff`
 
@@ -58,6 +59,20 @@ Use these prompt patterns to invoke the skill cleanly.
 - `用 $project-assistant 把这个大项目整改到模块视角，补 module dashboard 和 modules 状态文件。`
 - `用 $project-assistant 整改这个仓库，并通过脚本校验后再结束。`
 - `Use $project-assistant to align this repo to the operating model and apply the minimum safe changes.`
+
+## Release | 发布
+
+- `项目助手 发布 patch`
+- `项目助手 发布 minor`
+- `项目助手 打标 patch`
+- `用 $project-assistant 发布这个 skill，并更新 tag 安装地址。`
+
+默认语义：
+
+- 更新 `VERSION`
+- 更新中英 README 的安装地址
+- 更新 `install.sh`
+- 创建 release commit 和 tag
 
 默认规则：
 

@@ -8,7 +8,37 @@
 
 - 想让 Codex 按稳定节奏推进交付的团队或个人
 - 需要可恢复状态、可收敛整改、可读文档的仓库
-- 需要在多轮会话里始终看清“当前阶段 / 下一步 / 变化点”的项目
+- 需要在多轮会话里始终看清当前阶段、下一步和变化点的项目
+
+## 安装
+
+通过稳定 tag 一键安装：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.0/install.sh | bash
+```
+
+手动安装：
+
+```bash
+git clone --branch v0.1.0 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
+```
+
+## 最简配置
+
+不需要额外配置。
+
+最简单的方式：
+
+1. 安装到 `~/.codex/skills/project-assistant`
+2. 新开一个 Codex 会话
+3. 执行 `项目助手 菜单`
+
+可选覆盖：
+
+```bash
+PROJECT_ASSISTANT_REF=v0.1.0 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
+```
 
 ## 快速开始
 
@@ -91,6 +121,8 @@
 project-assistant/
 ├── .codex/
 ├── SKILL.md
+├── VERSION
+├── install.sh
 ├── README.md
 ├── README.zh-CN.md
 ├── docs/
@@ -108,6 +140,7 @@ project-assistant/
 - `scripts/validate_public_docs_i18n.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
+- `scripts/release_skill.py`
 
 ### 验收
 
@@ -115,6 +148,34 @@ project-assistant/
 python3 scripts/validate_control_surface.py /path/to/repo --format text
 python3 scripts/validate_docs_system.py /path/to/repo --format text
 python3 scripts/validate_public_docs_i18n.py /path/to/repo --format text
+```
+
+### 发布
+
+当功能改进已经稳定并且验收通过后，用最短命令发布：
+
+```text
+项目助手 发布 patch
+```
+
+对应脚本命令：
+
+```bash
+python3 scripts/release_skill.py patch
+```
+
+它会自动：
+
+- 更新 `VERSION`
+- 更新中英 README 里的 tag 安装地址
+- 更新 `install.sh`
+- 创建 release commit
+- 创建 git tag
+
+给维护者的最短提示：
+
+```text
+可发布。执行：项目助手 发布 patch
 ```
 
 ## 许可

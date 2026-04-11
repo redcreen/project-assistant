@@ -8,7 +8,37 @@
 
 - Teams or solo developers who want Codex to drive delivery with a stable operating rhythm
 - Repositories that need recoverable status, convergent retrofit, and readable docs
-- Projects where “current phase”, “next step”, and “what changed” must stay clear across sessions
+- Projects where current phase, next step, and change visibility must stay clear across sessions
+
+## Install
+
+One-line install from a stable tag:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.0/install.sh | bash
+```
+
+Manual install:
+
+```bash
+git clone --branch v0.1.0 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
+```
+
+## Minimal Configuration
+
+No extra configuration is required.
+
+Simplest path:
+
+1. install to `~/.codex/skills/project-assistant`
+2. start a new Codex session
+3. run `项目助手 菜单`
+
+Optional overrides:
+
+```bash
+PROJECT_ASSISTANT_REF=v0.1.0 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
+```
 
 ## Quick Start
 
@@ -91,6 +121,8 @@ Default scope:
 project-assistant/
 ├── .codex/
 ├── SKILL.md
+├── VERSION
+├── install.sh
 ├── README.md
 ├── README.zh-CN.md
 ├── docs/
@@ -108,6 +140,7 @@ project-assistant/
 - `scripts/validate_public_docs_i18n.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
+- `scripts/release_skill.py`
 
 ### Validation
 
@@ -115,6 +148,34 @@ project-assistant/
 python3 scripts/validate_control_surface.py /path/to/repo --format text
 python3 scripts/validate_docs_system.py /path/to/repo --format text
 python3 scripts/validate_public_docs_i18n.py /path/to/repo --format text
+```
+
+### Release
+
+When a feature improvement is stable and validations pass, use a short release command:
+
+```text
+项目助手 发布 patch
+```
+
+Equivalent script command:
+
+```bash
+python3 scripts/release_skill.py patch
+```
+
+What it does:
+
+- bump `VERSION`
+- update the tag-based install URLs in both README files
+- update `install.sh`
+- create a release commit
+- create a git tag
+
+Short release hint for maintainers:
+
+```text
+可发布。执行：项目助手 发布 patch
 ```
 
 ## License

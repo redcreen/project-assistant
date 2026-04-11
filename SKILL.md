@@ -25,11 +25,13 @@ Primary modes:
 - `进展` / `progress`
 - `整改` / `retrofit`
 - `文档整改` / `docs-retrofit`
+- `发布` / `release`
 - `压缩上下文` / `交接` / `handoff`
 - `收口` / `closeout`
 
 Also trigger this skill when the user clearly asks for project startup, rescue, progress, retrofit, recovery, or handoff, even if the exact alias is not used.
 Treat `文档整改`, `文档重构`, and `整理文档系统` as the documentation-focused variant of `retrofit`.
+Treat `发布`, `打标`, and `发版` as the release flow when the repo supports versioned install docs.
 
 When using English operation names in user-facing output, explain them in Chinese the first time. Prefer Chinese in normal conversation.
 
@@ -108,6 +110,8 @@ Prefer the bundled scripts when present:
   中文：生成机器校验过的项目进展面板
 - `scripts/context_handoff.py`
   中文：生成上下文压缩 / 新对话恢复包
+- `scripts/release_skill.py`
+  中文：更新版本、安装地址，并创建 release commit 和 tag
 
 Use scripts first for structure, convergence, and reporting. Use model judgment for content quality, prioritization, and implementation decisions.
 
@@ -181,6 +185,20 @@ If scripts exist:
 7. do not declare completion unless the required validations pass
 
 For large projects with first-class modules, retrofit is not complete without the module layer.
+
+### 发布 / Release
+
+Use release mode only when:
+
+- a feature improvement is stable
+- validations pass
+- the repo uses tag-based install docs or explicit versioned release flow
+
+Preferred maintainer hint:
+
+- `可发布。执行：项目助手 发布 patch`
+
+If the repo contains `VERSION`, `install.sh`, and tag-based install docs, prefer `scripts/release_skill.py`.
 
 ### 压缩上下文 / 交接 / Handoff
 
