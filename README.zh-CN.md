@@ -59,6 +59,7 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 ## 核心能力
 
 - 创建并维护 `.codex` 控制面
+- 维护 `.codex/doc-governance.json` 作为 Markdown 治理契约
 - 把工作拆成可验证的切片
 - 把现有仓库整改到收敛状态
 - 用全局和模块视角汇报进展
@@ -89,6 +90,7 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 
 - 控制面整改
 - 文档整改
+- 全仓 Markdown 治理整改
 - 脚本验收
 
 ### 只重点整理文档
@@ -111,7 +113,7 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - [测试计划](docs/test-plan.zh-CN.md)
 - [ADR 索引](docs/adr/README.zh-CN.md)
 - [Skill 契约](SKILL.md)
-- [参考规则](references/)
+- [参考规则](references/README.zh-CN.md)
 
 ## 开发
 
@@ -136,8 +138,10 @@ project-assistant/
 - `scripts/sync_control_surface.py`
 - `scripts/validate_control_surface.py`
 - `scripts/sync_docs_system.py`
+- `scripts/sync_markdown_governance.py`
 - `scripts/validate_docs_system.py`
 - `scripts/validate_public_docs_i18n.py`
+- `scripts/validate_markdown_governance.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
 - `scripts/release_skill.py`
@@ -148,6 +152,7 @@ project-assistant/
 python3 scripts/validate_control_surface.py /path/to/repo --format text
 python3 scripts/validate_docs_system.py /path/to/repo --format text
 python3 scripts/validate_public_docs_i18n.py /path/to/repo --format text
+python3 scripts/validate_markdown_governance.py /path/to/repo --format text
 ```
 
 ### 发布

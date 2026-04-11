@@ -19,3 +19,8 @@
 | See what is next | [roadmap.md](roadmap.md) |
 | Verify correctness | [test-plan.md](test-plan.md) |
 | Review durable design decisions | [adr/README.md](adr/README.md) |
+
+## Skill References
+
+- skill contract: [../SKILL.md](../SKILL.md)
+- reference pack: [../references/README.md](../references/README.md)

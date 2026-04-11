@@ -1,0 +1,130 @@
+{
+  "repoKind": "skill",
+  "userCustomized": false,
+  "rootKeep": [
+    "README.md",
+    "README.zh-CN.md",
+    "SKILL.md"
+  ],
+  "requiredPaths": [
+    "references/README.md",
+    "references/README.zh-CN.md"
+  ],
+  "docsHomeLinks": {
+    "en": [
+      "../SKILL.md",
+      "../references/README.md"
+    ],
+    "zh": [
+      "../SKILL.md",
+      "../references/README.zh-CN.md"
+    ]
+  },
+  "publicDocIncludeGlobs": [
+    "README.md",
+    "docs/*.md",
+    "docs/**/*.md",
+    "references/README.md"
+  ],
+  "publicDocExcludeGlobs": [
+    ".codex/**"
+  ],
+  "ownershipRules": [
+    {
+      "glob": ".codex/*.md",
+      "role": "living"
+    },
+    {
+      "glob": ".codex/**/*.md",
+      "role": "living"
+    },
+    {
+      "glob": "README.md",
+      "role": "durable"
+    },
+    {
+      "glob": "README.zh-CN.md",
+      "role": "durable"
+    },
+    {
+      "glob": "SKILL.md",
+      "role": "durable"
+    },
+    {
+      "glob": "docs/*.md",
+      "role": "durable"
+    },
+    {
+      "glob": "docs/**/*.md",
+      "role": "durable"
+    },
+    {
+      "glob": "references/*.md",
+      "role": "durable"
+    },
+    {
+      "glob": "references/**/*.md",
+      "role": "durable"
+    },
+    {
+      "glob": "scripts/*.md",
+      "role": "internal"
+    },
+    {
+      "glob": "scripts/**/*.md",
+      "role": "internal"
+    },
+    {
+      "glob": "agents/**/*.md",
+      "role": "internal"
+    }
+  ],
+  "questionOwners": {
+    "architecture": {
+      "allowed": [
+        "docs/architecture.md",
+        "docs/architecture.zh-CN.md"
+      ],
+      "allowedGlobs": [],
+      "tokens": [
+        "architecture"
+      ]
+    },
+    "roadmap": {
+      "allowed": [
+        "docs/roadmap.md",
+        "docs/roadmap.zh-CN.md"
+      ],
+      "allowedGlobs": [],
+      "tokens": [
+        "roadmap"
+      ]
+    },
+    "test-plan": {
+      "allowed": [
+        "docs/test-plan.md",
+        "docs/test-plan.zh-CN.md"
+      ],
+      "allowedGlobs": [],
+      "tokens": [
+        "test-plan"
+      ]
+    },
+    "skill-contract": {
+      "allowed": [
+        "SKILL.md"
+      ],
+      "allowedGlobs": [],
+      "tokens": [
+        "skill"
+      ]
+    }
+  },
+  "questionExcludeGlobs": [
+    ".codex/**",
+    "docs/adr/**",
+    "scripts/**",
+    "agents/**"
+  ],
+  "explicitMoves": {}
+}

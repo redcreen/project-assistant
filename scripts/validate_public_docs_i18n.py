@@ -5,35 +5,75 @@ import argparse
 import json
 from pathlib import Path
 
+from control_surface_lib import load_doc_governance_config, match_glob
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
 
 
+def actual_path(path: Path) -> Path:
+    if not path.exists():
+        return path
+    for child in path.parent.iterdir():
+        if child.name == path.name:
+            return child
+    lowered = path.name.lower()
+    for child in path.parent.iterdir():
+        if child.name.lower() == lowered:
+            return child
+    return path
+
+
+def append_unique_path(paths: list[Path], candidate: Path) -> None:
+    candidate = actual_path(candidate)
+    for existing in paths:
+        try:
+            if existing.samefile(candidate):
+                return
+        except FileNotFoundError:
+            pass
+    paths.append(candidate)
+
+
 def english_public_docs(repo: Path) -> list[Path]:
+    governance = load_doc_governance_config(repo)
+    include_globs = [str(item) for item in governance.get("publicDocIncludeGlobs", [])]
+    exclude_globs = [str(item) for item in governance.get("publicDocExcludeGlobs", [])]
     docs: list[Path] = []
-    readme = repo / "README.md"
-    if readme.exists():
-        docs.append(readme)
-    for root_doc in ["CHANGELOG.md", "RELEASE.md"]:
-        path = repo / root_doc
-        if path.exists():
-            docs.append(path)
-    docs_dir = repo / "docs"
-    if docs_dir.exists():
-        for path in sorted(docs_dir.rglob("*.md")):
-            if path.name.endswith(".zh-CN.md"):
-                continue
-            docs.append(path)
-    integrations_dir = repo / "integrations"
-    if integrations_dir.exists():
-        for path in sorted(integrations_dir.rglob("README.md")):
-            docs.append(path)
+    for path in sorted(repo.rglob("*.md")):
+        rel = path.relative_to(repo).as_posix()
+        if path.name.endswith(".zh-CN.md"):
+            continue
+        if include_globs and not any(match_glob(rel, pattern) for pattern in include_globs):
+            continue
+        if any(match_glob(rel, pattern) for pattern in exclude_globs):
+            continue
+        append_unique_path(docs, path)
+    return docs
+
+
+def chinese_public_docs(repo: Path) -> list[Path]:
+    governance = load_doc_governance_config(repo)
+    include_globs = [str(item) for item in governance.get("publicDocIncludeGlobs", [])]
+    exclude_globs = [str(item) for item in governance.get("publicDocExcludeGlobs", [])]
+    docs: list[Path] = []
+    for path in sorted(repo.rglob("*.zh-CN.md")):
+        rel = path.relative_to(repo).as_posix()
+        base_rel = rel.replace(".zh-CN.md", ".md")
+        if include_globs and not any(match_glob(base_rel, pattern) for pattern in include_globs):
+            continue
+        if any(match_glob(base_rel, pattern) for pattern in exclude_globs):
+            continue
+        append_unique_path(docs, path)
     return docs
 
 
 def counterpart(path: Path) -> Path:
-    return path.with_name(f"{path.stem}.zh-CN{path.suffix}")
+    return actual_path(path.with_name(f"{path.stem}.zh-CN{path.suffix}"))
+
+
+def english_counterpart(path: Path) -> Path:
+    return actual_path(path.with_name(path.name.replace(".zh-CN.md", ".md")))
 
 
 def expected_switch_pair(english: Path, chinese: Path, current: Path) -> str:
@@ -101,6 +141,11 @@ def main() -> int:
             warnings.append(en_mix_warning)
         if zh_mix_warning:
             warnings.append(zh_mix_warning)
+
+    for chinese in chinese_public_docs(repo):
+        english = english_counterpart(chinese)
+        if not english.exists():
+            missing.append(str(english.relative_to(repo)))
 
     ok = not missing and not warnings
     payload = {"ok": ok, "missing": missing, "warnings": warnings}

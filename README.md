@@ -59,6 +59,7 @@ Common commands:
 ## Core Capabilities
 
 - Create and maintain `.codex` control surfaces
+- Maintain `.codex/doc-governance.json` as the Markdown-governance contract
 - Plan work in verifiable slices
 - Retrofit existing repos to convergence
 - Report progress with global and module views
@@ -89,6 +90,7 @@ Default scope:
 
 - control-surface retrofit
 - documentation retrofit
+- full Markdown-tree governance retrofit
 - validation gates
 
 ### Focus on docs only
@@ -111,7 +113,7 @@ project assistant handoff
 - [Test Plan](docs/test-plan.md)
 - [ADR Index](docs/adr/README.md)
 - [Skill Contract](SKILL.md)
-- [References](references/)
+- [References](references/README.md)
 
 ## Development
 
@@ -136,8 +138,10 @@ project-assistant/
 - `scripts/sync_control_surface.py`
 - `scripts/validate_control_surface.py`
 - `scripts/sync_docs_system.py`
+- `scripts/sync_markdown_governance.py`
 - `scripts/validate_docs_system.py`
 - `scripts/validate_public_docs_i18n.py`
+- `scripts/validate_markdown_governance.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
 - `scripts/release_skill.py`
@@ -148,6 +152,7 @@ project-assistant/
 python3 scripts/validate_control_surface.py /path/to/repo --format text
 python3 scripts/validate_docs_system.py /path/to/repo --format text
 python3 scripts/validate_public_docs_i18n.py /path/to/repo --format text
+python3 scripts/validate_markdown_governance.py /path/to/repo --format text
 ```
 
 ### Release

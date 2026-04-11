@@ -19,3 +19,8 @@
 | 了解下一步计划 | [roadmap.zh-CN.md](roadmap.zh-CN.md) |
 | 了解验证方式 | [test-plan.zh-CN.md](test-plan.zh-CN.md) |
 | 查看持久设计决策 | [adr/README.zh-CN.md](adr/README.zh-CN.md) |
+
+## Skill 参考
+
+- skill 合约：[../SKILL.md](../SKILL.md)
+- 参考资料包：[../references/README.zh-CN.md](../references/README.zh-CN.md)

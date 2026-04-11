@@ -5,7 +5,14 @@ import argparse
 import re
 from pathlib import Path
 
-from control_surface_lib import completion_band, completion_percent, parse_official_modules, parse_tier, write_control_surface_config
+from control_surface_lib import (
+    completion_band,
+    completion_percent,
+    parse_official_modules,
+    parse_tier,
+    write_control_surface_config,
+    write_doc_governance_config,
+)
 
 
 MODULE_TEMPLATE = """# Module Status
@@ -351,6 +358,7 @@ def main() -> int:
     )
     ensure_core_doc(codex_dir / "status.md", STATUS_TEMPLATE.format(tier=tier, why_tier=why_tier))
     write_control_surface_config(repo, tier, official_modules)
+    write_doc_governance_config(repo, tier, official_modules)
 
     if tier == "large" and official_modules:
         modules_dir = codex_dir / "modules"

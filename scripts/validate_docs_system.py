@@ -12,6 +12,18 @@ def has_all(text: str, parts: list[str]) -> bool:
     return all(part in text for part in parts)
 
 
+def links_to(text: str, relative_path: str) -> bool:
+    return relative_path in text or f"../{relative_path}" in text
+
+
+def first_existing(repo: Path, names: list[str]) -> Path | None:
+    for name in names:
+        path = repo / name
+        if path.exists():
+            return path
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate the durable docs system against project-assistant rules.")
     parser.add_argument("repo", type=Path, help="Repository root")
@@ -59,14 +71,16 @@ def main() -> int:
             for label, path in docs_home_links:
                 if label in docs_home and not path.exists():
                     warnings.append(f"docs/README.md links to missing {label}")
+            release_doc = first_existing(repo, ["RELEASE.md", "release.md"])
             recommended_existing = [
                 ("architecture.md", repo / "docs/architecture.md"),
                 ("requirements.md", repo / "docs/requirements.md"),
                 ("signing-and-notarization-plan.md", repo / "docs/signing-and-notarization-plan.md"),
-                ("RELEASE.md", repo / "RELEASE.md"),
             ]
+            if release_doc:
+                recommended_existing.append((release_doc.name, release_doc))
             for label, path in recommended_existing:
-                if path.exists() and label not in docs_home:
+                if path.exists() and not links_to(docs_home, label):
                     warnings.append(f"docs/README.md should link to existing {label}")
 
         test_plan = read_text(repo / "docs/test-plan.md")

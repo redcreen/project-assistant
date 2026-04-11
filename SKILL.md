@@ -86,6 +86,7 @@ Default living docs:
 - `.codex/brief.md`
 - `.codex/status.md`
 - `.codex/plan.md` for `medium` and `large`
+- `.codex/doc-governance.json` for Markdown ownership, public-doc scope, and root-doc policy
 
 Large-project module layer:
 
@@ -115,10 +116,14 @@ Prefer the bundled scripts when present:
   中文：按 tier 规则校验控制面是否达标
 - `scripts/sync_docs_system.py`
   中文：同步 durable 文档系统到标准结构
+- `scripts/sync_markdown_governance.py`
+  中文：对全仓 Markdown 做归类、迁移、链接修复和目录收敛
 - `scripts/validate_docs_system.py`
   中文：按文档标准校验 README / docs / architecture / roadmap / test-plan
 - `scripts/validate_public_docs_i18n.py`
   中文：校验公开文档是否具备中英文成对文件和语言切换入口
+- `scripts/validate_markdown_governance.py`
+  中文：校验全仓 Markdown 是否已经完成职责收口
 - `scripts/progress_snapshot.py`
   中文：生成机器校验过的项目进展面板
 - `scripts/context_handoff.py`
@@ -185,17 +190,30 @@ Default scope of `整改`:
 - module layer when needed
 - durable documentation structure such as `README`, `docs/README`, `architecture`, `roadmap`, `test-plan`, and ADR layout when those docs exist or are needed
 
-If the user says `文档整改`, narrow the primary focus to the durable doc system while still preserving control-surface correctness.
+If the user says `文档整改`, treat it as full Markdown governance convergence, not only the top-level durable doc stack.
+That includes:
+
+- bootstrap the control surface first
+- durable doc stack
+- full Markdown tree ownership cleanup
+- migrating legacy deep Markdown trees into `docs/reference/`, `docs/workstreams/`, or `docs/archive/`
+- moving durable strategy docs out of `reports/`
+- archiving exploratory or superseded docs
+- reducing root-doc clutter
+- creating missing bilingual public-doc counterparts when the repo requires bilingual public docs
+- fixing links after moves
 
 If scripts exist:
 
 1. run `scripts/sync_control_surface.py`
 2. run `scripts/sync_docs_system.py`
-3. apply or refine content as needed
-4. run `scripts/validate_control_surface.py`
-5. run `scripts/validate_docs_system.py`
-6. if the repo requires bilingual public docs, run `scripts/validate_public_docs_i18n.py`
-7. do not declare completion unless the required validations pass
+3. run `scripts/sync_markdown_governance.py`
+4. apply or refine content as needed
+5. run `scripts/validate_control_surface.py`
+6. run `scripts/validate_docs_system.py`
+7. if the repo requires bilingual public docs, run `scripts/validate_public_docs_i18n.py`
+8. run `scripts/validate_markdown_governance.py`
+9. do not declare completion unless the required validations pass
 
 For large projects with first-class modules, retrofit is not complete without the module layer.
 

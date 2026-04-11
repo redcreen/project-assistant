@@ -39,8 +39,10 @@ Unless the user explicitly narrows the scope, `整改` includes both:
 
 - control-surface retrofit
 - documentation-system retrofit
+- full Markdown governance retrofit
 
 That means README, docs landing, architecture, roadmap, test-plan, ADR layout, and document navigation are part of normal retrofit, not a separate optional pass.
+It also means root Markdown clutter, `reports/` misuse, legacy single-file bilingual docs, and archive/reference separation must be resolved, not merely left in place beside the new stack.
 
 If available, use:
 
@@ -48,6 +50,8 @@ If available, use:
 - `scripts/validate_control_surface.py` to enforce completion gates
 - `scripts/sync_docs_system.py` to scaffold or normalize durable docs
 - `scripts/validate_docs_system.py` to enforce documentation completion gates
+- `scripts/sync_markdown_governance.py` to converge the full Markdown tree
+- `scripts/validate_markdown_governance.py` to enforce full-tree Markdown ownership gates
 
 ## Mandatory Self-Check
 
@@ -106,6 +110,13 @@ Also classify each durable doc by question:
 - how-to
 - reference
 
+Use `.codex/doc-governance.json` as the machine-readable contract for:
+
+- which root docs are intentional
+- which public-doc trees require bilingual switching
+- which Markdown paths count as `living / durable / generated / archive`
+- which docs are allowed to own architecture / roadmap / test-plan style questions
+
 ### 3. Define the Target Control Surface
 
 For medium and large repos, the default target is:
@@ -115,6 +126,7 @@ For medium and large repos, the default target is:
   brief.md
   plan.md
   status.md
+  doc-governance.json
   subprojects/
   module-dashboard.md
   modules/
@@ -148,9 +160,10 @@ Use this sequence:
 3. for large repos, add the module layer from roadmap and architecture docs
 4. update or add subproject status files if needed
 5. run doc-system sync to create or normalize durable doc skeletons
-6. normalize durable docs to the standard document roles
-7. update navigation in `README` and `docs/README`
-8. move generated evidence out of planning paths
+6. run full Markdown governance sync to classify, move, split, or archive the rest of the Markdown tree
+7. normalize durable docs to the standard document roles
+8. update navigation in `README` and `docs/README`
+9. move generated evidence out of planning paths
 
 ### 6. Verify Alignment
 
@@ -164,6 +177,10 @@ Confirm:
 - generated reports are not being used as the control surface
 - README and docs landing route readers clearly
 - architecture, roadmap, and test-plan each answer one primary question
+- root Markdown clutter is reduced to intentional top-level entry docs
+- durable strategy docs no longer live under `reports/`
+- superseded or exploratory docs are moved to `docs/archive/`
+- durable but secondary references are moved under `docs/reference/` or `docs/workstreams/`
 
 If any required target element is still missing, do not report success. Report the remaining delta explicitly.
 
@@ -196,6 +213,7 @@ If any gate fails, retrofit is incomplete.
 
 Run the validation script when present instead of relying only on manual inspection.
 For documentation retrofit, `validate_docs_system.py` is part of the gate set when present.
+For full Markdown retrofit, `validate_markdown_governance.py` is also part of the gate set when present.
 
 ## Documentation Retrofit Rule
 
@@ -210,7 +228,21 @@ docs/architecture.md
 docs/roadmap.md
 docs/test-plan.md
 docs/adr/
+docs/reference/
+docs/workstreams/
+docs/archive/
+reports/generated/
 ```
+
+For skill repositories, allow this equivalent durable reference layer:
+
+```text
+SKILL.md
+references/
+docs/
+```
+
+In that case, `references/` acts as the durable reference pack and should be linked from `docs/README.md`.
 
 Documentation retrofit should:
 
@@ -220,6 +252,10 @@ Documentation retrofit should:
 - add tables where they reduce scanning cost
 - add Mermaid only where it clarifies structure or flow
 - when bilingual public docs are required, create English/Chinese file pairs with switch links and validate them
+- bootstrap `.codex` first even when the user asks only for documentation retrofit
+- migrate legacy deep trees such as `docs/<legacy-root>/architecture|roadmaps|testing|todo` into governed locations
+- resolve the ownership of every Markdown file in the repo, not only the top-level stack
+- leave no `unclear` Markdown file in root, `docs/`, or `reports/`
 
 Do not rewrite project truth just to fit a prettier template.
 

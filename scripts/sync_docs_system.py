@@ -3,6 +3,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+import subprocess
+import sys
 from pathlib import Path
 
 from control_surface_lib import parse_tier, read_text
@@ -326,6 +329,14 @@ def project_name(repo: Path) -> str:
     return repo.name
 
 
+def first_existing(repo: Path, names: list[str]) -> Path | None:
+    for name in names:
+        path = repo / name
+        if path.exists():
+            return path
+    return None
+
+
 def ensure_file(path: Path, content: str) -> bool:
     if path.exists():
         return False
@@ -344,6 +355,78 @@ def ensure_switch_line(path: Path, english: Path, chinese: Path) -> bool:
     switch = f"[English]({english.name}) | [中文]({chinese.name})\n\n"
     path.write_text(switch + text.lstrip(), encoding="utf-8")
     return True
+
+
+def extract_mixed_bilingual_sections(text: str) -> tuple[str, str, str] | None:
+    match = re.search(
+        r"(?s)^(.*?)\n## English\s*\n(.*?)\n## (?:中文|Chinese)\s*\n(.*)$",
+        text,
+    )
+    if not match:
+        return None
+
+    preamble = match.group(1).strip()
+    english_body = match.group(2).strip()
+    chinese_body = match.group(3).strip()
+
+    cleaned_lines: list[str] = []
+    for line in preamble.splitlines():
+        lowered = line.lower()
+        if "(#english)" in lowered or "(#中文)" in line or "(#chinese)" in lowered:
+            continue
+        cleaned_lines.append(line)
+    header = "\n".join(cleaned_lines).strip()
+
+    if not english_body or not chinese_body:
+        return None
+    return header, english_body, chinese_body
+
+
+def scaffold_like(text: str) -> bool:
+    markers = [
+        "One-line value proposition.",
+        "一句话说明这个项目解决什么问题。",
+        "## Core Capabilities",
+        "## 核心能力",
+        "## Common Workflows",
+        "## 常见工作流",
+    ]
+    return any(marker in text for marker in markers)
+
+
+def normalize_split_bilingual_doc(en_path: Path, zh_path: Path, touched: list[str], created: list[str], repo: Path) -> None:
+    en_text = read_text(en_path)
+    if not en_text:
+        return
+    split = extract_mixed_bilingual_sections(en_text)
+    if not split:
+        return
+
+    header, english_body, chinese_body = split
+    if header:
+        english_text = f"{header}\n\n[English]({en_path.name}) | [中文]({zh_path.name})\n\n{english_body.strip()}\n"
+        chinese_text = f"{header}\n\n[English]({en_path.name}) | [中文]({zh_path.name})\n\n{chinese_body.strip()}\n"
+    else:
+        english_text = f"[English]({en_path.name}) | [中文]({zh_path.name})\n\n{english_body.strip()}\n"
+        chinese_text = f"[English]({en_path.name}) | [中文]({zh_path.name})\n\n{chinese_body.strip()}\n"
+
+    if en_text.rstrip() != english_text.rstrip():
+        en_path.write_text(english_text, encoding="utf-8")
+        rel = str(en_path.relative_to(repo))
+        if rel not in touched:
+            touched.append(rel)
+
+    zh_exists = zh_path.exists()
+    zh_text = read_text(zh_path)
+    if not zh_exists or not zh_text.strip() or scaffold_like(zh_text):
+        zh_path.parent.mkdir(parents=True, exist_ok=True)
+        zh_path.write_text(chinese_text, encoding="utf-8")
+        rel = str(zh_path.relative_to(repo))
+        if zh_exists:
+            if rel not in touched:
+                touched.append(rel)
+        else:
+            created.append(rel)
 
 
 def replace_when_stale(path: Path, content: str, markers: list[str]) -> bool:
@@ -403,6 +486,17 @@ See [docs/README.md](docs/README.md) for the full documentation map.
     return True
 
 
+def append_unique_lines(path: Path, lines: list[str]) -> bool:
+    text = read_text(path)
+    if not text:
+        return False
+    additions = [line for line in lines if line not in text]
+    if not additions:
+        return False
+    path.write_text(text.rstrip() + "\n" + "\n".join(additions) + "\n", encoding="utf-8")
+    return True
+
+
 def docs_home_templates(tier: str) -> tuple[str, str]:
     if tier == "large":
         return (
@@ -448,12 +542,24 @@ def docs_home_templates(tier: str) -> tuple[str, str]:
     return DOCS_HOME_TEMPLATE, DOCS_HOME_ZH_TEMPLATE
 
 
+def bootstrap_control_surface(repo: Path) -> None:
+    script = Path(__file__).with_name("sync_control_surface.py")
+    result = subprocess.run(
+        [sys.executable, str(script), str(repo)],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise SystemExit(result.returncode)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create or normalize the durable docs skeleton for a repo.")
     parser.add_argument("repo", type=Path, help="Repository root")
     args = parser.parse_args()
 
     repo = args.repo.resolve()
+    bootstrap_control_surface(repo)
     tier = parse_tier(repo)
     docs_dir = repo / "docs"
     docs_dir.mkdir(exist_ok=True)
@@ -478,6 +584,7 @@ def main() -> int:
         touched.append("README.md")
     if ensure_switch_line(readme_zh, readme, readme_zh) and not created_zh:
         touched.append("README.zh-CN.md")
+    normalize_split_bilingual_doc(readme, readme_zh, touched, created, repo)
 
     if tier in {"medium", "large"}:
         docs_home_template, docs_home_zh_template = docs_home_templates(tier)
@@ -530,6 +637,21 @@ def main() -> int:
         ]
         if replace_if_scaffold(docs_dir / "README.zh-CN.md", docs_home_zh_scaffolds, docs_home_zh_template) and "docs/README.zh-CN.md" not in touched:
             touched.append("docs/README.zh-CN.md")
+        extra_docs_home_lines: list[str] = []
+        extra_docs_home_zh_lines: list[str] = []
+        release_doc = first_existing(repo, ["RELEASE.md", "release.md"])
+        release_doc_zh = first_existing(repo, ["RELEASE.zh-CN.md", "release.zh-CN.md"])
+        if release_doc:
+            extra_docs_home_lines.append(f"- Release process: [../{release_doc.name}](../{release_doc.name})")
+            zh_name = release_doc_zh.name if release_doc_zh else f"{release_doc.stem}.zh-CN{release_doc.suffix}"
+            extra_docs_home_zh_lines.append(f"- 发布说明：[../{zh_name}](../{zh_name})")
+        if (docs_dir / "module-map.md").exists():
+            extra_docs_home_lines.append("- Module map: [module-map.md](module-map.md)")
+            extra_docs_home_zh_lines.append("- 模块地图：[module-map.zh-CN.md](module-map.zh-CN.md)")
+        if append_unique_lines(docs_dir / "README.md", extra_docs_home_lines) and "docs/README.md" not in touched:
+            touched.append("docs/README.md")
+        if append_unique_lines(docs_dir / "README.zh-CN.md", extra_docs_home_zh_lines) and "docs/README.zh-CN.md" not in touched:
+            touched.append("docs/README.zh-CN.md")
         ensure_bilingual_pair(docs_dir / "test-plan.md", docs_dir / "test-plan.zh-CN.md", TEST_PLAN_TEMPLATE, TEST_PLAN_ZH_TEMPLATE, created, touched, repo)
 
     if tier == "large":
@@ -555,6 +677,14 @@ def main() -> int:
     for en_path, zh_path, en_template, zh_template in optional_public_pairs:
         if en_path.exists() or zh_path.exists():
             ensure_bilingual_pair(en_path, zh_path, en_template, zh_template, created, touched, repo)
+
+    release_doc = first_existing(repo, ["RELEASE.md", "release.md"])
+    if release_doc:
+        release_doc_zh = first_existing(repo, ["RELEASE.zh-CN.md", "release.zh-CN.md"])
+        if not release_doc_zh:
+            release_doc_zh = release_doc.with_name(f"{release_doc.stem}.zh-CN{release_doc.suffix}")
+        normalize_split_bilingual_doc(release_doc, release_doc_zh, touched, created, repo)
+    normalize_split_bilingual_doc(docs_dir / "module-map.md", docs_dir / "module-map.zh-CN.md", touched, created, repo)
 
     print(f"tier: {tier}")
     print(f"created: {', '.join(created) if created else '(none)'}")

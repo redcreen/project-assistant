@@ -66,14 +66,17 @@ English simple commands:
 - `项目助手 文档整改`
 - `project assistant retrofit`
 - `project assistant docs retrofit`
+- `project assistant docs retrofit all markdown`
 - `用 $project-assistant 对这个仓库做整改审计（retrofit audit），先不要改文件。`
 - `用 $project-assistant 审计这个仓库并给出 retrofit plan，先不要改文件。`
 - `用 $project-assistant 引导式整改这个仓库，先审计、再给方案、再实施。`
 - `用 $project-assistant 直接整改这个仓库，按最小安全改动补齐规范。`
 - `用 $project-assistant 整改这个仓库，按当前最新规范自动补齐到目标结构。`
 - `用 $project-assistant 整改这个仓库的文档系统，按最新文档规范一次性收敛。`
+- `用 $project-assistant 整改这个仓库的全部 Markdown，按最新治理规则一次性收敛。`
 - `用 $project-assistant 整改这个仓库，一次性补齐到最新版规范，不要停在中间状态。`
 - `用 $project-assistant 整改这个仓库，并通过控制面校验和文档校验后再结束。`
+- `用 $project-assistant 文档整改这个仓库，并通过全仓 Markdown 门禁后再结束。`
 - `用 $project-assistant 把这个大项目整改到模块视角，补 module dashboard 和 modules 状态文件。`
 - `用 $project-assistant 整改这个仓库，并通过脚本校验后再结束。`
 - `Use $project-assistant to align this repo to the operating model and apply the minimum safe changes.`
@@ -96,9 +99,11 @@ English simple commands:
 
 默认规则：
 
-- `整改` = 控制面整改 + 文档整改
-- `文档整改` = 以文档系统为主，但不破坏控制面一致性
+- `整改` = 控制面整改 + 文档整改 + 全仓 Markdown 治理
+- `文档整改` = 先补控制面，再做文档系统和全仓 Markdown 治理
+- `.codex/doc-governance.json` = 文档治理配置入口，用来声明公开文档范围、根目录保留文档和 Markdown 所有权
 - 如果项目要求公开文档双语，则整改还应补齐中英文可切换文档对
+- 如果仓库仍有 legacy 深层文档树，整改应把它们迁入 `docs/reference/`、`docs/workstreams/` 或 `docs/archive/`
 
 ## Close a Phase | 阶段收口
 
