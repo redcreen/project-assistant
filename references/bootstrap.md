@@ -52,11 +52,16 @@ Optional durable docs:
 
 ```text
 docs/
+  README.md
   architecture.md
   roadmap.md
   test-plan.md
+  how-to/
+  reference/
   adr/
 ```
+
+When creating durable docs, use the standard shapes in [document-standards.md](document-standards.md) instead of inventing ad hoc section orders.
 
 ## Bootstrap Success Criteria
 

@@ -24,10 +24,12 @@ Primary modes:
 - `恢复` / `resume`
 - `进展` / `progress`
 - `整改` / `retrofit`
+- `文档整改` / `docs-retrofit`
 - `压缩上下文` / `交接` / `handoff`
 - `收口` / `closeout`
 
 Also trigger this skill when the user clearly asks for project startup, rescue, progress, retrofit, recovery, or handoff, even if the exact alias is not used.
+Treat `文档整改`, `文档重构`, and `整理文档系统` as the documentation-focused variant of `retrofit`.
 
 When using English operation names in user-facing output, explain them in Chinese the first time. Prefer Chinese in normal conversation.
 
@@ -80,9 +82,12 @@ Use `.codex/subprojects/*.md` only for active cross-cutting workstreams. Do not 
 Document ownership and templates live in:
 
 - [references/bootstrap.md](references/bootstrap.md)
+- [references/document-standards.md](references/document-standards.md)
 - [references/governance.md](references/governance.md)
 - [references/templates.md](references/templates.md)
 - [references/module-layer.md](references/module-layer.md)
+
+When generating `README`, `docs/README`, `architecture`, `roadmap`, `test-plan`, or ADRs, follow the document constraints in `references/document-standards.md`. Do not improvise a new structure when the standard already covers that doc type.
 
 ## Script-First Execution
 
@@ -92,6 +97,10 @@ Prefer the bundled scripts when present:
   中文：同步控制面脚手架并把仓库收敛到目标结构
 - `scripts/validate_control_surface.py`
   中文：按 tier 规则校验控制面是否达标
+- `scripts/sync_docs_system.py`
+  中文：同步 durable 文档系统到标准结构
+- `scripts/validate_docs_system.py`
+  中文：按文档标准校验 README / docs / architecture / roadmap / test-plan
 - `scripts/progress_snapshot.py`
   中文：生成机器校验过的项目进展面板
 - `scripts/context_handoff.py`
@@ -148,13 +157,24 @@ Hard rules:
 - retrofit should be idempotent
 - retrofit must fail closed
 - do not stop in an intermediate state
+- default retrofit includes documentation retrofit
+
+Default scope of `整改`:
+
+- control surface
+- module layer when needed
+- durable documentation structure such as `README`, `docs/README`, `architecture`, `roadmap`, `test-plan`, and ADR layout when those docs exist or are needed
+
+If the user says `文档整改`, narrow the primary focus to the durable doc system while still preserving control-surface correctness.
 
 If scripts exist:
 
 1. run `scripts/sync_control_surface.py`
-2. apply or refine content as needed
-3. run `scripts/validate_control_surface.py`
-4. do not declare completion unless validation passes
+2. run `scripts/sync_docs_system.py`
+3. apply or refine content as needed
+4. run `scripts/validate_control_surface.py`
+5. run `scripts/validate_docs_system.py`
+6. do not declare completion unless the required validations pass
 
 For large projects with first-class modules, retrofit is not complete without the module layer.
 

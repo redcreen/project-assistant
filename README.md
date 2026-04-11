@@ -1,30 +1,14 @@
 # Project Assistant
 
-`project-assistant` 是一个给 Codex 用的项目操作系统型 skill。
+> A Codex skill for project planning, retrofit, progress reporting, and context handoff.
 
-它解决的不是单点问答，而是这些持续性问题：
+## Who This Is For
 
-- 项目方向清楚，但实现路径不清楚
-- 做到一半后，不知道当前在哪、下一步是什么
-- 不同项目约束不同，每次都重新想流程
-- 现有项目已经有很多文档，但状态恢复和进展表达仍然混乱
-- 新开对话时，希望快速恢复上下文继续开发
+- 想让 Codex 按稳定流程推进项目的人
+- 想把项目状态、模块进展、下一步和文档系统都固定下来的人
+- 想避免“每个项目都重新想一次流程”和“做一半后不知道当前在哪”的人
 
----
-
-## 用户视角
-
-### 这个 skill 能做什么
-
-- 启动项目：自动建立最小控制面
-- 规划阶段：明确目标、约束、切片、验证方式
-- 恢复状态：先恢复当前阶段，再继续执行
-- 汇报进展：用全局视角、模块视角、图示输出
-- 整改项目：把现有仓库收敛到规范结构
-- 压缩上下文：生成可复制的新对话恢复包
-- 阶段收口：结束当前阶段并明确下一阶段入口
-
-### 推荐入口
+## Quick Start
 
 平时只需要记住一个入口：
 
@@ -34,143 +18,103 @@
 
 - `项目助手 菜单`
 - `项目助手 启动这个项目`
-- `项目助手 规划下一阶段`
 - `项目助手 恢复当前状态`
-- `项目助手 告诉我项目进展`
-- `项目助手 整改这个仓库`
+- `项目助手 进展`
+- `项目助手 整改`
+- `项目助手 文档整改`
 - `项目助手 压缩上下文`
-- `项目助手 收口当前阶段`
 
-### 你会得到什么
+## Core Capabilities
 
-对中大型项目，默认会建立或刷新这些控制面文件：
+- 启动项目：建立 `.codex` 控制面
+- 规划阶段：明确目标、约束、切片和验证方式
+- 整改项目：控制面和文档系统一起收敛
+- 汇报进展：输出全局 + 模块 + 图示面板
+- 压缩上下文：生成新对话恢复包
 
-- `.codex/brief.md`
-- `.codex/status.md`
-- `.codex/plan.md`
+## Common Workflows
 
-对 `large` 项目，还会补模块层：
+### 1. 启动或接管项目
 
-- `.codex/module-dashboard.md`
-- `.codex/modules/*.md`
+```text
+项目助手 启动这个项目
+```
 
-### 进展输出长什么样
+### 2. 看当前进展
 
-`项目助手 进展` 会优先读取控制面，然后输出：
+```text
+项目助手 进展
+```
 
-- 当前阶段
-- 当前切片
-- 全局视角
-- 模块视角
-- 下一步 3 项
-- Mermaid 图示
+### 3. 一次性整改仓库
 
-### 新开对话前怎么交接
+```text
+项目助手 整改
+```
 
-直接说：
+默认包含：
 
-- `项目助手 压缩上下文`
-- `项目助手 生成恢复包`
-- `项目助手 给我新对话恢复指令`
+- 控制面整改
+- 文档整改
+- 脚本验收
 
-它会生成：
+### 4. 只重点整理文档
 
-- 当前阶段摘要
-- 恢复顺序
-- 可复制的恢复命令
-- 继续执行与验证命令
+```text
+项目助手 文档整改
+```
 
----
+### 5. 新开对话前交接
 
-## 开发者视角
+```text
+项目助手 压缩上下文
+```
 
-### 目录结构
+## Documentation Map
+
+- [Docs Home](docs/README.md)
+- [Architecture](docs/architecture.md)
+- [Roadmap](docs/roadmap.md)
+- [Test Plan](docs/test-plan.md)
+- [Skill Contract](SKILL.md)
+- [References](references/)
+
+## Development
+
+### Repository Layout
 
 ```text
 project-assistant/
+├── .codex/
 ├── SKILL.md
 ├── README.md
+├── docs/
 ├── agents/
-│   └── openai.yaml
 ├── references/
-│   ├── bootstrap.md
-│   ├── context-guard.md
-│   ├── governance.md
-│   ├── help-menu.md
-│   ├── module-layer.md
-│   ├── progress-reporting.md
-│   ├── retrofit.md
-│   ├── templates.md
-│   └── usage.md
 └── scripts/
-    ├── context_handoff.py
-    ├── control_surface_lib.py
-    ├── progress_snapshot.py
-    ├── sync_control_surface.py
-    └── validate_control_surface.py
 ```
 
-### 设计原则
-
-- 主 `SKILL.md` 保持短，只放核心协议和硬规则
-- 详细说明下沉到 `references/*.md`
-- 可校验、可收敛、可复用的行为尽量放到 `scripts/`
-- `整改` 必须是收敛任务，不允许停在中间态
-- `进展` 必须优先脚本化，不靠自由发挥拼输出
-
-### 核心脚本
+### Key Scripts
 
 - `scripts/sync_control_surface.py`
-  同步控制面脚手架，补齐缺失结构
 - `scripts/validate_control_surface.py`
-  校验控制面是否按 tier 达标
+- `scripts/sync_docs_system.py`
+- `scripts/validate_docs_system.py`
 - `scripts/progress_snapshot.py`
-  输出机器校验过的进展面板
 - `scripts/context_handoff.py`
-  输出上下文压缩 / 新对话恢复包
-- `scripts/control_surface_lib.py`
-  共用解析、校验和完成度规则
 
-### 维护方式
-
-修改这个 skill 时，优先顺序是：
-
-1. 先明确是行为规则问题，还是结构/校验问题
-2. 结构收敛、进展输出、恢复包优先改脚本
-3. 只有属于模型行为协议的部分，才改 `SKILL.md`
-4. 文档模板和说明同步到 `references/`
-
-### 推荐校验流程
-
-如果你在某个项目上改进了 skill，至少跑一遍：
+### Validation
 
 ```bash
-python3 scripts/sync_control_surface.py /path/to/repo
 python3 scripts/validate_control_surface.py /path/to/repo --format text
-python3 scripts/progress_snapshot.py /path/to/repo
-python3 scripts/context_handoff.py /path/to/repo
+python3 scripts/validate_docs_system.py /path/to/repo --format text
 ```
 
 理想结果：
 
-- `validate_control_surface.py` 返回 `ok: True`
-- `progress_snapshot.py` 输出足够清楚的全局 + 模块视角
-- `context_handoff.py` 生成可直接复制的新对话恢复命令
+- 控制面验收通过
+- 文档系统验收通过
 
-### 当前边界
+## License
 
-- 目前不能精确读取 Codex 运行时的上下文占用百分比
-- 所以“context 超过 60% 自动提示”只能做到软触发，不能做到硬阈值自动检测
-- 但已经支持稳定的 `压缩上下文 / 交接 / 恢复包` 工作流
-
----
-
-## 开发和测试建议
-
-如果你要继续扩这个 skill，建议优先从这三类能力继续演进：
-
-- 更强的 `retrofit` 收敛规则
-- 更短但更清晰的 `progress` 面板
-- 更稳定的 `handoff` 恢复命令
-
-如果未来 Codex 暴露上下文占用率接口，再把 `60%` 自动提示改成真正的硬触发。
+Use the repository's chosen license and project policy.

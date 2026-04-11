@@ -11,6 +11,7 @@ Use these prompt patterns to invoke the skill cleanly.
 - `恢复` = `resume`
 - `进展` = `progress`
 - `整改` = `retrofit`
+- `文档整改` = `docs-retrofit`
 - `收口` = `closeout`
 - `压缩上下文 / 交接` = `handoff`
 
@@ -44,15 +45,24 @@ Use these prompt patterns to invoke the skill cleanly.
 
 ## Retrofit an Existing Repo | 整改现有仓库
 
+- `项目助手 整改`
+- `项目助手 文档整改`
 - `用 $project-assistant 对这个仓库做整改审计（retrofit audit），先不要改文件。`
 - `用 $project-assistant 审计这个仓库并给出 retrofit plan，先不要改文件。`
 - `用 $project-assistant 引导式整改这个仓库，先审计、再给方案、再实施。`
 - `用 $project-assistant 直接整改这个仓库，按最小安全改动补齐规范。`
 - `用 $project-assistant 整改这个仓库，按当前最新规范自动补齐到目标结构。`
+- `用 $project-assistant 整改这个仓库的文档系统，按最新文档规范一次性收敛。`
 - `用 $project-assistant 整改这个仓库，一次性补齐到最新版规范，不要停在中间状态。`
+- `用 $project-assistant 整改这个仓库，并通过控制面校验和文档校验后再结束。`
 - `用 $project-assistant 把这个大项目整改到模块视角，补 module dashboard 和 modules 状态文件。`
 - `用 $project-assistant 整改这个仓库，并通过脚本校验后再结束。`
 - `Use $project-assistant to align this repo to the operating model and apply the minimum safe changes.`
+
+默认规则：
+
+- `整改` = 控制面整改 + 文档整改
+- `文档整改` = 以文档系统为主，但不破坏控制面一致性
 
 ## Close a Phase | 阶段收口
 
@@ -69,6 +79,7 @@ Use these prompt patterns to invoke the skill cleanly.
 - `告诉我项目进展`
 - `先做整改审计`
 - `直接整改这个仓库`
+- `文档整改`
 - `收口当前阶段`
 - `压缩当前上下文`
 - `生成恢复包`

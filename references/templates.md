@@ -169,25 +169,138 @@ Use only for active or blocked subprojects.
 Use for multi-milestone or architecture-heavy work.
 
 ```md
+# README
+
+> One-line value proposition.
+
+## Who This Is For
+
+## Quick Start
+
+## Core Capabilities
+
+## Common Workflows
+
+## Documentation Map
+- [Docs Home](docs/README.md)
+- [Architecture](docs/architecture.md)
+- [Roadmap](docs/roadmap.md)
+- [Test Plan](docs/test-plan.md)
+
+## Development
+
+## License
+```
+
+```md
+# Docs Home
+
+## Start Here
+- Getting started:
+- Architecture:
+- How-to:
+- Reference:
+- Roadmap:
+- Testing:
+
+## By Goal
+| Goal | Read This |
+| --- | --- |
+| Try the project quickly | |
+| Understand the system | |
+| Perform a task | |
+| Look up exact contracts | |
+| See what is next | |
+```
+
+```md
 # Architecture
 
-## Context
+## Purpose and Scope
 
-## Decision
+## System Context
 
-## Alternatives Considered
+```mermaid
+flowchart TB
+```
 
-## Consequences
+## Module Inventory
+
+| Module | Responsibility | Key Interfaces |
+| --- | --- | --- |
+
+## Core Flow
+
+```mermaid
+flowchart LR
+```
+
+## Interfaces and Contracts
+
+## State and Data Model
+
+## Operational Concerns
+
+## Tradeoffs and Non-Goals
+
+## Related ADRs
 ```
 
 ```md
 # Roadmap
 
+## Scope
+
+## Now / Next / Later
+| Horizon | Focus | Exit Signal |
+| --- | --- | --- |
+| Now | | |
+| Next | | |
+| Later | | |
+
 ## Milestones
-- Milestone:
-  - Goal:
-  - Depends On:
-  - Exit Criteria:
+| Milestone | Status | Goal | Depends On | Exit Criteria |
+| --- | --- | --- | --- | --- |
+
+## Milestone Flow
+
+```mermaid
+flowchart LR
+```
+
+## Risks and Dependencies
+```
+
+```md
+# Test Plan
+
+## Scope and Risk
+
+## Acceptance Cases
+| Case | Setup | Action | Expected Result |
+| --- | --- | --- | --- |
+
+## Automation Coverage
+
+## Manual Checks
+
+## Test Data and Fixtures
+
+## Release Gate
+```
+
+```md
+# ADR 0001: Title
+
+## Status
+
+## Context
+
+## Decision
+
+## Consequences
+
+## Alternatives Considered
 ```
 
 Keep `brief` and `status` even for large projects. Do not replace them with only roadmap or architecture documents.

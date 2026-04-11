@@ -9,8 +9,8 @@ Start with Codex's first-pass classification, then let the user override if need
 | Tier | Typical shape | Required artifacts | Optional artifacts |
 | --- | --- | --- | --- |
 | `small` | one task, one session, low cross-cutting risk | `brief`, inline acceptance checks, `status` | `plan` |
-| `medium` | one feature or subproject across multiple sessions | `brief`, `plan`, `status`, `test-plan` | `architecture`, `adr` |
-| `large` | multi-milestone, multi-system, or architecture-heavy work | `brief`, `plan`, `status`, `roadmap`, `test-plan`, `architecture` | `module-dashboard`, `modules/*.md`, `adr`, `migration-plan`, `release-plan`, `ownership-map`, `deployment-topology` |
+| `medium` | one feature or subproject across multiple sessions | `brief`, `plan`, `status`, `test-plan` | `docs/README`, `architecture`, `adr`, `how-to`, `reference` |
+| `large` | multi-milestone, multi-system, or architecture-heavy work | `brief`, `plan`, `status`, `roadmap`, `test-plan`, `architecture` | `docs/README`, `module-dashboard`, `modules/*.md`, `adr`, `migration-plan`, `release-plan`, `ownership-map`, `deployment-topology`, `how-to`, `reference` |
 
 ## Sizing Heuristics
 
@@ -34,6 +34,8 @@ Interpretation:
 When uncertain between two tiers, start with the heavier one only if the extra artifacts reduce real execution risk. Otherwise start lighter and escalate when the risk becomes concrete.
 
 ## Document Roles
+
+When generating durable docs, follow [document-standards.md](document-standards.md).
 
 ### brief
 
@@ -98,6 +100,14 @@ Must answer:
 - which milestone comes next
 - what each milestone unlocks
 - what exit criteria close each milestone
+
+### docs/README
+
+Must answer:
+
+- where to start
+- where to go for setup, architecture, how-to, reference, roadmap, and testing
+- how the docs are grouped
 
 ### test-plan / case-matrix
 

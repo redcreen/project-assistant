@@ -12,6 +12,11 @@ Choose one mode explicitly:
 
 When the user says "先不要动" or asks for a plan first, use `audit-only`.
 
+Short Chinese commands:
+
+- `项目助手 整改`
+- `项目助手 文档整改`
+
 ## Core Rule
 
 Retrofit is a convergence task.
@@ -25,10 +30,19 @@ That means each run should:
 
 Do not treat retrofit as "one helpful pass". Treat it as "bring the repo into compliance with the current model".
 
+Unless the user explicitly narrows the scope, `整改` includes both:
+
+- control-surface retrofit
+- documentation-system retrofit
+
+That means README, docs landing, architecture, roadmap, test-plan, ADR layout, and document navigation are part of normal retrofit, not a separate optional pass.
+
 If available, use:
 
 - `scripts/sync_control_surface.py` to scaffold missing control-surface artifacts
 - `scripts/validate_control_surface.py` to enforce completion gates
+- `scripts/sync_docs_system.py` to scaffold or normalize durable docs
+- `scripts/validate_docs_system.py` to enforce documentation completion gates
 
 ## Mandatory Self-Check
 
@@ -58,6 +72,7 @@ Inspect:
 Capture:
 
 - current status sources
+- documentation landing sources
 - roadmap sources
 - architecture sources
 - testing sources
@@ -75,6 +90,16 @@ Assign each file or directory one role:
 - `unclear`
 
 Any file with `unclear` ownership must be resolved before claiming the repo is aligned.
+
+Also classify each durable doc by question:
+
+- landing
+- architecture
+- roadmap
+- test-plan
+- ADR
+- how-to
+- reference
 
 ### 3. Define the Target Control Surface
 
@@ -105,6 +130,7 @@ Describe:
 - which files to demote from active control to durable reference
 - which files to move into generated or archive areas
 - which links or references must be updated
+- which doc pages need section-order normalization, table upgrades, or Mermaid diagrams
 
 Prefer moves and rewrites over deletion. Delete only when a file is clearly obsolete and fully superseded.
 
@@ -116,9 +142,10 @@ Use this sequence:
 2. populate them from the best current sources
 3. for large repos, add the module layer from roadmap and architecture docs
 4. update or add subproject status files if needed
-5. reassign overlapping docs to one owner each
-6. move generated evidence out of planning paths
-7. update navigation in `README` or doc indexes
+5. run doc-system sync to create or normalize durable doc skeletons
+6. normalize durable docs to the standard document roles
+7. update navigation in `README` and `docs/README`
+8. move generated evidence out of planning paths
 
 ### 6. Verify Alignment
 
@@ -130,6 +157,8 @@ Confirm:
 - for large repos, module-level progress is answerable from `module-dashboard` and `modules/*.md`
 - roadmap and architecture docs no longer act as session logs
 - generated reports are not being used as the control surface
+- README and docs landing route readers clearly
+- architecture, roadmap, and test-plan each answer one primary question
 
 If any required target element is still missing, do not report success. Report the remaining delta explicitly.
 
@@ -161,6 +190,32 @@ Check the required gate set for the current tier.
 If any gate fails, retrofit is incomplete.
 
 Run the validation script when present instead of relying only on manual inspection.
+For documentation retrofit, `validate_docs_system.py` is part of the gate set when present.
+
+## Documentation Retrofit Rule
+
+When the repo has stable public docs or maintainer docs, retrofit should normalize them to the standard document system in `document-standards.md`.
+
+Default durable doc targets:
+
+```text
+README.md
+docs/README.md
+docs/architecture.md
+docs/roadmap.md
+docs/test-plan.md
+docs/adr/
+```
+
+Documentation retrofit should:
+
+- preserve facts and conclusions
+- improve section order
+- improve navigation
+- add tables where they reduce scanning cost
+- add Mermaid only where it clarifies structure or flow
+
+Do not rewrite project truth just to fit a prettier template.
 
 ## Retrofit Heuristics
 
