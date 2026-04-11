@@ -1,0 +1,7 @@
+interface:
+  display_name: "Project Assistant"
+  short_description: "Plan, track, and execute staged software work."
+  default_prompt: "Use $project-assistant to shape this project, keep status visible, and drive implementation in clear phases."
+
+policy:
+  allow_implicit_invocation: true
