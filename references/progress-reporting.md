@@ -79,6 +79,7 @@ For `medium` projects, prefer a maintainer-oriented view instead of pretending t
 - explain the current slice in plain Chinese first, then keep the raw slice name as a precise label
 - add a small terminology table when the current slice uses internal terms such as `dashboard`, `triage`, `continuity`, or `watchdog`
 - prefer a `工作域视角` table over a fake module table
+- surface the current architecture signal, automatic review trigger, and escalation gate as maintainer-readable fields
 - keep the AI-facing truth in `.codex/*`, but render a human-facing explanation layer on top of it
 
 For `large` projects:
@@ -87,6 +88,7 @@ For `large` projects:
 - still use table-first rendering for summary, current position, current long task, architecture supervision, capabilities, control abilities, and next actions
 - keep Mermaid as a secondary orientation aid, not the primary carrier of progress truth
 - add one human-language judgment row so maintainers can understand the current battlefield before reading module details
+- show the automatic architecture-review trigger explicitly when one is active, instead of hiding it inside generic signal prose
 
 For small projects, compress this into a short paragraph plus `Next 3 Actions`.
 

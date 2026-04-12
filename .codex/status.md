@@ -7,44 +7,48 @@
 
 ## Current Phase
 
-`narrative quality and automated architecture triggers`
+`locale-aware internal control-surface output`
 
 ## Active Slice
-`tighten-maintainer-facing-narrative-and-architecture-triggers`
+`evaluate-locale-aware-internal-output`
 
 ## Current Execution Line
-- Objective: 收紧 maintainer-facing narrative，减少 `progress / continue / handoff` 的 AI-centric 表达，并把至少一条架构升级触发从“手工识别”变成自动信号
-- Plan Link: tighten-maintainer-facing-narrative-and-architecture-triggers
-- Runway: 用 representative repo 的真实摩擦点来收口第一屏叙事，然后把自动 architecture-review trigger 接到 supervision signal 上
-- Progress: 0 / 6 tasks complete
+- Objective: 评估哪些内部控制面输出应该按用户语言做单通道展示，减少中文工作流里的冗余英文，同时不削弱公开文档双语和 AI 恢复精度
+- Plan Link: evaluate-locale-aware-internal-output
+- Runway: one active-slice checkpoint covering implementation, validation, and state refresh
+- Progress: 0 / 9 tasks complete
 - Stop Conditions:
-  - representative repo 的 progress / continue / handoff 不再需要大量人工翻译
-  - 至少一条自动 architecture-review trigger 已由 signal 驱动
-  - README / roadmap / status / plan / progress / handoff 对当前阶段的叙述保持一致
+  - blocker requires human direction
+  - validation fails and changes the direction
+  - business, compatibility, or cost decision requires user judgment
 
 ## Execution Tasks
-- [ ] EL-1 盘点 representative medium / large repo 的叙事摩擦点
-- [ ] EL-2 定义 maintainer-facing wording contract
-- [ ] EL-3 接入至少一条自动 architecture-review trigger
-- [ ] EL-4 在 representative repo 上验证新的叙事和自动触发
-- [ ] EL-5 更新 README / roadmap / development-plan / progress-reporting
-- [ ] EL-6 重跑 `capability_snapshot`、`progress_snapshot`、`context_handoff`、`deep`、`release`
+- [ ] EL-1 confirm the checkpoint and objective for `evaluate-locale-aware-internal-output`: 评估哪些内部控制面输出应该按用户语言做单通道展示，减少中文工作流里的冗余英文，同时不削弱公开文档双语和 AI 恢复精度
+- [ ] EL-2 verify dependencies and affected boundaries: progress / continue / handoff wording contract、public-doc i18n rules、validation policy、command templates
+- [ ] EL-3 confirm architecture signal, root-cause hypothesis, and correct layer still hold
+- [ ] EL-4 implement the highest-value change for `evaluate-locale-aware-internal-output`
+- [ ] EL-5 address the main execution risk: 内部输出与公开文档规则串线；为了省 token 丢失恢复点；人类解释层和 AI 真相层再次分裂
+- [ ] EL-6 update docs, control-surface notes, or contracts touched by this slice
+- [ ] EL-7 run validation: representative Chinese-first repo 的 internal snapshots 更短但不失恢复点；公开文档双语门禁不受影响；`deep` 继续通过
+- [ ] EL-8 refresh progress, capabilities, next checkpoint, and next 3 actions
+- [ ] EL-9 capture a devlog entry if the root cause, tradeoff, or rejected shortcut changed
 
 ## Development Log Capture
 - Trigger Level: high
 - Pending Capture: no
-- Last Entry: docs/devlog/2026-04-12-close-m6-embedded-architect-assistant-milestone.md
+- Last Entry: docs/devlog/2026-04-12-close-m7-narrative-quality-and-automated-architecture-triggers.md
 
 ## Architecture Supervision
-- Signal: `yellow`
-- Signal Basis: open blockers or architectural risks are still recorded
-- Root Cause Hypothesis: 默认自动推进模型已经成立，剩余摩擦点主要来自叙事层和自动触发层，而不是缺失核心能力
-- Correct Layer: progress / continue / handoff narration, architecture supervision triggers, and outward-facing docs
-- Escalation Gate: raise but continue
+- Signal: `green`
+- Signal Basis: no blocker or escalation trigger is currently forcing a higher-level decision
+- Root Cause Hypothesis: 公开文档双语与内部恢复输出仍共享过多 raw wording，导致中文优先工作流里有不必要的英文噪声
+- Correct Layer: internal progress / continue / handoff presentation rules, validation policy, and the boundary between internal and public wording
+- Automatic Review Trigger: no automatic trigger is currently active
+- Escalation Gate: continue automatically
 
 ## Current Escalation State
-- Current Gate: raise but continue
-- Reason: the current direction can continue, but the supervision state should stay visible
+- Current Gate: continue automatically
+- Reason: current execution can proceed inside the existing direction without a user-level tradeoff
 - Next Review Trigger: review again when blockers change, the active slice rolls forward, or release-facing work begins
 
 ## Done
@@ -53,6 +57,11 @@
   - 规划、执行、架构监督和开发日志都已成为默认自动能力
   - 代表性整改流 `整改 / 文档整改 / 架构整改` 已在真实仓库上跑通
   - `progress`、`handoff`、控制面、README 和门禁已经能表达同一套基本真相
+- M7 `narrative quality and automated architecture triggers` 已关闭：
+  - representative medium / large repo 的第一屏输出已经更接近维护者恢复面板，而不是 AI-only status dump
+  - `progress / continue / handoff` 的 maintainer-facing wording contract 已落到脚本和代表性仓库验证里
+  - 至少一条 ownership / boundary / repeated-fix drift 路径已经可以自动升级成 architecture-review trigger
+  - 相关 README、roadmap、development plan、progress-reporting 和验证脚本已同步
 - `project-assistant` 已支持：
   - 控制面整改
   - 模块层进展面板
@@ -94,17 +103,18 @@
 
 ## In Progress
 
-- 收紧 maintainer-facing progress / continue / handoff 叙事，减少“更像给 AI 自己看”的输出
-- 把至少一条 architecture drift / repeated-fix 信号升级成自动 architecture-review trigger
+- 评估哪些 internal control-surface outputs 适合按语言单通道展示，减少中文工作流里的冗余英文
+- 保持公开文档双语、内部输出 locale-aware、AI 恢复精度三者之间的边界清楚
 - 继续观察跨项目使用时的误报、漏报和需要人工裁决的真实频率
 
 ## Blockers / Open Decisions
 
 - None currently.
 - Follow-up: `项目助手 继续` 当前仍偏重，继续评估如何在不丢恢复信息的前提下压缩输出体量和重复内容
+- Strategic Follow-Up: 等 M8 / M9 收口后，评估是否需要一层更高阶的业务规划与程序编排能力，用来判断项目后续怎么走、何时应插入治理/架构专项、何时需要提升项目抽象与定位，并探索是否需要一个总的 AI 监督角色来管理更长时间的多 Codex 交付流程
 
 ## Next 3 Actions
 
-1. 收集 representative medium / large repo 里最常见的 progress / continue / handoff 叙事摩擦点
-2. 把 maintainer-facing wording contract 收进 `progress` / `continue` / `handoff`
-3. 接入第一条自动 architecture-review trigger，并在 representative repo 上验证
+1. 盘点哪些 internal surfaces 对中文工作流最冗余，并明确哪些应该 locale-aware
+2. 先收口 `continue` 的最小恢复信息，避免再次变成第二个 mini-dashboard
+3. 验证 locale-aware internal output 不会削弱公开文档双语和 AI 恢复精度

@@ -71,6 +71,8 @@ Background flows (usually automatic):
 - Turn the active slice into a checkpoint-based long execution line instead of waiting for repeated "continue" prompts
 - Show that execution line as a visible task board with done/total progress and a `Plan Link` back to the active slice
 - Keep a compact architecture-supervision state and escalation gate beside the execution line
+- Render `progress / continue / handoff` as maintainer-facing first screens instead of AI-only status dumps
+- Promote architecture review automatically when the current slice shows ownership, boundary, or repeated-fix drift
 - Surface a short `Usable Now` snapshot so you can see what is already ready to use
 - Retrofit existing repos to convergence
 - Report progress with global and module views
@@ -93,6 +95,8 @@ What this means:
 - planning, execution, architecture supervision, and development-log capture are now default-on behaviors in the main operating model
 - the skill is no longer only a planning scaffold; it has already been used to converge lightweight repos and larger doc-heavy repos
 - `progress`, `handoff`, the control surface, and validation gates now describe the same current truth
+- representative medium and large repos now show clearer maintainer-facing first screens, not only raw slice names
+- at least one architecture-review path now auto-escalates from current-slice drift instead of depending only on manual prompts
 - the next practical step is to use it on more repos and collect real friction, not to keep reshaping the core model first
 
 ## Common Workflows

@@ -26,10 +26,10 @@ It answers one practical question:
 
 | Item | Current Value | Meaning |
 | --- | --- | --- |
-| Current Phase | `narrative quality and automated architecture triggers` | Current maintainer-facing phase from `.codex/plan.md` |
-| Active Slice | `tighten-maintainer-facing-narrative-and-architecture-triggers` | The slice tied to the current execution line |
-| Current Execution Line | 收紧 maintainer-facing narrative，减少 `progress / continue / handoff` 里的 AI-centric 表达，并把至少一条架构升级触发从“手工识别”变成自动信号 | What the repo is trying to finish now |
-| Validation | representative medium + large repo snapshots 可读；`deep` / `release` 继续通过 | How this line proves itself before moving on |
+| Current Phase | `locale-aware internal control-surface output` | Current maintainer-facing phase from `.codex/plan.md` |
+| Active Slice | `evaluate-locale-aware-internal-output` | The slice tied to the current execution line |
+| Current Execution Line | 评估哪些内部控制面输出应该按用户语言做单通道展示，减少中文工作流里的冗余英文，同时不削弱公开文档双语和 AI 恢复精度 | What the repo is trying to finish now |
+| Validation | representative Chinese-first repo snapshots are shorter without losing restore anchors; public-doc bilingual gates remain intact; `deep` continues to pass | How this line proves itself before moving on |
 
 ## Milestone Overview
 
@@ -41,8 +41,8 @@ It answers one practical question:
 | M4 | done | establish durable-doc standards and doc validation | document standards + docs scripts | durable docs pass structural gates |
 | M5 | done | establish bilingual public-doc switching and validation | i18n rules + i18n validator | public docs switch cleanly between English and Chinese |
 | M6 | done | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
-| M7 | active | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
-| M8 | later | evaluate locale-aware internal control-surface output | handoff + command templates + validation policy | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
+| M7 | done | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
+| M8 | active | evaluate locale-aware internal control-surface output | handoff + command templates + validation policy | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
 | M9 | later | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
 
 ## Ordered Execution Queue
@@ -58,7 +58,8 @@ It answers one practical question:
 | 7 | `automate supervision, release protection, and human windows` | earlier slice | n/a | n/a |
 | 8 | `make architecture retrofit a first-class flow` | earlier slice | n/a | n/a |
 | 9 | `prepare project-assistant for broader repo adoption` | earlier slice | n/a | n/a |
-| 10 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | current | n/a | n/a |
+| 10 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | completed milestone slice | representative medium / large repos now read more like maintainer restore panels; at least one architecture trigger auto-escalates from drift | representative repo snapshots improved and automatic trigger visible |
+| 11 | `evaluate-locale-aware-internal-output` | current | decide which internal surfaces should become locale-aware without splitting public truth from AI truth | Chinese-first internal surfaces get shorter while public-doc bilingual gates stay stable |
 
 ## Milestone Details
 
@@ -120,7 +121,7 @@ It answers one practical question:
 
 | Item | Current Value |
 | --- | --- |
-| Status | active |
+| Status | done |
 | Goal | improve narrative quality and automated architecture triggers |
 | Depends On | M6 |
 | Exit Criteria | less manual cleanup after retrofit and fewer direction-correction prompts |
@@ -129,7 +130,7 @@ It answers one practical question:
 
 | Item | Current Value |
 | --- | --- |
-| Status | later |
+| Status | active |
 | Goal | evaluate locale-aware internal control-surface output |
 | Depends On | handoff + command templates + validation policy |
 | Exit Criteria | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
@@ -147,4 +148,10 @@ It answers one practical question:
 
 | Next Move | Why |
 | --- | --- |
-| Continue from `tighten-maintainer-facing-narrative-and-architecture-triggers` onward | The live execution line already fixes the real resume point in `.codex/plan.md` |
+| Continue from `evaluate-locale-aware-internal-output` onward | M7 is closed; the next durable question is where locale-aware internal output should begin and where it must stop |
+
+## Strategic Backlog
+
+| Topic | Scope | Entry Condition |
+| --- | --- | --- |
+| business-planning and program-orchestration layer | evaluate whether `project-assistant` needs a higher-level planner / supervising role that can steer multiple Codex workstreams, decide when governance or architecture side-tracks should be inserted, detect when earlier milestones or project positioning should change, and keep humans focused on business direction while still escalating requirement changes back for review | revisit after M8 and M9 close; discuss first, review the proposal, then promote it into a formal milestone or active slice if it survives scrutiny |

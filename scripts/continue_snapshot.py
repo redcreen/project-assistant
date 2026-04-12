@@ -12,10 +12,12 @@ from control_surface_lib import (
     execution_task_progress,
     first_line,
     labeled_bullet_value,
+    normalized_bullets,
     parse_tier,
     read_text,
     section,
 )
+from progress_snapshot import pretty_text_zh
 
 
 def bullet_lines(text: str) -> list[str]:
@@ -30,8 +32,28 @@ def bullet_lines(text: str) -> list[str]:
 
 
 def first_risk(status_text: str) -> str:
-    risks = bullet_lines(section(status_text, "Blockers / Open Decisions"))
-    return risks[0] if risks else "No major blocker recorded."
+    risks = normalized_bullets(section(status_text, "Blockers / Open Decisions"))
+    return risks[0] if risks else "当前无主要风险。"
+
+
+def zh_tier(tier: str) -> str:
+    return {"small": "小型", "medium": "中型", "large": "大型"}.get(tier, tier)
+
+
+def zh_signal(signal: str) -> str:
+    return {"green": "绿色", "yellow": "黄色", "red": "红色"}.get(signal.lower(), signal)
+
+
+def zh_gate(gate: str) -> str:
+    return {
+        "continue automatically": "自动继续",
+        "raise but continue": "提醒后继续",
+        "require user decision": "需要用户裁决",
+    }.get(gate.lower(), gate)
+
+
+def humanize_text(text: str) -> str:
+    return pretty_text_zh(text)
 
 
 def pending_execution_items(task_lines: list[str], limit: int = 3) -> list[str]:
@@ -40,7 +62,9 @@ def pending_execution_items(task_lines: list[str], limit: int = 3) -> list[str]:
         lowered = line.lower()
         if "[x]" in lowered:
             continue
-        pending.append(display_execution_task(line))
+        item = display_execution_task(line)
+        item = re.sub(r"^\[[ xX]\]\s*", "", item).strip()
+        pending.append(humanize_text(item))
         if len(pending) >= limit:
             break
     return pending
@@ -67,33 +91,38 @@ def main() -> int:
         next_work = next_actions[:3]
 
     print("# Continue Snapshot\n")
-    print("## Continue Now")
-    print(f"- Tier: `{tier}`")
-    print(f"- Current Phase: `{current_phase}`")
-    print(f"- Active Slice: `{active_slice}`")
-    print(f"- Long Task: `{current_execution_line}`")
-    print(f"- Execution Progress: `{done_tasks} / {total_tasks}`")
-    print(f"- Architecture Signal: `{architecture_state['signal']}`")
-    print(f"- Escalation Gate: `{architecture_state['gate']}`")
-    print(f"- Main Risk: {first_risk(status_text)}")
-    print("- Full Dashboard: use `项目助手 进展` / `project assistant progress` if you want the full global view.")
+    print("## 现在在哪里")
+    print("| 项目 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 层级 | `{zh_tier(tier)}` |")
+    print(f"| 当前阶段 | {humanize_text(current_phase)} |")
+    print(f"| 当前切片 | {humanize_text(active_slice)} |")
+    print(f"| 当前执行线 | {humanize_text(current_execution_line)} |")
+    print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
+    print(f"| 架构信号 | `{zh_signal(architecture_state['signal'])}` |")
+    print(f"| 自动触发 | {humanize_text(architecture_state['automatic_review_trigger'])} |")
+    print(f"| 升级 Gate | `{zh_gate(architecture_state['gate'])}` |")
+    print(f"| 当前主要风险 | {humanize_text(first_risk(status_text))} |")
+    print("| 完整看板 | `项目助手 进展` / `project assistant progress` |")
 
-    print("\n## Next Work")
+    print("\n## 接下来先做什么")
+    print("| 顺序 | 当前要做的事 |")
+    print("| --- | --- |")
     if next_work:
         for idx, item in enumerate(next_work, start=1):
-            print(f"{idx}. {item}")
+            print(f"| {idx} | {humanize_text(item)} |")
     else:
-        print("1. No next work item recorded.")
+        print("| 1 | 暂无下一步记录 |")
 
     if execution_tasks:
-        print("\n## Task Board")
+        print("\n## 当前任务板")
+        print("| 任务 | 状态 |")
+        print("| --- | --- |")
         for item in execution_tasks:
-            print(f"- {display_execution_task(item)}")
-
-    if next_actions:
-        print("\n## Stored Next 3 Actions")
-        for idx, item in enumerate(next_actions[:3], start=1):
-            print(f"{idx}. {item}")
+            lowered = item.lower()
+            state = "已完成" if "[x]" in lowered else "待完成"
+            content = re.sub(r"^\[[ xX]\]\s*", "", display_execution_task(item)).strip()
+            print(f"| {humanize_text(content)} | {state} |")
 
     return 0
 

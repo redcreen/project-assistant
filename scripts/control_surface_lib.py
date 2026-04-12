@@ -51,6 +51,24 @@ ARCHITECTURE_CAUTION_KEYWORDS = (
     "tradeoff",
 )
 
+ARCHITECTURE_REVIEW_TRIGGER_GROUPS: tuple[tuple[tuple[str, ...], str, str], ...] = (
+    (
+        ("source-of-truth", "canonical source", "mirror drift", "dual runtime", "two runtime", "same truth"),
+        "source-of-truth or mirror drift is visible in the current slice",
+        "review again when source-of-truth ownership, mirror sync, or canonical-root behavior changes",
+    ),
+    (
+        ("ownership", "boundary", "wrong layer", "leak", "cross-layer", "adapter boundary", "state machine"),
+        "ownership or boundary drift is visible in the current slice",
+        "review again when ownership, boundary, or layer responsibilities change",
+    ),
+    (
+        ("repeated fix", "local fix", "one-off", "hardcod", "symptom", "again and again", "keeps coming back"),
+        "the current slice is close to a repeated-fix or symptom-only pattern",
+        "review again when the same symptom reappears or the slice starts adding local-only exceptions",
+    ),
+)
+
 
 @dataclass
 class ValidationResult:
@@ -402,8 +420,18 @@ def normalized_bullets(text: str) -> list[str]:
             continue
         if lowered.startswith("none") or lowered.startswith("no blocker") or lowered.startswith("无阻塞"):
             continue
+        if lowered.startswith(("follow-up:", "watchlist:", "note:", "notes:")):
+            continue
         normalized.append(item)
     return normalized
+
+
+def detect_automatic_architecture_review_trigger(context: str) -> tuple[str, str]:
+    lowered = context.lower()
+    for keywords, trigger, next_review in ARCHITECTURE_REVIEW_TRIGGER_GROUPS:
+        if any(keyword in lowered for keyword in keywords):
+            return trigger, next_review
+    return "no automatic trigger is currently active", "review again when blockers change, the active slice rolls forward, or release-facing work begins"
 
 
 def classify_architecture_signal(repo: Path) -> dict[str, str]:
@@ -428,6 +456,17 @@ def classify_architecture_signal(repo: Path) -> dict[str, str]:
     correct_layer = labeled_bullet_value(status_arch, "Correct Layer") or labeled_bullet_value(plan_arch, "Correct Layer")
     problem_class = labeled_bullet_value(plan_arch, "Problem Class") or "active slice governance and architectural fit"
     rejected_shortcut = labeled_bullet_value(plan_arch, "Rejected Shortcut") or "letting execution continue without a visible architecture signal"
+    trigger_context = " | ".join(
+        [
+            active_slice,
+            current_line,
+            problem_class,
+            root_cause,
+            rejected_shortcut,
+            " | ".join(blockers),
+        ]
+    )
+    automatic_review_trigger, next_review_trigger = detect_automatic_architecture_review_trigger(trigger_context)
 
     signal = "green"
     gate = "continue automatically"
@@ -468,6 +507,12 @@ def classify_architecture_signal(repo: Path) -> dict[str, str]:
         if not basis_parts:
             basis_parts.append("architecture supervision is guarding against local-only fixes")
 
+    if automatic_review_trigger != "no automatic trigger is currently active" and signal != "red":
+        signal = "yellow"
+        gate = "raise but continue"
+        basis_parts.append(automatic_review_trigger)
+        reason = "the current direction can continue, but architecture review should stay visible because an automatic trigger fired"
+
     if signal == "green" and pending_capture in {"yes", "true", "pending"}:
         basis_parts.append("development-log capture is pending but does not yet block execution")
 
@@ -476,7 +521,6 @@ def classify_architecture_signal(repo: Path) -> dict[str, str]:
     if not correct_layer:
         correct_layer = "control surface, validators, and reporting"
 
-    next_review_trigger = "review again when blockers change, the active slice rolls forward, or release-facing work begins"
     signal_basis = "; ".join(dedupe_preserve_order(basis_parts)) if basis_parts else "no blocker or escalation trigger is currently forcing a higher-level decision"
 
     existing_gate = labeled_bullet_value(escalation_text, "Current Gate").lower()
@@ -493,6 +537,7 @@ def classify_architecture_signal(repo: Path) -> dict[str, str]:
         "root_cause_hypothesis": root_cause,
         "correct_layer": correct_layer,
         "rejected_shortcut": rejected_shortcut,
+        "automatic_review_trigger": automatic_review_trigger,
         "gate": gate,
         "reason": reason,
         "next_review_trigger": next_review_trigger,
@@ -653,10 +698,10 @@ def validate_repo(repo: Path) -> ValidationResult:
             warnings.append(".codex/plan.md missing Plan Link in Current Execution Line")
         if "Progress:" not in plan_execution:
             warnings.append(".codex/plan.md missing Progress in Current Execution Line")
-        for label in ["Signal", "Signal Basis", "Root Cause Hypothesis", "Correct Layer", "Escalation Gate"]:
+        for label in ["Signal", "Signal Basis", "Root Cause Hypothesis", "Correct Layer", "Automatic Review Trigger", "Escalation Gate"]:
             if not has_labeled_bullet(status_arch, label):
                 warnings.append(f".codex/status.md missing {label} in Architecture Supervision")
-        for label in ["Signal", "Signal Basis", "Problem Class", "Root Cause Hypothesis", "Correct Layer", "Rejected Shortcut", "Escalation Gate"]:
+        for label in ["Signal", "Signal Basis", "Problem Class", "Root Cause Hypothesis", "Correct Layer", "Rejected Shortcut", "Automatic Review Trigger", "Escalation Gate"]:
             if not has_labeled_bullet(plan_arch, label):
                 warnings.append(f".codex/plan.md missing {label} in Architecture Supervision")
         for label in ["Trigger Level", "Pending Capture", "Last Entry"]:

@@ -108,7 +108,7 @@ def warn_quality(rel: str, text: str, warnings: list[str]) -> None:
         if not tasks:
             warnings.append(f"{rel} execution tasks are missing checkbox-style task lines")
     if "## Architecture Supervision" in text:
-        for label in ["Signal", "Signal Basis", "Root Cause Hypothesis", "Correct Layer", "Escalation Gate"]:
+        for label in ["Signal", "Signal Basis", "Root Cause Hypothesis", "Correct Layer", "Automatic Review Trigger", "Escalation Gate"]:
             if not has_substantive_labeled_bullet(section_block(text, "Architecture Supervision"), label):
                 warnings.append(f"{rel} has an Architecture Supervision section without a concrete {label}")
     if "## Development Log Capture" in text:

@@ -125,6 +125,7 @@ PLAN_TEMPLATE = """# Project Plan
 - Root Cause Hypothesis: execution and validation know the active slice, but the architecture judgment is not yet expressed as a durable state
 - Correct Layer: control surface and validation gates
 - Rejected Shortcut: relying on free-form prose instead of a reusable architecture-review state
+- Automatic Review Trigger: no automatic trigger is currently active
 - Escalation Gate: raise but continue
 
 ## Escalation Model
@@ -209,6 +210,7 @@ Control surface and durable-doc alignment.
 - Signal Basis: current slice is explicit, but architecture supervision should stay visible until the default operating model fully converges
 - Root Cause Hypothesis: the repo may still drift toward local fixes because the architecture judgment is not yet encoded as a reusable state
 - Correct Layer: control surface and validation gates
+- Automatic Review Trigger: no automatic trigger is currently active
 - Escalation Gate: raise but continue
 
 ## Current Escalation State

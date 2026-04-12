@@ -13,11 +13,13 @@ from control_surface_lib import (
     execution_task_progress,
     first_line,
     labeled_bullet_value,
+    normalized_bullets,
     parse_tier,
     primary_human_windows,
     repo_capabilities,
     section,
 )
+from progress_snapshot import pretty_text_zh
 
 
 def read_text(path: Path) -> str:
@@ -65,6 +67,26 @@ def detect_commands(repo: Path) -> tuple[str, str, list[str]]:
     return primary_test_cn, primary_test_en, extra_checks
 
 
+def zh_tier(tier: str) -> str:
+    return {"small": "小型", "medium": "中型", "large": "大型"}.get(tier, tier)
+
+
+def zh_signal(signal: str) -> str:
+    return {"green": "绿色", "yellow": "黄色", "red": "红色"}.get(signal.lower(), signal)
+
+
+def zh_gate(gate: str) -> str:
+    return {
+        "continue automatically": "自动继续",
+        "raise but continue": "提醒后继续",
+        "require user decision": "需要用户裁决",
+    }.get(gate.lower(), gate)
+
+
+def humanize_text(text: str) -> str:
+    return pretty_text_zh(text)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Emit a compact context handoff / resume pack for a repo.")
     parser.add_argument("repo", type=Path, help="Repository root")
@@ -90,8 +112,8 @@ def main() -> int:
     capabilities = repo_capabilities(repo)
     human_windows_zh = primary_human_windows("zh")
     human_windows_en = primary_human_windows("en")
-    blockers = bullet_lines(section(status_text, "Blockers / Open Decisions"))
-    main_risk = blockers[0] if blockers else "No major blocker recorded."
+    blockers = normalized_bullets(section(status_text, "Blockers / Open Decisions"))
+    main_risk = blockers[0] if blockers else "当前无主要风险。"
     next_actions = bullet_lines(section(status_text, "Next 3 Actions"))
     active_module = first_line(section(module_dashboard, "Summary").replace("- Active Module:", "").strip())
     if not active_module or active_module.startswith("- "):
@@ -110,20 +132,23 @@ def main() -> int:
     ]
 
     print("# Context Handoff\n")
-    print("## Summary")
-    print(f"- Repo: `{repo}`")
-    print(f"- Tier: `{tier}`")
-    print(f"- Current Phase: `{current_phase}`")
-    print(f"- Active Slice: `{active_slice}`")
-    print(f"- Current Execution Line: `{current_execution_line}`")
-    print(f"- Execution Progress: `{done_tasks} / {total_tasks}`")
-    print(f"- Architecture Signal: `{architecture_signal}`")
-    print(f"- Escalation Gate: `{escalation_gate}`")
+    print("## 摘要")
+    print("| 项目 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 仓库 | `{repo}` |")
+    print(f"| 层级 | `{zh_tier(tier)}` |")
+    print(f"| 当前阶段 | {humanize_text(current_phase)} |")
+    print(f"| 当前切片 | {humanize_text(active_slice)} |")
+    print(f"| 当前执行线 | {humanize_text(current_execution_line)} |")
+    print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
+    print(f"| 架构信号 | `{zh_signal(architecture_signal)}` |")
+    print(f"| 自动触发 | {humanize_text(architecture_state['automatic_review_trigger'])} |")
+    print(f"| 升级 Gate | `{zh_gate(escalation_gate)}` |")
     if tier == "large":
-        print(f"- Active Module: `{active_module}`")
-    print(f"- Main Risk: {main_risk}")
+        print(f"| 当前模块 | `{active_module}` |")
+    print(f"| 当前主要风险 | {humanize_text(main_risk)} |")
     if escalation_reason:
-        print(f"- Escalation Reason: {escalation_reason}")
+        print(f"| 升级原因 | {humanize_text(escalation_reason)} |")
 
     if capabilities:
         print("\n## Usable Now")
@@ -151,7 +176,7 @@ def main() -> int:
     print(
         f"项目助手 继续。先读取 "
         + docs_cn
-        + f"；然后继续当前执行线：{current_execution_line}。"
+        + f"；然后继续当前执行线：{humanize_text(current_execution_line)}。"
     )
     print("项目助手 告诉我这个项目当前进展，用全局视角、模块视角和图示输出。")
     test_line = f"项目助手 继续当前执行线，并先运行验证：{primary_test_cn}"
@@ -176,14 +201,14 @@ def main() -> int:
     print("\n## Next 3 Actions")
     if next_actions:
         for idx, item in enumerate(next_actions[:3], start=1):
-            print(f"{idx}. {item}")
+            print(f"{idx}. {humanize_text(item)}")
     else:
         print("1. No next actions recorded.")
 
     if execution_tasks:
         print("\n## Execution Tasks")
         for idx, item in enumerate(execution_tasks, start=1):
-            print(f"{idx}. {display_execution_task(item)}")
+            print(f"{idx}. {humanize_text(display_execution_task(item))}")
 
     print("\n## Notes")
     print("- Start a new thread with this output and the repo path when you need a clean context.")

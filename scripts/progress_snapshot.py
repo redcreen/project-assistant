@@ -71,6 +71,8 @@ MEDIUM_SLICE_EXPLANATIONS = {
     "runtime source-of-truth convergence": "把 runtime 双源收口到唯一 canonical source",
     "lifecycle coordinator boundary": "把 lifecycle 责任收口到单一协调边界",
     "post-hardening feature follow-on": "在架构加固完成后推进下一条功能增强",
+    "tighten-maintainer-facing-narrative-and-architecture-triggers": "把 progress / continue / handoff 改得更像给维护者看，并把架构升级触发变成自动信号",
+    "evaluate-locale-aware-internal-output": "评估哪些内部控制面输出应该按语言优化，减少中文工作流里的冗余英文",
 }
 
 MEDIUM_SLICE_VALUE = {
@@ -82,6 +84,8 @@ MEDIUM_SLICE_VALUE = {
     "runtime source-of-truth convergence": "避免维护者继续在双 runtime 树之间来回猜 canonical source。",
     "lifecycle coordinator boundary": "把生命周期责任收口，减少后续同类修补。",
     "post-hardening feature follow-on": "让项目从补结构切回有价值的功能增强。",
+    "tighten-maintainer-facing-narrative-and-architecture-triggers": "让维护者回来接手时更少需要翻译，并让架构纠偏更早自动暴露。",
+    "evaluate-locale-aware-internal-output": "让中文优先工作流更短、更顺手，同时不牺牲公开文档双语和 AI 恢复精度。",
 }
 
 TERM_CATALOG = {
@@ -120,14 +124,25 @@ TERM_CATALOG = {
 EXACT_TEXT_MAP = {
     "governed execution / module-view active": "治理执行中 / 模块视角已启用",
     "stage 3: self-learning lifecycle baseline": "阶段 3：self-learning 生命周期基线",
+    "narrative quality and automated architecture triggers": "维护者视角叙事收口与自动架构触发",
+    "locale-aware internal control-surface output": "按语言优化内部控制面输出",
     "stage 3：self-learning lifecycle 基线": "阶段 3：self-learning 生命周期基线",
     "advance-openclaw-adapter-recall-quality": "推进 OpenClaw 适配层召回质量扩面",
+    "tighten-maintainer-facing-narrative-and-architecture-triggers": "收紧维护者视角叙事与自动架构触发",
+    "evaluate-locale-aware-internal-output": "评估哪些内部控制面输出应该按语言优化",
+    "milestone: post-hardening closeout": "加固后收口里程碑",
     "registration and slash-override coverage expansion": "注册与 slash-override 覆盖扩面",
     "status command path coverage expansion": "status 命令路径覆盖扩面",
     "none currently.": "当前无主要风险。",
     "none currently": "当前无主要风险。",
     "post-doc baseline hardening is now closed through runtime-path and registration coverage; the repo is ready to choose its next maintenance or feature slice.": "文档整改后的基线加固已通过 runtime 路径与注册路径覆盖收口；仓库已准备进入下一条维护或功能切片。",
     "post-hardening feature work is underway; the broader release gate is still green and the latest extension slice deepened operator snapshot ux.": "后续增强正在推进；更宽的 release gate 仍保持绿色，本轮切片把 operator 短快照视图补得更深了。",
+    "the docs retrofit slice is complete, and the repo is now rolled forward to one explicit next milestone: a post-hardening closeout run that should execute as one long-task line instead of many small cleanup slices.": "文档整改切片已完成；仓库已推进到一条明确的下一里程碑：用一条加固后收口长任务替代多条零散清理切片。",
+    "close the remaining post-hardening boundary work in one uninterrupted run across compound/future-first convergence, evidence depth, operator/release-facing closeout, and final docs/archive convergence": "把剩余的加固后边界工作收成一条不停顿的长任务，覆盖 compound / future-first 收口、证据加深、operator/release-facing closeout，以及最终 docs/archive 收敛。",
+    "ownership or boundary drift is visible in the current slice": "当前切片里已经出现 ownership / boundary drift 信号",
+    "the current direction can continue, but architecture review should stay visible because an automatic trigger fired": "当前方向可以继续，但因为自动触发已经生效，架构复盘应继续保持可见。",
+    "post-hardening work had remained too diffuse across extension bullets and small slices, which made “later closeout” easy to defer without one milestone owner or execution line": "post-hardening 工作之前分散在很多 extension bullets 和小切片里，没有一个明确 owner 或执行线，导致“以后再收口”这件事一直容易被推迟。",
+    "promote the remaining work into one named milestone with a durable plan and control-surface ownership": "把剩余工作提升成一条命名里程碑，并明确 durable plan 与 control-surface owner。",
     "deepen day-to-day operator ux by adding compact and issue-focused continuity / triage snapshots, then prove them through acceptance, docs, and broader gates": "给日常值班用的 operator 视图补更短、更聚焦问题的 continuity / triage 快照，并通过 acceptance、文档与更宽门禁把它收口。",
     "lock down plugin registration behavior so enabled/disabled, slashoverride, and command registration paths stay stable without relying on upstream host changes": "锁定插件注册行为，让启用/禁用、slashOverride 与命令注册路径保持稳定，且不依赖上游宿主改动。",
     "current execution can proceed inside the existing direction without a user-level tradeoff": "当前执行可以沿既有方向继续，不需要用户层面的额外取舍。",
@@ -254,6 +269,18 @@ PHRASE_REPLACEMENTS = [
     ("harden additional adapters when independent-product operation requires them", "仅在独立产品化运行需要时再加固更多适配层"),
     ("keep source contracts aligned with future learning-policy inputs", "保持来源契约与未来 learning-policy 输入对齐"),
     ("define the next self-learning phase beyond the current baseline", "定义当前基线之后的下一阶段 self-learning"),
+    ("the docs retrofit slice is complete", "文档整改切片已完成"),
+    ("the repo is now rolled forward to one explicit next milestone", "仓库已推进到一条明确的下一里程碑"),
+    ("a post-hardening closeout run", "一条加固后收口执行线"),
+    ("that should execute as one long-task line instead of many small cleanup slices", "并且应用一条长任务执行线收口，而不是继续切成很多零散清理小切片"),
+    ("define the next milestone in roadmap and durable project-level development plan docs", "在 roadmap 和 durable development plan 里定义下一条里程碑"),
+    ("close compound follow-up", "收口 compound 后续项"),
+    ("future-first", "future-first"),
+    ("output-separation boundary drift", "output-separation 边界漂移"),
+    ("runtime-facing evidence", "runtime-facing 证据"),
+    ("deepen planning/channel/operator evidence while keeping", "在保持"),
+    ("do one final closeout pass across roadmap, test-plan, archive guidance, and control surfaces", "对 roadmap、test-plan、archive guidance 与控制面做最后一轮收口"),
+    ("then either close the milestone or split a new named roadmap candidate", "然后决定关闭当前里程碑，还是拆出一条新的命名 roadmap 候选"),
     ("add explicit promotion, decay, and conflict behavior for learned artifacts", "为 learned artifacts 增加显式 promotion、decay 与 conflict 行为"),
     ("add learning-specific reports, replay paths, and policy-facing outputs", "补 learning-specific reports、replay 路径与面向策略的输出"),
     ("define the host-neutral registry root contract and compatibility fallback", "定义宿主中立的 registry root 契约与兼容回退"),
@@ -733,9 +760,20 @@ def project_display_name(repo: Path) -> str:
     return repo.name
 
 
+def is_skill_repo(repo: Path) -> bool:
+    return (repo / "SKILL.md").exists()
+
+
 def medium_mainline_status_zh(repo: Path) -> str:
     readme = read_text(repo / "README.zh-CN.md") or read_text(repo / "README.md")
     roadmap = read_text(repo / "docs/roadmap.zh-CN.md") or read_text(repo / "docs/roadmap.md")
+    if is_skill_repo(repo):
+        status_text = read_text(repo / ".codex/status.md")
+        active_slice = first_line(section(status_text, "Active Slice")).strip("`").lower()
+        current_phase = first_line(section(status_text, "Current Phase")).strip("`").lower()
+        if "locale-aware" in current_phase or "locale-aware" in active_slice:
+            return "核心能力已完成；当前在做内部控制面按语言收口的评估。"
+        return "核心能力已完成；当前在做维护者体验与自动触发增强。"
     if "后续剩余工作属于扩展方向，不是主线欠账" in readme or "remaining work is extension work, not unfinished mainline debt" in readme.lower():
         return "主线 Phase 0-6 已完成；当前在做主线全部完成后的扩展与增强。"
     if "mainline roadmap is complete" in readme.lower() or "正式主线 roadmap 已完成" in readme:
@@ -747,6 +785,10 @@ def medium_mainline_status_zh(repo: Path) -> str:
 
 def medium_work_area_zh(active_slice: str, execution_line: str) -> str:
     lowered = f"{active_slice} {execution_line}".lower()
+    if any(token in lowered for token in ["locale-aware", "用户语言", "中文工作流", "冗余英文"]):
+        return "内部输出与恢复面收口"
+    if any(token in lowered for token in ["progress", "continue", "handoff", "narrative", "architecture trigger", "maintainer"]):
+        return "维护者恢复与架构监督增强"
     if any(token in lowered for token in ["operator", "dashboard", "triage", "continuity", "main_ops", "watchdog"]):
         return "运维视图增强"
     if any(token in lowered for token in ["planning", "acceptance", "stable_acceptance", "channel", "release gate"]):
@@ -788,6 +830,19 @@ def medium_direct_value_zh(active_slice: str, execution_line: str) -> str:
     return "让下一次回来看项目时更容易接手。"
 
 
+def task_direct_value_zh(task_text: str, active_slice: str) -> str:
+    lowered = f"{task_text} {active_slice}".lower()
+    if any(token in lowered for token in ["docs", "progress", "handoff", "capabilities", ".codex", "devlog"]):
+        return "让维护者下次回来时，不需要重新猜当前状态和入口。"
+    if any(token in lowered for token in ["validate", "validation", "acceptance", "gate", "tests", "release"]):
+        return "让这轮变化进入正式验证，不再只靠口头记忆。"
+    if any(token in lowered for token in ["architecture", "root-cause", "correct layer", "trigger", "signal"]):
+        return "让方向偏掉时更早暴露，而不是修一个冒一个。"
+    if any(token in lowered for token in ["implement", "sync", "refresh", "expand", "compact", "issues"]):
+        return "把当前切片的核心增量真正落地成可接手的结果。"
+    return "让当前切片更容易被维护者看懂并继续推进。"
+
+
 def usage_links(repo: Path) -> dict[str, str]:
     usage = preferred_existing_path(repo, ["docs/usage_guide.zh-CN.md", "docs/usage_guide.md"])
     links: dict[str, str] = {}
@@ -805,7 +860,7 @@ def relevant_terms(repo: Path, active_slice: str, execution_line: str, readme_ca
     links = usage_links(repo)
     rows: list[dict[str, str]] = []
     for key in ["dashboard", "triage", "continuity", "watchdog", "[wd]"]:
-        if key.lower() in corpus or key == "[wd]":
+        if key.lower() in corpus:
             meta = TERM_CATALOG[key]
             rows.append(
                 {
@@ -833,8 +888,17 @@ def split_medium_capabilities(repo: Path, readme_capabilities: list[str]) -> lis
     return rows
 
 
-def medium_workstream_rows(repo: Path, active_slice: str) -> list[tuple[str, str, str, str, str, str]]:
+def medium_workstream_rows(repo: Path, active_slice: str, execution_line: str) -> list[tuple[str, str, str, str, str, str]]:
     lowered = active_slice.lower()
+    if is_skill_repo(repo):
+        current_narrative = "收口第一屏叙事，让维护者更容易恢复" if any(token in lowered for token in ["narrative", "progress", "handoff", "continue"]) else "维持当前恢复面板"
+        current_architecture = "把自动 review trigger 接到 supervision signal" if any(token in lowered for token in ["architecture", "trigger"]) else "维持自动架构监督"
+        return [
+            ("控制面与收敛", "保证 `.codex` truth、任务板和门禁一致", "活跃", "P1", "维持当前控制面真相", "继续保持 plan / status / progress / handoff 一致"),
+            ("进展与恢复输出", "给维护者和未来接手者看的恢复面板", "活跃", "P0", current_narrative, "继续压掉需要人工翻译的表达"),
+            ("架构监督与门禁", "让方向偏掉时更早自动暴露", "活跃", "P0", current_architecture, "继续收紧自动 review trigger"),
+            ("文档与发布", "保证 README / roadmap / development-plan / gates 对齐", "稳定", "P2", "保持文档与门禁同步", "只在里程碑切换时更新"),
+        ]
     current_operator = "补 continuity / triage 短快照" if "operator" in lowered or "triage" in lowered or "continuity" in lowered else "维持稳定"
     next_operator = "转向真实渠道证据或更深 release gate" if "operator" in lowered or "triage" in lowered or "continuity" in lowered else "按下一条切片推进"
     return [
@@ -842,6 +906,23 @@ def medium_workstream_rows(repo: Path, active_slice: str) -> list[tuple[str, str
         ("运维视图", "给维护者 / 值班者看的观察与恢复视图", "活跃", "P0" if "operator" in lowered or "triage" in lowered or "continuity" in lowered else "P1", current_operator, next_operator),
         ("规划与验收", "planning / acceptance / release-facing 验证", "活跃", "P1", "保持 acceptance 与当前视图同步", "扩更多真实或半真实样本"),
         ("安装与同步", "repo runtime 与安装态 runtime 的一致性", "稳定", "P2", "维持 canonical source 规则", "只做回归"),
+    ]
+
+
+def medium_current_work_rows(active_slice: str, execution_tasks: list[str]) -> list[tuple[str, str, str, str]]:
+    rows: list[tuple[str, str, str, str]] = []
+    for task_id, state, content in execution_task_rows(execution_tasks)[:5]:
+        rows.append((content, task_direct_value_zh(content, active_slice), state, task_id))
+    if rows:
+        return rows
+    explanation = medium_slice_explanation_zh(active_slice, active_slice)
+    return [
+        (
+            explanation,
+            task_direct_value_zh(explanation, active_slice),
+            "已记录",
+            "切片",
+        )
     ]
 
 
@@ -910,7 +991,12 @@ def render_medium_progress(
     done_tasks: int,
     total_tasks: int,
     architecture_signal: str,
+    signal_basis: str,
+    root_cause_hypothesis: str,
+    correct_layer: str,
+    automatic_review_trigger: str,
     escalation_gate: str,
+    escalation_reason: str,
     main_risk: str,
     phase_link: str,
     slice_link: str,
@@ -948,36 +1034,40 @@ def render_medium_progress(
     print("| 问题 | 当前答案 |")
     print("| --- | --- |")
     print(f"| 项目 | `{project_name}` |")
-    print(f"| 当前判断 | `{medium_mainline_status_zh(repo)}` |")
-    print(f"| 当前阶段 | `{current_phase_display}` |")
-    print(f"| 当前工作域 | `{work_area}` |")
-    print(f"| 当前切片 | `{slice_explanation}` |")
+    print(f"| 当前判断 | {medium_mainline_status_zh(repo)} |")
+    print(f"| 当前阶段 | {current_phase_display} |")
+    print(f"| 当前工作域 | {work_area} |")
+    print(f"| 当前切片 | {slice_explanation} |")
     print(f"| 当前执行进度 | `{done_tasks} / {total_tasks}` |")
     print(f"| 架构信号 | `{zh_signal(architecture_signal or 'n/a')}` |")
-    print(f"| 直接价值 | `{direct_value}` |")
-    print(f"| 当前主要风险 | `{pretty_text_zh(main_risk)}` |")
+    print(f"| 直接价值 | {direct_value} |")
+    print(f"| 当前主要风险 | {pretty_text_zh(main_risk)} |")
 
     print("\n## 当前定位")
     print("| 维度 | 当前状态 | 说明 | 入口 |")
     print("| --- | --- | --- | --- |")
-    print(f"| 主线状态 | `{medium_mainline_status_zh(repo)}` | 不是补主线欠债，而是在主线完成后继续增强 | {markdown_file_link(roadmap_path, '路线图') if roadmap_path else '暂无'} |")
-    print(f"| 当前阶段 | `{current_phase_display}` | 当前主要在补增强与边界收口 | {current_phase_link if current_phase_link != 'n/a' else '暂无'} |")
-    print(f"| 当前工作域 | `{work_area}` | 当前这轮主要面向维护者 / 值班者的使用体验与验证链路 | {markdown_file_link(usage_path, '使用指南') if usage_path else '暂无'} |")
-    print(f"| 当前切片 | `{slice_explanation}` | 原始切片名：`{active_slice}` | {slice_link if slice_link != 'n/a' else markdown_file_link(plan_path, '计划') if plan_path.exists() else '暂无'} |")
-    print(f"| 当前执行线 | `{execution_line_display}` | {execution_line_note} | {markdown_file_link(status_path, '状态') if status_path.exists() else '暂无'} |")
+    print(f"| 主线状态 | {medium_mainline_status_zh(repo)} | 不是补主线欠债，而是在主线完成后继续增强 | {markdown_file_link(roadmap_path, '路线图') if roadmap_path else '暂无'} |")
+    print(f"| 当前阶段 | {current_phase_display} | 当前主要在补增强与边界收口 | {current_phase_link if current_phase_link != 'n/a' else '暂无'} |")
+    print(f"| 当前工作域 | {work_area} | 当前这轮主要面向维护者 / 值班者的使用体验与验证链路 | {markdown_file_link(usage_path, '使用指南') if usage_path else '暂无'} |")
+    print(f"| 当前切片 | {slice_explanation} | 原始切片名：`{active_slice}` | {slice_link if slice_link != 'n/a' else markdown_file_link(plan_path, '计划') if plan_path.exists() else '暂无'} |")
+    print(f"| 当前执行线 | {execution_line_display} | {execution_line_note} | {markdown_file_link(status_path, '状态') if status_path.exists() else '暂无'} |")
 
     print("\n## 当前这轮到底在做什么")
-    print("| 项目 | 当前内容 | 对维护者的直接价值 | 当前状态 |")
+    print("| 当前工作 | 对维护者的直接价值 | 当前状态 | 对应任务 |")
     print("| --- | --- | --- | --- |")
-    rows = [
-        ("continuity --compact", "给连续性 / 恢复视图补短快照", "值班时能快速扫一眼哪些任务断了、卡了、需要续跑", "已完成"),
-        ("continuity --only-issues", "只保留真正要动作的问题", "不用读一堆正常状态，直接看异常", "已完成"),
-        ("triage --compact", "给分诊视图补短快照", "更快知道“先处理什么”", "已完成"),
-        ("acceptance 覆盖", "把这些短视图纳入 release-facing acceptance", "防止短视图只是方便，但不受正式验证保护", "已完成"),
-        ("docs / control surface", "把这轮变化写回 docs 与 `.codex`", "以后维护者回来能直接看懂，不依赖这次聊天", "已完成"),
-    ]
-    for label, current, value, state in rows:
-        print(f"| `{label}` | {current} | {value} | {state} |")
+    for current, value, state, task_id in medium_current_work_rows(active_slice, execution_tasks):
+        print(f"| {current} | {value} | {state} | `{task_id}` |")
+
+    print("\n## 架构监督")
+    print("| 项目 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 信号 | `{zh_signal(architecture_signal or 'n/a')}` |")
+    print(f"| 根因假设 | {pretty_text_zh(root_cause_hypothesis)} |")
+    print(f"| 正确落层 | {pretty_text_zh(correct_layer)} |")
+    print(f"| 信号依据 | {pretty_text_zh(signal_basis)} |")
+    print(f"| 自动触发 | {pretty_text_zh(automatic_review_trigger)} |")
+    print(f"| 升级 Gate | `{zh_gate(escalation_gate or 'n/a')}` |")
+    print(f"| 升级原因 | {pretty_text_zh(escalation_reason)} |")
 
     glossary_rows = relevant_terms(repo, active_slice, current_execution_line, readme_capabilities)
     if glossary_rows:
@@ -998,18 +1088,18 @@ def render_medium_progress(
     print("\n## 工作域视角")
     print("| 工作域 | 这是干什么的 | 当前状态 | 优先级 | 当前在做什么 | 下一步 |")
     print("| --- | --- | --- | --- | --- | --- |")
-    for domain, purpose, state, priority, current, next_step in medium_workstream_rows(repo, active_slice):
+    for domain, purpose, state, priority, current, next_step in medium_workstream_rows(repo, active_slice, current_execution_line):
         print(f"| {domain} | {purpose} | {state} | {priority} | {current} | {next_step} |")
 
     print("\n## 当前长任务")
     print("| 项目 | 当前值 |")
     print("| --- | --- |")
     print(f"| 长任务名称 | `{active_slice}` |")
-    print(f"| 长任务目标 | `{slice_explanation}` |")
+    print(f"| 长任务目标 | {slice_explanation} |")
     print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
-    print(f"| 当前结论 | `{taskboard_conclusion}` |")
-    print(f"| 是否存在 blocker | `{pretty_text_zh(main_risk)}` |")
-    print(f"| 下一步性质 | `{next_step_nature}` |")
+    print(f"| 当前结论 | {taskboard_conclusion} |")
+    print(f"| 是否存在 blocker | {pretty_text_zh(main_risk)} |")
+    print(f"| 下一步性质 | {next_step_nature} |")
 
     task_rows = execution_task_rows(execution_tasks)
     if task_rows:
@@ -1068,6 +1158,7 @@ def render_large_progress(
     signal_basis: str,
     root_cause_hypothesis: str,
     correct_layer: str,
+    automatic_review_trigger: str,
     escalation_gate: str,
     escalation_reason: str,
     execution_tasks: list[str],
@@ -1099,23 +1190,23 @@ def render_large_progress(
     print("| --- | --- |")
     print(f"| 项目 | `{project_name}` |")
     print(f"| 层级 | `{zh_tier(tier)}` |")
-    print(f"| 当前判断 | `{judgment}` |")
-    print(f"| 当前阶段 | `{phase_display}` |")
+    print(f"| 当前判断 | {judgment} |")
+    print(f"| 当前阶段 | {phase_display} |")
     if active_module:
         print(f"| 当前主战场 | `{module_display_name_zh(active_module)}` |")
-    print(f"| 当前切片 | `{active_slice_display}` |")
-    print(f"| 当前执行线 | `{execution_line_display}` |")
+    print(f"| 当前切片 | {active_slice_display} |")
+    print(f"| 当前执行线 | {execution_line_display} |")
     print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
     print(f"| 架构信号 | `{zh_signal(architecture_signal or 'n/a')}` |")
-    print(f"| 直接价值 | `{direct_value}` |")
-    print(f"| 当前主要风险 | `{pretty_text_zh(main_risk)}` |")
+    print(f"| 直接价值 | {direct_value} |")
+    print(f"| 当前主要风险 | {pretty_text_zh(main_risk)} |")
 
     print("\n## 当前定位")
     print("| 项目位置 | 当前值 | 说明 | 链接 |")
     print("| --- | --- | --- | --- |")
-    print(f"| 当前阶段 | `{phase_display}` | 当前所处的大阶段 | {phase_link if phase_link != 'n/a' else '暂无'} |")
-    print(f"| 当前切片 | `{active_slice_display}` | 当前真正推进的工作单元 | {slice_link if slice_link != 'n/a' else '暂无'} |")
-    print(f"| 当前执行线 | `{execution_line_display}` | 这一轮长任务的人话说明 | 暂无 |")
+    print(f"| 当前阶段 | {phase_display} | 当前所处的大阶段 | {phase_link if phase_link != 'n/a' else '暂无'} |")
+    print(f"| 当前切片 | {active_slice_display} | 当前真正推进的工作单元 | {slice_link if slice_link != 'n/a' else '暂无'} |")
+    print(f"| 当前执行线 | {execution_line_display} | 这一轮长任务的人话说明 | 暂无 |")
     if active_module:
         print(f"| 当前模块 | `{module_display_name_zh(active_module)}` | 当前主战场 | 暂无 |")
     if roadmap_path:
@@ -1131,12 +1222,12 @@ def render_large_progress(
     print("\n## 当前长任务")
     print("| 项目 | 当前值 |")
     print("| --- | --- |")
-    print(f"| 长任务名称 | `{active_slice_display}` |")
-    print(f"| 长任务目标 | `{execution_line_display}` |")
+    print(f"| 长任务名称 | {active_slice_display} |")
+    print(f"| 长任务目标 | {execution_line_display} |")
     print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
-    print(f"| 当前结论 | `当前切片已经推进到当前检查点` |")
-    print(f"| 是否存在 blocker | `{pretty_text_zh(main_risk)}` |")
-    print(f"| 下一步性质 | `{pretty_text_zh(next_actions_display[0]) if next_actions_display else '继续推进当前阶段'}` |")
+    print(f"| 当前结论 | 当前切片已经推进到当前检查点 |")
+    print(f"| 是否存在 blocker | {pretty_text_zh(main_risk)} |")
+    print(f"| 下一步性质 | {pretty_text_zh(next_actions_display[0]) if next_actions_display else '继续推进当前阶段'} |")
 
     if execution_tasks:
         print("\n## 当前任务板")
@@ -1152,6 +1243,7 @@ def render_large_progress(
     print(f"| 根因假设 | {pretty_text_zh(root_cause_hypothesis)} |")
     print(f"| 正确落层 | {pretty_text_zh(correct_layer)} |")
     print(f"| 信号依据 | {pretty_text_zh(signal_basis)} |")
+    print(f"| 自动触发 | {pretty_text_zh(automatic_review_trigger)} |")
     print(f"| 升级门 | `{zh_gate(escalation_gate)}` |")
     print(f"| 升级原因 | {pretty_text_zh(escalation_reason)} |")
 
@@ -1285,7 +1377,12 @@ def main() -> int:
             done_tasks=done_tasks,
             total_tasks=total_tasks,
             architecture_signal=architecture_signal,
+            signal_basis=signal_basis,
+            root_cause_hypothesis=root_cause_hypothesis,
+            correct_layer=correct_layer,
+            automatic_review_trigger=architecture_state["automatic_review_trigger"],
             escalation_gate=escalation_gate,
+            escalation_reason=escalation_reason,
             main_risk=main_risk,
             phase_link=phase_link,
             slice_link=slice_link,
@@ -1329,6 +1426,7 @@ def main() -> int:
             signal_basis=signal_basis,
             root_cause_hypothesis=root_cause_hypothesis,
             correct_layer=correct_layer,
+            automatic_review_trigger=architecture_state["automatic_review_trigger"],
             escalation_gate=escalation_gate,
             escalation_reason=escalation_reason,
             execution_tasks=execution_tasks,

@@ -208,6 +208,7 @@ def plan_architecture_body(state: dict[str, str]) -> str:
             f"- Root Cause Hypothesis: {state['root_cause_hypothesis']}",
             f"- Correct Layer: {state['correct_layer']}",
             f"- Rejected Shortcut: {state['rejected_shortcut']}",
+            f"- Automatic Review Trigger: {state['automatic_review_trigger']}",
             f"- Escalation Gate: {state['gate']}",
         ]
     )
@@ -220,6 +221,7 @@ def status_architecture_body(state: dict[str, str]) -> str:
             f"- Signal Basis: {state['signal_basis']}",
             f"- Root Cause Hypothesis: {state['root_cause_hypothesis']}",
             f"- Correct Layer: {state['correct_layer']}",
+            f"- Automatic Review Trigger: {state['automatic_review_trigger']}",
             f"- Escalation Gate: {state['gate']}",
         ]
     )

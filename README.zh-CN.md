@@ -71,6 +71,8 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 把当前工作收敛成一条有检查点的长任务执行线，而不是频繁等待“继续”
 - 把执行线显示成一个可见的子任务板，并用 `Plan Link` 映射回当前切片
 - 把架构监督状态和升级 gate 并排展示在执行线旁边
+- 把 `progress / continue / handoff` 做成更像给维护者看的第一屏，而不是只剩 raw status dump
+- 当当前切片出现 ownership、boundary 或 repeated-fix drift 时，自动把架构复盘升上来
 - 用一个简短的 `Usable Now` 快照告诉你现在已经能直接用什么
 - 把现有仓库整改到收敛状态
 - 用全局和模块视角汇报进展
@@ -93,6 +95,8 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 规划、执行、架构监督和开发日志现在都已经是默认自动能力，而不是额外 opt-in 流程
 - 这套 skill 已经不只是一个规划脚手架，而是真的在轻量仓库和大型文档型仓库上跑过收敛
 - `progress`、`handoff`、控制面和门禁现在描述的是同一套当前真相
+- 代表性的中型 / 大型仓库现在都能给出更像“维护者恢复面板”的第一屏，而不是只有 raw slice 名
+- 至少一条架构复盘路径现在已经能从当前切片里的 drift 信号自动升级出来，而不是只靠手工提醒
 - 下一步最值得做的是继续在更多项目上试跑并收集摩擦点，而不是先继续改核心模型
 
 ## 常见工作流

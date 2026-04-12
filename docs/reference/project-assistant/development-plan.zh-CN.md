@@ -26,10 +26,10 @@
 
 | 项目 | 当前值 | 说明 |
 | --- | --- | --- |
-| 当前阶段 | `narrative quality and automated architecture triggers` | 来自 `.codex/plan.md` 的当前维护阶段 |
-| 当前切片 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | 当前执行线绑定的切片 |
-| 当前执行线 | 收紧 maintainer-facing narrative，减少 `progress / continue / handoff` 里的 AI-centric 表达，并把至少一条架构升级触发从“手工识别”变成自动信号 | 当前这轮真正要收口的工作 |
-| 当前验证 | representative medium + large repo snapshots 可读；`deep` / `release` 继续通过 | 继续前如何证明这条线已收口 |
+| 当前阶段 | `locale-aware internal control-surface output` | 来自 `.codex/plan.md` 的当前维护阶段 |
+| 当前切片 | `evaluate-locale-aware-internal-output` | 当前执行线绑定的切片 |
+| 当前执行线 | 评估哪些内部控制面输出应该按用户语言做单通道展示，减少中文工作流里的冗余英文，同时不削弱公开文档双语和 AI 恢复精度 | 当前这轮真正要收口的工作 |
+| 当前验证 | representative Chinese-first repo 的 internal snapshots 更短但不失恢复点；公开文档双语门禁不受影响；`deep` 继续通过 | 继续前如何证明这条线已收口 |
 
 ## 阶段总览
 
@@ -41,8 +41,8 @@
 | M4 | done | 建立 durable 文档标准与文档校验 | document standards + docs scripts | durable 文档通过结构门禁 |
 | M5 | done | 建立公开文档双语切换与验收 | i18n rules + i18n validator | 公开文档可在中英文之间稳定切换 |
 | M6 | done | 收敛成内嵌式架构师助手工作模型 | previous milestones | 规划、执行、架构监督和开发日志成为默认自动能力 |
-| M7 | active | 提升叙事质量与自动架构触发能力 | M6 | 整改后的手工清理更少，方向纠偏提示更少 |
-| M8 | later | 评估按语言裁剪内部控制面的可能性 | handoff + command templates + validation policy | 中文工作流能减少冗余英文而不削弱公开文档双语 |
+| M7 | done | 提升叙事质量与自动架构触发能力 | M6 | 整改后的手工清理更少，方向纠偏提示更少 |
+| M8 | active | 评估按语言裁剪内部控制面的可能性 | handoff + command templates + validation policy | 中文工作流能减少冗余英文而不削弱公开文档双语 |
 | M9 | later | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | `项目助手 继续` 只保留最小恢复信息，不再重复 progress 内容 |
 
 ## 顺序执行队列
@@ -58,7 +58,8 @@
 | 7 | `automate supervision, release protection, and human windows` | 较早切片 | n/a | n/a |
 | 8 | `make architecture retrofit a first-class flow` | 较早切片 | n/a | n/a |
 | 9 | `prepare project-assistant for broader repo adoption` | 较早切片 | n/a | n/a |
-| 10 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | 当前 | n/a | n/a |
+| 10 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | 已完成的里程碑切片 | representative medium / large repo 的第一屏更接近维护者恢复面板；至少一条架构触发已能自动升级 | representative repo snapshots 改善且自动触发可见 |
+| 11 | `evaluate-locale-aware-internal-output` | 当前 | 明确哪些 internal surfaces 应该 locale-aware，同时不拆裂 public truth 与 AI truth | 中文优先 internal surfaces 更短，公开文档双语门禁继续稳定 |
 
 ## 里程碑细节
 
@@ -120,7 +121,7 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | active |
+| 当前状态 | done |
 | 目标 | 提升叙事质量与自动架构触发能力 |
 | 依赖 | M6 |
 | 退出条件 | 整改后的手工清理更少，方向纠偏提示更少 |
@@ -129,7 +130,7 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | later |
+| 当前状态 | active |
 | 目标 | 评估按语言裁剪内部控制面的可能性 |
 | 依赖 | handoff + command templates + validation policy |
 | 退出条件 | 中文工作流能减少冗余英文而不削弱公开文档双语 |
@@ -147,4 +148,10 @@
 
 | 下一步 | 为什么做 |
 | --- | --- |
-| 继续从 `tighten-maintainer-facing-narrative-and-architecture-triggers` 之后恢复 | 当前执行线已经把真实恢复点固定在 `.codex/plan.md` 里 |
+| 继续从 `evaluate-locale-aware-internal-output` 之后恢复 | M7 已关闭；下一个 durable 问题是哪些 internal 输出应该按语言优化、哪些必须保持原始真相 |
+
+## 战略待办
+
+| 主题 | 范围 | 进入条件 |
+| --- | --- | --- |
+| 业务规划与程序编排层 | 评估 `project-assistant` 是否需要一层更高阶的规划 / 监督角色，用来协调多个 Codex 工作流、决定何时插入治理或架构专项、识别既有里程碑或项目定位是否需要调整，并在人类主要负责业务方向时继续稳定盯住长期交付 | 等 M8 和 M9 收口后再回看；先出方案、经过 review，再决定是否提升成正式里程碑或 active slice |

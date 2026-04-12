@@ -2,27 +2,28 @@
 
 ## Current Phase
 
-`narrative quality and automated architecture triggers`
+`locale-aware internal control-surface output`
 
 ## Current Execution Line
-- Objective: 收紧 maintainer-facing narrative，减少 `progress / continue / handoff` 里的 AI-centric 表达，并把至少一条架构升级触发从“手工识别”变成自动信号
-- Plan Link: tighten-maintainer-facing-narrative-and-architecture-triggers
-- Runway: 先整理 representative medium / large repo 的叙事摩擦点，再统一 progress / continue / handoff 的维护者表达，最后把一条 architecture-review trigger 接到 supervision signal 上
-- Progress: 0 / 6 tasks complete
+- Objective: 评估哪些内部控制面输出应该按用户语言做单通道展示，减少中文工作流里的冗余英文，同时不削弱公开文档双语和 AI 恢复精度
+- Plan Link: evaluate-locale-aware-internal-output
+- Runway: one active-slice checkpoint covering implementation, validation, and state refresh
+- Progress: 0 / 9 tasks complete
 - Stop Conditions:
-  - representative medium / large repo 的 progress / continue / handoff 不再需要大量人工翻译
-  - 至少一条自动 architecture-review trigger 已由 control-surface signal 驱动
-  - roadmap / status / plan / progress / handoff 对当前阶段的叙述保持一致
-- Validation: representative medium + large repo snapshots 可读；`deep` / `release` 继续通过
+  - blocker requires human direction
+  - validation fails and changes the direction
+  - business, compatibility, or cost decision requires user judgment
+- Validation: representative Chinese-first repo 的 internal snapshots 更短但不失恢复点；公开文档双语门禁不受影响；`deep` 继续通过
 
 ## Architecture Supervision
-- Signal: `yellow`
-- Signal Basis: open blockers or architectural risks are still recorded
-- Problem Class: default-on model 已经成立，但维护者视角叙事和自动触发层还不够稳定
-- Root Cause Hypothesis: 默认自动推进模型已经成立，剩余摩擦点主要来自叙事层和自动触发层，而不是缺失核心能力
-- Correct Layer: progress / continue / handoff narration, architecture supervision triggers, and outward-facing docs
-- Rejected Shortcut: 只把 M6 标记完成，却不把剩余 operator friction 显式切成下一条 slice
-- Escalation Gate: raise but continue
+- Signal: `green`
+- Signal Basis: no blocker or escalation trigger is currently forcing a higher-level decision
+- Problem Class: default-on model 已经成立，当前问题转成 internal output 的语言策略，而不是核心执行模型缺失
+- Root Cause Hypothesis: 公开文档双语与内部恢复输出共享了太多 raw wording，导致中文优先工作流里仍然带着大量不必要的英文
+- Correct Layer: internal progress / continue / handoff presentation rules, validation policy, and wording boundaries between public and internal surfaces
+- Rejected Shortcut: 直接把所有 internal output 全量中文化，却不先定义哪些 surfaces 必须保留 raw truth 或 bilingual behavior
+- Automatic Review Trigger: no automatic trigger is currently active
+- Escalation Gate: continue automatically
 
 ## Escalation Model
 
@@ -31,12 +32,15 @@
 - Require User Decision: 需要改变产品行为、兼容性边界、性能/成本取舍或用户体验方向时，必须停下来等用户裁决
 
 ## Execution Tasks
-- [ ] EL-1 盘点 representative medium / large repo 里最常见的叙事摩擦点，定位哪些表达仍然更像给 AI 看
-- [ ] EL-2 定义 maintainer-facing wording contract，统一 progress / continue / handoff 的第一屏表达
-- [ ] EL-3 把至少一条 architecture drift / repeated-fix 信号升级成自动 architecture-review trigger
-- [ ] EL-4 在 representative medium / large repo 上验证新的叙事与自动触发是否可读、可用
-- [ ] EL-5 更新 README / roadmap / development-plan / progress-reporting 说明
-- [ ] EL-6 重跑 `capability_snapshot`、`progress_snapshot`、`context_handoff`、`deep`、`release`
+- [ ] EL-1 confirm the checkpoint and objective for `evaluate-locale-aware-internal-output`: 评估哪些内部控制面输出应该按用户语言做单通道展示，减少中文工作流里的冗余英文，同时不削弱公开文档双语和 AI 恢复精度
+- [ ] EL-2 verify dependencies and affected boundaries: progress / continue / handoff wording contract、public-doc i18n rules、validation policy、command templates
+- [ ] EL-3 confirm architecture signal, root-cause hypothesis, and correct layer still hold
+- [ ] EL-4 implement the highest-value change for `evaluate-locale-aware-internal-output`
+- [ ] EL-5 address the main execution risk: 内部输出与公开文档规则串线；为了省 token 丢失恢复点；人类解释层和 AI 真相层再次分裂
+- [ ] EL-6 update docs, control-surface notes, or contracts touched by this slice
+- [ ] EL-7 run validation: representative Chinese-first repo 的 internal snapshots 更短但不失恢复点；公开文档双语门禁不受影响；`deep` 继续通过
+- [ ] EL-8 refresh progress, capabilities, next checkpoint, and next 3 actions
+- [ ] EL-9 capture a devlog entry if the root cause, tradeoff, or rejected shortcut changed
 
 ## Development Log Capture
 - Trigger Level: high
@@ -122,3 +126,10 @@
   - Risks: 输出仍然像给 AI 自己看；自动触发太吵或太弱；README / roadmap / progress 又开始各说各话
   - Validation: representative medium / large repo 的 progress / continue / handoff 更接近“维护者恢复面板”；至少一条 architecture-review trigger 自动触发；`deep` / `release` 继续通过
   - Exit Condition: 维护者视角叙事更稳定，自动架构触发不再主要依赖人工判断
+
+- Slice: evaluate-locale-aware-internal-output
+  - Objective: 评估哪些内部控制面输出应该按用户语言做单通道展示，减少中文工作流里的冗余英文，同时不削弱公开文档双语和 AI 恢复精度
+  - Dependencies: progress / continue / handoff wording contract、public-doc i18n rules、validation policy、command templates
+  - Risks: 内部输出与公开文档规则串线；为了省 token 丢失恢复点；人类解释层和 AI 真相层再次分裂
+  - Validation: representative Chinese-first repo 的 internal snapshots 更短但不失恢复点；公开文档双语门禁不受影响；`deep` 继续通过
+  - Exit Condition: 已明确哪些 internal surfaces 应该 locale-aware、哪些必须保持 bilingual / raw truth，并且这套规则可被脚本稳定执行
