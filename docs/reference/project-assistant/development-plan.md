@@ -26,10 +26,10 @@ It answers one practical question:
 
 | Item | Current Value | Meaning |
 | --- | --- | --- |
-| Current Phase | `supervised long-run delivery layer closed; rollout queued` | Current maintainer-facing phase from `.codex/plan.md` |
-| Active Slice | `close-m12-and-open-rollout` | The slice tied to the current execution line |
-| Current Execution Line | close M12 across delivery-supervision scripts, gates, snapshots, and durable docs, then open rollout / friction collection as the next durable state | What the repo is finishing now |
-| Validation | delivery-supervision scripts, validators, snapshots, README, roadmap, development plan, and control truth align; `deep` and `release` continue to pass | How this line proves itself before moving on |
+| Current Phase | `post-M12 mainline formalized; M13 active` | the formal route is now split into `M13 / M14 / M15` instead of “decide after rollout” |
+| Active Slice | `define-m13-m14-m15-post-m12-mainline` | the current documentation-level slice formalizing the post-M12 mainline |
+| Current Execution Line | turn post-M12 into the formal `M13 PTL supervision loop`, `M14 worker handoff and re-entry`, and `M15 selective multi-executor scheduling`, while explaining `worker handoff` in maintainer-readable language | What the repo is finishing now |
+| Validation | roadmap, README, development plan, the strategic direction doc, and the orchestration model all describe the same `M13 / M14 / M15` meaning; `deep` still passes | How this line proves itself before moving on |
 
 ## Milestone Overview
 
@@ -47,6 +47,9 @@ It answers one practical question:
 | M10 | done | add a PTL-driven strategic-evaluation layer above execution and retrofit | M7 + approved strategic direction | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs instead of ad hoc intuition |
 | M11 | done | add a PTL-driven program-orchestration layer across multiple slices or workers | M10 + durable program board | stabilize the durable orchestration truth inside one Codex first; if multi-executor scheduling is needed later, create it as a separate milestone |
 | M12 | done | add PTL-driven supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue until a real business decision point |
+| M13 | active | add a PTL-driven supervision loop | M12 + durable delivery supervision | the PTL keeps watching delivery through periodic and event-driven checks instead of letting the project stop with the worker |
+| M14 | next | add worker handoff and re-entry | M13 + durable handoff / supervision truth | after checkpoints, timeouts, failures, or handoffs, unfinished work can still be resumed, reassigned, re-queued, or escalated |
+| M15 | later | add selective multi-executor scheduling | M14 + disjoint write scopes + conflict control | only safe parallel work enters multi-executor scheduling; tightly coupled work stays on one primary write line |
 
 ## Ordered Execution Queue
 
@@ -66,7 +69,8 @@ It answers one practical question:
 | 12 | `establish-strategy-surface-and-review-contract` | completed | create the first durable strategy surface, define review boundaries, and record how M8/M9 move into supporting backlog | `.codex/strategy.md` exists; docs and control truth align; `deep` passes |
 | 13 | `close-m10-and-queue-m11` | completed | turn M10 from “approved direction” into “scripts, gates, snapshots, and docs all agree”, then queue M11 as the next mainline | `validate_strategy_surface.py`, `progress / continue / handoff`, README, roadmap, development plan, and control truth all align; `deep` and `release` pass |
 | 14 | `close-m11-and-queue-m12` | completed | turn M11 from “program direction plus board sketch” into “program-board, gates, snapshots, and docs all agree”, then queue M12 as the next mainline | `validate_program_board.py`, `progress / continue / handoff`, README, roadmap, development plan, and control truth all align; `deep` and `release` pass |
-| 15 | `close-m12-and-open-rollout` | current | turn M12 from “approved direction” into “delivery-supervision, gates, snapshots, and docs all agree”, then open rollout / friction collection as the next durable state | `validate_delivery_supervision.py`, `progress / continue / handoff`, README, roadmap, development plan, and control truth all align; `deep` and `release` pass |
+| 15 | `close-m12-and-open-rollout` | completed | turn M12 from “approved direction” into “delivery-supervision, gates, snapshots, and docs all agree”, then open rollout / friction collection as the next durable state | `validate_delivery_supervision.py`, `progress / continue / handoff`, README, roadmap, development plan, and control truth all align; `deep` and `release` pass |
+| 16 | `define-m13-m14-m15-post-m12-mainline` | current | formalize post-M12 into `M13 / M14 / M15` and explain the practical meaning of `worker handoff and re-entry` | roadmap, README, development plan, strategic direction doc, and orchestration model all align; `deep` passes |
 
 ## Milestone Details
 
@@ -178,17 +182,45 @@ It answers one practical question:
 | Depends On | M11 + stable escalation policy |
 | Exit Criteria | long-running delivery can continue until a real business decision point |
 
+### M13
+
+| Item | Current Value |
+| --- | --- |
+| Status | active |
+| Goal | add a PTL-driven supervision loop |
+| Depends On | M12 + durable delivery supervision |
+| Exit Criteria | the PTL can inspect, continue, resequence, or escalate through periodic and event-driven checks instead of only appearing in chat |
+
+### M14
+
+| Item | Current Value |
+| --- | --- |
+| Status | next |
+| Goal | add worker handoff and re-entry |
+| Plain-Language Meaning | `when a worker stops, the project should not stop with it` |
+| Depends On | M13 + durable handoff / supervision truth |
+| Exit Criteria | after a checkpoint, timeout, failure, or handoff, remaining work still has a durable path forward through resume, reassignment, re-queueing, or escalation |
+
+### M15
+
+| Item | Current Value |
+| --- | --- |
+| Status | later |
+| Goal | add selective multi-executor scheduling |
+| Depends On | M14 + disjoint write scopes + conflict control |
+| Exit Criteria | only work with clear write boundaries and safe merge paths enters multi-executor scheduling; tightly coupled work stays on one primary write line |
+
 ## Current Next Step
 
 | Next Move | Why |
 | --- | --- |
-| Continue from `close-m12-and-open-rollout` onward | M12 is now complete, so the next durable question is how rollout / friction evidence should shape any post-M12 milestone or supporting-backlog re-entry |
+| Continue from `define-m13-m14-m15-post-m12-mainline` onward | `M13` is now the next formal mainline; the next work should build the PTL supervision loop first, then worker handoff and re-entry, and only then consider selective multi-executor scheduling |
 
 ## Strategic Direction
 
 | Topic | Scope | Current Position |
 | --- | --- | --- |
-| business-planning and program-orchestration layer | `project-assistant` has completed the PTL-centered strategic evaluation, program orchestration, and supervised long-run delivery layers. Rollout / friction collection is now the next durable state, while M8/M9 stay folded into supporting backlog under the same larger direction | active |
+| business-planning and program-orchestration layer | `project-assistant` has completed the PTL-centered `M10 / M11 / M12`; it now formally enters the post-M12 mainline of `M13 PTL supervision loop` and `M14 worker handoff and re-entry`, while `M15` remains an evidence-gated later layer and M8/M9 stay as supporting backlog under that line | active |
 
 Direction:
 

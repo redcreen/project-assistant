@@ -20,16 +20,17 @@
 | 人类仍然负责 | 业务方向、产品优先级、兼容性承诺和重大取舍 |
 | 默认工作模型 | 人类给方向；`project-assistant` 负责规划、执行、验证、更新状态，并只在需要判断时升级给人类 |
 | 关键常驻角色 | 项目技术负责人（PTL）：在已批准业务方向内负责战略判断、程序编排、长期交付监督和升级 |
-| 当前战略方向 | 战略评估层、程序编排层和长期受监督交付层都已完成；当前主线转入 rollout 与摩擦采集 |
-| 程序编排层当前边界 | 先把“单 Codex 内的 durable 编排真相层”做稳定；多桌面 Codex / 多执行器自动调度仍属于后续能力 |
+| 当前战略方向 | `M10 / M11 / M12` 已完成；接下来正式进入 `M13 PTL 监督环`、`M14 worker 接续与回流`，并把 `M15 选择性多执行器调度` 保持在更后面的证据驱动层 |
+| 程序编排层当前边界 | 先把“单 Codex 内的 durable 编排真相层”和“worker 停下后项目不断线”做稳定；多桌面 Codex / 多执行器自动调度仍属于后续能力 |
+| `M14` 人话解释 | `worker 停了，项目不能跟着停` |
 
 ## 它接下来要去哪里
 
 | 时间层级 | 重点 |
 | --- | --- |
-| 当前 | 把完整分层模型带到更多仓库上试跑，收集 rollout 摩擦，并保持 strategy / program / delivery 三层控制面一致 |
-| 下一步 | 根据 rollout 证据决定是否需要新的 post-M12 里程碑，或是否让 supporting backlog 局部回流 |
-| 更后面 | 只在 rollout 证据足够时，再把 M8/M9 这类 supporting backlog 议题按受控方式并入主线 |
+| 当前 | 做 `M13 PTL 监督环`：让 PTL 以周期性 / 事件驱动的方式持续盯项目，而不是只在聊天里偶尔出现 |
+| 下一步 | 做 `M14 worker 接续与回流`：让 worker 在 checkpoint、超时、失败或交接后，项目仍能被 PTL 接住并继续推进 |
+| 更后面 | 做 `M15 选择性多执行器调度`：只有当 rollout 证据和不相交写入边界都成立时，才引入真正多执行器 |
 | 战略入口 | [业务规划与程序编排方向](docs/reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md) |
 
 ## 安装
@@ -102,6 +103,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 把 PTL 的战略评估沉淀成 `.codex/strategy.md`，并区分“系统可以自动建议什么”和“必须人类审批什么”
 - 把 PTL 的程序编排沉淀成 `.codex/program-board.md`，并显式表达 workstreams、排序、并行边界和执行器输入；当前先面向单 Codex 总协调模式
 - 把 PTL 的长期受监督交付沉淀成 `.codex/delivery-supervision.md`，并显式表达 checkpoint 节奏、自动继续边界、升级时机和 backlog 回流规则
+- 把 PTL 监督环、worker 接续与回流，以及多执行器进入条件写成正式 roadmap / development plan / 战略文档，而不是停留在聊天里
 - 把 durable 文档整理到统一结构
 - 为新对话生成紧凑恢复包
 
@@ -124,7 +126,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 至少一条架构复盘路径现在已经能从当前切片里的 drift 信号自动升级出来，而不是只靠手工提醒
 - 战略评估层、程序编排层和长期受监督交付层现在都已经是 PTL 可运行能力，而不只是 proposal 文档
 - 程序编排层当前是“一个 Codex 的总调度脑”，不是已经产品化成“自动拉起多个桌面 Codex 并回收结果”
-- 下一步最值得做的是 rollout：把完整模型带到更多仓库上试跑，收集摩擦点，再决定是否需要 post-M12 里程碑或让 `M8 / M9` 局部回流
+- 下一步的正式路线已经明确成 `M13 / M14 / M15`：先做 PTL 监督环，再做 worker 接续与回流，最后才考虑选择性多执行器调度
 
 ## 常见工作流
 

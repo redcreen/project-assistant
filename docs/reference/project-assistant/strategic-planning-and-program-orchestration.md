@@ -10,7 +10,7 @@ This document records the approved next major direction above the current `proje
 - program orchestration
 - supervised long-run delivery
 
-This direction is now part of the official roadmap. M10 strategic evaluation, M11 program orchestration, and M12 supervised long-run delivery are complete. M8 and M9 are no longer the mainline; they remain bounded supporting backlog topics inside this strategic layer, while rollout / friction collection becomes the current durable follow-through so any post-M12 milestone is driven by real adoption evidence.
+This direction is now part of the official roadmap. M10 strategic evaluation, M11 program orchestration, and M12 supervised long-run delivery are complete. `M13 PTL supervision loop` is now the next formal mainline, `M14 worker handoff and re-entry` is queued behind it, and `M15 selective multi-executor scheduling` remains an evidence-gated later layer; M8 and M9 continue as bounded supporting backlog topics under this direction.
 
 The standing role across these three layers is named:
 
@@ -149,5 +149,35 @@ The direction is approved, but its authority remains bounded:
 2. It may not auto-change business direction, compatibility promises, or external positioning without human approval.
 3. M8 locale-aware output and M9 slimmer continue snapshots now survive as supporting backlog topics under M10 rather than as the mainline.
 4. M11 has now closed its durable program board, orchestration boundary, and maintainer-facing snapshots. M12 has also closed supervised long-run delivery into a durable `delivery-supervision` surface.
-5. The next step is rollout / friction collection rather than naming another internal milestone first; post-M12 direction should come from real adoption evidence.
-6. If a future multi-desktop-Codex / multi-executor scheduler is needed, it should become a separate later layer rather than silently expanding M11's current scope.
+5. `M13 / M14 / M15` are now formally named: build the PTL supervision loop first, then worker handoff and re-entry, and only then consider selective multi-executor scheduling.
+6. `M15` remains evidence-gated: if tasks do not have disjoint write scopes, they should not enter the multi-executor layer.
+
+## Formal Post-M12 Mainline
+
+### M13: PTL Supervision Loop
+
+| Item | Meaning |
+| --- | --- |
+| Goal | make the Project Technical Lead (PTL) show up as a standing supervision loop instead of a chat-only role |
+| Deliverable | a durable PTL supervision loop that knows when to inspect, continue, re-sequence, or escalate |
+| Human Role | still only steps in when business direction, major tradeoffs, or compatibility boundaries change |
+| Exit Condition | when a worker stops, the project does not stop with it; the PTL can still carry work to the next checkpoint or decision point |
+
+### M14: Worker Handoff And Re-entry
+
+| Item | Meaning |
+| --- | --- |
+| Goal | let unfinished work survive checkpoints, timeouts, failures, and handoffs through PTL-led recovery, reassignment, re-queueing, or escalation |
+| Plain-Language Meaning | `when a worker stops, the project should not stop with it` |
+| Deliverable | a durable handoff / re-entry contract describing remaining work, recovery entry points, re-queue rules, and escalation conditions |
+| Human Role | only steps in if the handoff exposes business-direction, compatibility, or cost-boundary changes |
+| Exit Condition | a worker no longer means “work dies when the worker stops”; the PTL can catch and keep the remaining work moving |
+
+### M15: Selective Multi-Executor Scheduling
+
+| Item | Meaning |
+| --- | --- |
+| Goal | open true multi-executor scheduling only for safe parallel work |
+| Deliverable | explicit executor assignment, write-scope contracts, result collection paths, and conflict gates |
+| Human Role | reviews any expansion that meaningfully increases cost, complexity, or external impact |
+| Exit Condition | only work with clear boundaries and safe merge paths enters multi-executor scheduling; tightly coupled work stays on one primary write line |

@@ -21,6 +21,16 @@ It answers three main questions:
 | Current model | a Project Technical Lead (PTL) inside one Codex acts like a coordinator that keeps several lines visible, while usually preserving one primary write line |
 | Future model | multiple executors or multiple desktop Codex sessions are explicitly scheduled, assigned, and merged by a higher layer |
 
+## What `worker handoff and re-entry` means
+
+| Item | Meaning |
+| --- | --- |
+| `worker handoff` | when the current coding or delivery worker stops, the PTL can recover the remaining work from durable truth and decide how it should continue |
+| `worker re-entry` | unfinished work does not have to stay with the same worker; it can be resumed later, reassigned, re-queued, or escalated |
+| Typical triggers | checkpoint end, context pressure, timeout, validation failure, explicit handoff, or a resequencing decision |
+| PTL actions | continue with the same worker, switch workers, send the work back to the program board, or escalate to the human |
+| What it is not | it is not “just start more Codex instances,” and it is not only “restore chat context” |
+
 ## Current Model: Durable Single-Codex Orchestration Truth
 
 | Dimension | How It Works Today | Why It Was Designed This Way |
@@ -92,6 +102,19 @@ flowchart TB
 | Stability | a single primary write line reduces conflict risk | true multi-instance throughput is not yet enabled |
 | Recoverability | `strategy / program-board / plan / status / delivery-supervision` all remain durable | it still cannot automatically split one repo across several desktop Codex sessions |
 | Explainability | maintainers can see why one line is active and why others are parked | if repo scale keeps growing, single-Codex orchestration may eventually hit its ceiling |
+
+## Diagram: worker handoff and re-entry
+
+```mermaid
+flowchart TB
+    P["PTL\nwatches the project continuously"] --> W["Worker\ncurrent primary write slice"]
+    W --> C["Checkpoint / Timeout / Failure / Handoff"]
+    C --> R["PTL reads durable truth\nstrategy / program-board / status / handoff"]
+    R --> K["continue with the same worker"]
+    R --> N["switch to another worker"]
+    R --> Q["return the work to the program board"]
+    R --> H["escalate to the human"]
+```
 
 ## Future Model: Multi-Executor / Multi-Desktop-Codex Scheduling
 

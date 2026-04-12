@@ -15,9 +15,9 @@
 
 | 时间层级 | 重点 | 退出信号 |
 | --- | --- | --- |
-| 当前 | 把完整分层模型带到更多仓库上试跑，收集 rollout 摩擦，并保持 strategy / program / delivery 三层控制面一致 | M12 已关闭，rollout 证据开始替代内部拍脑袋命名下一里程碑 |
-| 下一步 | 根据 rollout 证据决定是否需要新的 post-M12 里程碑、是否让 supporting backlog 局部回流，或是否要进入多执行器调度层 | 下一条命名里程碑只来自重复出现的 rollout 摩擦，而不是内部猜测 |
-| 更后面 | 只在 rollout 证据足够时，再把 M8/M9 这类 supporting backlog 议题按受控方式并入主线 | 在真实 adoption 证据出现前，supporting backlog 不会无计划回流主线 |
+| 当前 | 做 `M13 PTL 监督环`，让 PTL 以周期性 / 事件驱动方式长期盯住项目推进，而不是让 worker 停下后项目也停下 | PTL 监督循环、检查点触发和升级时机变成 durable 控制面与正式门禁 |
+| 下一步 | 做 `M14 worker 接续与回流`，让 worker 在 checkpoint、超时、失败或交接后，项目仍能被 PTL 接住、恢复、重排或回流 | worker 停下后，项目还能基于 durable 真相继续推进，而不是只能等人重新手工接续 |
+| 更后面 | 做 `M15 选择性多执行器调度`；只有 rollout 证据和不相交写入边界都成立时，才引入真正多执行器 | 只有安全并行任务才允许进入多执行器层；否则继续保持单主写入线 |
 
 ## 里程碑
 
@@ -40,6 +40,9 @@
 | [M10](reference/project-assistant/development-plan.zh-CN.md#m10) | done | 增加位于执行层之上的战略评估层 | [M7](reference/project-assistant/development-plan.zh-CN.md#m7) + 已批准的战略方向 | 系统能产出 durable 战略判断、识别何时应插入治理/架构专项，并把业务方向变更继续交给人类审批 |
 | [M11](reference/project-assistant/development-plan.zh-CN.md#m11) | done | 增加跨多个切片或执行器的程序编排层 | [M10](reference/project-assistant/development-plan.zh-CN.md#m10) + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
 | [M12](reference/project-assistant/development-plan.zh-CN.md#m12) | done | 增加受监督的长期自动交付层 | [M11](reference/project-assistant/development-plan.zh-CN.md#m11) + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点，而不是在日常调度上不断停下来 |
+| [M13](reference/project-assistant/development-plan.zh-CN.md#m13) | active | 增加由 PTL 驱动的监督环，让项目在 worker 停下后仍有常驻技术主责人继续盯进度、方向和升级 | [M12](reference/project-assistant/development-plan.zh-CN.md#m12) + durable delivery supervision | PTL 能周期性 / 事件驱动地巡检、决定继续 / 重排 / 升级，而不是依赖人类反复输入“继续” |
+| [M14](reference/project-assistant/development-plan.zh-CN.md#m14) | next | 增加 worker 接续与回流，让未完成工作可以被 PTL 恢复、转交、回队列，而不是在 worker 停下时一起丢掉 | [M13](reference/project-assistant/development-plan.zh-CN.md#m13) + durable handoff / supervision truth | worker 在 checkpoint、超时、失败或交接后，剩余工作仍能继续推进或被明确升级 |
+| [M15](reference/project-assistant/development-plan.zh-CN.md#m15) | later | 增加选择性多执行器调度，只对安全并行任务开放 | [M14](reference/project-assistant/development-plan.zh-CN.md#m14) + 不相交写入边界 + 冲突控制 | 只有 write scope 清楚、回收口明确、冲突门禁成立时，才允许真正多执行器并行 |
 
 ## 里程碑流转
 
@@ -54,6 +57,9 @@ flowchart LR
     M7 --> M10["M10 战略评估层"]
     M10 --> M11["M11 程序编排层"]
     M11 --> M12["M12 长期受监督交付层"]
+    M12 --> M13["M13 PTL 监督环"]
+    M13 --> M14["M14 worker 接续与回流"]
+    M14 --> M15["M15 选择性多执行器调度"]
 ```
 
 ## 风险与依赖
@@ -66,14 +72,15 @@ flowchart LR
 - `M8 / M9` 提到的问题仍然重要，但现在作为 `M10` 下的 supporting backlog 管理，而不是继续占据主线
 - 战略层必须持续基于 repo 证据给出判断，不能越权自动改变业务方向
 - 程序编排层必须等战略层的 review 合约稳定后再落地
-- `M11` 当前先收口“单 Codex 编排真相层”；如果未来要扩到多桌面 Codex / 多执行器自动调度，必须以 rollout 证据单独立项
-- 任何 post-M12 里程碑都应来自重复的 rollout 摩擦，而不是在没有证据时重开已关闭层
+- `M13` 的重点不是再加一个抽象名词，而是让 PTL 真正像常驻项目技术负责人一样持续盯住推进
+- `M14` 的重点不是只恢复聊天上下文，而是让 worker 停下后，工作仍能被 PTL durable 地接住、回流或转交
+- `M15` 只面向安全并行任务；如果多个任务会改同一批文件、同一控制面或同一抽象边界，就不应进入多执行器层
 
 ## 战略方向
 
 | 主题 | 为什么重要 | 当前位置 |
 | --- | --- | --- |
-| 业务规划与程序编排层 | `project-assistant` 已经完成以项目技术负责人（PTL）为核心的 `M10` 战略评估层、`M11` 程序编排层和 `M12` 长期受监督交付层；当前重点转为 rollout / 摩擦采集，`M8 / M9` 继续作为 supporting backlog 等待被受控吸收 | 已进入 roadmap 和 development plan |
+| 业务规划与程序编排层 | `project-assistant` 已经完成以项目技术负责人（PTL）为核心的 `M10 / M11 / M12`，并正式进入 `M13 PTL 监督环`、`M14 worker 接续与回流`；`M15` 继续保持为证据驱动的后续层，`M8 / M9` 仍作为 supporting backlog 受控管理 | 已进入 roadmap 和 development plan |
 
 方向文档：
 

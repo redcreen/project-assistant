@@ -15,9 +15,9 @@ Detailed execution queue:
 
 | Horizon | Focus | Exit Signal |
 | --- | --- | --- |
-| Now | use the full layered model on more repos, collect rollout friction, and keep strategy / program / delivery surfaces aligned | M12 is closed, and rollout evidence starts replacing internal-only milestone guessing |
-| Next | decide whether rollout evidence warrants a new post-M12 milestone, selective backlog re-entry, or a future multi-executor orchestration layer | the next named milestone comes from repeated rollout friction, not from internal guesswork |
-| Later | selective M8/M9 carryover only when rollout evidence justifies it | supporting backlog stays bounded until real adoption evidence says otherwise |
+| Now | build `M13 PTL supervision loop` so the PTL can keep watching delivery through periodic and event-driven checks instead of disappearing between chats | PTL supervision rhythm, trigger points, and escalation timing become durable control truth and real gates |
+| Next | build `M14 worker handoff and re-entry` so work can be caught, resumed, reassigned, or re-queued after a worker stops at a checkpoint, timeout, failure, or handoff | when a worker stops, the project still moves through durable truth instead of waiting for manual babysitting |
+| Later | build `M15 selective multi-executor scheduling` only when rollout evidence and disjoint write scopes both justify true parallel execution | only safe parallel tasks may enter the multi-executor layer; otherwise keep a single primary write line |
 
 ## Milestones
 
@@ -40,6 +40,9 @@ Detailed execution queue:
 | [M10](reference/project-assistant/development-plan.md#m10) | done | add a strategic-evaluation layer above execution and retrofit | [M7](reference/project-assistant/development-plan.md#m7) + approved strategic direction | the system can produce durable strategy judgments, track when governance/architecture tracks should be inserted, and keep business-direction changes gated to humans |
 | [M11](reference/project-assistant/development-plan.md#m11) | done | add a program-orchestration layer across multiple slices or workers | [M10](reference/project-assistant/development-plan.md#m10) + durable program board | the system can coordinate multiple related slices without constant human continuation prompts |
 | [M12](reference/project-assistant/development-plan.md#m12) | done | add supervised long-run delivery | [M11](reference/project-assistant/development-plan.md#m11) + stable escalation policy | long-running delivery can continue until a real business decision point instead of stopping for routine steering |
+| [M13](reference/project-assistant/development-plan.md#m13) | active | add a PTL supervision loop so the project keeps a standing technical lead even after a worker stops | [M12](reference/project-assistant/development-plan.md#m12) + durable delivery supervision | the PTL can inspect, continue, re-sequence, or escalate through periodic and event-driven checks without relying on repeated human continuation prompts |
+| [M14](reference/project-assistant/development-plan.md#m14) | next | add worker handoff and re-entry so unfinished work can be resumed, reassigned, or re-queued instead of dying with the worker | [M13](reference/project-assistant/development-plan.md#m13) + durable handoff / supervision truth | after a checkpoint, timeout, failure, or handoff, the remaining work still has a durable path forward |
+| [M15](reference/project-assistant/development-plan.md#m15) | later | add selective multi-executor scheduling only for safe parallel work | [M14](reference/project-assistant/development-plan.md#m14) + disjoint write scopes + conflict control | true parallel execution is only allowed when write boundaries, merge paths, and conflict gates are explicit |
 
 ## Milestone Flow
 
@@ -54,6 +57,9 @@ flowchart LR
     M7 --> M10["M10 Strategic Evaluation"]
     M10 --> M11["M11 Program Orchestration"]
     M11 --> M12["M12 Supervised Long-Run Delivery"]
+    M12 --> M13["M13 PTL Supervision Loop"]
+    M13 --> M14["M14 Worker Handoff And Re-entry"]
+    M14 --> M15["M15 Selective Multi-Executor Scheduling"]
 ```
 
 ## Risks and Dependencies
@@ -66,14 +72,15 @@ flowchart LR
 - locale-aware internal output and slimmer continue still matter, but now as bounded supporting backlog under M10 rather than as the mainline
 - strategy surfaces must stay evidence-backed and must not auto-change business direction
 - program orchestration should not arrive before the strategy layer has a stable review contract
-- M11 currently closes the durable orchestration truth for one Codex first; multi-desktop-Codex or multi-executor scheduling should only become a later layer if rollout evidence justifies it
-- any post-M12 milestone should emerge from repeated rollout friction, not by reopening already-closed layers without evidence
+- M13 is not just another abstract layer name; it must make the PTL behave like a standing supervision loop that keeps the project moving
+- M14 is not only about restoring chat context; it must let the PTL catch, re-queue, reassign, or resume unfinished work after a worker stops
+- M15 only applies to safe parallel work; if two tasks touch the same files, control truth, or abstraction boundary, they should stay out of the multi-executor layer
 
 ## Strategic Direction
 
 | Topic | Why It Matters | Current Position |
 | --- | --- | --- |
-| business planning and program orchestration | `project-assistant` has now closed the PTL-centered M10 strategic evaluation, M11 program orchestration, and M12 supervised long-run delivery layers; the current focus is rollout / friction collection, while M8/M9 remain bounded supporting backlog topics | active in roadmap and development plan |
+| business planning and program orchestration | `project-assistant` has now closed the PTL-centered `M10 / M11 / M12`, and has formally moved into `M13 PTL supervision loop` and `M14 worker handoff and re-entry`; `M15` remains an evidence-gated later layer, while M8/M9 remain bounded supporting backlog topics | active in roadmap and development plan |
 
 Direction document:
 

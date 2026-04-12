@@ -20,16 +20,17 @@
 | Human Still Owns | business direction, product priorities, compatibility promises, and major tradeoffs |
 | Default Working Model | human sets direction; `project-assistant` plans, executes, validates, updates state, and escalates only when judgment is required |
 | Core Standing Role | Project Technical Lead (PTL): inside an approved direction, it owns strategic judgment, program orchestration, long-run delivery supervision, and escalation timing |
-| Active Strategic Direction | strategic evaluation, program orchestration, and supervised long-run delivery are now complete; rollout and friction collection are the current mainline |
-| Current Program-Orchestration Boundary | the durable orchestration truth is now stable inside one Codex; automatic multi-desktop-Codex scheduling is still a future layer |
+| Active Strategic Direction | `M10 / M11 / M12` are complete; the next formal line is now `M13 PTL supervision loop`, then `M14 worker handoff and re-entry`, while `M15 selective multi-executor scheduling` stays evidence-gated for later |
+| Current Program-Orchestration Boundary | stabilize the durable single-Codex orchestration truth and keep the project alive after a worker stops; automatic multi-desktop-Codex scheduling remains a future layer |
+| Plain-Language Meaning Of `M14` | `when a worker stops, the project should not stop with it` |
 
 ## Where It Is Going
 
 | Horizon | Focus |
 | --- | --- |
-| Current | use the full layered model on more repos, collect rollout friction, and keep strategy / program / delivery surfaces aligned |
-| Next | decide whether rollout evidence warrants a new post-M12 milestone or selective backlog re-entry |
-| Later | selectively absorb M8/M9 supporting-backlog topics only when rollout evidence justifies it |
+| Current | build `M13 PTL supervision loop`: let the PTL watch the project continuously through periodic and event-driven checks instead of only appearing in chat |
+| Next | build `M14 worker handoff and re-entry`: let the PTL catch the work when a worker stops at a checkpoint, times out, fails, or hands off |
+| Later | build `M15 selective multi-executor scheduling`: only introduce real multi-executor dispatch when rollout evidence and disjoint write scopes both justify it |
 | Strategy Entry | [Strategic Planning And Program Orchestration Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md) |
 
 ## Install
@@ -101,6 +102,7 @@ Background flows (usually automatic):
 - Persist PTL strategic evaluation in `.codex/strategy.md`, including the boundary between system proposals and human approvals
 - Persist PTL program orchestration in `.codex/program-board.md`, including workstreams, sequencing, parallel-safe boundaries, and executor inputs; today this first stabilizes a single-Codex coordinator mode
 - Persist PTL supervised long-run delivery in `.codex/delivery-supervision.md`, including checkpoint rhythm, automatic-continue boundaries, escalation timing, and backlog re-entry rules
+- Persist the formal roadmap meaning of the PTL supervision loop, worker handoff/re-entry, and future multi-executor entry conditions instead of leaving them as chat-only ideas
 - Normalize durable docs into a standard system
 - Emit a compact context handoff for the next thread
 
@@ -123,7 +125,7 @@ What this means:
 - at least one architecture-review path now auto-escalates from current-slice drift instead of depending only on manual prompts
 - the PTL strategic-evaluation, program-orchestration, and supervised-long-run-delivery layers are now real capabilities, not only direction documents
 - the current orchestration layer is a durable single-Codex coordination brain, not yet a productized multi-desktop-Codex dispatcher
-- the next practical step is rollout: use the full stack on more repos, collect friction, and only then decide whether a post-M12 milestone or M8/M9 re-entry is justified
+- the next formal line is now `M13 / M14 / M15`: first PTL supervision loop, then worker handoff and re-entry, and only then selective multi-executor scheduling
 
 ## Common Workflows
 

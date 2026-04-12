@@ -21,6 +21,16 @@
 | 当前模型 | 一个 Codex 里的项目技术负责人（PTL）像总协调者一样，持续管理多条线，但主写入线一次通常只保持一条 |
 | 未来模型 | 多个执行器或多个桌面 Codex 被显式调度，并由更高层统一派发、回收和合并结果 |
 
+## `worker 接续与回流` 到底是什么意思
+
+| 项目 | 含义 |
+| --- | --- |
+| `worker 接续` | 当前写代码或推进切片的 worker 停下后，PTL 能从 durable 真相里恢复剩余工作，并决定怎么继续推进 |
+| `worker 回流` | 某条未完成工作暂时不继续由当前 worker 推进，而是重新挂回 program board，等待下一个 checkpoint、下一个 worker，或新的编排判断 |
+| 典型触发 | checkpoint 结束、上下文过长、超时、验证失败、worker 明确交接、方向需要重排 |
+| PTL 可做的动作 | 继续同一条线、换 worker 接手、挂回 backlog / queue、升级给人类裁决 |
+| 它不是 | 不是“自动多开几个 Codex 就好了”；也不是“只恢复聊天上下文” |
+
 ## 当前模型：单 Codex 编排真相层
 
 | 维度 | 当前怎么做 | 为什么这样设计 |
@@ -92,6 +102,19 @@ flowchart TB
 | 稳定性 | 单一主写入线更不容易冲突 | 真正的多实例并行吞吐还没打开 |
 | 可恢复性 | `strategy / program-board / plan / status / delivery-supervision` 都是 durable 真相 | 还不能自动把同一个项目拆给多个桌面 Codex 去干 |
 | 可解释性 | 维护者能看懂当前为什么先做这条线 | 如果任务量继续放大，单 Codex 编排可能会到上限 |
+
+## `worker 接续与回流` 的图示
+
+```mermaid
+flowchart TB
+    P["PTL\n持续监督当前项目"] --> W["Worker\n当前主写入切片"]
+    W --> C["Checkpoint / 超时 / 失败 / 交接"]
+    C --> R["PTL 读取 durable 真相\nstrategy / program-board / status / handoff"]
+    R --> K["继续由当前 worker 推进"]
+    R --> N["换一个 worker 接手"]
+    R --> Q["挂回 program-board\n等待下一轮调度"]
+    R --> H["升级给人类裁决"]
+```
 
 ## 未来模型：多执行器 / 多桌面 Codex 调度层
 
