@@ -28,14 +28,14 @@ Primary modes:
 - `继续` / `恢复` / `continue` / `resume`
 - `进展` / `progress`
 - `整改` / `retrofit`
-- `文档整改` / `docs-retrofit`
+- `文档整改` / `文档整理` / `docs-retrofit`
 - `开发日志` / `devlog`
 - `发布` / `release`
 - `压缩上下文` / `交接` / `handoff`
 - `收口` / `closeout`
 
 Also trigger this skill when the user clearly asks for project startup, rescue, architecture supervision, progress, retrofit, recovery, development logging, or handoff, even if the exact alias is not used.
-Treat `文档整改`, `文档重构`, and `整理文档系统` as the documentation-focused variant of `retrofit`.
+Treat `文档整改`, `文档整理`, `文档重构`, and `整理文档系统` as the documentation-focused variant of `retrofit`.
 Treat `架构整改`, `架构重构整改`, and `architecture retrofit` as the architecture-focused variant of `retrofit`.
 Treat `发布`, `打标`, and `发版` as the release flow when the repo supports versioned install docs.
 Treat `architecture`, `docs retrofit`, `devlog`, `release`, and `handoff` as the English-friendly variants of those flows.
@@ -130,6 +130,8 @@ Document ownership and templates live in:
 - [references/module-layer.md](references/module-layer.md)
 
 When generating `README`, `docs/README`, `architecture`, `roadmap`, `test-plan`, or ADRs, follow the document constraints in `references/document-standards.md`. Do not improvise a new structure when the standard already covers that doc type.
+When a roadmap contains `Stage` milestones and the repo also has a development plan, link those `Stage` references to the matching development-plan headings with repository-relative links.
+For `medium` and `large` repos, documentation retrofit should also establish a durable `development plan` layer under `docs/reference/<project-slug>/development-plan.md` so maintainers can move from roadmap-level direction to detailed execution order without dropping straight into `.codex/plan.md`.
 When a repo requires bilingual public docs, generate switchable English/Chinese file pairs for `README` and public `docs/*` pages, and validate that the language switch exists.
 When writing markdown into a repo, use repository-relative links. Do not write local absolute filesystem paths into repo docs.
 
@@ -300,7 +302,7 @@ Default scope of `整改`:
 - module layer when needed
 - durable documentation structure such as `README`, `docs/README`, `architecture`, `roadmap`, `test-plan`, and ADR layout when those docs exist or are needed
 
-If the user says `文档整改`, treat it as full Markdown governance convergence, not only the top-level durable doc stack.
+If the user says `文档整改` or `文档整理`, treat it as full Markdown governance convergence, not only the top-level durable doc stack.
 That includes:
 
 - bootstrap the control surface first
@@ -328,7 +330,7 @@ Gate policy:
 - `fast` = `validate_control_surface.py` + `validate_docs_system.py` + `validate_public_docs_i18n.py`
 - `deep` = `fast` + `validate_markdown_governance.py` + `validate_doc_quality.py` + `validate_control_surface_quality.py` + `validate_development_log.py`
 - `release` = `deep` + `validate_release_readiness.py`
-- `整改` and `文档整改` must finish on `deep`
+- `整改`, `文档整改`, and `文档整理` must finish on `deep`
 - `发布` must pass `release` before tagging
 
 For large projects with first-class modules, retrofit is not complete without the module layer.

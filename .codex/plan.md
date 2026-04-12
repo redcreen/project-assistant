@@ -16,13 +16,13 @@
 - Validation: `capability_snapshot.py`、`progress_snapshot.py`、`context_handoff.py` 输出与控制面一致；`deep` / `release` 通过
 
 ## Architecture Supervision
-- Signal: `green`
-- Signal Basis: 结构性能力已基本齐全，当前重点是 operator-facing truth 和推广 readiness，而不是继续扩功能
+- Signal: `yellow`
+- Signal Basis: open blockers or architectural risks are still recorded
 - Problem Class: 功能增长后，控制面和 README 如果不及时同步，会让“现在做到哪、下一步做什么”重新变模糊
-- Root Cause Hypothesis: 单靠门禁通过不足以让人舒服使用；真正需要的是持续保持 outward-facing truth 与已完成能力一致
-- Correct Layer: control surface, README narrative, progress/handoff outputs, and rollout guidance
+- Root Cause Hypothesis: 这类助手最容易在功能变多后失去 operator clarity；真正的问题不是缺功能，而是控制面和 README 没及时反映已完成的真实状态
+- Correct Layer: control truth, outward-facing README narrative, capability snapshot, and rollout guidance
 - Rejected Shortcut: 只说“功能已经都在了”，却不收口 status/plan/README 里的过期内容
-- Escalation Gate: continue automatically
+- Escalation Gate: raise but continue
 
 ## Escalation Model
 

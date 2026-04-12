@@ -51,6 +51,7 @@ docs/
   architecture.md
   roadmap.md
   test-plan.md
+  reference/<project-slug>/development-plan.md
   adr/
   how-to/
   reference/
@@ -156,6 +157,31 @@ Primary job:
 - show milestone order, status, exit criteria, and what each milestone unlocks
 
 Roadmap is not the same as current status.
+
+If `roadmap.md` lists `Stage` milestones and the repo also has a development plan, the stage labels should link to the matching development-plan headings with repository-relative links.
+
+For `medium` and `large` repos with phased delivery, `roadmap.md` should also point readers to a durable maintainer-facing `development-plan.md`. The roadmap explains milestone order; the development plan explains the detailed execution queue under those milestones.
+
+### development-plan.md
+
+Audience:
+
+- maintainers
+- future maintainers returning after context loss
+- collaborators who need the detailed execution queue
+
+Primary job:
+
+- explain where to resume below the roadmap layer
+- show milestone drill-down and the ordered execution queue
+
+Must answer:
+
+- what this plan is for
+- how to use it with roadmap and `.codex/plan.md`
+- current position
+- milestone overview
+- ordered execution queue
 
 ### test-plan.md
 

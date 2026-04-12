@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from control_surface_lib import load_doc_governance_config, match_glob, slugify
+from control_surface_lib import ensure_roadmap_stage_links, load_doc_governance_config, match_glob, slugify
 IGNORED_DIRS = {".git", "node_modules", ".obsidian", "__pycache__"}
 DURABLE_TOKENS = ("architecture", "roadmap", "policy", "strategy", "blueprint", "design", "workstream")
 ARCHIVE_TOKENS = ("todo", "journal", "candidate", "scope", "note", "notes", "scratch", "investigation", "smoke-test", "testsuite")
@@ -874,6 +874,9 @@ def main() -> int:
         touched.append("docs/README.md")
     if normalize_docs_home_zh(repo, zh_additions, zh_heading):
         touched.append("docs/README.zh-CN.md")
+    for rel in ensure_roadmap_stage_links(repo):
+        if rel not in touched:
+            touched.append(rel)
 
     print(f"moved: {', '.join(moved) if moved else '(none)'}")
     print(f"created: {', '.join(created) if created else '(none)'}")

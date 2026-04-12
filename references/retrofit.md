@@ -16,6 +16,7 @@ Short Chinese commands:
 
 - `项目助手 整改`
 - `项目助手 文档整改`
+- `项目助手 文档整理`
 - `项目助手 架构 整改`
 
 Short English commands:
@@ -78,6 +79,8 @@ If available, use:
 - `scripts/sync_docs_system.py` to scaffold or normalize durable docs
 - `scripts/validate_docs_system.py` to enforce documentation completion gates
 - `scripts/sync_markdown_governance.py` to converge the full Markdown tree
+- when roadmap and development-plan docs both exist, retrofit should also link `Stage` milestone references to the matching development-plan headings
+- for `medium` and `large` repos, retrofit should create a durable `development plan` layer that sits between `docs/roadmap.md` and `.codex/plan.md`
 - `scripts/validate_markdown_governance.py` to enforce full-tree Markdown ownership gates
 - `scripts/validate_doc_quality.py` to enforce that public docs are no longer scaffold-like or broken
 - `scripts/validate_gate_set.py` to run the layered `fast` / `deep` gate sets

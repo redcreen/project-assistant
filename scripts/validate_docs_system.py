@@ -5,7 +5,7 @@ import argparse
 import json
 from pathlib import Path
 
-from control_surface_lib import parse_tier, read_text
+from control_surface_lib import find_best_development_plan, normalized_roadmap_stage_links, parse_tier, read_text, relative_markdown_target
 
 
 def has_all(text: str, parts: list[str]) -> bool:
@@ -57,7 +57,14 @@ def main() -> int:
                 warnings.append("README.zh-CN.md missing 最简配置 section for installable repo")
 
     docs_home = read_text(repo / "docs/README.md")
+    docs_home_zh = read_text(repo / "docs/README.zh-CN.md")
     if tier in {"medium", "large"}:
+        development_plan = find_best_development_plan(repo, chinese=False)
+        development_plan_zh = find_best_development_plan(repo, chinese=True)
+        if not development_plan:
+            missing.append("docs/reference/*/development-plan.md")
+        if not development_plan_zh:
+            warnings.append("missing Chinese development-plan counterpart for maintainer docs")
         if not docs_home:
             missing.append("docs/README.md")
         else:
@@ -82,6 +89,14 @@ def main() -> int:
             for label, path in recommended_existing:
                 if path.exists() and not links_to(docs_home, label):
                     warnings.append(f"docs/README.md should link to existing {label}")
+            if development_plan:
+                rel = relative_markdown_target((repo / "docs"), development_plan)
+                if not links_to(docs_home, rel):
+                    warnings.append("docs/README.md should link to the durable development-plan entry")
+        if docs_home_zh and development_plan_zh:
+            rel_zh = relative_markdown_target((repo / "docs"), development_plan_zh)
+            if not links_to(docs_home_zh, rel_zh):
+                warnings.append("docs/README.zh-CN.md should link to the durable development-plan entry")
 
         test_plan = read_text(repo / "docs/test-plan.md")
         if not test_plan:
@@ -89,6 +104,44 @@ def main() -> int:
         else:
             if not has_all(test_plan, ["## Scope and Risk", "## Acceptance Cases", "## Automation Coverage", "## Manual Checks"]):
                 warnings.append("docs/test-plan.md missing standard sections")
+        if development_plan:
+            development_plan_text = read_text(development_plan)
+            required_plan_sections = [
+                "## Purpose",
+                "## How To Use This Plan",
+                "## Current Position",
+                "## Milestone Overview",
+                "## Ordered Execution Queue",
+            ]
+            if not has_all(development_plan_text, required_plan_sections):
+                warnings.append(f"{development_plan.relative_to(repo).as_posix()} missing standard development-plan sections")
+        if development_plan_zh:
+            development_plan_zh_text = read_text(development_plan_zh)
+            required_plan_sections_zh = [
+                "## 目的",
+                "## 怎么使用这份计划",
+                "## 当前位置",
+                "## 阶段总览",
+                "## 顺序执行队列",
+            ]
+            if not has_all(development_plan_zh_text, required_plan_sections_zh):
+                warnings.append(f"{development_plan_zh.relative_to(repo).as_posix()} missing standard development-plan sections")
+        roadmap_generic = read_text(repo / "docs/roadmap.md")
+        if roadmap_generic and development_plan:
+            rel = relative_markdown_target((repo / "docs"), development_plan)
+            if rel not in roadmap_generic:
+                warnings.append("docs/roadmap.md should point readers to the detailed development-plan")
+            normalized = normalized_roadmap_stage_links(repo, repo / "docs/roadmap.md", roadmap_generic)
+            if normalized != roadmap_generic:
+                warnings.append("docs/roadmap.md should link roadmap milestones to the matching development-plan headings")
+        roadmap_generic_zh = read_text(repo / "docs/roadmap.zh-CN.md")
+        if roadmap_generic_zh and development_plan_zh:
+            rel_zh = relative_markdown_target((repo / "docs"), development_plan_zh)
+            if rel_zh not in roadmap_generic_zh:
+                warnings.append("docs/roadmap.zh-CN.md should point readers to the detailed development-plan")
+            normalized_zh = normalized_roadmap_stage_links(repo, repo / "docs/roadmap.zh-CN.md", roadmap_generic_zh)
+            if normalized_zh != roadmap_generic_zh:
+                warnings.append("docs/roadmap.zh-CN.md should link roadmap milestones to the matching development-plan headings")
 
     if tier == "large":
         architecture = read_text(repo / "docs/architecture.md")

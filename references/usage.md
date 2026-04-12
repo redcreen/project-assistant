@@ -24,7 +24,7 @@ Everything else should increasingly behave like a background flow that the assis
 - `继续` = `continue / resume`
 - `进展` = `progress`
 - `整改` = `retrofit`
-- `文档整改` = `docs-retrofit`
+- `文档整改` / `文档整理` = `docs-retrofit`
 - `开发日志` = `devlog`
 - `发布` = `release`
 - `收口` = `closeout`
@@ -185,6 +185,7 @@ English usage notes:
 
 - `项目助手 整改`
 - `项目助手 文档整改`
+- `项目助手 文档整理`
 - `项目助手 架构 整改`
 - `project assistant retrofit`
 - `project assistant docs retrofit`
@@ -200,6 +201,8 @@ English usage notes:
 - `用 $project-assistant 整改这个仓库，一次性补齐到最新版规范，不要停在中间状态。`
 - `用 $project-assistant 整改这个仓库，并通过控制面校验和文档校验后再结束。`
 - `用 $project-assistant 文档整改这个仓库，并通过全仓 Markdown 门禁后再结束。`
+- `用 $project-assistant 文档整理这个仓库，并把缺失的 Stage -> development plan 链接一起补齐。`
+- `用 $project-assistant 文档整改这个仓库，建立 roadmap -> development plan -> 详细执行队列 这条维护者文档链。`
 - `用 $project-assistant 把这个大项目整改到模块视角，补 module dashboard 和 modules 状态文件。`
 - `用 $project-assistant 先做架构整改，生成架构整改工作底稿，再按它来切执行线。`
 - `用 $project-assistant 整改这个仓库，并通过脚本校验后再结束。`
@@ -224,7 +227,7 @@ English usage notes:
 默认规则：
 
 - `整改` = 控制面整改 + 文档整改 + 全仓 Markdown 治理
-- `文档整改` = 先补控制面，再做文档系统和全仓 Markdown 治理
+- `文档整改` / `文档整理` = 先补控制面，再做文档系统和全仓 Markdown 治理
 - `执行` = 默认进入一个有检查点的长任务执行线，而不是每做一点就等用户输入继续
 - `执行线` = 一个和 active slice 明确映射的任务板，不只是抽象一句话
 - `架构监督状态` = 和执行线并排存在的高层判断面，至少包含 signal、root cause、correct layer、escalation gate
@@ -259,6 +262,7 @@ English usage notes:
 - `先做整改审计`
 - `直接整改这个仓库`
 - `文档整改`
+- `文档整理`
 - `收口当前阶段`
 - `压缩当前上下文`
 - `生成恢复包`

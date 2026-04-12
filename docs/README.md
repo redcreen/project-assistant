@@ -22,7 +22,7 @@
 | Verify correctness | [test-plan.md](test-plan.md) |
 | Reconstruct a non-obvious implementation path | [devlog/README.md](devlog/README.md) |
 | Review durable design decisions | [adr/README.md](adr/README.md) |
-
+| Drill into the detailed execution queue | [project-assistant/development-plan.md](reference/project-assistant/development-plan.md) |
 ## Skill References
 
 - skill contract: [../SKILL.md](../SKILL.md)

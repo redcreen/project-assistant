@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
@@ -82,8 +83,159 @@ def slugify(value: str) -> str:
     return value
 
 
+def markdown_heading_slug(value: str) -> str:
+    value = value.strip().lower()
+    value = re.sub(r"[`*_]+", "", value)
+    value = value.replace("&", " and ")
+    chars: list[str] = []
+    dash_open = False
+    for ch in value:
+        if ch.isalnum():
+            chars.append(ch)
+            dash_open = False
+        elif chars and not dash_open:
+            chars.append("-")
+            dash_open = True
+    return "".join(chars).strip("-")
+
+
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
+
+
+def relative_markdown_target(from_dir: Path, to_path: Path) -> str:
+    return os.path.relpath(to_path, start=from_dir).replace(os.sep, "/")
+
+
+MILESTONE_HEADING_RE = re.compile(r"^###\s*(.+?)\s*$")
+MILESTONE_PREFIX_RE = re.compile(r"^(Stage\s+\d+(?:-\d+)?|Phase\s+\d+(?:-\d+)?)\b", re.IGNORECASE)
+MARKDOWN_LINK_RE = re.compile(r"^\[(?P<label>[^\]]+)\]\((?P<target>[^)]+)\)$")
+
+
+def is_chinese_doc(path: Path) -> bool:
+    return path.name.endswith(".zh-CN.md")
+
+
+def unwrap_markdown_label(value: str) -> str:
+    match = MARKDOWN_LINK_RE.match(value.strip())
+    return match.group("label").strip() if match else value.strip()
+
+
+def find_best_development_plan(repo: Path, chinese: bool) -> Path | None:
+    candidates: list[Path] = []
+    for path in sorted(repo.rglob("*.md")):
+        if ".git" in path.parts:
+            continue
+        stem = path.stem.replace(".zh-CN", "")
+        if slugify(stem) != "development-plan":
+            continue
+        candidates.append(path)
+    if not candidates:
+        return None
+    preferred = [path for path in candidates if is_chinese_doc(path) == chinese]
+    pool = preferred or candidates
+    return sorted(pool, key=lambda path: (len(path.relative_to(repo).parts), path.relative_to(repo).as_posix()))[0]
+
+
+def milestone_key(value: str) -> str:
+    value = unwrap_markdown_label(value)
+    value = re.sub(r"[`*_]+", "", value.strip().lower())
+    value = value.replace("：", ":")
+    value = re.sub(r"\s+", " ", value)
+    return value.strip()
+
+
+def milestone_candidates(value: str) -> list[str]:
+    stripped = unwrap_markdown_label(value).strip()
+    candidates: list[str] = []
+    for candidate in [stripped]:
+        if candidate:
+            candidates.append(milestone_key(candidate))
+    prefix_match = MILESTONE_PREFIX_RE.match(stripped)
+    if prefix_match:
+        candidates.append(milestone_key(prefix_match.group(1)))
+    for sep in [".", "：", ":"]:
+        if sep in stripped:
+            candidates.append(milestone_key(stripped.split(sep, 1)[0].strip()))
+    return dedupe_preserve_order([item for item in candidates if item])
+
+
+def milestone_targets_for_plan(plan_path: Path, from_dir: Path) -> dict[str, str]:
+    targets: dict[str, str] = {}
+    for line in read_text(plan_path).splitlines():
+        match = MILESTONE_HEADING_RE.match(line.strip())
+        if not match:
+            continue
+        heading = match.group(1).strip()
+        if not heading:
+            continue
+        target = f"{relative_markdown_target(from_dir, plan_path)}#{markdown_heading_slug(heading)}"
+        for candidate in milestone_candidates(heading):
+            targets.setdefault(candidate, target)
+    return targets
+
+
+def normalized_roadmap_stage_links(repo: Path, roadmap_path: Path, text: str | None = None) -> str:
+    original = read_text(roadmap_path) if text is None else text
+    if not original:
+        return original
+    plan_path = find_best_development_plan(repo, chinese=is_chinese_doc(roadmap_path))
+    if not plan_path:
+        return original
+    targets = milestone_targets_for_plan(plan_path, roadmap_path.parent)
+    if not targets:
+        return original
+
+    normalized_lines: list[str] = []
+    changed = False
+    for line in original.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            normalized_lines.append(line)
+            continue
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        if len(cells) < 2:
+            normalized_lines.append(line)
+            continue
+        row_changed = False
+        new_cells: list[str] = []
+        for cell in cells:
+            target = None
+            label = unwrap_markdown_label(cell)
+            for candidate in milestone_candidates(label):
+                if candidate in targets:
+                    target = targets[candidate]
+                    break
+            if not target:
+                new_cells.append(cell)
+                continue
+            new_cell = f"[{label}]({target})"
+            new_cells.append(new_cell)
+            if new_cell != cell:
+                row_changed = True
+        if row_changed:
+            line = "| " + " | ".join(new_cells) + " |"
+            changed = True
+        normalized_lines.append(line)
+
+    normalized = "\n".join(normalized_lines)
+    if original.endswith("\n"):
+        normalized += "\n"
+    return normalized if changed else original
+
+
+def ensure_roadmap_stage_links(repo: Path) -> list[str]:
+    changed: list[str] = []
+    for rel in ["docs/roadmap.md", "docs/roadmap.zh-CN.md"]:
+        path = repo / rel
+        if not path.exists():
+            continue
+        original = read_text(path)
+        normalized = normalized_roadmap_stage_links(repo, path, original)
+        if normalized != original:
+            path.write_text(normalized, encoding="utf-8")
+            changed.append(rel)
+    return changed
 
 
 def is_skill_repo(repo: Path) -> bool:

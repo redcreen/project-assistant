@@ -6,6 +6,11 @@
 
 This roadmap describes the evolution of the `project-assistant` skill itself. It does not replace current execution truth from `.codex/status.md`.
 
+
+Detailed execution queue:
+
+- [project-assistant/development-plan.md](reference/project-assistant/development-plan.md)
+
 ## Now / Next / Later
 
 | Horizon | Focus | Exit Signal |
@@ -18,15 +23,15 @@ This roadmap describes the evolution of the `project-assistant` skill itself. It
 
 | Milestone | Status | Goal | Depends On | Exit Criteria |
 | --- | --- | --- | --- | --- |
-| M1 | done | establish `.codex` control surface and tiering | core skill routing | current state is recoverable |
-| M2 | done | establish convergent retrofit | control-surface scripts | retrofit no longer stops midway |
-| M3 | done | establish progress and handoff workflows | module layer + snapshot scripts | progress and handoff are stable |
-| M4 | done | establish durable-doc standards and doc validation | document standards + docs scripts | durable docs pass structural gates |
-| M5 | done | establish bilingual public-doc switching and validation | i18n rules + i18n validator | public docs switch cleanly between English and Chinese |
-| M6 | active | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
-| M7 | next | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
-| M8 | later | evaluate locale-aware internal control-surface output | handoff + command templates + validation policy | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
-| M9 | later | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
+| [M1](reference/project-assistant/development-plan.md#m1) | done | establish `.codex` control surface and tiering | core skill routing | current state is recoverable |
+| [M2](reference/project-assistant/development-plan.md#m2) | done | establish convergent retrofit | control-surface scripts | retrofit no longer stops midway |
+| [M3](reference/project-assistant/development-plan.md#m3) | done | establish progress and handoff workflows | module layer + snapshot scripts | progress and handoff are stable |
+| [M4](reference/project-assistant/development-plan.md#m4) | done | establish durable-doc standards and doc validation | document standards + docs scripts | durable docs pass structural gates |
+| [M5](reference/project-assistant/development-plan.md#m5) | done | establish bilingual public-doc switching and validation | i18n rules + i18n validator | public docs switch cleanly between English and Chinese |
+| [M6](reference/project-assistant/development-plan.md#m6) | active | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
+| [M7](reference/project-assistant/development-plan.md#m7) | next | improve narrative quality and automated architecture triggers | [M6](reference/project-assistant/development-plan.md#m6) | less manual cleanup after retrofit and fewer direction-correction prompts |
+| [M8](reference/project-assistant/development-plan.md#m8) | later | evaluate locale-aware internal control-surface output | handoff + command templates + validation policy | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
+| [M9](reference/project-assistant/development-plan.md#m9) | later | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
 
 ## Milestone Flow
 

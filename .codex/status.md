@@ -35,15 +35,15 @@
 - Last Entry: docs/devlog/2026-04-12-self-review-and-broader-repo-readiness-for-project-assistant.md
 
 ## Architecture Supervision
-- Signal: `green`
-- Signal Basis: 关键 workflow 已在代表性仓库上跑通，当前主要问题是把“可用能力”和“当前真相”对齐，而不是再补结构性能力
+- Signal: `yellow`
+- Signal Basis: open blockers or architectural risks are still recorded
 - Root Cause Hypothesis: 这类助手最容易在功能变多后失去 operator clarity；真正的问题不是缺功能，而是控制面和 README 没及时反映已完成的真实状态
 - Correct Layer: control truth, outward-facing README narrative, capability snapshot, and rollout guidance
-- Escalation Gate: continue automatically
+- Escalation Gate: raise but continue
 
 ## Current Escalation State
-- Current Gate: continue automatically
-- Reason: current execution can proceed inside the existing direction without a user-level tradeoff
+- Current Gate: raise but continue
+- Reason: the current direction can continue, but the supervision state should stay visible
 - Next Review Trigger: review again when blockers change, the active slice rolls forward, or release-facing work begins
 
 ## Done

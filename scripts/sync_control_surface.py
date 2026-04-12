@@ -260,7 +260,7 @@ COMMANDS_TEMPLATE = """# Commands
 - `项目助手 继续` / `project assistant continue`
 - `项目助手 架构 整改` / `project assistant architecture retrofit`
 - `项目助手 整改这个仓库` / `project assistant retrofit this repo`
-- `项目助手 文档整改这个仓库` / `project assistant docs retrofit this repo`
+- `项目助手 文档整改这个仓库` / `项目助手 文档整理这个仓库` / `project assistant docs retrofit this repo`
 - `项目助手 收口当前阶段` / `project assistant close out the current phase`
 - `项目助手 发布 patch` / `project assistant release patch`
 - `项目助手 压缩上下文` / `project assistant handoff`
