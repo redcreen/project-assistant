@@ -1,16 +1,16 @@
-# Strategic Planning And Program Orchestration Proposal
+# Strategic Planning And Program Orchestration Direction
 
-[English](strategic-planning-and-program-orchestration-proposal.md) | [中文](strategic-planning-and-program-orchestration-proposal.zh-CN.md)
+[English](strategic-planning-and-program-orchestration.md) | [中文](strategic-planning-and-program-orchestration.zh-CN.md)
 
-## Purpose
+## Status
 
-This document proposes the next major layer above the current `project-assistant` operating model:
+This document records the approved next major direction above the current `project-assistant` operating model:
 
 - strategic evaluation
 - program orchestration
 - supervised long-run delivery
 
-It is not active implementation truth yet. It is the proposal that should be reviewed before becoming roadmap work.
+This direction is now part of the official roadmap. M10 is active. M8 and M9 are no longer the mainline; they remain bounded supporting backlog topics inside this strategic layer.
 
 ## Why This Layer Is Needed
 
@@ -37,7 +37,7 @@ That gap shows up in several recurring situations:
 | A project grows beyond one slice or one worker | execution boards help locally, but there is no formal orchestration layer across multiple streams |
 | Humans mainly want to set direction, not babysit delivery | current flows reduce babysitting, but they do not yet define a higher-level supervising role that keeps delivery moving until a true business decision is needed |
 
-## Proposed Role Model
+## Role Model
 
 | Layer | Primary Owner | Responsibility |
 | --- | --- | --- |
@@ -64,20 +64,20 @@ The AI system should increasingly handle:
 - continued execution across slices
 - surfacing when a human decision is genuinely required
 
-## Proposed Milestones
+## Milestone Direction
 
 ### M10: Strategic Evaluation
 
-| Item | Proposed Meaning |
+| Item | Current Meaning |
 | --- | --- |
 | Goal | evaluate where the project should go next, whether special governance / architecture work should be inserted, and whether earlier milestones or project positioning should change |
-| Output | durable strategic proposal, not automatic roadmap edits |
+| Output | durable strategic judgment and reviewable strategy surfaces, not automatic business-direction edits |
 | Human Role | review and approve or reject strategy changes |
 | Exit Criteria | strategy recommendations become explicit, reviewable, and tied to real repo evidence |
 
 ### M11: Program Orchestration
 
-| Item | Proposed Meaning |
+| Item | Current Meaning |
 | --- | --- |
 | Goal | coordinate multiple workstreams, slices, and execution agents instead of only one active execution line |
 | Output | a durable program board that tracks active streams, sequencing, parallelism, and orchestration checkpoints |
@@ -86,14 +86,14 @@ The AI system should increasingly handle:
 
 ### M12: Supervised Long-Run Delivery
 
-| Item | Proposed Meaning |
+| Item | Current Meaning |
 | --- | --- |
 | Goal | let the AI delivery system keep advancing long-running work until completion or a real business decision point |
 | Output | longer-lived supervised execution runs with periodic checkpoints, automatic escalation, and durable recovery truth |
 | Human Role | intervene when direction changes or tradeoffs need approval |
 | Exit Criteria | humans mainly provide direction and decisions, not constant continuation prompts |
 
-## Proposed New Durable Surfaces
+## Durable Surfaces
 
 | Surface | Purpose |
 | --- | --- |
@@ -112,7 +112,7 @@ These should sit alongside existing control-surface files, not replace them.
 | keep long-running work moving until a checkpoint | approve large cost or schedule shifts |
 | re-prioritize technical sequence within approved scope | accept requirement changes without human review |
 
-## Suggested Rollout Order
+## Rollout Order
 
 1. define the strategic-evaluation document shape and review contract
 2. make strategy output evidence-backed rather than opinion-only
@@ -120,26 +120,11 @@ These should sit alongside existing control-surface files, not replace them.
 4. allow orchestration across multiple slices only after the board and escalation rules are stable
 5. only then consider longer supervised execution loops
 
-## Review Questions
+## Current Approval Boundary
 
-Before promoting this proposal into active roadmap work, confirm:
+The direction is approved, but its authority remains bounded:
 
-1. should `project-assistant` remain a single-repo delivery system, or expand into a multi-repo/multi-agent orchestrator?
-2. should strategic evaluation remain proposal-only, or eventually gain authority to rewrite roadmap sections automatically under gates?
-3. what is the acceptable limit for “automatic long-run work” before human re-approval is required?
-4. what durable evidence must exist before the system is allowed to insert governance or architecture side-tracks by itself?
-
-## Current Recommendation
-
-Do not activate this layer immediately.
-
-Finish:
-
-- M8 locale-aware internal output
-- M9 slimmer continue / resume
-
-Then revisit this proposal and decide whether it becomes:
-
-- a new milestone line in the roadmap
-- an experimental mode
-- or a separate skill/plugin layer above `project-assistant`
+1. `project-assistant` may propose roadmap reshaping, governance tracks, and architecture tracks.
+2. It may not auto-change business direction, compatibility promises, or external positioning without human approval.
+3. M8 locale-aware output and M9 slimmer continue snapshots now survive as supporting backlog topics under M10 rather than as the mainline.
+4. M11 and M12 stay downstream until M10 produces durable strategy surfaces and a stable review contract.

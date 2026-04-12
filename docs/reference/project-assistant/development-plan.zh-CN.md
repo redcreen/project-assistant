@@ -26,10 +26,10 @@
 
 | 项目 | 当前值 | 说明 |
 | --- | --- | --- |
-| 当前阶段 | `locale-aware internal control-surface output` | 来自 `.codex/plan.md` 的当前维护阶段 |
-| 当前切片 | `evaluate-locale-aware-internal-output` | 当前执行线绑定的切片 |
-| 当前执行线 | 评估哪些内部控制面输出应该按用户语言做单通道展示，减少中文工作流里的冗余英文，同时不削弱公开文档双语和 AI 恢复精度 | 当前这轮真正要收口的工作 |
-| 当前验证 | representative Chinese-first repo 的 internal snapshots 更短但不失恢复点；公开文档双语门禁不受影响；`deep` 继续通过 | 继续前如何证明这条线已收口 |
+| 当前阶段 | `strategic evaluation layer foundation` | 来自 `.codex/plan.md` 的当前维护阶段 |
+| 当前切片 | `establish-strategy-surface-and-review-contract` | 当前执行线绑定的切片 |
+| 当前执行线 | 把第一份 durable 战略控制面落到 repo、把战略层正式接进文档和控制面，并把 M8/M9 收进 supporting backlog，而不是继续占据主线 | 当前这轮真正要收口的工作 |
+| 当前验证 | 战略文档、README、roadmap、development plan 与控制面一致；`.codex/strategy.md` 已存在；`deep` 继续通过 | 继续前如何证明这条线已收口 |
 
 ## 阶段总览
 
@@ -42,11 +42,11 @@
 | M5 | done | 建立公开文档双语切换与验收 | i18n rules + i18n validator | 公开文档可在中英文之间稳定切换 |
 | M6 | done | 收敛成内嵌式架构师助手工作模型 | previous milestones | 规划、执行、架构监督和开发日志成为默认自动能力 |
 | M7 | done | 提升叙事质量与自动架构触发能力 | M6 | 整改后的手工清理更少，方向纠偏提示更少 |
-| M8 | active | 评估按语言裁剪内部控制面的可能性 | handoff + command templates + validation policy | 中文工作流能减少冗余英文而不削弱公开文档双语 |
-| M9 | later | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | `项目助手 继续` 只保留最小恢复信息，不再重复 progress 内容 |
-| M10 | proposed | 增加位于执行层之上的战略评估层 | M8 + M9 + durable 战略提案 | roadmap / 治理 / 架构调整建议成为显式提案，而不是零散直觉 |
-| M11 | proposed | 增加跨多个切片或执行器的程序编排层 | M10 + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
-| M12 | proposed | 增加受监督的长期自动交付层 | M11 + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点 |
+| M8 | deferred | 按语言优化内部控制面输出 | handoff + command templates + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
+| M9 | deferred | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
+| M10 | active | 增加位于执行层之上的战略评估层 | M7 + 已批准的战略方向 | roadmap / 治理 / 架构调整建议成为 durable、可 review 的战略输出，而不是零散直觉 |
+| M11 | next | 增加跨多个切片或执行器的程序编排层 | M10 + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
+| M12 | later | 增加受监督的长期自动交付层 | M11 + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点 |
 
 ## 顺序执行队列
 
@@ -62,7 +62,8 @@
 | 8 | `make architecture retrofit a first-class flow` | 较早切片 | n/a | n/a |
 | 9 | `prepare project-assistant for broader repo adoption` | 较早切片 | n/a | n/a |
 | 10 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | 已完成的里程碑切片 | representative medium / large repo 的第一屏更接近维护者恢复面板；至少一条架构触发已能自动升级 | representative repo snapshots 改善且自动触发可见 |
-| 11 | `evaluate-locale-aware-internal-output` | 当前 | 明确哪些 internal surfaces 应该 locale-aware，同时不拆裂 public truth 与 AI truth | 中文优先 internal surfaces 更短，公开文档双语门禁继续稳定 |
+| 11 | `activate-m10-strategic-evaluation-layer` | 已完成的切换切片 | 把战略层从“提案”提升成 active roadmap 方向，并让 roadmap / README / 控制面指向同一个当前主线 | 文档、路线图、开发计划和控制面都指向 M10 |
+| 12 | `establish-strategy-surface-and-review-contract` | 当前 | 创建第一份 durable strategy surface，定义 review 边界，并明确 M8/M9 怎样并入 supporting backlog | `.codex/strategy.md` 存在；文档与控制面一致；`deep` 通过 |
 
 ## 里程碑细节
 
@@ -133,34 +134,34 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | active |
-| 目标 | 评估按语言裁剪内部控制面的可能性 |
+| 当前状态 | deferred |
+| 目标 | 按语言优化内部控制面输出 |
 | 依赖 | handoff + command templates + validation policy |
-| 退出条件 | 中文工作流能减少冗余英文而不削弱公开文档双语 |
+| 退出条件 | 这条线继续作为 M10 下的 supporting backlog，而不是主线里程碑 |
 
 ### M9
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | later |
+| 当前状态 | deferred |
 | 目标 | 压缩 continue / resume 快照体量而不损失可恢复性 |
 | 依赖 | continue snapshot + handoff + validation policy |
-| 退出条件 | `项目助手 继续` 只保留最小恢复信息，不再重复 progress 内容 |
+| 退出条件 | 这条线继续作为 M10 下的 supporting backlog，而不是主线里程碑 |
 
 ### M10
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | proposed |
+| 当前状态 | active |
 | 目标 | 增加位于执行层之上的战略评估层 |
-| 依赖 | M8 + M9 + durable 战略提案 |
-| 退出条件 | roadmap / 治理 / 架构调整建议成为显式提案，而不是零散直觉 |
+| 依赖 | M7 + 已批准的战略方向 |
+| 退出条件 | roadmap / 治理 / 架构调整建议成为由 durable 控制面和 review 规则支撑的战略输出 |
 
 ### M11
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | proposed |
+| 当前状态 | next |
 | 目标 | 增加跨多个切片或执行器的程序编排层 |
 | 依赖 | M10 + durable program board |
 | 退出条件 | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
@@ -169,7 +170,7 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | proposed |
+| 当前状态 | later |
 | 目标 | 增加受监督的长期自动交付层 |
 | 依赖 | M11 + 稳定升级策略 |
 | 退出条件 | 长期交付能持续推进到真正的业务裁决点 |
@@ -178,14 +179,14 @@
 
 | 下一步 | 为什么做 |
 | --- | --- |
-| 继续从 `evaluate-locale-aware-internal-output` 之后恢复 | M7 已关闭；下一个 durable 问题是哪些 internal 输出应该按语言优化、哪些必须保持原始真相 |
+| 继续从 `establish-strategy-surface-and-review-contract` 之后恢复 | 战略层现在已经成为主线，下一个 durable 问题是怎样把战略判断和 review 边界真正落成一等 repo 真相 |
 
-## 战略待办
+## 战略方向
 
-| 主题 | 范围 | 进入条件 |
+| 主题 | 范围 | 当前位置 |
 | --- | --- | --- |
-| 业务规划与程序编排层 | 评估 `project-assistant` 是否需要一层更高阶的规划 / 监督角色，用来协调多个 Codex 工作流、决定何时插入治理或架构专项、识别既有里程碑或项目定位是否需要调整，并在人类主要负责业务方向时继续稳定盯住长期交付 | 等 M8 和 M9 收口后再回看；先出方案、经过 review，再决定是否提升成正式里程碑或 active slice |
+| 业务规划与程序编排层 | `project-assistant` 现在把它视为确认后的主线方向：战略评估层已激活，M8/M9 已并入 supporting backlog，M11/M12 继续排在其后 | active |
 
-提案文档：
+方向文档：
 
-- [业务规划与程序编排提案](strategic-planning-and-program-orchestration-proposal.zh-CN.md)
+- [业务规划与程序编排方向](strategic-planning-and-program-orchestration.zh-CN.md)

@@ -9,4 +9,4 @@
 ## 建议从这里读
 
 - [development-plan.zh-CN.md](development-plan.zh-CN.md)：详细执行队列与里程碑下钻入口
-- [strategic-planning-and-program-orchestration-proposal.zh-CN.md](strategic-planning-and-program-orchestration-proposal.zh-CN.md)：战略评估、程序编排和长期受监督交付的下一层提案
+- [strategic-planning-and-program-orchestration.zh-CN.md](strategic-planning-and-program-orchestration.zh-CN.md)：已经确认的战略方向，覆盖战略评估、程序编排和长期受监督交付

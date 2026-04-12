@@ -9,4 +9,4 @@ This directory holds the durable maintainer-facing reference stack that sits bel
 ## Read Here
 
 - [development-plan.md](development-plan.md): detailed execution queue and milestone drill-down
-- [strategic-planning-and-program-orchestration-proposal.md](strategic-planning-and-program-orchestration-proposal.md): proposed next layer for strategic evaluation, program orchestration, and long-run supervised delivery
+- [strategic-planning-and-program-orchestration.md](strategic-planning-and-program-orchestration.md): approved strategic direction for strategic evaluation, program orchestration, and long-run supervised delivery

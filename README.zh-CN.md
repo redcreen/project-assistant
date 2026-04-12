@@ -19,15 +19,16 @@
 | 当前最强能力 | 项目规划、整改收敛、架构监督、进展汇报、开发日志、文档治理、上下文交接 |
 | 人类仍然负责 | 业务方向、产品优先级、兼容性承诺和重大取舍 |
 | 默认工作模型 | 人类给方向；`project-assistant` 负责规划、执行、验证、更新状态，并只在需要判断时升级给人类 |
-| 还没完全补上的层 | 更高阶的战略规划 / 程序编排层，用来长期盯多个切片和多个执行器 |
+| 当前战略方向 | 战略评估层已经成为当前主线；程序编排层和长期受监督交付层继续排在后面 |
 
 ## 它接下来要去哪里
 
 | 时间层级 | 重点 |
 | --- | --- |
-| 当前 | 按语言优化内部控制面输出，并继续压缩恢复面体量 |
-| 下一层提案 | 战略评估、程序编排、受监督的长期自动交付 |
-| 提案入口 | [业务规划与程序编排提案](docs/reference/project-assistant/strategic-planning-and-program-orchestration-proposal.zh-CN.md) |
+| 当前 | 把战略评估层正式接到执行层和整改层之上 |
+| 下一步 | 程序编排层，管理多个切片或多个执行器 |
+| 更后面 | 受监督的长期自动交付，以及作为 supporting backlog 回收的 M8/M9 议题 |
+| 战略入口 | [业务规划与程序编排方向](docs/reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md) |
 
 ## 安装
 
@@ -214,7 +215,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - [文档首页](docs/README.zh-CN.md)
 - [架构](docs/architecture.zh-CN.md)
 - [路线图](docs/roadmap.zh-CN.md)
-- [战略提案](docs/reference/project-assistant/strategic-planning-and-program-orchestration-proposal.zh-CN.md)
+- [战略方向](docs/reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md)
 - [测试计划](docs/test-plan.zh-CN.md)
 - [开发日志](docs/devlog/README.zh-CN.md)
 - [ADR 索引](docs/adr/README.zh-CN.md)

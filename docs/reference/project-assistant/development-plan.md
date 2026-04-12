@@ -26,10 +26,10 @@ It answers one practical question:
 
 | Item | Current Value | Meaning |
 | --- | --- | --- |
-| Current Phase | `locale-aware internal control-surface output` | Current maintainer-facing phase from `.codex/plan.md` |
-| Active Slice | `evaluate-locale-aware-internal-output` | The slice tied to the current execution line |
-| Current Execution Line | 评估哪些内部控制面输出应该按用户语言做单通道展示，减少中文工作流里的冗余英文，同时不削弱公开文档双语和 AI 恢复精度 | What the repo is trying to finish now |
-| Validation | representative Chinese-first repo snapshots are shorter without losing restore anchors; public-doc bilingual gates remain intact; `deep` continues to pass | How this line proves itself before moving on |
+| Current Phase | `strategic evaluation layer foundation` | Current maintainer-facing phase from `.codex/plan.md` |
+| Active Slice | `establish-strategy-surface-and-review-contract` | The slice tied to the current execution line |
+| Current Execution Line | define the first durable strategic surface, make the strategic layer official in docs and control truth, and fold M8/M9 into supporting backlog instead of the mainline | What the repo is trying to finish now |
+| Validation | strategy docs and control truth align; `.codex/strategy.md` exists; `deep` continues to pass | How this line proves itself before moving on |
 
 ## Milestone Overview
 
@@ -42,11 +42,11 @@ It answers one practical question:
 | M5 | done | establish bilingual public-doc switching and validation | i18n rules + i18n validator | public docs switch cleanly between English and Chinese |
 | M6 | done | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
 | M7 | done | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
-| M8 | active | evaluate locale-aware internal control-surface output | handoff + command templates + validation policy | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
-| M9 | later | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
-| M10 | proposed | add a strategic-evaluation layer above execution and retrofit | M8 + M9 + durable strategy proposal | roadmap / governance / architecture adjustments become explicit proposals instead of ad hoc intuition |
-| M11 | proposed | add a program-orchestration layer across multiple slices or workers | M10 + durable program board | the system can coordinate several related slices without constant human continuation prompts |
-| M12 | proposed | add supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue until a real business decision point |
+| M8 | deferred | locale-aware internal control-surface output | handoff + command templates + validation policy | becomes supporting backlog under M10 instead of the mainline |
+| M9 | deferred | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | becomes supporting backlog under M10 instead of the mainline |
+| M10 | active | add a strategic-evaluation layer above execution and retrofit | M7 + approved strategic direction | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs instead of ad hoc intuition |
+| M11 | next | add a program-orchestration layer across multiple slices or workers | M10 + durable program board | the system can coordinate several related slices without constant human continuation prompts |
+| M12 | later | add supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue until a real business decision point |
 
 ## Ordered Execution Queue
 
@@ -62,7 +62,8 @@ It answers one practical question:
 | 8 | `make architecture retrofit a first-class flow` | earlier slice | n/a | n/a |
 | 9 | `prepare project-assistant for broader repo adoption` | earlier slice | n/a | n/a |
 | 10 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | completed milestone slice | representative medium / large repos now read more like maintainer restore panels; at least one architecture trigger auto-escalates from drift | representative repo snapshots improved and automatic trigger visible |
-| 11 | `evaluate-locale-aware-internal-output` | current | decide which internal surfaces should become locale-aware without splitting public truth from AI truth | Chinese-first internal surfaces get shorter while public-doc bilingual gates stay stable |
+| 11 | `activate-m10-strategic-evaluation-layer` | completed transition slice | promote the strategic layer from proposal to active roadmap direction and align roadmap / README / control truth | docs, roadmap, development plan, and control truth all point to M10 |
+| 12 | `establish-strategy-surface-and-review-contract` | current | create the first durable strategy surface, define review boundaries, and record how M8/M9 move into supporting backlog | `.codex/strategy.md` exists; docs and control truth align; `deep` passes |
 
 ## Milestone Details
 
@@ -133,34 +134,34 @@ It answers one practical question:
 
 | Item | Current Value |
 | --- | --- |
-| Status | active |
-| Goal | evaluate locale-aware internal control-surface output |
+| Status | deferred |
+| Goal | locale-aware internal control-surface output |
 | Depends On | handoff + command templates + validation policy |
-| Exit Criteria | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
+| Exit Criteria | this remains a bounded supporting backlog topic under M10 instead of a mainline milestone |
 
 ### M9
 
 | Item | Current Value |
 | --- | --- |
-| Status | later |
+| Status | deferred |
 | Goal | slim continue/resume snapshots without losing recoverability |
 | Depends On | continue snapshot + handoff + validation policy |
-| Exit Criteria | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
+| Exit Criteria | this remains a bounded supporting backlog topic under M10 instead of a mainline milestone |
 
 ### M10
 
 | Item | Current Value |
 | --- | --- |
-| Status | proposed |
+| Status | active |
 | Goal | add a strategic-evaluation layer above execution and retrofit |
-| Depends On | M8 + M9 + durable strategy proposal |
-| Exit Criteria | roadmap / governance / architecture adjustments become explicit proposals instead of ad hoc intuition |
+| Depends On | M7 + approved strategic direction |
+| Exit Criteria | roadmap / governance / architecture adjustments become explicit strategy outputs backed by durable surfaces and review rules |
 
 ### M11
 
 | Item | Current Value |
 | --- | --- |
-| Status | proposed |
+| Status | next |
 | Goal | add a program-orchestration layer across multiple slices or workers |
 | Depends On | M10 + durable program board |
 | Exit Criteria | the system can coordinate several related slices without constant human continuation prompts |
@@ -169,7 +170,7 @@ It answers one practical question:
 
 | Item | Current Value |
 | --- | --- |
-| Status | proposed |
+| Status | later |
 | Goal | add supervised long-run delivery |
 | Depends On | M11 + stable escalation policy |
 | Exit Criteria | long-running delivery can continue until a real business decision point |
@@ -178,14 +179,14 @@ It answers one practical question:
 
 | Next Move | Why |
 | --- | --- |
-| Continue from `evaluate-locale-aware-internal-output` onward | M7 is closed; the next durable question is where locale-aware internal output should begin and where it must stop |
+| Continue from `establish-strategy-surface-and-review-contract` onward | the strategic layer is now the active mainline, so the next durable question is how to encode strategy judgment and review boundaries as first-class repo truth |
 
-## Strategic Backlog
+## Strategic Direction
 
-| Topic | Scope | Entry Condition |
+| Topic | Scope | Current Position |
 | --- | --- | --- |
-| business-planning and program-orchestration layer | evaluate whether `project-assistant` needs a higher-level planner / supervising role that can steer multiple Codex workstreams, decide when governance or architecture side-tracks should be inserted, detect when earlier milestones or project positioning should change, and keep humans focused on business direction while still escalating requirement changes back for review | revisit after M8 and M9 close; discuss first, review the proposal, then promote it into a formal milestone or active slice if it survives scrutiny |
+| business-planning and program-orchestration layer | `project-assistant` now treats this as the approved mainline direction. Strategic evaluation is active, M8/M9 are folded into supporting backlog, and M11/M12 stay queued behind durable strategy surfaces and review rules | active |
 
-Proposal:
+Direction:
 
-- [Strategic Planning And Program Orchestration Proposal](strategic-planning-and-program-orchestration-proposal.md)
+- [Strategic Planning And Program Orchestration Direction](strategic-planning-and-program-orchestration.md)

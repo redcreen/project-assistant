@@ -19,15 +19,16 @@
 | Strongest At | planning, retrofit, architecture supervision, progress reporting, development logs, documentation governance, and context handoff |
 | Human Still Owns | business direction, product priorities, compatibility promises, and major tradeoffs |
 | Default Working Model | human sets direction; `project-assistant` plans, executes, validates, updates state, and escalates only when judgment is required |
-| Not Fully Added Yet | a higher-level strategic planner / program orchestrator layer for multi-slice, long-run delivery steering |
+| Active Strategic Direction | strategic evaluation is now the current mainline direction; program orchestration and supervised long-run delivery stay next |
 
 ## Where It Is Going
 
 | Horizon | Focus |
 | --- | --- |
-| Current | locale-aware internal control-surface output and slimmer restore surfaces |
-| Proposed Next Layer | strategic evaluation, program orchestration, and supervised long-run delivery |
-| Proposal Entry | [Strategic Planning And Program Orchestration Proposal](docs/reference/project-assistant/strategic-planning-and-program-orchestration-proposal.md) |
+| Current | strategic evaluation as the new active layer above execution and retrofit |
+| Next | program orchestration across multiple slices or workers |
+| Later | supervised long-run delivery plus selective carryover of M8/M9 concerns as supporting backlog |
+| Strategy Entry | [Strategic Planning And Program Orchestration Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md) |
 
 ## Install
 
@@ -214,7 +215,7 @@ project assistant handoff
 - [Docs Home](docs/README.md)
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
-- [Strategic Proposal](docs/reference/project-assistant/strategic-planning-and-program-orchestration-proposal.md)
+- [Strategic Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md)
 - [Test Plan](docs/test-plan.md)
 - [Development Log](docs/devlog/README.md)
 - [ADR Index](docs/adr/README.md)

@@ -15,9 +15,9 @@ Detailed execution queue:
 
 | Horizon | Focus | Exit Signal |
 | --- | --- | --- |
-| Now | locale-aware internal control-surface output | Chinese-first workflows carry less redundant English without weakening public-doc bilingual support or AI restore accuracy |
-| Next | slimmer continue snapshots without losing recoverability | `project assistant continue` becomes a smaller restore surface and stops duplicating progress content |
-| Later | richer validation, better recovery automation, and more visual reporting | new repos need fewer manual steering prompts and fewer override commands |
+| Now | strategic evaluation becomes the active layer above execution and retrofit | durable strategy surfaces, review boundaries, and M10 truth are in place |
+| Next | program orchestration across multiple slices or workers | the system can coordinate multiple related streams without constant human continuation prompts |
+| Later | supervised long-run delivery plus selective M8/M9 carryover | long-running delivery advances until real business decisions, while locale-aware output and slimmer continue remain bounded supporting topics |
 
 ## Milestones
 
@@ -30,16 +30,16 @@ Detailed execution queue:
 | [M5](reference/project-assistant/development-plan.md#m5) | done | establish bilingual public-doc switching and validation | i18n rules + i18n validator | public docs switch cleanly between English and Chinese |
 | [M6](reference/project-assistant/development-plan.md#m6) | done | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
 | [M7](reference/project-assistant/development-plan.md#m7) | done | improve narrative quality and automated architecture triggers | [M6](reference/project-assistant/development-plan.md#m6) | less manual cleanup after retrofit and fewer direction-correction prompts |
-| [M8](reference/project-assistant/development-plan.md#m8) | active | evaluate locale-aware internal control-surface output | handoff + command templates + validation policy | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
-| [M9](reference/project-assistant/development-plan.md#m9) | later | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
+| [M8](reference/project-assistant/development-plan.md#m8) | deferred | locale-aware internal control-surface output | handoff + command templates + validation policy | becomes a bounded supporting backlog topic under M10 instead of the mainline |
+| [M9](reference/project-assistant/development-plan.md#m9) | deferred | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | becomes a bounded supporting backlog topic under M10 instead of the mainline |
 
-## Proposed Next-Layer Milestones
+## Strategic Layer Milestones
 
 | Milestone | Status | Goal | Depends On | Exit Criteria |
 | --- | --- | --- | --- | --- |
-| [M10](reference/project-assistant/development-plan.md#m10) | proposed | add a strategic-evaluation layer above execution and retrofit | [M8](reference/project-assistant/development-plan.md#m8) + [M9](reference/project-assistant/development-plan.md#m9) + durable strategy proposal | the system can propose roadmap / governance / architecture adjustments without auto-changing business direction |
-| [M11](reference/project-assistant/development-plan.md#m11) | proposed | add a program-orchestration layer across multiple slices or workers | [M10](reference/project-assistant/development-plan.md#m10) + durable program board | the system can coordinate multiple related slices without constant human continuation prompts |
-| [M12](reference/project-assistant/development-plan.md#m12) | proposed | add supervised long-run delivery | [M11](reference/project-assistant/development-plan.md#m11) + stable escalation policy | long-running delivery can continue until a real business decision point instead of stopping for routine steering |
+| [M10](reference/project-assistant/development-plan.md#m10) | active | add a strategic-evaluation layer above execution and retrofit | [M7](reference/project-assistant/development-plan.md#m7) + approved strategic direction | the system can produce durable strategy judgments, track when governance/architecture tracks should be inserted, and keep business-direction changes gated to humans |
+| [M11](reference/project-assistant/development-plan.md#m11) | next | add a program-orchestration layer across multiple slices or workers | [M10](reference/project-assistant/development-plan.md#m10) + durable program board | the system can coordinate multiple related slices without constant human continuation prompts |
+| [M12](reference/project-assistant/development-plan.md#m12) | later | add supervised long-run delivery | [M11](reference/project-assistant/development-plan.md#m11) + stable escalation policy | long-running delivery can continue until a real business decision point instead of stopping for routine steering |
 
 ## Milestone Flow
 
@@ -51,7 +51,9 @@ flowchart LR
     M4 --> M5["M5 Public Doc I18n"]
     M5 --> M6["M6 Embedded Architect Assistant"]
     M6 --> M7["M7 Better Narrative + Triggers"]
-    M7 --> M8["M8 Locale-Aware Internal Output"]
+    M7 --> M10["M10 Strategic Evaluation"]
+    M10 --> M11["M11 Program Orchestration"]
+    M11 --> M12["M12 Supervised Long-Run Delivery"]
 ```
 
 ## Risks and Dependencies
@@ -61,15 +63,16 @@ flowchart LR
 - long execution lines must stop at real checkpoints, not drift into opaque background work
 - public-doc bilingual quality still depends on good content generation, not only file-pair checks
 - exact context-usage thresholds still require runtime support
-- locale-aware internal output should not leak into public docs or weaken bilingual release expectations
-- `continue` snapshots are useful but still heavier than ideal; they should converge toward minimal restore state rather than a second mini-dashboard
+- locale-aware internal output and slimmer continue still matter, but now as bounded supporting backlog under M10 rather than as the mainline
+- strategy surfaces must stay evidence-backed and must not auto-change business direction
+- program orchestration should not arrive before the strategy layer has a stable review contract
 
-## Strategic Follow-Up
+## Strategic Direction
 
-| Topic | Why It Matters | When To Revisit |
+| Topic | Why It Matters | Current Position |
 | --- | --- | --- |
-| business planning and program orchestration | evaluate whether `project-assistant` should add a higher-level planner / supervising role that can decide how the project should evolve next, when governance or architecture side-tracks should be inserted, whether earlier milestones or project positioning need to change, and how to keep humans focused on business direction instead of constant manual steering | after M8 and M9 close; discuss first, review the proposal, then turn it into a formal milestone or development-plan item |
+| business planning and program orchestration | `project-assistant` now treats this as the confirmed next direction; M10 is active, while M8/M9 continue only as supporting backlog topics inside this larger strategic layer | active in roadmap and development plan |
 
-Proposal document:
+Direction document:
 
-- [Strategic Planning And Program Orchestration Proposal](reference/project-assistant/strategic-planning-and-program-orchestration-proposal.md)
+- [Strategic Planning And Program Orchestration Direction](reference/project-assistant/strategic-planning-and-program-orchestration.md)

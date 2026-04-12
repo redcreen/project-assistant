@@ -7,49 +7,49 @@
 
 ## Current Phase
 
-`locale-aware internal control-surface output`
+`strategic evaluation layer foundation`
 
 ## Active Slice
-`evaluate-locale-aware-internal-output`
+`establish-strategy-surface-and-review-contract`
 
 ## Current Execution Line
-- Objective: 评估哪些内部控制面输出应该按用户语言做单通道展示，减少中文工作流里的冗余英文，同时不削弱公开文档双语和 AI 恢复精度
-- Plan Link: evaluate-locale-aware-internal-output
-- Runway: one active-slice checkpoint covering implementation, validation, and state refresh
-- Progress: 0 / 9 tasks complete
+- Objective: 把战略规划层从“待讨论提案”升级成正式方向，建立第一份 durable strategy surface 和 review contract，并把 M8/M9 收进 supporting backlog 而不是继续占据主线
+- Plan Link: establish-strategy-surface-and-review-contract
+- Runway: one checkpoint covering strategy-surface creation, docs alignment, validation, and state refresh
+- Progress: 9 / 9 tasks complete
 - Stop Conditions:
   - blocker requires human direction
   - validation fails and changes the direction
   - business, compatibility, or cost decision requires user judgment
 
 ## Execution Tasks
-- [ ] EL-1 confirm the checkpoint and objective for `evaluate-locale-aware-internal-output`: 评估哪些内部控制面输出应该按用户语言做单通道展示，减少中文工作流里的冗余英文，同时不削弱公开文档双语和 AI 恢复精度
-- [ ] EL-2 verify dependencies and affected boundaries: progress / continue / handoff wording contract、public-doc i18n rules、validation policy、command templates
-- [ ] EL-3 confirm architecture signal, root-cause hypothesis, and correct layer still hold
-- [ ] EL-4 implement the highest-value change for `evaluate-locale-aware-internal-output`
-- [ ] EL-5 address the main execution risk: 内部输出与公开文档规则串线；为了省 token 丢失恢复点；人类解释层和 AI 真相层再次分裂
-- [ ] EL-6 update docs, control-surface notes, or contracts touched by this slice
-- [ ] EL-7 run validation: representative Chinese-first repo 的 internal snapshots 更短但不失恢复点；公开文档双语门禁不受影响；`deep` 继续通过
-- [ ] EL-8 refresh progress, capabilities, next checkpoint, and next 3 actions
-- [ ] EL-9 capture a devlog entry if the root cause, tradeoff, or rejected shortcut changed
+- [x] EL-1 confirm the checkpoint and objective for `establish-strategy-surface-and-review-contract`: 把战略规划层升级成正式方向，并让 repo 真相能承载这个方向
+- [x] EL-2 verify dependencies and affected boundaries: roadmap / development-plan / README / `.codex/status.md` / `.codex/plan.md` / future strategy surface
+- [x] EL-3 confirm architecture signal, root-cause hypothesis, and correct layer still hold
+- [x] EL-4 create the first durable strategy surface and define what it owns
+- [x] EL-5 define how M8 and M9 survive as supporting backlog topics under M10 instead of remaining mainline milestones
+- [x] EL-6 update docs, control-surface notes, and strategic direction links
+- [x] EL-7 run validation: strategic docs and control truth align; `deep` continues to pass
+- [x] EL-8 refresh progress, next checkpoint, and next 3 actions for M10
+- [x] EL-9 capture a devlog entry because the roadmap and current direction changed
 
 ## Development Log Capture
 - Trigger Level: high
 - Pending Capture: no
-- Last Entry: docs/devlog/2026-04-12-close-m7-narrative-quality-and-automated-architecture-triggers.md
+- Last Entry: docs/devlog/2026-04-12-activate-m10-strategic-evaluation-layer.md
 
 ## Architecture Supervision
 - Signal: `green`
 - Signal Basis: no blocker or escalation trigger is currently forcing a higher-level decision
-- Root Cause Hypothesis: 公开文档双语与内部恢复输出仍共享过多 raw wording，导致中文优先工作流里有不必要的英文噪声
-- Correct Layer: internal progress / continue / handoff presentation rules, validation policy, and the boundary between internal and public wording
+- Root Cause Hypothesis: 现在最大的缺口不再是单个执行功能，而是没有 durable 的战略层把“项目接下来怎么走”沉淀成 repo 真相
+- Correct Layer: durable strategy surface、roadmap / development-plan / README narrative、review contract、future program board entry
 - Automatic Review Trigger: no automatic trigger is currently active
 - Escalation Gate: continue automatically
 
 ## Current Escalation State
 - Current Gate: continue automatically
-- Reason: current execution can proceed inside the existing direction without a user-level tradeoff
-- Next Review Trigger: review again when blockers change, the active slice rolls forward, or release-facing work begins
+- Reason: strategic direction is approved, and current execution can proceed inside that direction without a new user-level tradeoff
+- Next Review Trigger: review again when strategy evidence changes, a strategic side-track is proposed, or M11 is about to activate
 
 ## Done
 
@@ -61,60 +61,25 @@
   - representative medium / large repo 的第一屏输出已经更接近维护者恢复面板，而不是 AI-only status dump
   - `progress / continue / handoff` 的 maintainer-facing wording contract 已落到脚本和代表性仓库验证里
   - 至少一条 ownership / boundary / repeated-fix drift 路径已经可以自动升级成 architecture-review trigger
-  - 相关 README、roadmap、development plan、progress-reporting 和验证脚本已同步
-- `project-assistant` 已支持：
-  - 控制面整改
-  - 模块层进展面板
-  - 上下文恢复包
-  - 文档系统规范
-  - 开发日志索引、写入脚本和门禁
-  - 开发日志触发强度控制面
-  - `项目助手 架构` 统一父命令与子命令入口
-  - 架构审查默认先看高层包，再按需下钻代码证据
-  - 规划/执行语义已引入“当前执行线（execution line）”
-  - `sync_execution_line.py` 自动生成更长的执行线任务板
-  - `sync_architecture_supervision.py` 自动刷新架构信号与升级 gate
-  - `sync_architecture_retrofit.py` 生成架构整改工作底稿
-  - `capability_snapshot.py` 输出“现在可用能力”快照
-  - `validate_release_readiness.py` 发布就绪门禁
-  - `validate_architecture_retrofit.py` 校验架构整改工作底稿
-  - `.github/workflows/deep-gate.yml` CI deep 门禁
-  - `.github/workflows/release-readiness.yml` CI release readiness 门禁
-  - `.github/workflows/release-protection.yml` CI 更严格发布保护门禁
-  - `validate_gate_set.py --profile release` 更严格发布保护口径
-  - 人工命令面已收敛成四个主窗口：菜单 / 进展 / 架构 / 开发日志
-  - 在代表性仓库上已跑通：
-    - `项目助手 整改`
-    - `项目助手 文档整改`
-    - `项目助手 架构 整改`
-  - 当前自审已把 README、能力快照、progress、handoff、status、plan 对齐到同一 readiness truth
-- `validate_docs_system.py` 与 `sync_docs_system.py` 已落地
-- 文档规范已固化到：
-  - `references/document-standards.md`
-  - `references/templates.md`
-  - `SKILL.md`
-- `项目助手 整改` 已默认包含文档整改
-- `项目助手 文档整改` 已作为独立短指令加入
-- `deep` 门禁当前包含：
-  - 文档结构
-  - 文档质量
-  - 控制面质量
-  - 开发日志质量
+- M10 `strategic evaluation layer` 已被提升成当前正式方向：
+  - README、roadmap、development plan、控制面和文档导航现在都把它当成当前主线，而不是后续提案
+  - `M8 / M9` 现在被明确并入 supporting backlog，不再继续占据主线
+  - 第一份 durable 战略控制面 `.codex/strategy.md` 已创建
 
 ## In Progress
 
-- 评估哪些 internal control-surface outputs 适合按语言单通道展示，减少中文工作流里的冗余英文
-- 保持公开文档双语、内部输出 locale-aware、AI 恢复精度三者之间的边界清楚
-- 继续观察跨项目使用时的误报、漏报和需要人工裁决的真实频率
+- 把战略评估层从方向说明推进到可持续使用的战略控制面和 review 合约
+- 明确哪些问题属于战略层、哪些继续留给执行层 / 架构整改 / 文档整改
+- 为后续 `M11` 的 program board 设计 durable 入口，但先不越过当前 M10 边界
 
 ## Blockers / Open Decisions
 
 - None currently.
 - Follow-up: `项目助手 继续` 当前仍偏重，继续评估如何在不丢恢复信息的前提下压缩输出体量和重复内容
-- Strategic Follow-Up: 等 M8 / M9 收口后，评估是否需要一层更高阶的业务规划与程序编排能力，用来判断项目后续怎么走、何时应插入治理/架构专项、何时需要提升项目抽象与定位，并探索是否需要一个总的 AI 监督角色来管理更长时间的多 Codex 交付流程
+- Follow-up: `M8 / M9` 相关议题现在只作为 supporting backlog 保留，后续由战略层决定是否以及何时重新拉回主线
 
 ## Next 3 Actions
 
-1. 盘点哪些 internal surfaces 对中文工作流最冗余，并明确哪些应该 locale-aware
-2. 先收口 `continue` 的最小恢复信息，避免再次变成第二个 mini-dashboard
-3. 验证 locale-aware internal output 不会削弱公开文档双语和 AI 恢复精度
+1. 把 `.codex/strategy.md` 继续扩成可复用的战略判断模板，而不是只停留在当前方向说明
+2. 明确战略层与未来 `program-board` 的边界，避免 M10 直接膨胀成编排层
+3. 再决定 `M8 / M9` 哪些点应该作为 supporting backlog 被拉回执行主线
