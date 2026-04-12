@@ -1,6 +1,6 @@
 ---
 name: project-assistant
-description: Scale Codex-led software delivery with right-sized planning, status tracking, staged execution, retrofit, progress reporting, development logs, and context handoff. 适用于项目规划、架构讨论、roadmap、test case、development plan、阶段推进、状态恢复、项目整改、进展汇报、开发日志、上下文交接。
+description: Scale Codex-led software delivery with right-sized planning, status tracking, staged execution, retrofit, progress reporting, development logs, and context handoff. Combines best practices from architects, tech leads, reviewers, QA owners, and technical writers. 适用于项目规划、架构讨论、roadmap、test case、development plan、阶段推进、状态恢复、项目整改、进展汇报、开发日志、上下文交接，并融入架构师、技术负责人、代码审查者、QA/验证负责人和技术写作者的最佳实践。
 ---
 
 # Project Assistant

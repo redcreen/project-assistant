@@ -2,7 +2,8 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-> A Codex skill for project planning, retrofit, progress reporting, development logging, documentation governance, and context handoff.
+> A Codex skill for project planning, retrofit, progress reporting, development logging, documentation governance, and context handoff.  
+> It combines best practices from architects, tech leads, reviewers, QA owners, and technical writers to help Codex produce code and project systems that are cleaner, more elegant, more maintainable, and easier to evolve.
 
 ## Who This Is For
 
