@@ -16,7 +16,7 @@
 | 时间层级 | 重点 | 退出信号 |
 | --- | --- | --- |
 | 当前 | 把完整分层模型带到更多仓库上试跑，收集 rollout 摩擦，并保持 strategy / program / delivery 三层控制面一致 | M12 已关闭，rollout 证据开始替代内部拍脑袋命名下一里程碑 |
-| 下一步 | 根据 rollout 证据决定是否需要新的 post-M12 里程碑，或是否让 supporting backlog 局部回流 | 下一条命名里程碑只来自重复出现的 rollout 摩擦，而不是内部猜测 |
+| 下一步 | 根据 rollout 证据决定是否需要新的 post-M12 里程碑、是否让 supporting backlog 局部回流，或是否要进入多执行器调度层 | 下一条命名里程碑只来自重复出现的 rollout 摩擦，而不是内部猜测 |
 | 更后面 | 只在 rollout 证据足够时，再把 M8/M9 这类 supporting backlog 议题按受控方式并入主线 | 在真实 adoption 证据出现前，supporting backlog 不会无计划回流主线 |
 
 ## 里程碑
@@ -66,6 +66,7 @@ flowchart LR
 - `M8 / M9` 提到的问题仍然重要，但现在作为 `M10` 下的 supporting backlog 管理，而不是继续占据主线
 - 战略层必须持续基于 repo 证据给出判断，不能越权自动改变业务方向
 - 程序编排层必须等战略层的 review 合约稳定后再落地
+- `M11` 当前先收口“单 Codex 编排真相层”；如果未来要扩到多桌面 Codex / 多执行器自动调度，必须以 rollout 证据单独立项
 - 任何 post-M12 里程碑都应来自重复的 rollout 摩擦，而不是在没有证据时重开已关闭层
 
 ## 战略方向

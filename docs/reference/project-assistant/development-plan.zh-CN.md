@@ -45,7 +45,7 @@
 | M8 | deferred | 按语言优化内部控制面输出 | handoff + command templates + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
 | M9 | deferred | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
 | M10 | done | 增加位于执行层之上的战略评估层 | M7 + 已批准的战略方向 | roadmap / 治理 / 架构调整建议成为 durable、可 review 的战略输出，而不是零散直觉 |
-| M11 | done | 增加跨多个切片或执行器的程序编排层 | M10 + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
+| M11 | done | 增加跨多个切片或执行器的程序编排层 | M10 + durable program board | 先把单 Codex 的 durable 编排真相层稳定下来；如果未来需要多执行器调度，再单独立项 |
 | M12 | done | 增加受监督的长期自动交付层 | M11 + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点 |
 
 ## 顺序执行队列
@@ -167,7 +167,7 @@
 | 当前状态 | done |
 | 目标 | 增加跨多个切片或执行器的程序编排层 |
 | 依赖 | M10 + durable program board |
-| 退出条件 | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
+| 退出条件 | 系统能协调多个相关切片，而不是持续依赖人工输入“继续”；当前先成立单 Codex 编排真相层，多执行器调度留待后续证据驱动 |
 
 ### M12
 

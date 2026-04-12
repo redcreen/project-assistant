@@ -16,7 +16,7 @@ Detailed execution queue:
 | Horizon | Focus | Exit Signal |
 | --- | --- | --- |
 | Now | use the full layered model on more repos, collect rollout friction, and keep strategy / program / delivery surfaces aligned | M12 is closed, and rollout evidence starts replacing internal-only milestone guessing |
-| Next | decide whether rollout evidence warrants a new post-M12 milestone or selective backlog re-entry | the next named milestone comes from repeated rollout friction, not from internal guesswork |
+| Next | decide whether rollout evidence warrants a new post-M12 milestone, selective backlog re-entry, or a future multi-executor orchestration layer | the next named milestone comes from repeated rollout friction, not from internal guesswork |
 | Later | selective M8/M9 carryover only when rollout evidence justifies it | supporting backlog stays bounded until real adoption evidence says otherwise |
 
 ## Milestones
@@ -66,6 +66,7 @@ flowchart LR
 - locale-aware internal output and slimmer continue still matter, but now as bounded supporting backlog under M10 rather than as the mainline
 - strategy surfaces must stay evidence-backed and must not auto-change business direction
 - program orchestration should not arrive before the strategy layer has a stable review contract
+- M11 currently closes the durable orchestration truth for one Codex first; multi-desktop-Codex or multi-executor scheduling should only become a later layer if rollout evidence justifies it
 - any post-M12 milestone should emerge from repeated rollout friction, not by reopening already-closed layers without evidence
 
 ## Strategic Direction

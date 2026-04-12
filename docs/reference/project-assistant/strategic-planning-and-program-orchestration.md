@@ -84,6 +84,12 @@ The AI system should increasingly handle:
 | Human Role | approve orchestration boundaries and escalation policy |
 | Exit Criteria | the system can keep several related slices moving without constant human prompts |
 
+| Current Boundary | Meaning |
+| --- | --- |
+| Already done now | a durable orchestration-truth layer inside one Codex: it knows active workstreams, parallel-safe boundaries, serial dependencies, and what supervisor / delivery worker / docs-and-release currently own |
+| Not done yet | a productized command that automatically spins up multiple desktop Codex sessions, dispatches work, and merges results back |
+| Future path | only create a separate multi-executor orchestration layer if rollout evidence shows that the single-Codex orchestration truth is no longer enough |
+
 ### M12: Supervised Long-Run Delivery
 
 | Item | Current Meaning |
@@ -98,7 +104,7 @@ The AI system should increasingly handle:
 | Surface | Purpose |
 | --- | --- |
 | `.codex/strategy.md` | current strategic judgment, proposed track insertions, roadmap-change proposals, and human decision points |
-| `.codex/program-board.md` | active workstreams, orchestration state, sequencing, parallel-safe slices, and supervising checkpoints |
+| `.codex/program-board.md` | active workstreams, orchestration state, sequencing, parallel-safe slices, and supervising checkpoints; today it first carries the single-Codex coordination truth |
 | `.codex/delivery-supervision.md` | checkpoint rhythm, automatic-continue boundaries, escalation timing, executor supervision loop, and backlog re-entry rules |
 
 These should sit alongside existing control-surface files, not replace them.
@@ -130,3 +136,4 @@ The direction is approved, but its authority remains bounded:
 3. M8 locale-aware output and M9 slimmer continue snapshots now survive as supporting backlog topics under M10 rather than as the mainline.
 4. M11 has now closed its durable program board, orchestration boundary, and maintainer-facing snapshots. M12 has also closed supervised long-run delivery into a durable `delivery-supervision` surface.
 5. The next step is rollout / friction collection rather than naming another internal milestone first; post-M12 direction should come from real adoption evidence.
+6. If a future multi-desktop-Codex / multi-executor scheduler is needed, it should become a separate later layer rather than silently expanding M11's current scope.

@@ -84,6 +84,12 @@ AI 系统则应逐步承担：
 | 人类角色 | 批准编排边界与升级规则 |
 | 退出条件 | 系统可以在不频繁依赖人工“继续”的前提下，持续推进几条相关 slice |
 
+| 当前边界 | 说明 |
+| --- | --- |
+| 现在已经做成的 | 一个 Codex 内的 durable 编排真相层：它知道有哪些 workstreams、哪些能并行安全推进、哪些必须串行，以及当前 supervisor / delivery worker / docs-and-release 各自负责什么 |
+| 现在还没做成的 | 通过 `项目助手` 一句话自动拉起多个桌面 Codex 会话、分发任务并回收结果 |
+| 后续是否要做 | 只有当 rollout 证据表明“单 Codex 编排真相层”已经不够，才单独立项做多执行器调度层 |
+
 ### M12：受监督的长期自动交付
 
 | 项目 | 当前含义 |
@@ -98,7 +104,7 @@ AI 系统则应逐步承担：
 | 控制面 | 作用 |
 | --- | --- |
 | `.codex/strategy.md` | 当前战略判断、专项插入建议、roadmap 调整建议、需要人类裁决的点 |
-| `.codex/program-board.md` | 活跃 workstreams、编排状态、串并行边界、执行器分工和调度检查点 |
+| `.codex/program-board.md` | 活跃 workstreams、编排状态、串并行边界、执行器分工和调度检查点；当前先承载单 Codex 的总协调真相 |
 | `.codex/delivery-supervision.md` | checkpoint 节奏、自动继续边界、升级时机、执行器监督循环和 backlog 回流规则 |
 
 这两者应该和现有控制面并列，而不是替代 `plan / status`。
@@ -130,3 +136,4 @@ AI 系统则应逐步承担：
 3. `M8` 的 locale-aware internal output 与 `M9` 的 continue 压缩，现在都转成 `M10` 下的 supporting backlog，而不是继续占用主线里程碑。
 4. `M11` 已经把 durable program board、编排边界和维护者展示收口完成；`M12` 也已经把长期监督交付层收口成 durable `delivery-supervision` 面。
 5. 下一阶段不再先命名内部里程碑，而是先做 rollout / 摩擦采集，让 post-M12 方向来自真实 adoption 证据。
+6. 如果未来要做“多个桌面 Codex / 多执行器自动调度”，它会是单独的后续层，而不是把当前 M11 的定义偷偷扩大。

@@ -45,7 +45,7 @@ It answers one practical question:
 | M8 | deferred | locale-aware internal control-surface output | handoff + command templates + validation policy | becomes supporting backlog under M10 instead of the mainline |
 | M9 | deferred | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | becomes supporting backlog under M10 instead of the mainline |
 | M10 | done | add a strategic-evaluation layer above execution and retrofit | M7 + approved strategic direction | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs instead of ad hoc intuition |
-| M11 | done | add a program-orchestration layer across multiple slices or workers | M10 + durable program board | the system can coordinate several related slices without constant human continuation prompts |
+| M11 | done | add a program-orchestration layer across multiple slices or workers | M10 + durable program board | stabilize the durable orchestration truth inside one Codex first; if multi-executor scheduling is needed later, create it as a separate milestone |
 | M12 | done | add supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue until a real business decision point |
 
 ## Ordered Execution Queue
@@ -167,7 +167,7 @@ It answers one practical question:
 | Status | done |
 | Goal | add a program-orchestration layer across multiple slices or workers |
 | Depends On | M10 + durable program board |
-| Exit Criteria | the system can coordinate several related slices without constant human continuation prompts |
+| Exit Criteria | the system can coordinate several related slices without constant human continuation prompts; the first stable form is a single-Codex orchestration truth, while multi-executor scheduling stays evidence-driven future scope |
 
 ### M12
 
