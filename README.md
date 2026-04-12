@@ -167,6 +167,7 @@ Default behavior:
 - automatically detect whether the repo is still on an older control-surface generation
 - read `.codex/control-surface.json` first and compare the stored control-surface version plus surface versions against the current schema
 - if the control-surface version is stale or required surface versions are missing, apply the minimum safe upgrade first
+- emit the structured continue panel first, then append any "this round changed" note; do not start with a long prose summary
 - only then resume and continue the active execution line
 - if the run is long, keep the user oriented with short visible progress notes instead of going silent
 

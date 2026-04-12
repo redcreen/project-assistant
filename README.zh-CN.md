@@ -168,6 +168,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 先自动检查这个仓库的控制面版本是不是已经落后
 - 先读取 `.codex/control-surface.json`，比对控制面版本和各 surface 版本是否落后
 - 如果控制面版本过旧，或缺少当前 surface 版本，先自动补齐最小安全升级
+- 先输出结构化 continue 面板，再补充本轮动作；不要先掉回自然语言长摘要
 - 然后再恢复并继续当前执行线
 - 如果过程较长，要持续告诉你当前在做什么，而不是沉默等待
 

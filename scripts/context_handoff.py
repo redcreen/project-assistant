@@ -214,7 +214,7 @@ def main() -> int:
     if handoff_state["exists"]:
         restore_docs.append(".codex/worker-handoff.md")
 
-    print("# Context Handoff\n")
+    print("# 项目助手交接\n")
     print_upgrade_notice(readiness)
     print("## 摘要")
     print("| 项目 | 当前值 |")
@@ -249,7 +249,7 @@ def main() -> int:
         print(f"| worker 接续状态 | `{zh_handoff_status(handoff_state['status'])}` |")
         print(f"| 下一 handoff 检查 | {humanize_text(handoff_state['next_checks'][0]) if handoff_state['next_checks'] else '暂无'} |")
     if tier == "large":
-        print(f"| 当前模块 | `{active_module}` |")
+        print(f"| 当前模块 | `{humanize_text(active_module)}` |")
     print(f"| 当前主要风险 | {humanize_text(main_risk)} |")
     if escalation_reason:
         print(f"| 升级原因 | {humanize_text(escalation_reason)} |")

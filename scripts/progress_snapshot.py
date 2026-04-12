@@ -132,6 +132,20 @@ TERM_CATALOG = {
 }
 
 EXACT_TEXT_MAP = {
+    "stage closeout / stage 5 complete": "收口阶段 / Stage 5 已完成",
+    "hold-post-stage5-roadmap-state-aligned": "保持 post-Stage-5 路线图状态对齐",
+    "none at the implementation layer": "实现层当前无 blocker",
+    "align project/workstream roadmap summaries with the current stage 5 closeout baseline": "把 project/workstream roadmap 摘要对齐到当前 Stage 5 收口基线",
+    "refresh smoke and memory-search governance snapshots in the visible project state": "刷新可见项目状态里的 smoke 与 memory-search governance 快照",
+    "keep `registry inspect`, release-preflight, and public docs aligned with the operator baseline": "保持 `registry inspect`、release-preflight 与公开文档和当前 operator baseline 一致",
+    "keep later enhancement planning gated behind stable runtime api prerequisites instead of reopening the next phase early": "在 runtime API 前提稳定之前，继续把后续 enhancement planning 挂起，不提前重开下一阶段",
+    "source system": "来源系统",
+    "reflection system": "反思系统",
+    "memory registry": "记忆注册表",
+    "projection system": "投影系统",
+    "governance system": "治理系统",
+    "openclaw adapter": "OpenClaw 适配层",
+    "codex adapter": "Codex 适配层",
     "strategic evaluation layer": "战略评估层",
     "program orchestration layer": "程序编排层",
     "program orchestration layer closed; m12 queued": "程序编排层已收口；M12 启动已排队",

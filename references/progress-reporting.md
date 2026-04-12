@@ -23,7 +23,10 @@ Build the answer from these sources in order:
 
 If the top three are missing, say the project lacks a reliable control surface and fall back to the best available docs with that caveat.
 
-If `scripts/progress_snapshot.py` exists, run it first to generate a quick machine-checked control-surface summary.
+If `scripts/progress_entry.py` exists, run it first and use its output as the first visible block.
+Otherwise, if `scripts/progress_snapshot.py` exists, run it first to generate a quick machine-checked control-surface summary.
+
+The first visible block for `进展` should be the structured dashboard, not a prose paragraph.
 
 If the session is visibly long or the user is losing track, suggest:
 

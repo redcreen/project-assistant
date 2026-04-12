@@ -168,7 +168,7 @@ def main() -> int:
     if not next_work:
         next_work = next_actions[:3]
 
-    print("# Continue Snapshot\n")
+    print("# 项目助手继续\n")
     print_upgrade_notice(readiness)
     print("## 现在在哪里")
     print("| 项目 | 当前值 |")
@@ -213,15 +213,17 @@ def main() -> int:
     else:
         print("| 1 | 暂无下一步记录 |")
 
+    print("\n## 当前任务板")
+    print("| 任务 | 类型 | 状态 |")
+    print("| --- | --- | --- |")
     if execution_tasks:
-        print("\n## 当前任务板")
-        print("| 任务 | 类型 | 状态 |")
-        print("| --- | --- | --- |")
         for item in execution_tasks:
             lowered = item.lower()
             state = "已完成" if "[x]" in lowered else "待完成"
             content = normalized_execution_task_body(item)
             print(f"| {humanize_text(content)} | {task_kind_zh(item)} | {state} |")
+    else:
+        print("| 暂无当前任务 | 主线 | 暂无 |")
 
     return 0
 

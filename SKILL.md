@@ -170,6 +170,12 @@ Prefer the bundled scripts when present:
   中文：写入一条带问题、思考、解决方案和验证的开发日志
 - `scripts/validate_development_log.py`
   中文：校验开发日志索引和条目结构是否完整
+- `scripts/continue_entry.py`
+  中文：`继续` 的唯一结构化入口，强制先做 preflight 再输出表格化 continue 面板
+- `scripts/progress_entry.py`
+  中文：`进展` 的唯一结构化入口，强制输出表格化 maintainer dashboard
+- `scripts/handoff_entry.py`
+  中文：`交接` 的唯一结构化入口，强制输出可复制的交接面板
 - `scripts/sync_resume_readiness.py`
   中文：在 `继续` / `恢复` 前按 `.codex/control-surface.json` 版本自动判断是否需要升级，并执行最小安全补齐
 - `scripts/validate_architecture_retrofit.py`
@@ -274,15 +280,20 @@ Stop only when:
 - include current phase, active slice, long task, execution progress, architecture signal, next work, and the visible task board
 - keep it short and explicitly say that full progress is available via `项目助手 进展` / `project assistant progress`
 - continue from the right slice instead of replanning from zero
+- treat the continue panel as a hard contract, not a suggestion
+- never start `继续` with a free-form prose paragraph
+- if the repo changed during `继续`, emit the continue panel first and add later narrative under a separate `本轮动作` block
 
-If `scripts/sync_resume_readiness.py` exists, run it first.
-If `scripts/continue_snapshot.py` exists, run it first.
+If `scripts/continue_entry.py` exists, run it first and use its output as the first user-visible block.
+Otherwise, if `scripts/sync_resume_readiness.py` exists, run it first.
+Otherwise, if `scripts/continue_snapshot.py` exists, run it first.
 
 ### 进展 / Progress
 
 Use [references/progress-reporting.md](references/progress-reporting.md).
 
-If `scripts/progress_snapshot.py` exists, run it first.
+If `scripts/progress_entry.py` exists, run it first and use its output as the first user-visible block.
+Otherwise, if `scripts/progress_snapshot.py` exists, run it first.
 
 For `medium` and `large` projects, progress output should be a compact dashboard, not free-form prose. For large projects, include module view and Mermaid when it improves orientation.
 When an execution line exists, surface its task board and done/total count as a first-class part of the dashboard.
@@ -423,7 +434,10 @@ When asked to compress context or prepare a new thread:
 
 - emit a compact resume pack
 - include copy-paste commands for resume, progress, and continue-with-validation
-- prefer `scripts/context_handoff.py`
+- prefer a structured handoff panel over prose
+
+If `scripts/handoff_entry.py` exists, run it first and use its output as the first user-visible block.
+Otherwise, prefer `scripts/context_handoff.py`.
 
 You may proactively suggest `项目助手 压缩上下文` at natural phase boundaries or when the user is losing orientation, but do not spam it.
 

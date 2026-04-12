@@ -49,6 +49,9 @@ Gate commands:
 - `python3 scripts/validate_gate_set.py /path/to/repo --profile fast`
 - `python3 scripts/validate_gate_set.py /path/to/repo --profile deep`
 - `python3 scripts/validate_gate_set.py /path/to/repo --profile release`
+- `python3 scripts/continue_entry.py /path/to/repo`
+- `python3 scripts/progress_entry.py /path/to/repo`
+- `python3 scripts/handoff_entry.py /path/to/repo`
 - `python3 scripts/validate_control_surface_quality.py /path/to/repo --format text`
 - `python3 scripts/validate_development_log.py /path/to/repo --format text`
 - `python3 scripts/validate_architecture_retrofit.py /path/to/repo --format text`
@@ -154,6 +157,7 @@ English usage notes:
 - `继续` 不要求用户自己判断项目是不是旧代际；系统应先自动读取 `.codex/control-surface.json`，检查当前控制面版本是否落后
 - 如果控制面版本过旧，或缺少当前要求的 surface 版本，`继续` 应先自动补齐最小安全升级，再进入真正的恢复与继续
 - `继续` 默认先给一个简版进展快照，而不是完整 dashboard
+- `继续` 必须先输出结构化 continue 面板；不能先写自由 prose
 - 简版快照至少要带：当前阶段、当前切片、当前长任务、执行进度、架构信号、接下来要做的事
 - “接下来要做的事”应优先来自当前任务板里的未完成任务，这样和下面的 task board 是对应的
 - 应直接进入当前执行线，继续一段有意义的长任务
@@ -162,6 +166,7 @@ English usage notes:
 - 恢复输出也应展示当前架构监督信号和升级 gate
 - 恢复输出也应带一个 `Usable Now` 快照，让用户知道当前有哪些能力已经能直接使用
 - 如果在继续前触发了自动补齐，应先用一句短话告诉用户“我正在检查 / 补齐哪些控制面”，不要长时间沉默
+- 如果 `继续` 过程中实际改动了仓库，应在 continue 面板后另起一个 `本轮动作` 区块，不要把面板替换成 prose 摘要
 
 ## Ask for Progress | 查看进展
 
