@@ -20,6 +20,7 @@
 | Human Still Owns | business direction, product priorities, compatibility promises, and major tradeoffs |
 | Default Working Model | human sets direction; `project-assistant` plans, executes, validates, updates state, and escalates only when judgment is required |
 | Core Standing Role | Project Technical Lead (PTL): inside an approved direction, it owns strategic judgment, program orchestration, long-run delivery supervision, and escalation timing |
+| Project Origin | [Project Origin And Working Method](docs/reference/project-assistant/project-origin-and-working-method.md): the original question was whether it is more stable to clarify goals, approach, architecture, roadmap, test cases, and a development plan before AI delivery starts |
 | Active Strategic Direction | `M10 / M11 / M12 / M13 / M14` are complete; the repo is now in post-M14 evidence collection to decide whether `M15 selective multi-executor scheduling` is actually needed |
 | Current Program-Orchestration Boundary | stabilize the durable single-Codex orchestration truth and keep the project alive after a worker stops; automatic multi-desktop-Codex scheduling remains a future layer |
 | Plain-Language Meaning Of `M14` | `when a worker stops, the project should not stop with it` |
@@ -33,6 +34,7 @@
 | Next | decide from cross-repo evidence whether `M15 selective multi-executor scheduling` is actually needed |
 | Later | only introduce real multi-executor dispatch when evidence shows the single-Codex PTL model is the bottleneck and disjoint write scopes are explicit |
 | Strategy Entry | [Strategic Planning And Program Orchestration Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md) |
+| Method Origin | [Project Origin And Working Method](docs/reference/project-assistant/project-origin-and-working-method.md) |
 
 ## Install
 

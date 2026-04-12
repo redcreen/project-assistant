@@ -23,3 +23,4 @@ This directory records durable implementation narratives: what went wrong, what 
 - [Activate M10 Strategic Evaluation Layer](2026-04-12-activate-m10-strategic-evaluation-layer.md)
 - [Automate architecture signaling, release protection, and primary human windows](2026-04-12-automate-architecture-signaling-release-protection-and-primary-human-windows.md)
 - [Add development-log capture to project assistant](2026-04-12-add-development-log-capture-to-project-assistant.md)
+- [Record Project Origin And Working Method](2026-04-12-record-project-origin-and-working-method.md)

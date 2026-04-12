@@ -20,6 +20,7 @@
 | 人类仍然负责 | 业务方向、产品优先级、兼容性承诺和重大取舍 |
 | 默认工作模型 | 人类给方向；`project-assistant` 负责规划、执行、验证、更新状态，并只在需要判断时升级给人类 |
 | 关键常驻角色 | 项目技术负责人（PTL）：在已批准业务方向内负责战略判断、程序编排、长期交付监督和升级 |
+| 项目起点 | [项目起点与工作方法](docs/reference/project-assistant/project-origin-and-working-method.zh-CN.md)：原始问题是“先目标、再方案、再架构、再 roadmap / test case / development plan、再让 AI 按 plan 交付，会不会更稳” |
 | 当前战略方向 | `M10 / M11 / M12 / M13 / M14` 已完成；当前进入 post-M14 证据采集，用真实 repo 证据判断 `M15 选择性多执行器调度` 是否真的需要 |
 | 程序编排层当前边界 | 先把“单 Codex 内的 durable 编排真相层”和“worker 停下后项目不断线”做稳定；多桌面 Codex / 多执行器自动调度仍属于后续能力 |
 | `M14` 人话解释 | `worker 停了，项目不能跟着停` |
@@ -33,6 +34,7 @@
 | 下一步 | 根据 cross-repo 证据判断是否真的需要 `M15 选择性多执行器调度` |
 | 更后面 | 只有当证据显示单 Codex PTL 模式已经成为瓶颈，且不相交写入边界成立时，才引入真正多执行器 |
 | 战略入口 | [业务规划与程序编排方向](docs/reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md) |
+| 方法起点 | [项目起点与工作方法](docs/reference/project-assistant/project-origin-and-working-method.zh-CN.md) |
 
 ## 安装
 
