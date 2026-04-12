@@ -26,10 +26,10 @@ It answers one practical question:
 
 | Item | Current Value | Meaning |
 | --- | --- | --- |
-| Current Phase | `embedded architect-assistant redesign` | Current maintainer-facing phase from `.codex/plan.md` |
-| Active Slice | `prepare project-assistant for broader repo adoption` | The slice tied to the current execution line |
-| Current Execution Line | 从更高层复核 `project-assistant` 是否已经适合对其他项目下刀，并把 control truth / README / rollout guidance 收口到一致状态 | What the repo is trying to finish now |
-| Validation | capability_snapshot.py`、`progress_snapshot.py`、`context_handoff.py` 输出与控制面一致；`deep` / `release` 通过 | How this line proves itself before moving on |
+| Current Phase | `narrative quality and automated architecture triggers` | Current maintainer-facing phase from `.codex/plan.md` |
+| Active Slice | `tighten-maintainer-facing-narrative-and-architecture-triggers` | The slice tied to the current execution line |
+| Current Execution Line | 收紧 maintainer-facing narrative，减少 `progress / continue / handoff` 里的 AI-centric 表达，并把至少一条架构升级触发从“手工识别”变成自动信号 | What the repo is trying to finish now |
+| Validation | representative medium + large repo snapshots 可读；`deep` / `release` 继续通过 | How this line proves itself before moving on |
 
 ## Milestone Overview
 
@@ -40,8 +40,8 @@ It answers one practical question:
 | M3 | done | establish progress and handoff workflows | module layer + snapshot scripts | progress and handoff are stable |
 | M4 | done | establish durable-doc standards and doc validation | document standards + docs scripts | durable docs pass structural gates |
 | M5 | done | establish bilingual public-doc switching and validation | i18n rules + i18n validator | public docs switch cleanly between English and Chinese |
-| M6 | active | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
-| M7 | next | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
+| M6 | done | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
+| M7 | active | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
 | M8 | later | evaluate locale-aware internal control-surface output | handoff + command templates + validation policy | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
 | M9 | later | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
 
@@ -57,7 +57,8 @@ It answers one practical question:
 | 6 | `operationalize reporting and release governance` | earlier slice | n/a | n/a |
 | 7 | `automate supervision, release protection, and human windows` | earlier slice | n/a | n/a |
 | 8 | `make architecture retrofit a first-class flow` | earlier slice | n/a | n/a |
-| 9 | `prepare project-assistant for broader repo adoption` | just completed | n/a | n/a |
+| 9 | `prepare project-assistant for broader repo adoption` | earlier slice | n/a | n/a |
+| 10 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | current | n/a | n/a |
 
 ## Milestone Details
 
@@ -110,7 +111,7 @@ It answers one practical question:
 
 | Item | Current Value |
 | --- | --- |
-| Status | active |
+| Status | done |
 | Goal | shift to an embedded architect-assistant operating model |
 | Depends On | previous milestones |
 | Exit Criteria | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
@@ -119,7 +120,7 @@ It answers one practical question:
 
 | Item | Current Value |
 | --- | --- |
-| Status | next |
+| Status | active |
 | Goal | improve narrative quality and automated architecture triggers |
 | Depends On | M6 |
 | Exit Criteria | less manual cleanup after retrofit and fewer direction-correction prompts |
@@ -146,4 +147,4 @@ It answers one practical question:
 
 | Next Move | Why |
 | --- | --- |
-| Continue from `prepare project-assistant for broader repo adoption` onward | The live execution line already fixes the real resume point in `.codex/plan.md` |
+| Continue from `tighten-maintainer-facing-narrative-and-architecture-triggers` onward | The live execution line already fixes the real resume point in `.codex/plan.md` |

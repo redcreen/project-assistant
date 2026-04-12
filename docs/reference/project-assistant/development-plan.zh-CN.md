@@ -26,10 +26,10 @@
 
 | 项目 | 当前值 | 说明 |
 | --- | --- | --- |
-| 当前阶段 | `embedded architect-assistant redesign` | 来自 `.codex/plan.md` 的当前维护阶段 |
-| 当前切片 | `prepare project-assistant for broader repo adoption` | 当前执行线绑定的切片 |
-| 当前执行线 | 从更高层复核 `project-assistant` 是否已经适合对其他项目下刀，并把 control truth / README / rollout guidance 收口到一致状态 | 当前这轮真正要收口的工作 |
-| 当前验证 | capability_snapshot.py`、`progress_snapshot.py`、`context_handoff.py` 输出与控制面一致；`deep` / `release` 通过 | 继续前如何证明这条线已收口 |
+| 当前阶段 | `narrative quality and automated architecture triggers` | 来自 `.codex/plan.md` 的当前维护阶段 |
+| 当前切片 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | 当前执行线绑定的切片 |
+| 当前执行线 | 收紧 maintainer-facing narrative，减少 `progress / continue / handoff` 里的 AI-centric 表达，并把至少一条架构升级触发从“手工识别”变成自动信号 | 当前这轮真正要收口的工作 |
+| 当前验证 | representative medium + large repo snapshots 可读；`deep` / `release` 继续通过 | 继续前如何证明这条线已收口 |
 
 ## 阶段总览
 
@@ -40,8 +40,8 @@
 | M3 | done | 建立进展与交接工作流 | module layer + snapshot scripts | 进展和交接稳定可用 |
 | M4 | done | 建立 durable 文档标准与文档校验 | document standards + docs scripts | durable 文档通过结构门禁 |
 | M5 | done | 建立公开文档双语切换与验收 | i18n rules + i18n validator | 公开文档可在中英文之间稳定切换 |
-| M6 | active | 收敛成内嵌式架构师助手工作模型 | previous milestones | 规划、执行、架构监督和开发日志成为默认自动能力 |
-| M7 | next | 提升叙事质量与自动架构触发能力 | M6 | 整改后的手工清理更少，方向纠偏提示更少 |
+| M6 | done | 收敛成内嵌式架构师助手工作模型 | previous milestones | 规划、执行、架构监督和开发日志成为默认自动能力 |
+| M7 | active | 提升叙事质量与自动架构触发能力 | M6 | 整改后的手工清理更少，方向纠偏提示更少 |
 | M8 | later | 评估按语言裁剪内部控制面的可能性 | handoff + command templates + validation policy | 中文工作流能减少冗余英文而不削弱公开文档双语 |
 | M9 | later | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | `项目助手 继续` 只保留最小恢复信息，不再重复 progress 内容 |
 
@@ -57,7 +57,8 @@
 | 6 | `operationalize reporting and release governance` | 较早切片 | n/a | n/a |
 | 7 | `automate supervision, release protection, and human windows` | 较早切片 | n/a | n/a |
 | 8 | `make architecture retrofit a first-class flow` | 较早切片 | n/a | n/a |
-| 9 | `prepare project-assistant for broader repo adoption` | 刚完成 | n/a | n/a |
+| 9 | `prepare project-assistant for broader repo adoption` | 较早切片 | n/a | n/a |
+| 10 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | 当前 | n/a | n/a |
 
 ## 里程碑细节
 
@@ -110,7 +111,7 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | active |
+| 当前状态 | done |
 | 目标 | 收敛成内嵌式架构师助手工作模型 |
 | 依赖 | previous milestones |
 | 退出条件 | 规划、执行、架构监督和开发日志成为默认自动能力 |
@@ -119,7 +120,7 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | next |
+| 当前状态 | active |
 | 目标 | 提升叙事质量与自动架构触发能力 |
 | 依赖 | M6 |
 | 退出条件 | 整改后的手工清理更少，方向纠偏提示更少 |
@@ -146,4 +147,4 @@
 
 | 下一步 | 为什么做 |
 | --- | --- |
-| 继续从 `prepare project-assistant for broader repo adoption` 之后恢复 | 当前执行线已经把真实恢复点固定在 `.codex/plan.md` 里 |
+| 继续从 `tighten-maintainer-facing-narrative-and-architecture-triggers` 之后恢复 | 当前执行线已经把真实恢复点固定在 `.codex/plan.md` 里 |

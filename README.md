@@ -90,6 +90,7 @@ Stable workflows that are already proven on representative repos:
 
 What this means:
 
+- planning, execution, architecture supervision, and development-log capture are now default-on behaviors in the main operating model
 - the skill is no longer only a planning scaffold; it has already been used to converge lightweight repos and larger doc-heavy repos
 - `progress`, `handoff`, the control surface, and validation gates now describe the same current truth
 - the next practical step is to use it on more repos and collect real friction, not to keep reshaping the core model first

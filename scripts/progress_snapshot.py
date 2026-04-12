@@ -923,6 +923,10 @@ def render_medium_progress(
     work_area = medium_work_area_zh(active_slice, current_execution_line)
     slice_explanation = medium_slice_explanation_zh(active_slice, current_execution_line)
     direct_value = medium_direct_value_zh(active_slice, current_execution_line)
+    line_complete = total_tasks > 0 and done_tasks == total_tasks
+    execution_line_note = "当前这轮已经完成，下一步转向下一条增强切片" if line_complete else "当前这轮正在推进，下面的任务板就是本轮收口内容"
+    taskboard_conclusion = "这条长任务已经完成" if line_complete else "这条长任务正在推进"
+    next_step_nature = "进入下一条 post-hardening feature slice" if line_complete else "继续当前增强切片并收口任务板"
     roadmap_path = preferred_existing_path(repo, ["docs/roadmap.zh-CN.md", "docs/roadmap.md"])
     plan_path = repo / ".codex/plan.md"
     status_path = repo / ".codex/status.md"
@@ -960,7 +964,7 @@ def render_medium_progress(
     print(f"| 当前阶段 | `{current_phase_display}` | 当前主要在补增强与边界收口 | {current_phase_link if current_phase_link != 'n/a' else '暂无'} |")
     print(f"| 当前工作域 | `{work_area}` | 当前这轮主要面向维护者 / 值班者的使用体验与验证链路 | {markdown_file_link(usage_path, '使用指南') if usage_path else '暂无'} |")
     print(f"| 当前切片 | `{slice_explanation}` | 原始切片名：`{active_slice}` | {slice_link if slice_link != 'n/a' else markdown_file_link(plan_path, '计划') if plan_path.exists() else '暂无'} |")
-    print(f"| 当前执行线 | `{execution_line_display}` | 当前这轮已经完成，下一步转向下一条增强切片 | {markdown_file_link(status_path, '状态') if status_path.exists() else '暂无'} |")
+    print(f"| 当前执行线 | `{execution_line_display}` | {execution_line_note} | {markdown_file_link(status_path, '状态') if status_path.exists() else '暂无'} |")
 
     print("\n## 当前这轮到底在做什么")
     print("| 项目 | 当前内容 | 对维护者的直接价值 | 当前状态 |")
@@ -1003,9 +1007,9 @@ def render_medium_progress(
     print(f"| 长任务名称 | `{active_slice}` |")
     print(f"| 长任务目标 | `{slice_explanation}` |")
     print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
-    print(f"| 当前结论 | `这条长任务已经完成` |")
+    print(f"| 当前结论 | `{taskboard_conclusion}` |")
     print(f"| 是否存在 blocker | `{pretty_text_zh(main_risk)}` |")
-    print("| 下一步性质 | `进入下一条 post-hardening feature slice` |")
+    print(f"| 下一步性质 | `{next_step_nature}` |")
 
     task_rows = execution_task_rows(execution_tasks)
     if task_rows:

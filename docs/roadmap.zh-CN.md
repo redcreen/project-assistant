@@ -15,8 +15,8 @@
 
 | 时间层级 | 重点 | 退出信号 |
 | --- | --- | --- |
-| 当前 | 内嵌式架构师助手、自动开发日志和有检查点的执行线 | 用户主要给方向，助手默认完成规划、监督、执行、验证和文档沉淀 |
-| 下一步 | 提升自动文档重组质量与自动架构触发能力 | 整改后更少需要手工纠偏，方向审查更稳定 |
+| 当前 | 维护者视角叙事收口与更强的自动架构触发 | 维护者从 progress / continue / handoff 接手时更少需要翻译，架构复盘更少依赖手工提醒 |
+| 下一步 | 按语言优化内部输出与更轻的 continue 快照 | 中文工作流更少冗余英文，`继续` 更接近最小恢复包 |
 | 更后面 | 更丰富的验收规则、更好的恢复自动化、更多可视化 | 新仓库更少需要额外提示和人工覆盖命令 |
 
 ## 里程碑
@@ -28,8 +28,8 @@
 | [M3](reference/project-assistant/development-plan.zh-CN.md#m3) | done | 建立进展与交接工作流 | module layer + snapshot scripts | 进展和交接稳定可用 |
 | [M4](reference/project-assistant/development-plan.zh-CN.md#m4) | done | 建立 durable 文档标准与文档校验 | document standards + docs scripts | durable 文档通过结构门禁 |
 | [M5](reference/project-assistant/development-plan.zh-CN.md#m5) | done | 建立公开文档双语切换与验收 | i18n rules + i18n validator | 公开文档可在中英文之间稳定切换 |
-| [M6](reference/project-assistant/development-plan.zh-CN.md#m6) | active | 收敛成内嵌式架构师助手工作模型 | previous milestones | 规划、执行、架构监督和开发日志成为默认自动能力 |
-| [M7](reference/project-assistant/development-plan.zh-CN.md#m7) | next | 提升叙事质量与自动架构触发能力 | [M6](reference/project-assistant/development-plan.zh-CN.md#m6) | 整改后的手工清理更少，方向纠偏提示更少 |
+| [M6](reference/project-assistant/development-plan.zh-CN.md#m6) | done | 收敛成内嵌式架构师助手工作模型 | previous milestones | 规划、执行、架构监督和开发日志成为默认自动能力 |
+| [M7](reference/project-assistant/development-plan.zh-CN.md#m7) | active | 提升叙事质量与自动架构触发能力 | [M6](reference/project-assistant/development-plan.zh-CN.md#m6) | 整改后的手工清理更少，方向纠偏提示更少 |
 | [M8](reference/project-assistant/development-plan.zh-CN.md#m8) | later | 评估按语言裁剪内部控制面的可能性 | handoff + command templates + validation policy | 中文工作流能减少冗余英文而不削弱公开文档双语 |
 | [M9](reference/project-assistant/development-plan.zh-CN.md#m9) | later | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | `项目助手 继续` 只保留最小恢复信息，不再重复 progress 内容 |
 

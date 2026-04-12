@@ -7,38 +7,39 @@
 
 ## Current Phase
 
-`embedded architect-assistant redesign`
+`narrative quality and automated architecture triggers`
 
 ## Active Slice
-`prepare project-assistant for broader repo adoption`
+`tighten-maintainer-facing-narrative-and-architecture-triggers`
 
 ## Current Execution Line
-- Objective: 从更高层自审 `project-assistant`，把控制面真相、README 对外表述和 rollout-ready 信号收口到一致状态
-- Plan Link: prepare project-assistant for broader repo adoption
-- Runway: 收口自审发现的 stale control truth，明确“现在能直接用什么”，并把 README 调整成更适合推广到其他项目的入口
-- Progress: 5 / 5 tasks complete
+- Objective: 收紧 maintainer-facing narrative，减少 `progress / continue / handoff` 的 AI-centric 表达，并把至少一条架构升级触发从“手工识别”变成自动信号
+- Plan Link: tighten-maintainer-facing-narrative-and-architecture-triggers
+- Runway: 用 representative repo 的真实摩擦点来收口第一屏叙事，然后把自动 architecture-review trigger 接到 supervision signal 上
+- Progress: 0 / 6 tasks complete
 - Stop Conditions:
-  - `.codex/status.md`、`.codex/plan.md`、`progress`、`handoff` 不再停留在上一条已完成 slice
-  - README 已能明确表达“什么已经稳定可用”与“何时用 retrofit / architecture retrofit”
-  - `deep`、`release`、能力快照和 progress/handoff 都反映同一套 readiness truth
+  - representative repo 的 progress / continue / handoff 不再需要大量人工翻译
+  - 至少一条自动 architecture-review trigger 已由 signal 驱动
+  - README / roadmap / status / plan / progress / handoff 对当前阶段的叙述保持一致
 
 ## Execution Tasks
-- [x] EL-1 复核 control surface、README、docs 入口和门禁输出，定位真实剩余问题
-- [x] EL-2 把 `.codex/status.md` 和 `.codex/plan.md` 从旧 slice 切到 broader-repo adoption readiness
-- [x] EL-3 更新 README / README.zh-CN，明确 stable workflows 与 rollout guidance
-- [x] EL-4 写入 durable devlog，记录这次自审为什么重点收口 control truth 而不是继续加功能
-- [x] EL-5 重跑 `capability_snapshot`、`progress_snapshot`、`context_handoff`、`deep`、`release`
+- [ ] EL-1 盘点 representative medium / large repo 的叙事摩擦点
+- [ ] EL-2 定义 maintainer-facing wording contract
+- [ ] EL-3 接入至少一条自动 architecture-review trigger
+- [ ] EL-4 在 representative repo 上验证新的叙事和自动触发
+- [ ] EL-5 更新 README / roadmap / development-plan / progress-reporting
+- [ ] EL-6 重跑 `capability_snapshot`、`progress_snapshot`、`context_handoff`、`deep`、`release`
 
 ## Development Log Capture
 - Trigger Level: high
 - Pending Capture: no
-- Last Entry: docs/devlog/2026-04-12-self-review-and-broader-repo-readiness-for-project-assistant.md
+- Last Entry: docs/devlog/2026-04-12-close-m6-embedded-architect-assistant-milestone.md
 
 ## Architecture Supervision
 - Signal: `yellow`
 - Signal Basis: open blockers or architectural risks are still recorded
-- Root Cause Hypothesis: 这类助手最容易在功能变多后失去 operator clarity；真正的问题不是缺功能，而是控制面和 README 没及时反映已完成的真实状态
-- Correct Layer: control truth, outward-facing README narrative, capability snapshot, and rollout guidance
+- Root Cause Hypothesis: 默认自动推进模型已经成立，剩余摩擦点主要来自叙事层和自动触发层，而不是缺失核心能力
+- Correct Layer: progress / continue / handoff narration, architecture supervision triggers, and outward-facing docs
 - Escalation Gate: raise but continue
 
 ## Current Escalation State
@@ -48,6 +49,10 @@
 
 ## Done
 
+- M6 `embedded architect-assistant operating model` 已关闭：
+  - 规划、执行、架构监督和开发日志都已成为默认自动能力
+  - 代表性整改流 `整改 / 文档整改 / 架构整改` 已在真实仓库上跑通
+  - `progress`、`handoff`、控制面、README 和门禁已经能表达同一套基本真相
 - `project-assistant` 已支持：
   - 控制面整改
   - 模块层进展面板
@@ -89,9 +94,9 @@
 
 ## In Progress
 
-- 把 `project-assistant` 从“命令驱动 skill”继续收敛成“默认自动推进的 AI 工程系统”
+- 收紧 maintainer-facing progress / continue / handoff 叙事，减少“更像给 AI 自己看”的输出
+- 把至少一条 architecture drift / repeated-fix 信号升级成自动 architecture-review trigger
 - 继续观察跨项目使用时的误报、漏报和需要人工裁决的真实频率
-- 继续把 readiness / progress / handoff 做成更低摩擦的默认体验
 
 ## Blockers / Open Decisions
 
@@ -100,6 +105,6 @@
 
 ## Next 3 Actions
 
-1. 用这版 `project-assistant` 在下一个真实项目上执行一次完整整改，观察首轮跨项目摩擦点
-2. 收集第一批“架构整改 / 文档整改 / 普通整改”边界不清的案例，决定是否还要收紧自动升级规则
-3. 如果接下来 1-2 个项目都稳定收敛，再切下一次 release，更新对外安装 tag
+1. 收集 representative medium / large repo 里最常见的 progress / continue / handoff 叙事摩擦点
+2. 把 maintainer-facing wording contract 收进 `progress` / `continue` / `handoff`
+3. 接入第一条自动 architecture-review trigger，并在 representative repo 上验证

@@ -15,8 +15,8 @@ Detailed execution queue:
 
 | Horizon | Focus | Exit Signal |
 | --- | --- | --- |
-| Now | embedded architect-assistant automation, default devlog capture, and checkpoint-based execution lines | the user can mostly provide direction while the assistant plans, supervises, executes, validates, and documents by default |
-| Next | deeper doc refactoring quality and stronger automated architecture triggers | less manual steering after retrofit and more reliable high-level review |
+| Now | maintainer-facing narrative quality and stronger automated architecture triggers | maintainers can resume from progress / continue / handoff with less translation, and architecture review escalates with less manual prompting |
+| Next | locale-aware internal output and slimmer continue snapshots | Chinese-only workflows carry less redundant English and `continue` becomes a smaller restore surface |
 | Later | richer validation, better recovery automation, and more visual reporting | new repos need fewer manual steering prompts and fewer override commands |
 
 ## Milestones
@@ -28,8 +28,8 @@ Detailed execution queue:
 | [M3](reference/project-assistant/development-plan.md#m3) | done | establish progress and handoff workflows | module layer + snapshot scripts | progress and handoff are stable |
 | [M4](reference/project-assistant/development-plan.md#m4) | done | establish durable-doc standards and doc validation | document standards + docs scripts | durable docs pass structural gates |
 | [M5](reference/project-assistant/development-plan.md#m5) | done | establish bilingual public-doc switching and validation | i18n rules + i18n validator | public docs switch cleanly between English and Chinese |
-| [M6](reference/project-assistant/development-plan.md#m6) | active | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
-| [M7](reference/project-assistant/development-plan.md#m7) | next | improve narrative quality and automated architecture triggers | [M6](reference/project-assistant/development-plan.md#m6) | less manual cleanup after retrofit and fewer direction-correction prompts |
+| [M6](reference/project-assistant/development-plan.md#m6) | done | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
+| [M7](reference/project-assistant/development-plan.md#m7) | active | improve narrative quality and automated architecture triggers | [M6](reference/project-assistant/development-plan.md#m6) | less manual cleanup after retrofit and fewer direction-correction prompts |
 | [M8](reference/project-assistant/development-plan.md#m8) | later | evaluate locale-aware internal control-surface output | handoff + command templates + validation policy | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
 | [M9](reference/project-assistant/development-plan.md#m9) | later | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
 

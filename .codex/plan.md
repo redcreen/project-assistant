@@ -2,26 +2,26 @@
 
 ## Current Phase
 
-`embedded architect-assistant redesign`
+`narrative quality and automated architecture triggers`
 
 ## Current Execution Line
-- Objective: 从更高层复核 `project-assistant` 是否已经适合对其他项目下刀，并把 control truth / README / rollout guidance 收口到一致状态
-- Plan Link: prepare project-assistant for broader repo adoption
-- Runway: 先修 control surface 的 stale truth，再补 README 的 readiness narrative，最后用 capability/progress/handoff/gates 做交叉验证
-- Progress: 5 / 5 tasks complete
+- Objective: 收紧 maintainer-facing narrative，减少 `progress / continue / handoff` 里的 AI-centric 表达，并把至少一条架构升级触发从“手工识别”变成自动信号
+- Plan Link: tighten-maintainer-facing-narrative-and-architecture-triggers
+- Runway: 先整理 representative medium / large repo 的叙事摩擦点，再统一 progress / continue / handoff 的维护者表达，最后把一条 architecture-review trigger 接到 supervision signal 上
+- Progress: 0 / 6 tasks complete
 - Stop Conditions:
-  - status/plan/progress/handoff 不再停留在上一条已完成 slice
-  - README / README.zh-CN 已能直接回答“现在能用什么、何时用哪个入口”
-  - capability snapshot、`deep`、`release`、progress/handoff 都反映同一套 readiness truth
-- Validation: `capability_snapshot.py`、`progress_snapshot.py`、`context_handoff.py` 输出与控制面一致；`deep` / `release` 通过
+  - representative medium / large repo 的 progress / continue / handoff 不再需要大量人工翻译
+  - 至少一条自动 architecture-review trigger 已由 control-surface signal 驱动
+  - roadmap / status / plan / progress / handoff 对当前阶段的叙述保持一致
+- Validation: representative medium + large repo snapshots 可读；`deep` / `release` 继续通过
 
 ## Architecture Supervision
 - Signal: `yellow`
 - Signal Basis: open blockers or architectural risks are still recorded
-- Problem Class: 功能增长后，控制面和 README 如果不及时同步，会让“现在做到哪、下一步做什么”重新变模糊
-- Root Cause Hypothesis: 这类助手最容易在功能变多后失去 operator clarity；真正的问题不是缺功能，而是控制面和 README 没及时反映已完成的真实状态
-- Correct Layer: control truth, outward-facing README narrative, capability snapshot, and rollout guidance
-- Rejected Shortcut: 只说“功能已经都在了”，却不收口 status/plan/README 里的过期内容
+- Problem Class: default-on model 已经成立，但维护者视角叙事和自动触发层还不够稳定
+- Root Cause Hypothesis: 默认自动推进模型已经成立，剩余摩擦点主要来自叙事层和自动触发层，而不是缺失核心能力
+- Correct Layer: progress / continue / handoff narration, architecture supervision triggers, and outward-facing docs
+- Rejected Shortcut: 只把 M6 标记完成，却不把剩余 operator friction 显式切成下一条 slice
 - Escalation Gate: raise but continue
 
 ## Escalation Model
@@ -31,11 +31,12 @@
 - Require User Decision: 需要改变产品行为、兼容性边界、性能/成本取舍或用户体验方向时，必须停下来等用户裁决
 
 ## Execution Tasks
-- [x] EL-1 复核 control surface、README、docs 入口、能力快照和门禁输出，确认真实剩余缺口
-- [x] EL-2 把 `.codex/status.md` 和 `.codex/plan.md` 从上一条已完成 slice 切换到 broader-repo adoption readiness
-- [x] EL-3 更新 README / README.zh-CN，明确 stable workflows、代表性验证和 rollout guidance
-- [x] EL-4 写入 durable devlog，记录这次为什么优先收口 truth surfaces
-- [x] EL-5 重跑 capability/progress/handoff/`deep`/`release`，确认对外体验一致
+- [ ] EL-1 盘点 representative medium / large repo 里最常见的叙事摩擦点，定位哪些表达仍然更像给 AI 看
+- [ ] EL-2 定义 maintainer-facing wording contract，统一 progress / continue / handoff 的第一屏表达
+- [ ] EL-3 把至少一条 architecture drift / repeated-fix 信号升级成自动 architecture-review trigger
+- [ ] EL-4 在 representative medium / large repo 上验证新的叙事与自动触发是否可读、可用
+- [ ] EL-5 更新 README / roadmap / development-plan / progress-reporting 说明
+- [ ] EL-6 重跑 `capability_snapshot`、`progress_snapshot`、`context_handoff`、`deep`、`release`
 
 ## Development Log Capture
 - Trigger Level: high
@@ -114,3 +115,10 @@
   - Risks: gates 虽然通过，但用户仍然不知道什么已经能用、下一步是什么；README 仍像开发者视角而不够 rollout-ready
   - Validation: status/plan/progress/handoff 对齐；README / README.zh-CN 能明确回答“现在能直接用什么、何时用哪个入口”；`deep` / `release` 继续通过
   - Exit Condition: 这套 skill 已适合拿去处理其他真实项目，而不是还停留在“能力已经写出来但 operator truth 不够清晰”的状态
+
+- Slice: tighten-maintainer-facing-narrative-and-architecture-triggers
+  - Objective: 让维护者回来接手时更容易看懂当前阶段、当前切片和下一步，并把至少一条架构升级逻辑从手工识别变成自动信号
+  - Dependencies: representative repo friction、progress/continue/handoff 输出、architecture supervision signals、README/roadmap wording
+  - Risks: 输出仍然像给 AI 自己看；自动触发太吵或太弱；README / roadmap / progress 又开始各说各话
+  - Validation: representative medium / large repo 的 progress / continue / handoff 更接近“维护者恢复面板”；至少一条 architecture-review trigger 自动触发；`deep` / `release` 继续通过
+  - Exit Condition: 维护者视角叙事更稳定，自动架构触发不再主要依赖人工判断

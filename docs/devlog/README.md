@@ -16,3 +16,4 @@ This directory records durable implementation narratives: what went wrong, what 
 - [Automate architecture signaling, release protection, and primary human windows](2026-04-12-automate-architecture-signaling-release-protection-and-primary-human-windows.md)
 - [Add development-log capture to project assistant](2026-04-12-add-development-log-capture-to-project-assistant.md)
 - [Self review and broader repo readiness for project assistant](2026-04-12-self-review-and-broader-repo-readiness-for-project-assistant.md)
+- [Close M6 embedded architect-assistant milestone](2026-04-12-close-m6-embedded-architect-assistant-milestone.md)

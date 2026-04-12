@@ -90,6 +90,7 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 
 这意味着：
 
+- 规划、执行、架构监督和开发日志现在都已经是默认自动能力，而不是额外 opt-in 流程
 - 这套 skill 已经不只是一个规划脚手架，而是真的在轻量仓库和大型文档型仓库上跑过收敛
 - `progress`、`handoff`、控制面和门禁现在描述的是同一套当前真相
 - 下一步最值得做的是继续在更多项目上试跑并收集摩擦点，而不是先继续改核心模型
