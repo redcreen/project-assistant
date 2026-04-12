@@ -91,6 +91,7 @@ Most other flows should behave like background operating flows unless the user e
 7. use an explicit escalation gate: continue automatically, raise but continue, or require user decision
 8. keep status fresh at session boundaries
 9. for existing repos, retrofit to convergence rather than stopping in a partial state
+10. keep the user oriented during long-running work with short visible progress updates about the current phase, recent discovery, and next checkpoint
 
 ### Tier Rules
 
@@ -169,6 +170,8 @@ Prefer the bundled scripts when present:
   中文：写入一条带问题、思考、解决方案和验证的开发日志
 - `scripts/validate_development_log.py`
   中文：校验开发日志索引和条目结构是否完整
+- `scripts/sync_resume_readiness.py`
+  中文：在 `继续` / `恢复` 前按 `.codex/control-surface.json` 版本自动判断是否需要升级，并执行最小安全补齐
 - `scripts/validate_architecture_retrofit.py`
   中文：校验架构整改工作底稿是否真实可用
 - `scripts/capability_snapshot.py`
@@ -251,6 +254,7 @@ If the user explicitly chooses architecture retrofit, prefer the architecture-re
 - do not stop after every micro-step just to ask for "continue"
 - verify before moving on
 - refresh `status` and `plan` as truth changes
+- during long execution or retrofit runs, keep the user informed with short visible progress notes instead of going silent
 
 Stop only when:
 
@@ -262,12 +266,16 @@ Stop only when:
 
 ### 恢复 / Resume
 
+- automatically judge whether the repo's control-surface version is stale before resuming
+- if `.codex/control-surface.json` is missing, the control-surface version is old, or required surface versions are stale, run the minimum safe sync path first instead of asking the user whether to retrofit
+- do not ask the user to make that generation judgment; decide it yourself and explain briefly what is being checked or upgraded
 - read current control docs first
 - render a compact continue snapshot instead of a full dashboard
 - include current phase, active slice, long task, execution progress, architecture signal, next work, and the visible task board
 - keep it short and explicitly say that full progress is available via `项目助手 进展` / `project assistant progress`
 - continue from the right slice instead of replanning from zero
 
+If `scripts/sync_resume_readiness.py` exists, run it first.
 If `scripts/continue_snapshot.py` exists, run it first.
 
 ### 进展 / Progress
@@ -295,6 +303,7 @@ Hard rules:
 - if the repo is a git worktree and has uncommitted changes, prompt whether to create a checkpoint commit before restructuring
 - do not auto-commit without user approval
 - if the user wants to continue without committing, proceed without reverting their changes
+- during retrofit, architecture-retrofit, and long repair runs, keep short user-visible progress notes so the user knows what is running now, what changed, and what remains
 
 Default scope of `整改`:
 

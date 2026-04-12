@@ -23,6 +23,7 @@
 | Active Strategic Direction | `M10 / M11 / M12 / M13 / M14` are complete; the repo is now in post-M14 evidence collection to decide whether `M15 selective multi-executor scheduling` is actually needed |
 | Current Program-Orchestration Boundary | stabilize the durable single-Codex orchestration truth and keep the project alive after a worker stops; automatic multi-desktop-Codex scheduling remains a future layer |
 | Plain-Language Meaning Of `M14` | `when a worker stops, the project should not stop with it` |
+| Automatic `continue` Behavior | first read `.codex/control-surface.json`; if the control-surface version is old or missing required surface versions, apply the minimum safe upgrade before resuming |
 
 ## Where It Is Going
 
@@ -94,6 +95,7 @@ Background flows (usually automatic):
 - Show that execution line as a visible task board with done/total progress and a `Plan Link` back to the active slice
 - Keep a compact architecture-supervision state and escalation gate beside the execution line
 - Render `progress / continue / handoff` as maintainer-facing first screens instead of AI-only status dumps
+- Make `continue` auto-detect when a repo's control-surface version is stale, and run the minimum safe upgrade instead of pushing that judgment onto the user
 - Promote architecture review automatically when the current slice shows ownership, boundary, or repeated-fix drift
 - Surface a short `Usable Now` snapshot so you can see what is already ready to use
 - Retrofit existing repos to convergence
@@ -135,6 +137,7 @@ Default working style:
 - `project-assistant` should usually plan, supervise, implement, validate, refresh status, and capture devlogs on its own
 - it should only stop at checkpoints, blockers, or decisions that require user judgment
 - its long-run execution should stay visible through an execution-task board, not disappear into free-form status prose
+- during long retrofit or execution runs, it should also keep you oriented with short progress notes that say what is happening now, what just changed, and what checkpoint remains
 - the architecture layer should keep showing whether the assistant can continue automatically, should raise-but-continue, or must stop for user judgment
 - progress and handoff should also tell you which capabilities are already usable now
 - `continue` should default to a compact progress snapshot; use `project assistant progress` when you want the full dashboard
@@ -156,6 +159,14 @@ project assistant progress
 ```text
 project assistant continue
 ```
+
+Default behavior:
+
+- automatically detect whether the repo is still on an older control-surface generation
+- read `.codex/control-surface.json` first and compare the stored control-surface version plus surface versions against the current schema
+- if the control-surface version is stale or required surface versions are missing, apply the minimum safe upgrade first
+- only then resume and continue the active execution line
+- if the run is long, keep the user oriented with short visible progress notes instead of going silent
 
 ### Review the current direction at the architecture level
 

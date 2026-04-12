@@ -43,7 +43,7 @@ It answers one practical question:
 | M6 | done | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
 | M7 | done | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
 | M8 | deferred | locale-aware internal control-surface output | handoff + command templates + validation policy | becomes supporting backlog under M10 instead of the mainline |
-| M9 | deferred | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | becomes supporting backlog under M10 instead of the mainline |
+| M9 | deferred | automatic context compression plus slimmer continue/resume/handoff snapshots without losing recoverability | continue snapshot + handoff + validation policy | becomes supporting backlog under M10 instead of the mainline |
 | M10 | done | add a PTL-driven strategic-evaluation layer above execution and retrofit | M7 + approved strategic direction | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs instead of ad hoc intuition |
 | M11 | done | add a PTL-driven program-orchestration layer across multiple slices or workers | M10 + durable program board | stabilize the durable orchestration truth inside one Codex first; if multi-executor scheduling is needed later, create it as a separate milestone |
 | M12 | done | add PTL-driven supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue until a real business decision point |
@@ -152,7 +152,7 @@ It answers one practical question:
 | Item | Current Value |
 | --- | --- |
 | Status | deferred |
-| Goal | slim continue/resume snapshots without losing recoverability |
+| Goal | automatic context compression plus slimmer continue/resume/handoff snapshots without losing recoverability |
 | Depends On | continue snapshot + handoff + validation policy |
 | Exit Criteria | this remains a bounded supporting backlog topic under M10 instead of a mainline milestone |
 

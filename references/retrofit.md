@@ -72,6 +72,14 @@ Before `整改`, `文档整改`, or `架构整改` starts applying changes:
 
 Keep this prompt short. It is a safety preflight, not a planning discussion.
 
+During active retrofit runs, keep short visible progress notes for the user:
+
+- what phase is running now
+- what was just discovered or repaired
+- what still remains before the next checkpoint or completion
+
+Do not let a long retrofit feel like the assistant silently disappeared.
+
 If available, use:
 
 - `scripts/sync_control_surface.py` to scaffold missing control-surface artifacts

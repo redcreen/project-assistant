@@ -165,6 +165,35 @@ WORKER_HANDOFF_REQUIRED_SECTIONS = [
     "Next Handoff Checks",
 ]
 
+CONTROL_SURFACE_MANAGED_BY = "project-assistant"
+CONTROL_SURFACE_VERSION = 2
+CONTROL_SURFACE_COMPONENT_VERSIONS: dict[str, int] = {
+    "strategy": 1,
+    "programBoard": 1,
+    "deliverySupervision": 1,
+    "ptlSupervision": 1,
+    "workerHandoff": 1,
+}
+CONTROL_SURFACE_COMPONENT_ORDER: tuple[str, ...] = (
+    "strategy",
+    "programBoard",
+    "deliverySupervision",
+    "ptlSupervision",
+    "workerHandoff",
+)
+CONTROL_SURFACE_REQUIRED_COMPONENTS_BY_TIER: dict[str, tuple[str, ...]] = {
+    "small": (),
+    "medium": CONTROL_SURFACE_COMPONENT_ORDER,
+    "large": CONTROL_SURFACE_COMPONENT_ORDER,
+}
+CONTROL_SURFACE_COMPONENT_PATHS: dict[str, str] = {
+    "strategy": ".codex/strategy.md",
+    "programBoard": ".codex/program-board.md",
+    "deliverySupervision": ".codex/delivery-supervision.md",
+    "ptlSupervision": ".codex/ptl-supervision.md",
+    "workerHandoff": ".codex/worker-handoff.md",
+}
+
 
 @dataclass
 class ValidationResult:
@@ -215,6 +244,84 @@ def markdown_heading_slug(value: str) -> str:
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
+
+
+def parse_intish(value: Any, default: int = 0) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def control_surface_required_files(tier: str) -> list[str]:
+    required = [".codex/brief.md", ".codex/status.md", ".codex/COMMANDS.md", ".codex/control-surface.json"]
+    if tier in {"medium", "large"}:
+        required.append(".codex/plan.md")
+    if tier == "large":
+        required.append(".codex/module-dashboard.md")
+    return required
+
+
+def required_control_surface_components(tier: str) -> tuple[str, ...]:
+    return CONTROL_SURFACE_REQUIRED_COMPONENTS_BY_TIER.get(tier, ())
+
+
+def required_control_surface_surface_versions(tier: str) -> dict[str, int]:
+    return {name: CONTROL_SURFACE_COMPONENT_VERSIONS[name] for name in required_control_surface_components(tier)}
+
+
+def is_project_assistant_managed_repo(repo: Path, config: dict[str, Any] | None = None, tier: str | None = None) -> bool:
+    if is_skill_repo(repo):
+        return True
+    config = config or load_control_surface_config(repo)
+    if str(config.get("managedBy", "")).strip().lower() == CONTROL_SURFACE_MANAGED_BY:
+        return True
+    if (repo / ".codex/control-surface.json").exists():
+        return True
+    required = [repo / ".codex/brief.md", repo / ".codex/status.md"]
+    if any(not path.exists() for path in required):
+        return False
+    effective_tier = tier or parse_tier(repo)
+    if effective_tier in {"medium", "large"} and not (repo / ".codex/plan.md").exists():
+        return False
+    return True
+
+
+def control_surface_version_state(repo: Path, tier: str | None = None) -> dict[str, Any]:
+    config = load_control_surface_config(repo)
+    effective_tier = str(config.get("tier") or tier or parse_tier(repo)).lower()
+    managed = is_project_assistant_managed_repo(repo, config=config, tier=effective_tier)
+    required_surface_versions = required_control_surface_surface_versions(effective_tier) if managed else {}
+    raw_surface_versions = config.get("surfaceVersions")
+    stored_surface_versions: dict[str, int] = {}
+    if isinstance(raw_surface_versions, dict):
+        for key, value in raw_surface_versions.items():
+            stored_surface_versions[str(key)] = parse_intish(value, 0)
+    missing_components = [
+        name
+        for name, required_version in required_surface_versions.items()
+        if stored_surface_versions.get(name, 0) < required_version
+    ]
+    current_version = parse_intish(config.get("controlSurfaceVersion"), 0)
+    managed_by = str(config.get("managedBy", "")).strip().lower()
+    needs_config_upgrade = managed and (
+        not (repo / ".codex/control-surface.json").exists()
+        or managed_by != CONTROL_SURFACE_MANAGED_BY
+        or current_version < CONTROL_SURFACE_VERSION
+        or bool(missing_components)
+    )
+    return {
+        "managed": managed,
+        "tier": effective_tier,
+        "currentVersion": current_version,
+        "targetVersion": CONTROL_SURFACE_VERSION,
+        "requiredSurfaceVersions": required_surface_versions,
+        "storedSurfaceVersions": stored_surface_versions,
+        "missingComponents": missing_components,
+        "needsConfigUpgrade": needs_config_upgrade,
+        "managedBy": managed_by,
+        "configPath": repo / ".codex/control-surface.json",
+    }
 
 
 def relative_markdown_target(from_dir: Path, to_path: Path) -> str:
@@ -563,6 +670,9 @@ def strategy_surface_expected(repo: Path) -> bool:
     strategy_path = repo / ".codex/strategy.md"
     if strategy_path.exists():
         return True
+    version_state = control_surface_version_state(repo)
+    if version_state["managed"] and "strategy" in version_state["requiredSurfaceVersions"]:
+        return True
     corpus_parts = [
         read_text(repo / ".codex/plan.md"),
         read_text(repo / ".codex/status.md"),
@@ -622,6 +732,9 @@ def program_board_expected(repo: Path) -> bool:
     board_path = repo / ".codex/program-board.md"
     if board_path.exists():
         return True
+    version_state = control_surface_version_state(repo)
+    if version_state["managed"] and "programBoard" in version_state["requiredSurfaceVersions"]:
+        return True
     corpus_parts = [
         read_text(repo / ".codex/plan.md"),
         read_text(repo / ".codex/status.md"),
@@ -680,6 +793,9 @@ def parse_program_board(repo: Path) -> dict[str, Any]:
 def delivery_supervision_expected(repo: Path) -> bool:
     surface_path = repo / ".codex/delivery-supervision.md"
     if surface_path.exists():
+        return True
+    version_state = control_surface_version_state(repo)
+    if version_state["managed"] and "deliverySupervision" in version_state["requiredSurfaceVersions"]:
         return True
     corpus_parts = [
         read_text(repo / ".codex/plan.md"),
@@ -741,6 +857,9 @@ def ptl_supervision_expected(repo: Path) -> bool:
     surface_path = repo / ".codex/ptl-supervision.md"
     if surface_path.exists():
         return True
+    version_state = control_surface_version_state(repo)
+    if version_state["managed"] and "ptlSupervision" in version_state["requiredSurfaceVersions"]:
+        return True
     corpus_parts = [
         read_text(repo / ".codex/plan.md"),
         read_text(repo / ".codex/status.md"),
@@ -799,6 +918,9 @@ def parse_ptl_supervision(repo: Path) -> dict[str, Any]:
 def worker_handoff_expected(repo: Path) -> bool:
     surface_path = repo / ".codex/worker-handoff.md"
     if surface_path.exists():
+        return True
+    version_state = control_surface_version_state(repo)
+    if version_state["managed"] and "workerHandoff" in version_state["requiredSurfaceVersions"]:
         return True
     corpus_parts = [
         read_text(repo / ".codex/plan.md"),
@@ -1057,6 +1179,24 @@ def display_execution_task(line: str) -> str:
     return re.sub(r"^\s*-\s+", "", line).strip()
 
 
+def execution_task_kind(line: str) -> str:
+    lowered = display_execution_task(line).lower()
+    if any(token in lowered for token in ("并行:", "parallel:", "[parallel]", "(parallel)")):
+        return "parallel"
+    return "mainline"
+
+
+def normalized_execution_task_body(line: str) -> str:
+    content = display_execution_task(line)
+    match = re.match(r"^\[[ xX]\]\s*EL-\d+\s*(?P<body>.*)$", content)
+    if match:
+        content = match.group("body").strip()
+    content = re.sub(r"^(并行|主线|parallel|mainline)\s*:\s*", "", content, flags=re.IGNORECASE).strip()
+    content = re.sub(r"^\[(parallel|mainline)\]\s*", "", content, flags=re.IGNORECASE).strip()
+    content = re.sub(r"^\((parallel|mainline)\)\s*", "", content, flags=re.IGNORECASE).strip()
+    return content or display_execution_task(line)
+
+
 def execution_task_progress(task_lines: list[str]) -> tuple[int, int]:
     total = len(task_lines)
     done = sum(1 for line in task_lines if "[x]" in line.lower())
@@ -1082,12 +1222,11 @@ def validate_commands_doc(text: str) -> list[str]:
 def validate_repo(repo: Path) -> ValidationResult:
     tier = parse_tier(repo)
     official_modules = parse_official_modules(repo)
+    version_state = control_surface_version_state(repo, tier=tier)
     missing: list[str] = []
     warnings: list[str] = []
 
-    required = [".codex/brief.md", ".codex/status.md", ".codex/COMMANDS.md", DOC_GOVERNANCE]
-    if tier in {"medium", "large"}:
-        required.append(".codex/plan.md")
+    required = control_surface_required_files(tier) + [DOC_GOVERNANCE]
     if strategy_surface_expected(repo):
         required.append(".codex/strategy.md")
     if program_board_expected(repo):
@@ -1104,6 +1243,18 @@ def validate_repo(repo: Path) -> ValidationResult:
     for rel in required:
         if not (repo / rel).exists():
             missing.append(rel)
+
+    if version_state["managed"]:
+        if version_state["managedBy"] != CONTROL_SURFACE_MANAGED_BY:
+            warnings.append(".codex/control-surface.json missing managedBy: project-assistant")
+        if version_state["currentVersion"] < CONTROL_SURFACE_VERSION:
+            warnings.append(
+                f".codex/control-surface.json controlSurfaceVersion is stale ({version_state['currentVersion']} < {CONTROL_SURFACE_VERSION})"
+            )
+        for component in version_state["missingComponents"]:
+            warnings.append(
+                f".codex/control-surface.json missing current surface version for {component} ({version_state['storedSurfaceVersions'].get(component, 0)} < {version_state['requiredSurfaceVersions'][component]})"
+            )
 
     status_text = read_text(repo / ".codex/status.md")
     plan_text = read_text(repo / ".codex/plan.md")
@@ -1606,13 +1757,20 @@ def classify_markdown_role(repo: Path, rel_path: str, config: dict[str, Any]) ->
 
 def write_control_surface_config(repo: Path, tier: str, official_modules: list[str]) -> None:
     path = repo / ".codex/control-surface.json"
+    existing = load_control_surface_config(repo)
     payload = {
+        **existing,
+        "managedBy": CONTROL_SURFACE_MANAGED_BY,
+        "controlSurfaceVersion": CONTROL_SURFACE_VERSION,
         "tier": tier,
         "officialModules": official_modules,
+        "surfaceVersions": required_control_surface_surface_versions(tier),
         "requiredFiles": [
             ".codex/brief.md",
             ".codex/plan.md" if tier in {"medium", "large"} else None,
             ".codex/status.md",
+            ".codex/COMMANDS.md",
+            ".codex/control-surface.json",
             ".codex/module-dashboard.md" if tier == "large" else None,
         ],
     }

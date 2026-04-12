@@ -10,10 +10,12 @@ from control_surface_lib import (
     completion_band,
     completion_percent,
     display_execution_task,
+    execution_task_kind,
     execution_task_lines,
     execution_task_progress,
     first_line,
     labeled_bullet_value,
+    normalized_execution_task_body,
     parse_delivery_supervision,
     parse_ptl_supervision,
     parse_program_board,
@@ -985,10 +987,14 @@ def medium_workstream_rows(repo: Path, active_slice: str, execution_line: str) -
     ]
 
 
-def medium_current_work_rows(active_slice: str, execution_tasks: list[str]) -> list[tuple[str, str, str, str]]:
-    rows: list[tuple[str, str, str, str]] = []
-    for task_id, state, content in execution_task_rows(execution_tasks)[:5]:
-        rows.append((content, task_direct_value_zh(content, active_slice), state, task_id))
+def task_kind_zh(kind: str) -> str:
+    return {"mainline": "主线", "parallel": "并行"}.get(kind, "主线")
+
+
+def medium_current_work_rows(active_slice: str, execution_tasks: list[str]) -> list[tuple[str, str, str, str, str]]:
+    rows: list[tuple[str, str, str, str, str]] = []
+    for task_id, task_type, state, content in execution_task_rows(execution_tasks)[:5]:
+        rows.append((content, task_direct_value_zh(content, active_slice), state, task_id, task_type))
     if rows:
         return rows
     explanation = medium_slice_explanation_zh(active_slice, active_slice)
@@ -998,20 +1004,22 @@ def medium_current_work_rows(active_slice: str, execution_tasks: list[str]) -> l
             task_direct_value_zh(explanation, active_slice),
             "已记录",
             "切片",
+            "主线",
         )
     ]
 
 
-def execution_task_rows(task_lines: list[str]) -> list[tuple[str, str, str]]:
-    rows: list[tuple[str, str, str]] = []
+def execution_task_rows(task_lines: list[str]) -> list[tuple[str, str, str, str]]:
+    rows: list[tuple[str, str, str, str]] = []
     for line in task_lines:
         stripped = line.strip()
         match = re.match(r"-\s*\[(?P<mark>[ xX])\]\s*(?P<id>EL-\d+)\s*(?P<body>.*)", stripped)
+        task_type = task_kind_zh(execution_task_kind(line))
         if match:
             status = "已完成" if match.group("mark").lower() == "x" else "待完成"
-            rows.append((match.group("id"), status, pretty_text_zh(match.group("body").strip())))
+            rows.append((match.group("id"), task_type, status, pretty_text_zh(normalized_execution_task_body(line))))
             continue
-        rows.append(("任务", "已记录", pretty_text_zh(display_execution_task(line))))
+        rows.append(("任务", task_type, "已记录", pretty_text_zh(normalized_execution_task_body(line))))
     return rows
 
 
@@ -1330,10 +1338,10 @@ def render_medium_progress(
     print(f"| 当前执行线 | {execution_line_display} | {execution_line_note} | {markdown_file_link(status_path, '状态') if status_path.exists() else '暂无'} |")
 
     print("\n## 当前这轮到底在做什么")
-    print("| 当前工作 | 对维护者的直接价值 | 当前状态 | 对应任务 |")
-    print("| --- | --- | --- | --- |")
-    for current, value, state, task_id in medium_current_work_rows(active_slice, execution_tasks):
-        print(f"| {current} | {value} | {state} | `{task_id}` |")
+    print("| 当前工作 | 类型 | 对维护者的直接价值 | 当前状态 | 对应任务 |")
+    print("| --- | --- | --- | --- | --- |")
+    for current, value, state, task_id, task_type in medium_current_work_rows(active_slice, execution_tasks):
+        print(f"| {current} | {task_type} | {value} | {state} | `{task_id}` |")
 
     print("\n## 架构监督")
     print("| 项目 | 当前值 |")
@@ -1387,10 +1395,10 @@ def render_medium_progress(
     task_rows = execution_task_rows(execution_tasks)
     if task_rows:
         print("\n## 当前任务板")
-        print("| 任务 ID | 状态 | 任务内容 |")
-        print("| --- | --- | --- |")
-        for task_id, state, content in task_rows:
-            print(f"| {task_id} | {state} | {content} |")
+        print("| 任务 ID | 类型 | 状态 | 任务内容 |")
+        print("| --- | --- | --- | --- |")
+        for task_id, task_type, state, content in task_rows:
+            print(f"| {task_id} | {task_type} | {state} | {content} |")
 
     print("\n## 项目控制能力")
     print("| 能力 | 状态 |")
@@ -1514,10 +1522,10 @@ def render_large_progress(
 
     if execution_tasks:
         print("\n## 当前任务板")
-        print("| 任务 ID | 状态 | 任务内容 |")
-        print("| --- | --- | --- |")
-        for task_id, state, content in execution_task_rows(execution_tasks):
-            print(f"| {task_id} | {state} | {content} |")
+        print("| 任务 ID | 类型 | 状态 | 任务内容 |")
+        print("| --- | --- | --- | --- |")
+        for task_id, task_type, state, content in execution_task_rows(execution_tasks):
+            print(f"| {task_id} | {task_type} | {state} | {content} |")
 
     print("\n## 架构监督")
     print("| 项目 | 当前值 |")

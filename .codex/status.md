@@ -99,7 +99,7 @@
 ## Blockers / Open Decisions
 
 - None currently.
-- Follow-up: `项目助手 继续` 当前仍偏重，继续评估如何在不丢恢复信息的前提下压缩输出体量和重复内容
+- Follow-up: 自动压缩上下文仍是后续专题，目标是在不丢 durable 恢复信息的前提下，分层压缩 `continue / progress / handoff` 的输出体量与重复内容
 - Follow-up: 只有当 post-M14 证据证明单 Codex PTL 模式已经成为瓶颈时，才考虑打开 M15
 
 ## Next 3 Actions

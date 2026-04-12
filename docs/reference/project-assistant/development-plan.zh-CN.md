@@ -43,7 +43,7 @@
 | M6 | done | 收敛成内嵌式架构师助手工作模型 | previous milestones | 规划、执行、架构监督和开发日志成为默认自动能力 |
 | M7 | done | 提升叙事质量与自动架构触发能力 | M6 | 整改后的手工清理更少，方向纠偏提示更少 |
 | M8 | deferred | 按语言优化内部控制面输出 | handoff + command templates + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
-| M9 | deferred | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
+| M9 | deferred | 自动压缩上下文与 continue / resume / handoff 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
 | M10 | done | 增加由项目技术负责人（PTL）驱动的战略评估层 | M7 + 已批准的战略方向 | roadmap / 治理 / 架构调整建议成为 durable、可 review 的战略输出，而不是零散直觉 |
 | M11 | done | 增加由项目技术负责人（PTL）驱动的程序编排层 | M10 + durable program board | 先把单 Codex 的 durable 编排真相层稳定下来；如果未来需要多执行器调度，再单独立项 |
 | M12 | done | 增加由项目技术负责人（PTL）驱动的受监督长期交付层 | M11 + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点 |
@@ -152,7 +152,7 @@
 | 项目 | 当前值 |
 | --- | --- |
 | 当前状态 | deferred |
-| 目标 | 压缩 continue / resume 快照体量而不损失可恢复性 |
+| 目标 | 自动压缩上下文与 continue / resume / handoff 快照体量而不损失可恢复性 |
 | 依赖 | continue snapshot + handoff + validation policy |
 | 退出条件 | 这条线继续作为 M10 下的 supporting backlog，而不是主线里程碑 |
 

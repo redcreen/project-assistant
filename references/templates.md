@@ -153,8 +153,10 @@ Use for one feature, subproject, or multi-session milestone.
 - Treat `Execution Tasks` as the visible task board for that run.
 - Always map the task board back to one slice through `Plan Link`.
 - The board does not need a hard cap; use as many tasks as the checkpoint needs, often anywhere from 5 to 20+ tasks.
+- When you recognize parallel-safe sidecar work, keep it in the same board and mark it explicitly as `并行:` / `parallel:` so the user can see it is running beside the main line.
 - Keep an `Architecture Supervision` block beside the task board so the current root-cause hypothesis and correct layer stay visible.
 - Keep an escalation section so the repo records whether the assistant should continue automatically, raise but continue, or require user decision.
+- During long execution or retrofit runs, emit short visible progress notes so the user knows which phase is running, what changed, and what checkpoint remains.
 
 ## Architecture Retrofit Template
 

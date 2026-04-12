@@ -8,11 +8,13 @@ from pathlib import Path
 from control_surface_lib import (
     classify_architecture_signal,
     display_execution_task,
+    execution_task_kind,
     execution_task_lines,
     execution_task_progress,
     first_line,
     labeled_bullet_value,
     normalized_bullets,
+    normalized_execution_task_body,
     parse_delivery_supervision,
     parse_ptl_supervision,
     parse_program_board,
@@ -112,12 +114,15 @@ def pending_execution_items(task_lines: list[str], limit: int = 3) -> list[str]:
         lowered = line.lower()
         if "[x]" in lowered:
             continue
-        item = display_execution_task(line)
-        item = re.sub(r"^\[[ xX]\]\s*", "", item).strip()
+        item = normalized_execution_task_body(line)
         pending.append(humanize_text(item))
         if len(pending) >= limit:
             break
     return pending
+
+
+def task_kind_zh(line: str) -> str:
+    return "并行" if execution_task_kind(line) == "parallel" else "主线"
 
 
 def main() -> int:
@@ -191,13 +196,13 @@ def main() -> int:
 
     if execution_tasks:
         print("\n## 当前任务板")
-        print("| 任务 | 状态 |")
-        print("| --- | --- |")
+        print("| 任务 | 类型 | 状态 |")
+        print("| --- | --- | --- |")
         for item in execution_tasks:
             lowered = item.lower()
             state = "已完成" if "[x]" in lowered else "待完成"
-            content = re.sub(r"^\[[ xX]\]\s*", "", display_execution_task(item)).strip()
-            print(f"| {humanize_text(content)} | {state} |")
+            content = normalized_execution_task_body(item)
+            print(f"| {humanize_text(content)} | {task_kind_zh(item)} | {state} |")
 
     return 0
 

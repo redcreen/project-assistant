@@ -56,6 +56,7 @@ Gate commands:
 - `python3 scripts/sync_execution_line.py /path/to/repo --slice "slice name" --force`
 - `python3 scripts/sync_architecture_supervision.py /path/to/repo`
 - `python3 scripts/sync_architecture_retrofit.py /path/to/repo`
+- `python3 scripts/sync_resume_readiness.py /path/to/repo`
 
 ## Start or Bootstrap | 启动
 
@@ -150,6 +151,8 @@ English usage notes:
 默认语义：
 
 - `继续` 直接表示“恢复当前状态并继续当前执行线”
+- `继续` 不要求用户自己判断项目是不是旧代际；系统应先自动读取 `.codex/control-surface.json`，检查当前控制面版本是否落后
+- 如果控制面版本过旧，或缺少当前要求的 surface 版本，`继续` 应先自动补齐最小安全升级，再进入真正的恢复与继续
 - `继续` 默认先给一个简版进展快照，而不是完整 dashboard
 - 简版快照至少要带：当前阶段、当前切片、当前长任务、执行进度、架构信号、接下来要做的事
 - “接下来要做的事”应优先来自当前任务板里的未完成任务，这样和下面的 task board 是对应的
@@ -158,6 +161,7 @@ English usage notes:
 - 恢复输出应优先展示执行线目标、done/total 进度和当前可见子任务板
 - 恢复输出也应展示当前架构监督信号和升级 gate
 - 恢复输出也应带一个 `Usable Now` 快照，让用户知道当前有哪些能力已经能直接使用
+- 如果在继续前触发了自动补齐，应先用一句短话告诉用户“我正在检查 / 补齐哪些控制面”，不要长时间沉默
 
 ## Ask for Progress | 查看进展
 
@@ -229,12 +233,16 @@ English usage notes:
 - `整改` = 控制面整改 + 文档整改 + 全仓 Markdown 治理
 - `文档整改` / `文档整理` = 先补控制面，再做文档系统和全仓 Markdown 治理
 - `执行` = 默认进入一个有检查点的长任务执行线，而不是每做一点就等用户输入继续
+- `继续` = 默认先按 `.codex/control-surface.json` 版本自动判断是否需要最小控制面升级；如果需要，先自动补齐，再继续当前执行线
 - `执行线` = 一个和 active slice 明确映射的任务板，不只是抽象一句话
+- 任务列表优先 = 识别到的长任务、整改任务、并行安全 sidecar 任务，都应尽量展开成可见任务板，而不是只写成一段 prose
+- 并行任务展示 = 如果某个任务被识别为并行安全，应在同一块任务板里用 `并行:` / `parallel:` 标出来，让用户一眼看出哪些任务在并行运行
 - `架构监督状态` = 和执行线并排存在的高层判断面，至少包含 signal、root cause、correct layer、escalation gate
 - `自动架构信号更新` = 用 `sync_architecture_supervision.py` 从当前执行线、blockers 和升级状态推导 signal / gate / next review trigger
 - `升级模型` = `continue automatically / raise but continue / require user decision`
 - `可用能力快照` = 用最短列表告诉用户“现在已经能用什么”，不只汇报还在开发什么
 - `sync_execution_line.py` = 把 active slice 自动展开成更长、更可视的任务板
+- 长任务提示 = 在整改、架构整改、继续、长执行线这类长任务中，应持续用简短进度话术告诉用户“现在在做什么 / 刚发现什么 / 下一检查点是什么”
 - `release` profile = `deep` 加 `release readiness`，用于本地发布和更严格的 CI 保护
 - `.codex/doc-governance.json` = 文档治理配置入口，用来声明公开文档范围、根目录保留文档和 Markdown 所有权
 - `deep` 现在还会检查 `.codex/*` 是否仍然停留在模板态

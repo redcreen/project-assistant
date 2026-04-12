@@ -31,7 +31,7 @@ Detailed execution queue:
 | [M6](reference/project-assistant/development-plan.md#m6) | done | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
 | [M7](reference/project-assistant/development-plan.md#m7) | done | improve narrative quality and automated architecture triggers | [M6](reference/project-assistant/development-plan.md#m6) | less manual cleanup after retrofit and fewer direction-correction prompts |
 | [M8](reference/project-assistant/development-plan.md#m8) | deferred | locale-aware internal control-surface output | handoff + command templates + validation policy | becomes a bounded supporting backlog topic under M10 instead of the mainline |
-| [M9](reference/project-assistant/development-plan.md#m9) | deferred | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | becomes a bounded supporting backlog topic under M10 instead of the mainline |
+| [M9](reference/project-assistant/development-plan.md#m9) | deferred | automatic context compression plus slimmer continue/resume/handoff snapshots without losing recoverability | continue snapshot + handoff + validation policy | becomes a bounded supporting backlog topic under M10 instead of the mainline |
 
 ## Strategic Layer Milestones
 
@@ -69,7 +69,7 @@ flowchart LR
 - long execution lines must stop at real checkpoints, not drift into opaque background work
 - public-doc bilingual quality still depends on good content generation, not only file-pair checks
 - exact context-usage thresholds still require runtime support
-- locale-aware internal output and slimmer continue still matter, but now as bounded supporting backlog under M10 rather than as the mainline
+- locale-aware internal output and automatic context compression still matter, but now as bounded supporting backlog under M10 rather than as the mainline
 - strategy surfaces must stay evidence-backed and must not auto-change business direction
 - program orchestration should not arrive before the strategy layer has a stable review contract
 - M13 is not just another abstract layer name; it must make the PTL behave like a standing supervision loop that keeps the project moving

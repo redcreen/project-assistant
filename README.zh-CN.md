@@ -23,6 +23,7 @@
 | 当前战略方向 | `M10 / M11 / M12 / M13 / M14` 已完成；当前进入 post-M14 证据采集，用真实 repo 证据判断 `M15 选择性多执行器调度` 是否真的需要 |
 | 程序编排层当前边界 | 先把“单 Codex 内的 durable 编排真相层”和“worker 停下后项目不断线”做稳定；多桌面 Codex / 多执行器自动调度仍属于后续能力 |
 | `M14` 人话解释 | `worker 停了，项目不能跟着停` |
+| `继续` 的自动行为 | 先读取 `.codex/control-surface.json`；如果控制面版本过旧，或缺少当前 surface 版本，就先做最小安全补齐，再继续当前执行线 |
 
 ## 它接下来要去哪里
 
@@ -94,6 +95,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 把执行线显示成一个可见的子任务板，并用 `Plan Link` 映射回当前切片
 - 把架构监督状态和升级 gate 并排展示在执行线旁边
 - 把 `progress / continue / handoff` 做成更像给维护者看的第一屏，而不是只剩 raw status dump
+- 让 `继续` 自动判断旧项目是否需要最小控制面升级，而不是把这个判断甩给用户
 - 当当前切片出现 ownership、boundary 或 repeated-fix drift 时，自动把架构复盘升上来
 - 用一个简短的 `Usable Now` 快照告诉你现在已经能直接用什么
 - 把现有仓库整改到收敛状态
@@ -136,6 +138,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - `project-assistant` 默认负责规划、架构监督、实现、验证、状态更新和开发日志
 - 只有在检查点、阻塞点或需要业务裁决时才应该停下来问你
 - 长任务执行时，应通过可见的任务板体现 done/total 进度，而不是只剩下一段抽象状态描述
+- 长任务执行时，也应持续用简短进度提示告诉你“现在在做什么 / 刚完成什么 / 下一检查点是什么”，不能无声跑很久
 - 架构层还应持续表明：现在是可以自动继续、提醒但继续，还是必须停下来等用户裁决
 - 进展和交接里还应明确告诉你：现在到底有哪些能力已经可用
 - `继续` 应默认带一个简版进展快照；如果要完整全局视图，再用 `项目助手 进展`
@@ -157,6 +160,14 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 ```text
 项目助手 继续
 ```
+
+默认语义：
+
+- 先自动检查这个仓库的控制面版本是不是已经落后
+- 先读取 `.codex/control-surface.json`，比对控制面版本和各 surface 版本是否落后
+- 如果控制面版本过旧，或缺少当前 surface 版本，先自动补齐最小安全升级
+- 然后再恢复并继续当前执行线
+- 如果过程较长，要持续告诉你当前在做什么，而不是沉默等待
 
 ### 从架构层审查当前方向
 

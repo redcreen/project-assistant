@@ -31,7 +31,7 @@
 | [M6](reference/project-assistant/development-plan.zh-CN.md#m6) | done | 收敛成内嵌式架构师助手工作模型 | previous milestones | 规划、执行、架构监督和开发日志成为默认自动能力 |
 | [M7](reference/project-assistant/development-plan.zh-CN.md#m7) | done | 提升叙事质量与自动架构触发能力 | [M6](reference/project-assistant/development-plan.zh-CN.md#m6) | 整改后的手工清理更少，方向纠偏提示更少 |
 | [M8](reference/project-assistant/development-plan.zh-CN.md#m8) | deferred | 按语言优化内部控制面输出 | handoff + command templates + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
-| [M9](reference/project-assistant/development-plan.zh-CN.md#m9) | deferred | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
+| [M9](reference/project-assistant/development-plan.zh-CN.md#m9) | deferred | 自动压缩上下文与 continue / resume / handoff 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
 
 ## 战略层里程碑
 
@@ -69,7 +69,7 @@ flowchart LR
 - 长任务执行线必须停在真实检查点，不能变成不可见的后台黑箱
 - 公开文档双语质量仍然依赖内容生成，不仅是文件对和切换链接
 - 如果未来要支持精确 context 门禁，仍然需要运行时暴露对应指标
-- `M8 / M9` 提到的问题仍然重要，但现在作为 `M10` 下的 supporting backlog 管理，而不是继续占据主线
+- `M8 / M9` 提到的问题仍然重要，其中 `M9` 现在也承接“自动压缩上下文”这个专题；但它们都作为 `M10` 下的 supporting backlog 管理，而不是继续占据主线
 - 战略层必须持续基于 repo 证据给出判断，不能越权自动改变业务方向
 - 程序编排层必须等战略层的 review 合约稳定后再落地
 - `M13` 的重点不是再加一个抽象名词，而是让 PTL 真正像常驻项目技术负责人一样持续盯住推进
