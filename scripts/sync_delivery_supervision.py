@@ -41,12 +41,8 @@ def delivery_direction(repo: Path) -> tuple[str, str, str]:
         status = "done"
     elif "next" in lowered:
         status = "next"
-    direction = "supervised long-run delivery"
-    why_now = (
-        "战略评估层和程序编排层已经把方向、边界和 workstreams 收口成 durable 真相；现在需要一套长期监督交付面来定义 checkpoint 节奏、自动继续边界和升级时机。"
-    )
-    if objective:
-        why_now = objective
+    direction = current_phase or "supervised long-run delivery"
+    why_now = objective or "需要让项目在 checkpoint 之间持续推进，而不是因为 worker 停下就丢节奏。"
     return direction, status, why_now
 
 
@@ -100,9 +96,9 @@ def escalation_timing_table() -> str:
 
 def executor_loop_table() -> str:
     rows = [
-        ("supervisor", "strategy + program board + delivery supervision + status", "确认当前 checkpoint、升级边界和下一轮入口", "done"),
-        ("delivery worker", "active slice + execution tasks + validator outputs", "推进当前长任务、运行验证、刷新真相", "done"),
-        ("docs-and-release", "README + roadmap + development-plan + handoff + release gates", "保持维护者文档、交接和发布面一致", "done"),
+        ("PTL", "strategy + program board + delivery supervision + status", "确认当前 checkpoint、升级边界和下一轮入口", "active"),
+        ("delivery worker", "active slice + execution tasks + validator outputs", "推进当前长任务、运行验证、刷新真相", "active"),
+        ("docs-and-release", "README + roadmap + development-plan + handoff + release gates", "保持维护者文档、交接和发布面一致", "active"),
     ]
     lines = ["| Executor | Current Input | Responsibility | Status |", "| --- | --- | --- | --- |"]
     lines.extend(f"| {a} | {b} | {c} | {d} |" for a, b, c, d in rows)
@@ -111,9 +107,9 @@ def executor_loop_table() -> str:
 
 def backlog_reentry_table() -> str:
     rows = [
-        ("M8 locale-aware internal output", "只有 rollout 证据证明中文优先维护流程仍被冗余英文显著拖慢，且不会分叉真相时，才允许回流", "先保持在 supporting backlog"),
-        ("M9 slimmer continue snapshot", "只有 post-M14 rollout 仍显示 `continue` 输出过重，并且不损失恢复精度时，才允许回流", "先保持在 supporting backlog"),
-        ("future rollout friction", "只有当同类摩擦跨多个 repo 反复出现时，才升级成新的正式里程碑", "先记录为 rollout evidence"),
+        ("follow-up polish", "只有能明显降低接手成本、且不分叉真相时，才允许回流", "先保持在 supporting backlog"),
+        ("docs-only tidy-up", "只有不影响主线节奏时，才并入下个 checkpoint", "按 sidecar work 处理"),
+        ("future rollout friction", "只有同类摩擦跨多个 repo 反复出现时，才升级成新的正式里程碑", "先记录为 rollout evidence"),
     ]
     lines = ["| Topic | Re-entry Rule | Current Position |", "| --- | --- | --- |"]
     lines.extend(f"| {a} | {b} | {c} |" for a, b, c in rows)
@@ -125,9 +121,9 @@ def next_checks(repo: Path) -> list[str]:
     if existing:
         return existing
     return [
-        "在更多 medium / large 仓库上使用完整的 PTL supervision + worker handoff 工作模型，并记录 rollout 摩擦。",
-        "根据真实 rollout 证据决定 `M8 / M9` 是否继续保持在 supporting backlog。",
-        "当 cross-repo adoption 证据足够时，再决定是否需要 `M15` 或新的 post-M14 里程碑。",
+        "确认每轮 checkpoint 都会刷新 status / progress / continue / handoff，而不是只更新其中一部分。",
+        "继续判断当前 gate 是自动继续、提醒后继续，还是已经需要升级给人类。",
+        "如果同类 rollout 摩擦反复出现，再整理成新的专项或后续里程碑候选。",
     ]
 
 

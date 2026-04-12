@@ -32,18 +32,18 @@ def strategy_direction(repo: Path) -> tuple[str, str, str]:
     plan_text = read_text(repo / ".codex/plan.md")
     status_text = read_text(repo / ".codex/status.md")
     current_phase = first_line(section(status_text, "Current Phase")) or first_line(section(plan_text, "Current Phase"))
+    active_slice = first_line(section(status_text, "Active Slice")) or first_line(section(plan_text, "Active Slice"))
     objective = labeled_bullet_value(section(status_text, "Current Execution Line"), "Objective") or labeled_bullet_value(
         section(plan_text, "Current Execution Line"), "Objective"
     )
     status = "active"
-    direction = "strategic evaluation layer"
-    if "program orchestration" in current_phase.lower() or "程序编排" in current_phase:
-        direction = "program orchestration layer"
-    why_now = (
-        "执行层、整改层、文档治理层和恢复层已经基本成形，当前最大的缺口转成“项目后续怎么走、何时插专项、何时调整路线”的更高层判断。"
-    )
-    if objective:
-        why_now = objective
+    lowered = current_phase.lower()
+    if any(token in lowered for token in ["done", "completed", "closed", "已完成", "已收口"]):
+        status = "done"
+    elif any(token in lowered for token in ["next", "later", "queued", "下一", "后续", "排队"]):
+        status = "next"
+    direction = active_slice or current_phase or "current repo direction"
+    why_now = objective or current_phase or "需要持续确认 roadmap、当前切片和长期方向仍保持一致。"
     return direction, status, why_now
 
 
@@ -61,11 +61,11 @@ def evidence_contract(repo: Path) -> list[str]:
 
 def owns_table(repo: Path) -> str:
     rows = [
-        ("roadmap 调整建议", "yes", "但只提建议，不自动改业务方向"),
+        ("roadmap / development plan 对齐建议", "yes", "可以建议调整，但不代替业务裁决"),
         ("是否插入治理 / 架构专项", "yes", "需要基于 repo 证据和长期风险"),
-        ("项目定位是否需要提升", "yes", "作为建议输出，仍需人类审批"),
-        ("多个切片 / 多个执行器编排", "not yet", "留给 M11"),
-        ("长时间自动交付", "not yet", "留给 M12"),
+        ("当前切片是否仍是主线", "yes", "用于判断继续、重排或挂回 backlog"),
+        ("项目定位是否需要提升", "yes", "只提出建议，仍需人类审批"),
+        ("业务方向变化", "no", "必须升级给人类"),
     ]
     lines = ["| Topic | Strategic Layer Owns? | Notes |", "| --- | --- | --- |"]
     lines.extend(f"| {topic} | {owns} | {notes} |" for topic, owns, notes in rows)
@@ -74,13 +74,10 @@ def owns_table(repo: Path) -> str:
 
 def carryover_backlog_table(repo: Path) -> str:
     rows = [
-        ("M8 locale-aware internal output", "supporting backlog", "这是表现层优化，不再是当前最大缺口"),
-        ("M9 slimmer continue snapshot", "supporting backlog", "这是恢复体量优化，不再是当前最大缺口"),
+        ("future governance / architecture side-track", "supporting backlog", "只有 durable 证据证明当前主线无法继续时，才回拉主线"),
+        ("maintainer-facing polish", "supporting backlog", "只有它能明显降低接手成本时，才升级优先级"),
+        ("release / rollout follow-ups", "supporting backlog", "只有 release-facing 风险出现时，才回流当前阶段"),
     ]
-    if not (repo / "README.zh-CN.md").exists():
-        rows = [
-            ("future strategic side-track candidates", "supporting backlog", "等待后续战略判断决定是否拉回主线"),
-        ]
     lines = ["| Topic | Current Position | Why It Is Not Mainline |", "| --- | --- | --- |"]
     lines.extend(f"| {topic} | {position} | {why} |" for topic, position, why in rows)
     return "\n".join(lines)
@@ -106,9 +103,9 @@ def human_review_boundary() -> str:
 def future_program_board_boundary() -> str:
     return "\n".join(
         [
-            "- M10 owns strategic judgment, evidence-backed suggestions, and the human review boundary.",
-            "- M11 should own sequencing, orchestration, parallel-safe slices, and durable program-board state.",
-            "- Do not let M10 silently grow into full orchestration before the program-board contract exists.",
+            "- 战略层负责判断“为什么下一步是这条线”，以及何时建议插入专项或调整路线。",
+            "- 程序编排层负责把战略判断翻译成 workstream、切片顺序和串并行边界。",
+            "- 不要让战略层静默膨胀成全能调度器；编排仍应保留在 program-board。"
         ]
     )
 
@@ -118,9 +115,9 @@ def next_checks(repo: Path) -> list[str]:
     if existing:
         return existing
     return [
-        "定义战略判断必须引用哪些 durable repo 证据。",
-        "定义什么情况下战略层可以建议插入治理 / 架构专项。",
-        "先设计 M11 所需的 `program-board`，但不提前激活程序编排。",
+        "确认 roadmap、development plan、当前切片和 Next 3 仍在同一条主线里。",
+        "判断当前 blocker 或重复修补是否已经需要插入治理 / 架构专项。",
+        "如果里程碑顺序、项目定位或长期目标需要调整，整理成待人类审批的建议。",
     ]
 
 

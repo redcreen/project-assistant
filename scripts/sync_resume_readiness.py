@@ -30,6 +30,24 @@ class SurfaceSync:
     required_sections: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class ResumeReadinessResult:
+    repo: Path
+    tier: str
+    detected_version: int
+    current_version: int
+    target_version: int
+    required_surface_versions: dict[str, int]
+    detected_surface_versions: dict[str, int]
+    stored_surface_versions: dict[str, int]
+    reasons: tuple[str, ...]
+    syncs_run: tuple[str, ...]
+
+    @property
+    def upgrade_needed(self) -> bool:
+        return bool(self.reasons)
+
+
 SURFACE_SYNCS: tuple[SurfaceSync, ...] = (
     SurfaceSync(
         name="strategy surface",
@@ -105,7 +123,54 @@ def needed_surface_syncs(repo: Path, version_state: dict[str, object]) -> list[S
 
 
 def run_sync(script_path: Path, repo: Path) -> None:
-    subprocess.run([sys.executable, str(script_path), str(repo)], check=True)
+    subprocess.run(
+        [sys.executable, str(script_path), str(repo)],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+
+def ensure_resume_ready(repo: Path, check_only: bool = False) -> ResumeReadinessResult:
+    repo = repo.resolve()
+    scripts_dir = Path(__file__).resolve().parent
+    reasons: list[str] = []
+    ran: list[str] = []
+    tier = parse_tier(repo)
+    version_state = control_surface_version_state(repo, tier=tier)
+    detected_version = int(version_state["currentVersion"])
+    detected_surface_versions = dict(version_state["storedSurfaceVersions"])
+
+    control_surface_reasons = control_surface_sync_reasons(repo, version_state)
+    if control_surface_reasons:
+        reasons.extend(control_surface_reasons)
+        if not check_only:
+            run_sync(scripts_dir / "sync_control_surface.py", repo)
+            ran.append("sync_control_surface.py")
+        version_state = control_surface_version_state(repo, tier=parse_tier(repo))
+
+    for surface in needed_surface_syncs(repo, version_state):
+        reasons.append(surface.name)
+        if not check_only:
+            run_sync(scripts_dir / surface.script, repo)
+            ran.append(surface.script)
+
+    if not check_only:
+        version_state = control_surface_version_state(repo, tier=parse_tier(repo))
+
+    return ResumeReadinessResult(
+        repo=repo,
+        tier=str(version_state["tier"]),
+        detected_version=detected_version,
+        current_version=int(version_state["currentVersion"]),
+        target_version=int(version_state["targetVersion"]),
+        required_surface_versions=dict(version_state["requiredSurfaceVersions"]),
+        detected_surface_versions=detected_surface_versions,
+        stored_surface_versions=dict(version_state["storedSurfaceVersions"]),
+        reasons=tuple(reasons),
+        syncs_run=tuple(ran),
+    )
 
 
 def main() -> int:
@@ -116,49 +181,38 @@ def main() -> int:
     parser.add_argument("--check", action="store_true", help="Inspect only; do not run syncs")
     args = parser.parse_args()
 
-    repo = args.repo.resolve()
-    scripts_dir = Path(__file__).resolve().parent
-    reasons: list[str] = []
-    ran: list[str] = []
-    tier = parse_tier(repo)
-    version_state = control_surface_version_state(repo, tier=tier)
-
-    control_surface_reasons = control_surface_sync_reasons(repo, version_state)
-    if control_surface_reasons:
-        reasons.extend(control_surface_reasons)
-        if not args.check:
-            run_sync(scripts_dir / "sync_control_surface.py", repo)
-            ran.append("sync_control_surface.py")
-        version_state = control_surface_version_state(repo, tier=parse_tier(repo))
-
-    for surface in needed_surface_syncs(repo, version_state):
-        reasons.append(surface.name)
-        if not args.check:
-            run_sync(scripts_dir / surface.script, repo)
-            ran.append(surface.script)
+    result = ensure_resume_ready(args.repo.resolve(), check_only=args.check)
 
     print("# Resume Readiness\n")
-    print(f"- Repo: `{repo}`")
-    print(f"- Tier: `{version_state['tier']}`")
-    print(
-        f"- Control Surface Version: `{version_state['currentVersion']} / {version_state['targetVersion']}`"
-    )
-    if version_state["requiredSurfaceVersions"]:
+    print(f"- Repo: `{result.repo}`")
+    print(f"- Tier: `{result.tier}`")
+    if args.check or result.detected_version == result.current_version:
+        print(f"- Control Surface Version: `{result.detected_version} / {result.target_version}`")
+    else:
+        print(f"- Control Surface Version: `{result.detected_version} -> {result.current_version} / {result.target_version}`")
+    if result.required_surface_versions:
         expected = ", ".join(
-            f"{name}:{CONTROL_SURFACE_COMPONENT_VERSIONS[name]}" for name in version_state["requiredSurfaceVersions"]
+            f"{name}:{CONTROL_SURFACE_COMPONENT_VERSIONS[name]}" for name in result.required_surface_versions
         )
         stored = ", ".join(
-            f"{name}:{version_state['storedSurfaceVersions'].get(name, 0)}"
-            for name in version_state["requiredSurfaceVersions"]
+            f"{name}:{result.detected_surface_versions.get(name, 0)}"
+            for name in result.required_surface_versions
+        )
+        current = ", ".join(
+            f"{name}:{result.stored_surface_versions.get(name, 0)}"
+            for name in result.required_surface_versions
         )
         print(f"- Required Surface Versions: `{expected}`")
-        print(f"- Stored Surface Versions: `{stored}`")
-    print(f"- Upgrade Needed: `{'yes' if reasons else 'no'}`")
-    print(f"- Upgrade Reasons: {', '.join(reasons) if reasons else 'none'}")
+        if args.check or stored == current:
+            print(f"- Stored Surface Versions: `{stored}`")
+        else:
+            print(f"- Stored Surface Versions: `{stored} -> {current}`")
+    print(f"- Upgrade Needed: `{'yes' if result.upgrade_needed else 'no'}`")
+    print(f"- Upgrade Reasons: {', '.join(result.reasons) if result.reasons else 'none'}")
     if args.check:
         print("- Mode: check-only")
     else:
-        print(f"- Syncs Run: {', '.join(ran) if ran else 'none'}")
+        print(f"- Syncs Run: {', '.join(result.syncs_run) if result.syncs_run else 'none'}")
     return 0
 
 

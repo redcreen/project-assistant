@@ -41,10 +41,8 @@ def ptl_direction(repo: Path) -> tuple[str, str, str]:
         status = "done"
     elif "next" in lowered:
         status = "next"
-    direction = "PTL supervision loop"
-    why_now = "M12 已经把长期受监督交付层变成 durable 真相；现在需要让 PTL 以周期性 / 事件驱动的监督环持续接管推进，而不是只在聊天里偶尔出现。"
-    if objective:
-        why_now = objective
+    direction = current_phase or "PTL supervision loop"
+    why_now = objective or "需要让 PTL 在 worker 停下、checkpoint 结束或验证变化后持续接管推进。"
     return direction, status, why_now
 
 
@@ -98,7 +96,7 @@ def active_checks_table() -> str:
     rows = [
         ("监督输入完整", "green", "strategy / program-board / delivery-supervision / plan / status 都存在"),
         ("继续边界清楚", "green", "何时继续 / 提醒 / 升级已有 durable 规则"),
-        ("worker 停下后的接管入口", "green", "M14 已经把 handoff / re-entry contract 收口成 durable 真相"),
+        ("worker 停下后的接管入口", "green", "handoff / re-entry contract 已收口成 durable 真相"),
         ("业务裁决越权防护", "green", "一旦跨到产品方向或兼容性承诺，PTL 只升级不代替决策"),
     ]
     lines = ["| 检查项 | 当前信号 | 说明 |", "| --- | --- | --- |"]
@@ -111,9 +109,9 @@ def next_checks(repo: Path) -> list[str]:
     if existing:
         return existing
     return [
-        "在真实 repo 上继续验证 PTL 监督判断会在 worker 停下后接住项目，而不是只在 skill 自己身上成立。",
-        "继续观察 worker handoff / re-entry 是否还暴露新的 durable 缺口，需要回写到 supervision contract。",
-        "继续收集跨 repo 证据，判断何时才值得打开 M15 多执行器层。",
+        "确认 worker 停下后，PTL 能从 durable 真相恢复当前工作，而不是退回聊天记忆。",
+        "继续观察 handoff / re-entry 是否还暴露新的 durable 缺口，需要回写到监督契约。",
+        "如果真实仓库反复出现单 Codex 编排瓶颈，再整理成后续多执行器候选。",
     ]
 
 

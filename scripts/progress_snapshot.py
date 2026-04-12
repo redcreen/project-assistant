@@ -29,6 +29,7 @@ from control_surface_lib import (
     section,
     slugify,
 )
+from sync_resume_readiness import ResumeReadinessResult, ensure_resume_ready
 
 
 TRIVIAL_TOKENS = {
@@ -536,6 +537,21 @@ def compact_value_zh(text: str) -> str:
 
 def display_execution_task_zh(line: str) -> str:
     return pretty_text_zh(display_execution_task(line))
+
+
+def print_upgrade_notice(result: ResumeReadinessResult) -> None:
+    if not result.upgrade_needed:
+        return
+    upgraded = ", ".join(result.required_surface_versions) if result.required_surface_versions else "control surface"
+    syncs = ", ".join(result.syncs_run) if result.syncs_run else "none"
+    print("## 自动补齐")
+    print("| 项目 | 当前值 |")
+    print("| --- | --- |")
+    print("| 检测结果 | 检测到旧控制面代际，已先自动补齐。 |")
+    print(f"| 控制面版本 | `{result.detected_version} -> {result.current_version}` |")
+    print(f"| 补齐层 | `{upgraded}` |")
+    print(f"| 已执行 | `{syncs}` |")
+    print()
 
 
 def numbered_actions_zh(text: str) -> list[str]:
@@ -1265,6 +1281,7 @@ def large_direct_value_zh(active_module: str, current_execution_line: str, activ
 
 def render_medium_progress(
     repo: Path,
+    readiness: ResumeReadinessResult,
     project_name: str,
     current_phase: str,
     active_slice: str,
@@ -1325,6 +1342,7 @@ def render_medium_progress(
             current_phase_link = markdown_file_link(roadmap_path, "路线图 / 当前阶段", current_phase_line)
 
     print("# 项目进展\n")
+    print_upgrade_notice(readiness)
     print("## 一眼总览")
     print("| 问题 | 当前答案 |")
     print("| --- | --- |")
@@ -1450,6 +1468,7 @@ def render_medium_progress(
 
 def render_large_progress(
     repo: Path,
+    readiness: ResumeReadinessResult,
     project_name: str,
     tier: str,
     current_phase: str,
@@ -1486,6 +1505,7 @@ def render_large_progress(
     direct_value = large_direct_value_zh(active_module, current_execution_line, active_slice_display)
 
     print("# 项目进展\n")
+    print_upgrade_notice(readiness)
     print("## 一眼总览")
     print("| 问题 | 当前答案 |")
     print("| --- | --- |")
@@ -1639,6 +1659,8 @@ def main() -> int:
     args = parser.parse_args()
 
     repo = args.repo.resolve()
+    readiness = ensure_resume_ready(repo, check_only=False)
+    repo = readiness.repo
     tier = parse_tier(repo)
     status_text = (repo / ".codex/status.md").read_text(encoding="utf-8")
     project_name = project_display_name(repo)
@@ -1677,6 +1699,7 @@ def main() -> int:
     if tier == "medium":
         render_medium_progress(
             repo=repo,
+            readiness=readiness,
             project_name=project_name,
             current_phase=current_phase,
             active_slice=active_slice,
@@ -1724,6 +1747,7 @@ def main() -> int:
     if tier == "large":
         render_large_progress(
             repo=repo,
+            readiness=readiness,
             project_name=project_name,
             tier=tier,
             current_phase=current_phase,

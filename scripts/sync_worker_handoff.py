@@ -41,10 +41,8 @@ def handoff_direction(repo: Path) -> tuple[str, str, str]:
         status = "done"
     elif "next" in lowered:
         status = "next"
-    direction = "worker handoff and re-entry"
-    why_now = "M13 已经让 PTL 常驻监督成立；现在需要把“worker 停了，项目不能跟着停”收口成 durable handoff / re-entry contract。"
-    if objective:
-        why_now = objective
+    direction = current_phase or "worker handoff and re-entry"
+    why_now = objective or "需要把“worker 停了，项目不能跟着停”收口成 durable handoff / re-entry contract。"
     return direction, status, why_now
 
 
@@ -126,9 +124,9 @@ def next_checks(repo: Path) -> list[str]:
     if existing:
         return existing
     return [
-        "在真实 repo 里验证 worker 停下后的接续、回流和升级是否都能靠 durable 真相完成。",
-        "继续观察 cross-repo rollout 中有哪些 handoff 场景反复出现，再决定是否真的需要 M15。",
-        "只在 disjoint write scope 和结果回收口都明确时，才允许把 handoff 扩成多执行器调度。",
+        "确认 worker 停下后的接续、回流和升级都能靠 durable 真相完成。",
+        "继续观察哪些 handoff 场景会反复出现，再决定是否需要更强的调度层。",
+        "只在 disjoint write scope 和结果回收口都明确时，才考虑扩成多执行器调度。",
     ]
 
 

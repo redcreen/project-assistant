@@ -32,6 +32,7 @@ def program_direction(repo: Path) -> tuple[str, str, str]:
     plan_text = read_text(repo / ".codex/plan.md")
     status_text = read_text(repo / ".codex/status.md")
     current_phase = first_line(section(status_text, "Current Phase")) or first_line(section(plan_text, "Current Phase"))
+    active_slice = first_line(section(status_text, "Active Slice")) or first_line(section(plan_text, "Active Slice"))
     objective = labeled_bullet_value(section(status_text, "Current Execution Line"), "Objective") or labeled_bullet_value(
         section(plan_text, "Current Execution Line"), "Objective"
     )
@@ -41,12 +42,8 @@ def program_direction(repo: Path) -> tuple[str, str, str]:
         status = "done"
     elif "next" in lowered or "queued" in lowered:
         status = "next"
-    direction = "program orchestration layer"
-    why_now = (
-        "战略评估层已经把“项目为什么往这边走”收口成 durable 真相，当前最大的缺口转成怎样管理多个 workstreams、切片和执行器，而不是继续靠人工不断输入“继续”。"
-    )
-    if objective:
-        why_now = objective
+    direction = active_slice or current_phase or "current repo program flow"
+    why_now = objective or current_phase or "需要把主线、sidecar 和 backlog 的顺序维持在同一套 durable 真相上。"
     return direction, status, why_now
 
 
@@ -62,10 +59,10 @@ def orchestration_contract() -> list[str]:
 
 def active_workstreams_table() -> str:
     rows = [
-        ("post-M14 evidence collection", "在更多仓库上 rollout PTL supervision + worker handoff，并记录是否真的需要 M15", "active", "P0", "采集 worker 停下后的真实接续摩擦、写入边界和回收口证据", "决定 M15 是否值得立项"),
-        ("control truth and gates", "保持 `.codex` 真相、门禁和 release 保护一致", "stable", "P1", "把 strategy / program board / plan / status / supervision surfaces 维持在同一套真相上", "继续只允许一套 control truth"),
-        ("maintainer-facing outputs", "让 progress / continue / handoff 对维护者和未来接手者足够清楚", "stable", "P1", "把 PTL supervision / worker handoff 状态直接暴露到第一屏输出", "只有 rollout 证据要求时再调整"),
-        ("supporting backlog routing", "管理 M8 / M9 这类 supporting backlog 议题，不让它们无计划回流主线", "active", "P1", "用 rollout 证据决定 M8 / M9 是否继续保持 backlog", "在没有证据前继续保持 backlog"),
+        ("primary delivery line", "当前 active slice 与当前执行线", "active", "P0", "保持当前主线持续推进", "到达下一个 checkpoint 并刷新真相"),
+        ("control truth and docs alignment", "plan / status / roadmap / development plan / docs", "active", "P1", "保持控制面、文档与当前执行同步", "避免恢复真相漂移"),
+        ("validation and release gates", "tests / gate / release-facing evidence", "active", "P1", "保持验证入口与当前主线对齐", "下一轮变更前保持为绿"),
+        ("supporting backlog routing", "暂不进入主线但需要保留可见性的议题", "active", "P2", "记录但不无计划回流主线", "只有证据充分时才升级"),
     ]
     lines = ["| Workstream | Scope | State | Priority | Current Focus | Next Checkpoint |", "| --- | --- | --- | --- | --- | --- |"]
     lines.extend(f"| {a} | {b} | {c} | {d} | {e} | {f} |" for a, b, c, d, e, f in rows)
@@ -74,10 +71,10 @@ def active_workstreams_table() -> str:
 
 def sequencing_queue_table() -> str:
     rows = [
-        ("1", "post-M14 evidence collection", "carry PTL supervision + worker handoff onto more repos and record friction", "supervisor", "active"),
-        ("2", "control truth and gates", "keep supervision surfaces, plan, and status aligned while rollout evidence accumulates", "delivery worker", "active"),
-        ("3", "maintainer-facing outputs", "only refine progress / continue / handoff if rollout evidence shows maintainer confusion", "docs-and-release", "active"),
-        ("4", "supporting backlog routing", "decide whether M8 / M9 stay backlog or re-enter with evidence", "supervisor", "next"),
+        ("1", "primary delivery line", "继续当前 active slice 与当前执行线", "delivery worker", "active"),
+        ("2", "control truth and docs alignment", "保持 plan / status / docs / handoff 同步", "docs-and-release", "active"),
+        ("3", "validation and release gates", "运行 tests / gate 并把结果写回真相", "delivery worker", "active"),
+        ("4", "supporting backlog routing", "判断哪些尾项回队列、哪些需要下轮主线", "PTL", "next"),
     ]
     lines = ["| Order | Workstream | Slice / Input | Executor | Status |", "| --- | --- | --- | --- | --- |"]
     lines.extend(f"| {a} | {b} | {c} | {d} | {e} |" for a, b, c, d, e in rows)
@@ -86,9 +83,9 @@ def sequencing_queue_table() -> str:
 
 def executor_inputs_table() -> str:
     rows = [
-        ("supervisor", "`.codex/strategy.md` + `.codex/program-board.md` + `.codex/delivery-supervision.md` + `.codex/status.md`", "决定 rollout 证据怎么回流成 M15 判断或 backlog 调整", "active"),
+        ("PTL", "`.codex/strategy.md` + `.codex/program-board.md` + `.codex/delivery-supervision.md` + `.codex/status.md`", "决定当前主线是否继续、重排或升级", "active"),
         ("delivery worker", "active slice + execution tasks + validator outputs", "推进当前 checkpoint 并保持与 program-board 对齐", "active"),
-        ("docs-and-release", "README + roadmap + development-plan + gate outputs", "保持 durable docs、发布说明和门禁一致", "active"),
+        ("docs-and-release", "README + roadmap + development-plan + gate outputs", "保持 durable docs、交接说明和门禁一致", "active"),
     ]
     lines = ["| Executor | Current Input | Why It Exists | Status |", "| --- | --- | --- | --- |"]
     lines.extend(f"| {a} | {b} | {c} | {d} |" for a, b, c, d in rows)
@@ -97,9 +94,10 @@ def executor_inputs_table() -> str:
 
 def parallel_safe_boundaries_table() -> str:
     rows = [
-        ("control truth vs docs alignment", "yes", "文档更新可以跟随 control truth，但 `.codex/plan.md` / `.codex/status.md` 仍保持唯一真相源"),
-        ("maintainer outputs vs docs alignment", "yes", "progress / continue / handoff 的展示更新可以和 README / roadmap 调整并行"),
-        ("strategy changes vs business direction changes", "no", "一旦跨到业务方向、兼容性或外部定位，就必须停下来给人类审批"),
+        ("读文件 / 快照 / 校验 / 测试", "yes", "安全的只读动作可以和主写入线并行"),
+        ("docs alignment vs control truth", "yes", "文档更新可以跟随 control truth，但 `.codex/plan.md` / `.codex/status.md` 仍保持唯一真相源"),
+        ("同一批文件的双写入", "no", "共享写入面必须串行，不要并行改同一套控制面或主代码边界"),
+        ("战略变化 vs 业务方向变化", "no", "一旦跨到业务方向、兼容性或外部定位，就必须停下来给人类审批"),
     ]
     lines = ["| Boundary | Parallel-Safe? | Notes |", "| --- | --- | --- |"]
     lines.extend(f"| {a} | {b} | {c} |" for a, b, c in rows)
@@ -108,8 +106,9 @@ def parallel_safe_boundaries_table() -> str:
 
 def supporting_backlog_table() -> str:
     rows = [
-        ("M8 locale-aware internal output", "supporting backlog", "只有当它能降低维护者摩擦且不分叉真相时，才允许重新吸收", "保持在 backlog"),
-        ("M9 slimmer continue snapshot", "supporting backlog", "只有当 program-board 已能承载恢复真相时，才允许进一步压缩 continue 输出", "保持在 backlog"),
+        ("maintainer-facing polish", "supporting backlog", "只有明确降低接手成本时，才允许回流主线", "保持在 backlog"),
+        ("doc-only tidy-up", "supporting backlog", "只有不会干扰当前主线且能降低恢复成本时，才并入下个 checkpoint", "按 sidecar 处理"),
+        ("future governance / architecture side-track", "supporting backlog", "只有 durable 证据显示当前主线不够时，才升级", "先记录，不抢主线"),
     ]
     lines = ["| Topic | Current Position | Re-entry Rule | Notes |", "| --- | --- | --- | --- |"]
     lines.extend(f"| {a} | {b} | {c} | {d} |" for a, b, c, d in rows)
@@ -121,9 +120,9 @@ def next_checks(repo: Path) -> list[str]:
     if existing:
         return existing
     return [
-        "在更多 medium / large 仓库上使用完整的 PTL supervision + worker handoff 模型，并记录真实接续摩擦。",
-        "继续确认 `M8 / M9` 是否保持在 supporting backlog，而不是被无计划地拉回主线。",
-        "只有当 cross-repo 证据证明单 Codex PTL 模式成为瓶颈时，才提 `M15`。",
+        "确认当前 active slice、执行线和 supporting backlog 仍保持同一套排序真相。",
+        "判断哪些 sidecar 工作可以并入下个 checkpoint，哪些必须继续留在队列里。",
+        "如果单 Codex PTL 模式在真实仓库里成为瓶颈，再整理成后续多执行器候选。",
     ]
 
 

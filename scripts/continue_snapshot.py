@@ -25,6 +25,7 @@ from control_surface_lib import (
     section,
 )
 from progress_snapshot import pretty_text_zh
+from sync_resume_readiness import ResumeReadinessResult, ensure_resume_ready
 
 
 def bullet_lines(text: str) -> list[str]:
@@ -125,12 +126,29 @@ def task_kind_zh(line: str) -> str:
     return "并行" if execution_task_kind(line) == "parallel" else "主线"
 
 
+def print_upgrade_notice(result: ResumeReadinessResult) -> None:
+    if not result.upgrade_needed:
+        return
+    upgraded = ", ".join(result.required_surface_versions) if result.required_surface_versions else "control surface"
+    syncs = ", ".join(result.syncs_run) if result.syncs_run else "none"
+    print("## 继续前升级")
+    print("| 项目 | 当前值 |")
+    print("| --- | --- |")
+    print("| 检测结果 | 检测到旧控制面代际，已先自动补齐。 |")
+    print(f"| 控制面版本 | `{result.detected_version} -> {result.current_version}` |")
+    print(f"| 补齐层 | `{upgraded}` |")
+    print(f"| 已执行 | `{syncs}` |")
+    print()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Render a compact continue snapshot for resume-and-keep-going flows.")
     parser.add_argument("repo", type=Path, help="Repository root")
     args = parser.parse_args()
 
     repo = args.repo.resolve()
+    readiness = ensure_resume_ready(repo, check_only=False)
+    repo = readiness.repo
     tier = parse_tier(repo)
     status_text = read_text(repo / ".codex/status.md")
 
@@ -151,6 +169,7 @@ def main() -> int:
         next_work = next_actions[:3]
 
     print("# Continue Snapshot\n")
+    print_upgrade_notice(readiness)
     print("## 现在在哪里")
     print("| 项目 | 当前值 |")
     print("| --- | --- |")

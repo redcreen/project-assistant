@@ -25,6 +25,7 @@ from control_surface_lib import (
     section,
 )
 from progress_snapshot import pretty_text_zh
+from sync_resume_readiness import ResumeReadinessResult, ensure_resume_ready
 
 
 def read_text(path: Path) -> str:
@@ -137,12 +138,29 @@ def humanize_text(text: str) -> str:
     return pretty_text_zh(text)
 
 
+def print_upgrade_notice(result: ResumeReadinessResult) -> None:
+    if not result.upgrade_needed:
+        return
+    upgraded = ", ".join(result.required_surface_versions) if result.required_surface_versions else "control surface"
+    syncs = ", ".join(result.syncs_run) if result.syncs_run else "none"
+    print("## 自动补齐")
+    print("| 项目 | 当前值 |")
+    print("| --- | --- |")
+    print("| 检测结果 | 检测到旧控制面代际，已先自动补齐。 |")
+    print(f"| 控制面版本 | `{result.detected_version} -> {result.current_version}` |")
+    print(f"| 补齐层 | `{upgraded}` |")
+    print(f"| 已执行 | `{syncs}` |")
+    print()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Emit a compact context handoff / resume pack for a repo.")
     parser.add_argument("repo", type=Path, help="Repository root")
     args = parser.parse_args()
 
     repo = args.repo.resolve()
+    readiness = ensure_resume_ready(repo, check_only=False)
+    repo = readiness.repo
     tier = parse_tier(repo)
     status_text = read_text(repo / ".codex/status.md")
     module_dashboard = read_text(repo / ".codex/module-dashboard.md")
@@ -197,6 +215,7 @@ def main() -> int:
         restore_docs.append(".codex/worker-handoff.md")
 
     print("# Context Handoff\n")
+    print_upgrade_notice(readiness)
     print("## 摘要")
     print("| 项目 | 当前值 |")
     print("| --- | --- |")
