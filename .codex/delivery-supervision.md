@@ -1,10 +1,9 @@
 # Delivery Supervision
 
 ## Current Delivery Direction
-
 - Direction: `supervised long-run delivery`
 - Status: `done`
-- Why Now: 收口 M12 长期受监督交付层，把 checkpoint 节奏、自动继续边界、升级时机、执行器监督循环和 backlog 回流规则沉淀成 durable `delivery-supervision` 真相，并把后续状态切到 rollout / 摩擦采集，而不是继续停在内部里程碑叙事里
+- Why Now: 收口 M13 PTL 监督环与 M14 worker 接续层，把 PTL supervision 和 worker handoff / re-entry 都沉淀成 durable 控制面、门禁与维护者展示，并把下一步切到“是否真的需要 M15”的证据采集，而不是直接承诺多执行器
 
 ## Supervised Delivery Contract
 
@@ -56,11 +55,10 @@
 | Topic | Re-entry Rule | Current Position |
 | --- | --- | --- |
 | M8 locale-aware internal output | 只有 rollout 证据证明中文优先维护流程仍被冗余英文显著拖慢，且不会分叉真相时，才允许回流 | 先保持在 supporting backlog |
-| M9 slimmer continue snapshot | 只有 M12 第一轮 rollout 仍显示 `continue` 输出过重，并且不损失恢复精度时，才允许回流 | 先保持在 supporting backlog |
+| M9 slimmer continue snapshot | 只有 post-M14 rollout 仍显示 `continue` 输出过重，并且不损失恢复精度时，才允许回流 | 先保持在 supporting backlog |
 | future rollout friction | 只有当同类摩擦跨多个 repo 反复出现时，才升级成新的正式里程碑 | 先记录为 rollout evidence |
 
 ## Next Delivery Checks
-
-1. 在更多 medium / large 仓库上使用完整的 M12 工作模型，并记录 rollout 摩擦。
+1. 在更多 medium / large 仓库上使用完整的 PTL supervision + worker handoff 工作模型，并记录 rollout 摩擦。
 2. 根据真实 rollout 证据决定 `M8 / M9` 是否继续保持在 supporting backlog。
-3. 当 cross-repo adoption 证据足够时，再决定是否需要新的 post-M12 里程碑。
+3. 当 cross-repo adoption 证据足够时，再决定是否需要 `M15` 或新的 post-M14 里程碑。

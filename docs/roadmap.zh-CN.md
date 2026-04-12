@@ -15,9 +15,9 @@
 
 | 时间层级 | 重点 | 退出信号 |
 | --- | --- | --- |
-| 当前 | 做 `M13 PTL 监督环`，让 PTL 以周期性 / 事件驱动方式长期盯住项目推进，而不是让 worker 停下后项目也停下 | PTL 监督循环、检查点触发和升级时机变成 durable 控制面与正式门禁 |
-| 下一步 | 做 `M14 worker 接续与回流`，让 worker 在 checkpoint、超时、失败或交接后，项目仍能被 PTL 接住、恢复、重排或回流 | worker 停下后，项目还能基于 durable 真相继续推进，而不是只能等人重新手工接续 |
-| 更后面 | 做 `M15 选择性多执行器调度`；只有 rollout 证据和不相交写入边界都成立时，才引入真正多执行器 | 只有安全并行任务才允许进入多执行器层；否则继续保持单主写入线 |
+| 当前 | 在更多 repo 上 rollout 已完成的 `M13 PTL 监督环` 和 `M14 worker 接续与回流`，并记录 worker 停下后的真实接续摩擦 | PTL supervision 与 worker handoff 在真实 repo 上继续证明“项目不断线” |
+| 下一步 | 只在跨 repo 证据证明单 Codex PTL 模式已经成为瓶颈时，才启动 `M15 选择性多执行器调度` | 拿到不相交写入边界、结果回收口和冲突门禁的真实证据 |
+| 更后面 | 如果证据不足，就继续保持单 Codex PTL 模式，把 `M15` 留在 later 层 | 不因为“听起来更强”就提前引入多执行器复杂度 |
 
 ## 里程碑
 
@@ -40,8 +40,8 @@
 | [M10](reference/project-assistant/development-plan.zh-CN.md#m10) | done | 增加位于执行层之上的战略评估层 | [M7](reference/project-assistant/development-plan.zh-CN.md#m7) + 已批准的战略方向 | 系统能产出 durable 战略判断、识别何时应插入治理/架构专项，并把业务方向变更继续交给人类审批 |
 | [M11](reference/project-assistant/development-plan.zh-CN.md#m11) | done | 增加跨多个切片或执行器的程序编排层 | [M10](reference/project-assistant/development-plan.zh-CN.md#m10) + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
 | [M12](reference/project-assistant/development-plan.zh-CN.md#m12) | done | 增加受监督的长期自动交付层 | [M11](reference/project-assistant/development-plan.zh-CN.md#m11) + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点，而不是在日常调度上不断停下来 |
-| [M13](reference/project-assistant/development-plan.zh-CN.md#m13) | active | 增加由 PTL 驱动的监督环，让项目在 worker 停下后仍有常驻技术主责人继续盯进度、方向和升级 | [M12](reference/project-assistant/development-plan.zh-CN.md#m12) + durable delivery supervision | PTL 能周期性 / 事件驱动地巡检、决定继续 / 重排 / 升级，而不是依赖人类反复输入“继续” |
-| [M14](reference/project-assistant/development-plan.zh-CN.md#m14) | next | 增加 worker 接续与回流，让未完成工作可以被 PTL 恢复、转交、回队列，而不是在 worker 停下时一起丢掉 | [M13](reference/project-assistant/development-plan.zh-CN.md#m13) + durable handoff / supervision truth | worker 在 checkpoint、超时、失败或交接后，剩余工作仍能继续推进或被明确升级 |
+| [M13](reference/project-assistant/development-plan.zh-CN.md#m13) | done | 增加由 PTL 驱动的监督环，让项目在 worker 停下后仍有常驻技术主责人继续盯进度、方向和升级 | [M12](reference/project-assistant/development-plan.zh-CN.md#m12) + durable delivery supervision | PTL 能周期性 / 事件驱动地巡检、决定继续 / 重排 / 升级，而不是依赖人类反复输入“继续” |
+| [M14](reference/project-assistant/development-plan.zh-CN.md#m14) | done | 增加 worker 接续与回流，让未完成工作可以被 PTL 恢复、转交、回队列，而不是在 worker 停下时一起丢掉 | [M13](reference/project-assistant/development-plan.zh-CN.md#m13) + durable handoff / supervision truth | worker 在 checkpoint、超时、失败或交接后，剩余工作仍能继续推进或被明确升级 |
 | [M15](reference/project-assistant/development-plan.zh-CN.md#m15) | later | 增加选择性多执行器调度，只对安全并行任务开放 | [M14](reference/project-assistant/development-plan.zh-CN.md#m14) + 不相交写入边界 + 冲突控制 | 只有 write scope 清楚、回收口明确、冲突门禁成立时，才允许真正多执行器并行 |
 
 ## 里程碑流转
@@ -80,7 +80,7 @@ flowchart LR
 
 | 主题 | 为什么重要 | 当前位置 |
 | --- | --- | --- |
-| 业务规划与程序编排层 | `project-assistant` 已经完成以项目技术负责人（PTL）为核心的 `M10 / M11 / M12`，并正式进入 `M13 PTL 监督环`、`M14 worker 接续与回流`；`M15` 继续保持为证据驱动的后续层，`M8 / M9` 仍作为 supporting backlog 受控管理 | 已进入 roadmap 和 development plan |
+| 业务规划与程序编排层 | `project-assistant` 已经完成以项目技术负责人（PTL）为核心的 `M10 / M11 / M12 / M13 / M14`；当前进入 post-M14 证据采集，并继续把 `M15` 保持为证据驱动的后续层，`M8 / M9` 仍作为 supporting backlog 受控管理 | 已进入 roadmap 和 development plan |
 
 方向文档：
 

@@ -127,6 +127,44 @@ DELIVERY_SUPERVISION_REQUIRED_SECTIONS = [
     "Next Delivery Checks",
 ]
 
+PTL_SUPERVISION_EXPECTATION_KEYWORDS = (
+    "ptl supervision loop",
+    "ptl 监督环",
+    ".codex/ptl-supervision.md",
+    "standing supervision loop",
+    "standing technical lead",
+)
+
+PTL_SUPERVISION_REQUIRED_SECTIONS = [
+    "Current PTL Direction",
+    "PTL Supervision Contract",
+    "Supervision Triggers",
+    "Standing Responsibilities",
+    "Continue / Resequence / Escalate Matrix",
+    "Active Supervision Checks",
+    "Next PTL Checks",
+]
+
+WORKER_HANDOFF_EXPECTATION_KEYWORDS = (
+    "worker handoff and re-entry",
+    "worker 接续与回流",
+    ".codex/worker-handoff.md",
+    "worker handoff",
+    "worker stops, the project should not stop with it",
+    "worker 停了，项目不能跟着停",
+)
+
+WORKER_HANDOFF_REQUIRED_SECTIONS = [
+    "Current Handoff Direction",
+    "Worker Handoff Contract",
+    "Handoff Triggers",
+    "Recovery Sources",
+    "Re-entry Actions",
+    "Queue / Return Rules",
+    "Human Escalation Boundary",
+    "Next Handoff Checks",
+]
+
 
 @dataclass
 class ValidationResult:
@@ -699,6 +737,126 @@ def parse_delivery_supervision(repo: Path) -> dict[str, Any]:
     }
 
 
+def ptl_supervision_expected(repo: Path) -> bool:
+    surface_path = repo / ".codex/ptl-supervision.md"
+    if surface_path.exists():
+        return True
+    corpus_parts = [
+        read_text(repo / ".codex/plan.md"),
+        read_text(repo / ".codex/status.md"),
+        read_text(repo / ".codex/strategy.md"),
+        read_text(repo / ".codex/program-board.md"),
+        read_text(repo / ".codex/delivery-supervision.md"),
+        read_text(repo / "README.md"),
+        read_text(repo / "README.zh-CN.md"),
+        read_text(repo / "docs/roadmap.md"),
+        read_text(repo / "docs/roadmap.zh-CN.md"),
+    ]
+    docs_root = repo / "docs/reference"
+    if docs_root.exists():
+        for path in docs_root.rglob("*.md"):
+            corpus_parts.append(read_text(path))
+    lowered = "\n".join(part for part in corpus_parts if part).lower()
+    return any(keyword in lowered for keyword in PTL_SUPERVISION_EXPECTATION_KEYWORDS)
+
+
+def parse_ptl_supervision(repo: Path) -> dict[str, Any]:
+    path = repo / ".codex/ptl-supervision.md"
+    text = read_text(path)
+    if not text:
+        return {
+            "path": path,
+            "exists": False,
+            "expected": ptl_supervision_expected(repo),
+            "direction": "n/a",
+            "status": "n/a",
+            "why_now": "n/a",
+            "contract": [],
+            "trigger_rows": [],
+            "responsibility_rows": [],
+            "matrix_rows": [],
+            "check_rows": [],
+            "next_checks": [],
+        }
+
+    direction_block = section(text, "Current PTL Direction")
+    return {
+        "path": path,
+        "exists": True,
+        "expected": True,
+        "direction": labeled_bullet_value(direction_block, "Direction") or "n/a",
+        "status": labeled_bullet_value(direction_block, "Status") or "n/a",
+        "why_now": labeled_bullet_value(direction_block, "Why Now") or first_line(direction_block) or "n/a",
+        "contract": normalized_bullets(section(text, "PTL Supervision Contract")),
+        "trigger_rows": parse_markdown_table(section(text, "Supervision Triggers")),
+        "responsibility_rows": parse_markdown_table(section(text, "Standing Responsibilities")),
+        "matrix_rows": parse_markdown_table(section(text, "Continue / Resequence / Escalate Matrix")),
+        "check_rows": parse_markdown_table(section(text, "Active Supervision Checks")),
+        "next_checks": normalized_bullets(section(text, "Next PTL Checks")),
+    }
+
+
+def worker_handoff_expected(repo: Path) -> bool:
+    surface_path = repo / ".codex/worker-handoff.md"
+    if surface_path.exists():
+        return True
+    corpus_parts = [
+        read_text(repo / ".codex/plan.md"),
+        read_text(repo / ".codex/status.md"),
+        read_text(repo / ".codex/strategy.md"),
+        read_text(repo / ".codex/program-board.md"),
+        read_text(repo / ".codex/delivery-supervision.md"),
+        read_text(repo / "README.md"),
+        read_text(repo / "README.zh-CN.md"),
+        read_text(repo / "docs/roadmap.md"),
+        read_text(repo / "docs/roadmap.zh-CN.md"),
+    ]
+    docs_root = repo / "docs/reference"
+    if docs_root.exists():
+        for path in docs_root.rglob("*.md"):
+            corpus_parts.append(read_text(path))
+    lowered = "\n".join(part for part in corpus_parts if part).lower()
+    return any(keyword in lowered for keyword in WORKER_HANDOFF_EXPECTATION_KEYWORDS)
+
+
+def parse_worker_handoff(repo: Path) -> dict[str, Any]:
+    path = repo / ".codex/worker-handoff.md"
+    text = read_text(path)
+    if not text:
+        return {
+            "path": path,
+            "exists": False,
+            "expected": worker_handoff_expected(repo),
+            "direction": "n/a",
+            "status": "n/a",
+            "why_now": "n/a",
+            "contract": [],
+            "trigger_rows": [],
+            "source_rows": [],
+            "action_rows": [],
+            "queue_rows": [],
+            "escalation_rows": [],
+            "next_checks": [],
+        }
+
+    direction_block = section(text, "Current Handoff Direction")
+    return {
+        "path": path,
+        "exists": True,
+        "expected": True,
+        "direction": labeled_bullet_value(direction_block, "Direction") or "n/a",
+        "status": labeled_bullet_value(direction_block, "Status") or "n/a",
+        "why_now": labeled_bullet_value(direction_block, "Why Now") or first_line(direction_block) or "n/a",
+        "contract": normalized_bullets(section(text, "Worker Handoff Contract")),
+        "trigger_rows": parse_markdown_table(section(text, "Handoff Triggers")),
+        "source_rows": parse_markdown_table(section(text, "Recovery Sources")),
+        "action_rows": parse_markdown_table(section(text, "Re-entry Actions")),
+        "queue_rows": parse_markdown_table(section(text, "Queue / Return Rules")),
+        "escalation_rows": parse_markdown_table(section(text, "Human Escalation Boundary")),
+        "next_checks": normalized_bullets(section(text, "Next Handoff Checks")),
+    }
+
+
 def detect_automatic_architecture_review_trigger(context: str) -> tuple[str, str]:
     lowered = context.lower()
     for keywords, trigger, next_review in ARCHITECTURE_REVIEW_TRIGGER_GROUPS:
@@ -843,6 +1001,10 @@ def repo_capabilities(repo: Path) -> list[tuple[str, str]]:
         capabilities.append(("program-board", "程序编排层与 durable program board"))
     if (repo / ".codex/delivery-supervision.md").exists():
         capabilities.append(("delivery-supervision", "长期受监督交付层与 checkpoint rhythm"))
+    if (repo / ".codex/ptl-supervision.md").exists():
+        capabilities.append(("ptl-supervision", "PTL 监督环与持续巡检 contract"))
+    if (repo / ".codex/worker-handoff.md").exists():
+        capabilities.append(("worker-handoff", "worker 接续与回流 contract"))
     if (repo / ".codex/module-dashboard.md").exists():
         capabilities.append(("module-progress", "模块视角进展面板"))
     if (repo / "README.zh-CN.md").exists() and (repo / "docs/README.zh-CN.md").exists():
@@ -932,6 +1094,10 @@ def validate_repo(repo: Path) -> ValidationResult:
         required.append(".codex/program-board.md")
     if delivery_supervision_expected(repo):
         required.append(".codex/delivery-supervision.md")
+    if ptl_supervision_expected(repo):
+        required.append(".codex/ptl-supervision.md")
+    if worker_handoff_expected(repo):
+        required.append(".codex/worker-handoff.md")
     if tier == "large":
         required.append(".codex/module-dashboard.md")
 

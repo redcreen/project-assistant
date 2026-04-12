@@ -26,10 +26,10 @@ It answers one practical question:
 
 | Item | Current Value | Meaning |
 | --- | --- | --- |
-| Current Phase | `post-M12 mainline formalized; M13 active` | the formal route is now split into `M13 / M14 / M15` instead of “decide after rollout” |
-| Active Slice | `define-m13-m14-m15-post-m12-mainline` | the current documentation-level slice formalizing the post-M12 mainline |
-| Current Execution Line | turn post-M12 into the formal `M13 PTL supervision loop`, `M14 worker handoff and re-entry`, and `M15 selective multi-executor scheduling`, while explaining `worker handoff` in maintainer-readable language | What the repo is finishing now |
-| Validation | roadmap, README, development plan, the strategic direction doc, and the orchestration model all describe the same `M13 / M14 / M15` meaning; `deep` still passes | How this line proves itself before moving on |
+| Current Phase | `PTL supervision and worker handoff layers closed; M15 evidence collection queued` | `M13 / M14` are now durable capabilities rather than only roadmap names; the repo is now collecting cross-repo evidence to decide whether `M15` is actually needed |
+| Active Slice | `close-m13-and-m14-and-queue-m15-evidence` | the current line has already closed `M13 / M14` and switched the mainline to post-M14 evidence collection |
+| Current Execution Line | roll out the completed `PTL supervision loop` and `worker handoff and re-entry` on more repos, and prove that the PTL can durably catch and continue work after a worker stops | the current question is no longer “can we name M15,” but “should M15 exist at all” |
+| Validation | PTL supervision / worker handoff control surfaces, gates, progress, handoff, and docs all exist; `deep` and `release` still pass | How this line proves `M13 / M14` are closed while `M15` remains evidence-gated |
 
 ## Milestone Overview
 
@@ -47,8 +47,8 @@ It answers one practical question:
 | M10 | done | add a PTL-driven strategic-evaluation layer above execution and retrofit | M7 + approved strategic direction | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs instead of ad hoc intuition |
 | M11 | done | add a PTL-driven program-orchestration layer across multiple slices or workers | M10 + durable program board | stabilize the durable orchestration truth inside one Codex first; if multi-executor scheduling is needed later, create it as a separate milestone |
 | M12 | done | add PTL-driven supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue until a real business decision point |
-| M13 | active | add a PTL-driven supervision loop | M12 + durable delivery supervision | the PTL keeps watching delivery through periodic and event-driven checks instead of letting the project stop with the worker |
-| M14 | next | add worker handoff and re-entry | M13 + durable handoff / supervision truth | after checkpoints, timeouts, failures, or handoffs, unfinished work can still be resumed, reassigned, re-queued, or escalated |
+| M13 | done | add a PTL-driven supervision loop | M12 + durable delivery supervision | the PTL keeps watching delivery through periodic and event-driven checks instead of letting the project stop with the worker |
+| M14 | done | add worker handoff and re-entry | M13 + durable handoff / supervision truth | after checkpoints, timeouts, failures, or handoffs, unfinished work can still be resumed, reassigned, re-queued, or escalated |
 | M15 | later | add selective multi-executor scheduling | M14 + disjoint write scopes + conflict control | only safe parallel work enters multi-executor scheduling; tightly coupled work stays on one primary write line |
 
 ## Ordered Execution Queue
@@ -70,7 +70,8 @@ It answers one practical question:
 | 13 | `close-m10-and-queue-m11` | completed | turn M10 from “approved direction” into “scripts, gates, snapshots, and docs all agree”, then queue M11 as the next mainline | `validate_strategy_surface.py`, `progress / continue / handoff`, README, roadmap, development plan, and control truth all align; `deep` and `release` pass |
 | 14 | `close-m11-and-queue-m12` | completed | turn M11 from “program direction plus board sketch” into “program-board, gates, snapshots, and docs all agree”, then queue M12 as the next mainline | `validate_program_board.py`, `progress / continue / handoff`, README, roadmap, development plan, and control truth all align; `deep` and `release` pass |
 | 15 | `close-m12-and-open-rollout` | completed | turn M12 from “approved direction” into “delivery-supervision, gates, snapshots, and docs all agree”, then open rollout / friction collection as the next durable state | `validate_delivery_supervision.py`, `progress / continue / handoff`, README, roadmap, development plan, and control truth all align; `deep` and `release` pass |
-| 16 | `define-m13-m14-m15-post-m12-mainline` | current | formalize post-M12 into `M13 / M14 / M15` and explain the practical meaning of `worker handoff and re-entry` | roadmap, README, development plan, strategic direction doc, and orchestration model all align; `deep` passes |
+| 16 | `define-m13-m14-m15-post-m12-mainline` | completed | formalize post-M12 into `M13 / M14 / M15` and explain the practical meaning of `worker handoff and re-entry` | roadmap, README, development plan, strategic direction doc, and orchestration model all align; `deep` passes |
+| 17 | `close-m13-and-m14-and-queue-m15-evidence` | current | turn `M13 / M14` into durable PTL supervision / worker handoff control surfaces, gates, progress, and handoff, then switch the mainline into post-M14 evidence collection | `deep` and `release` pass; control truth, README, roadmap, development plan, and snapshots all show `M13 / M14 done` and `M15 evidence-gated later` |
 
 ## Milestone Details
 
@@ -186,7 +187,7 @@ It answers one practical question:
 
 | Item | Current Value |
 | --- | --- |
-| Status | active |
+| Status | done |
 | Goal | add a PTL-driven supervision loop |
 | Depends On | M12 + durable delivery supervision |
 | Exit Criteria | the PTL can inspect, continue, resequence, or escalate through periodic and event-driven checks instead of only appearing in chat |
@@ -195,7 +196,7 @@ It answers one practical question:
 
 | Item | Current Value |
 | --- | --- |
-| Status | next |
+| Status | done |
 | Goal | add worker handoff and re-entry |
 | Plain-Language Meaning | `when a worker stops, the project should not stop with it` |
 | Depends On | M13 + durable handoff / supervision truth |
@@ -214,13 +215,13 @@ It answers one practical question:
 
 | Next Move | Why |
 | --- | --- |
-| Continue from `define-m13-m14-m15-post-m12-mainline` onward | `M13` is now the next formal mainline; the next work should build the PTL supervision loop first, then worker handoff and re-entry, and only then consider selective multi-executor scheduling |
+| Continue from `close-m13-and-m14-and-queue-m15-evidence` onward | `M13 / M14` are complete; the next work is to roll out PTL supervision + worker handoff on more repos and use real evidence to decide whether `M15` deserves to exist |
 
 ## Strategic Direction
 
 | Topic | Scope | Current Position |
 | --- | --- | --- |
-| business-planning and program-orchestration layer | `project-assistant` has completed the PTL-centered `M10 / M11 / M12`; it now formally enters the post-M12 mainline of `M13 PTL supervision loop` and `M14 worker handoff and re-entry`, while `M15` remains an evidence-gated later layer and M8/M9 stay as supporting backlog under that line | active |
+| business-planning and program-orchestration layer | `project-assistant` has completed the PTL-centered `M10 / M11 / M12 / M13 / M14`; it is now in post-M14 evidence collection while `M15` remains an evidence-gated later layer and M8/M9 stay as supporting backlog under that line | active |
 
 Direction:
 

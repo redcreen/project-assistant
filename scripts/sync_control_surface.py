@@ -521,6 +521,10 @@ def main() -> int:
     subprocess.run([sys.executable, str(sync_program_script), str(repo)], check=True)
     sync_delivery_script = Path(__file__).resolve().parent / "sync_delivery_supervision.py"
     subprocess.run([sys.executable, str(sync_delivery_script), str(repo)], check=True)
+    sync_ptl_script = Path(__file__).resolve().parent / "sync_ptl_supervision.py"
+    subprocess.run([sys.executable, str(sync_ptl_script), str(repo)], check=True)
+    sync_handoff_script = Path(__file__).resolve().parent / "sync_worker_handoff.py"
+    subprocess.run([sys.executable, str(sync_handoff_script), str(repo)], check=True)
 
     print(f"tier: {tier}")
     print(f"official modules: {', '.join(official_modules) or '(none)'}")

@@ -17,8 +17,12 @@ from control_surface_lib import (
 
 def replace_section(text: str, heading: str, body: str) -> str:
     pattern = rf"(^## {re.escape(heading)}\n)(.*?)(?=^## |\Z)"
-    replacement = rf"\1{body.rstrip()}\n\n"
-    updated, count = re.subn(pattern, replacement, text, flags=re.MULTILINE | re.DOTALL)
+    updated, count = re.subn(
+        pattern,
+        lambda match: f"{match.group(1)}{body.rstrip()}\n\n",
+        text,
+        flags=re.MULTILINE | re.DOTALL,
+    )
     if count:
         return updated.rstrip() + "\n"
     return text.rstrip() + f"\n\n## {heading}\n{body.rstrip()}\n"
@@ -58,10 +62,10 @@ def orchestration_contract() -> list[str]:
 
 def active_workstreams_table() -> str:
     rows = [
-        ("control truth and gates", "保持 `.codex` 真相、门禁和 release 保护一致", "active", "P0", "把 strategy / program board / plan / status 维持在同一套真相上", "继续只允许一套 control truth"),
-        ("maintainer-facing outputs", "让 progress / continue / handoff 对维护者和未来接手者足够清楚", "active", "P0", "把程序编排状态直接暴露到第一屏输出", "继续压掉必须人工翻译的编排状态"),
-        ("docs and durable planning", "保持 README / roadmap / development-plan / strategy docs 对齐", "active", "P1", "让 M11 与 M12 的层次关系在 durable docs 里清楚可追", "只在里程碑切换时更新"),
-        ("supporting backlog routing", "管理 M8 / M9 这类 supporting backlog 议题，不让它们无计划回流主线", "active", "P1", "明确 supporting backlog 如何被重新吸收", "在 M12 前决定哪些继续保持 backlog"),
+        ("post-M14 evidence collection", "在更多仓库上 rollout PTL supervision + worker handoff，并记录是否真的需要 M15", "active", "P0", "采集 worker 停下后的真实接续摩擦、写入边界和回收口证据", "决定 M15 是否值得立项"),
+        ("control truth and gates", "保持 `.codex` 真相、门禁和 release 保护一致", "stable", "P1", "把 strategy / program board / plan / status / supervision surfaces 维持在同一套真相上", "继续只允许一套 control truth"),
+        ("maintainer-facing outputs", "让 progress / continue / handoff 对维护者和未来接手者足够清楚", "stable", "P1", "把 PTL supervision / worker handoff 状态直接暴露到第一屏输出", "只有 rollout 证据要求时再调整"),
+        ("supporting backlog routing", "管理 M8 / M9 这类 supporting backlog 议题，不让它们无计划回流主线", "active", "P1", "用 rollout 证据决定 M8 / M9 是否继续保持 backlog", "在没有证据前继续保持 backlog"),
     ]
     lines = ["| Workstream | Scope | State | Priority | Current Focus | Next Checkpoint |", "| --- | --- | --- | --- | --- | --- |"]
     lines.extend(f"| {a} | {b} | {c} | {d} | {e} | {f} |" for a, b, c, d, e, f in rows)
@@ -70,10 +74,10 @@ def active_workstreams_table() -> str:
 
 def sequencing_queue_table() -> str:
     rows = [
-        ("1", "control truth and gates", "define durable program-board structure and control-truth ownership", "supervisor", "done"),
-        ("2", "maintainer-facing outputs", "wire program-board summaries into progress / continue / handoff", "delivery worker", "done"),
-        ("3", "docs and durable planning", "align README / roadmap / development-plan with M11 and M12", "docs-and-release", "done"),
-        ("4", "supporting backlog routing", "keep M8 / M9 explicit as supporting backlog instead of accidental mainline work", "supervisor", "done"),
+        ("1", "post-M14 evidence collection", "carry PTL supervision + worker handoff onto more repos and record friction", "supervisor", "active"),
+        ("2", "control truth and gates", "keep supervision surfaces, plan, and status aligned while rollout evidence accumulates", "delivery worker", "active"),
+        ("3", "maintainer-facing outputs", "only refine progress / continue / handoff if rollout evidence shows maintainer confusion", "docs-and-release", "active"),
+        ("4", "supporting backlog routing", "decide whether M8 / M9 stay backlog or re-enter with evidence", "supervisor", "next"),
     ]
     lines = ["| Order | Workstream | Slice / Input | Executor | Status |", "| --- | --- | --- | --- | --- |"]
     lines.extend(f"| {a} | {b} | {c} | {d} | {e} |" for a, b, c, d, e in rows)
@@ -82,9 +86,9 @@ def sequencing_queue_table() -> str:
 
 def executor_inputs_table() -> str:
     rows = [
-        ("supervisor", "`.codex/strategy.md` + `.codex/program-board.md` + `.codex/status.md`", "定义 workstream 边界、调度顺序和升级点", "done"),
-        ("delivery worker", "active slice + execution tasks + validator outputs", "推进当前切片并保持与 program-board 对齐", "done"),
-        ("docs-and-release", "README + roadmap + development-plan + gate outputs", "保持 durable docs、发布说明和门禁一致", "done"),
+        ("supervisor", "`.codex/strategy.md` + `.codex/program-board.md` + `.codex/delivery-supervision.md` + `.codex/status.md`", "决定 rollout 证据怎么回流成 M15 判断或 backlog 调整", "active"),
+        ("delivery worker", "active slice + execution tasks + validator outputs", "推进当前 checkpoint 并保持与 program-board 对齐", "active"),
+        ("docs-and-release", "README + roadmap + development-plan + gate outputs", "保持 durable docs、发布说明和门禁一致", "active"),
     ]
     lines = ["| Executor | Current Input | Why It Exists | Status |", "| --- | --- | --- | --- |"]
     lines.extend(f"| {a} | {b} | {c} | {d} |" for a, b, c, d in rows)
@@ -117,9 +121,9 @@ def next_checks(repo: Path) -> list[str]:
     if existing:
         return existing
     return [
-        "为 M12 定义第一版受监督长跑交付的 checkpoint 节奏和自动升级规则。",
-        "选择第一条真正进入长期监督交付层的 workstream，而不是继续停在编排演示层。",
-        "继续确认 M8 / M9 是否保持在 supporting backlog，而不是被无计划地拉回主线。",
+        "在更多 medium / large 仓库上使用完整的 PTL supervision + worker handoff 模型，并记录真实接续摩擦。",
+        "继续确认 `M8 / M9` 是否保持在 supporting backlog，而不是被无计划地拉回主线。",
+        "只有当 cross-repo 证据证明单 Codex PTL 模式成为瓶颈时，才提 `M15`。",
     ]
 
 
@@ -191,6 +195,7 @@ def main() -> int:
         return 0
 
     rendered = render_program_board(repo)
+    always_refresh = {"Current Program Direction", "Next Orchestration Checks"}
     for heading in [
         "Current Program Direction",
         "Program Orchestration Contract",
@@ -202,7 +207,7 @@ def main() -> int:
         "Next Orchestration Checks",
     ]:
         body = section(rendered, heading)
-        if not section(text, heading).strip():
+        if heading in always_refresh or not section(text, heading).strip():
             text = replace_section(text, heading, body)
     path.write_text(text.rstrip() + "\n", encoding="utf-8")
     print(".codex/program-board.md")

@@ -15,9 +15,9 @@ Detailed execution queue:
 
 | Horizon | Focus | Exit Signal |
 | --- | --- | --- |
-| Now | build `M13 PTL supervision loop` so the PTL can keep watching delivery through periodic and event-driven checks instead of disappearing between chats | PTL supervision rhythm, trigger points, and escalation timing become durable control truth and real gates |
-| Next | build `M14 worker handoff and re-entry` so work can be caught, resumed, reassigned, or re-queued after a worker stops at a checkpoint, timeout, failure, or handoff | when a worker stops, the project still moves through durable truth instead of waiting for manual babysitting |
-| Later | build `M15 selective multi-executor scheduling` only when rollout evidence and disjoint write scopes both justify true parallel execution | only safe parallel tasks may enter the multi-executor layer; otherwise keep a single primary write line |
+| Now | roll out the completed `M13 PTL supervision loop` and `M14 worker handoff and re-entry` on more repos, and record real worker-stop / re-entry friction | PTL supervision and worker handoff keep proving “the project does not stop with the worker” on real repos |
+| Next | start `M15 selective multi-executor scheduling` only if cross-repo evidence proves the single-Codex PTL model is now the bottleneck | disjoint write scopes, merge paths, and conflict gates must be real, not assumed |
+| Later | if evidence stays weak, keep the single-Codex PTL model and hold `M15` as a later layer | do not introduce multi-executor complexity just because it sounds stronger |
 
 ## Milestones
 
@@ -40,8 +40,8 @@ Detailed execution queue:
 | [M10](reference/project-assistant/development-plan.md#m10) | done | add a strategic-evaluation layer above execution and retrofit | [M7](reference/project-assistant/development-plan.md#m7) + approved strategic direction | the system can produce durable strategy judgments, track when governance/architecture tracks should be inserted, and keep business-direction changes gated to humans |
 | [M11](reference/project-assistant/development-plan.md#m11) | done | add a program-orchestration layer across multiple slices or workers | [M10](reference/project-assistant/development-plan.md#m10) + durable program board | the system can coordinate multiple related slices without constant human continuation prompts |
 | [M12](reference/project-assistant/development-plan.md#m12) | done | add supervised long-run delivery | [M11](reference/project-assistant/development-plan.md#m11) + stable escalation policy | long-running delivery can continue until a real business decision point instead of stopping for routine steering |
-| [M13](reference/project-assistant/development-plan.md#m13) | active | add a PTL supervision loop so the project keeps a standing technical lead even after a worker stops | [M12](reference/project-assistant/development-plan.md#m12) + durable delivery supervision | the PTL can inspect, continue, re-sequence, or escalate through periodic and event-driven checks without relying on repeated human continuation prompts |
-| [M14](reference/project-assistant/development-plan.md#m14) | next | add worker handoff and re-entry so unfinished work can be resumed, reassigned, or re-queued instead of dying with the worker | [M13](reference/project-assistant/development-plan.md#m13) + durable handoff / supervision truth | after a checkpoint, timeout, failure, or handoff, the remaining work still has a durable path forward |
+| [M13](reference/project-assistant/development-plan.md#m13) | done | add a PTL supervision loop so the project keeps a standing technical lead even after a worker stops | [M12](reference/project-assistant/development-plan.md#m12) + durable delivery supervision | the PTL can inspect, continue, re-sequence, or escalate through periodic and event-driven checks without relying on repeated human continuation prompts |
+| [M14](reference/project-assistant/development-plan.md#m14) | done | add worker handoff and re-entry so unfinished work can be resumed, reassigned, or re-queued instead of dying with the worker | [M13](reference/project-assistant/development-plan.md#m13) + durable handoff / supervision truth | after a checkpoint, timeout, failure, or handoff, the remaining work still has a durable path forward |
 | [M15](reference/project-assistant/development-plan.md#m15) | later | add selective multi-executor scheduling only for safe parallel work | [M14](reference/project-assistant/development-plan.md#m14) + disjoint write scopes + conflict control | true parallel execution is only allowed when write boundaries, merge paths, and conflict gates are explicit |
 
 ## Milestone Flow
@@ -80,7 +80,7 @@ flowchart LR
 
 | Topic | Why It Matters | Current Position |
 | --- | --- | --- |
-| business planning and program orchestration | `project-assistant` has now closed the PTL-centered `M10 / M11 / M12`, and has formally moved into `M13 PTL supervision loop` and `M14 worker handoff and re-entry`; `M15` remains an evidence-gated later layer, while M8/M9 remain bounded supporting backlog topics | active in roadmap and development plan |
+| business planning and program orchestration | `project-assistant` has now closed the PTL-centered `M10 / M11 / M12 / M13 / M14`; it is now in post-M14 evidence collection while `M15` stays an evidence-gated later layer, and M8/M9 remain bounded supporting backlog topics | active in roadmap and development plan |
 
 Direction document:
 

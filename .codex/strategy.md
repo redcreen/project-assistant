@@ -1,10 +1,9 @@
 # Strategy
 
 ## Current Strategic Direction
-
 - Direction: `strategic evaluation layer`
-- Status: `done`
-- Why Now: 执行层、整改层、文档治理层和恢复层已经基本成形，当前最大的缺口转成“项目后续怎么走、何时插专项、何时调整路线”的更高层判断
+- Status: `active`
+- Why Now: 收口 M13 PTL 监督环与 M14 worker 接续层，把 PTL supervision 和 worker handoff / re-entry 都沉淀成 durable 控制面、门禁与维护者展示，并把下一步切到“是否真的需要 M15”的证据采集，而不是直接承诺多执行器
 
 ## What This Layer Owns
 
@@ -37,7 +36,6 @@
   - strategic carryover decisions for M8 / M9
 
 ## Next Strategic Checks
-
 1. 在 rollout / dogfooding 过程中继续要求战略判断引用 durable repo 证据，而不是只凭聊天感受。
 2. 当 cross-repo adoption 摩擦重复出现时，再决定是否要插新的治理 / 架构专项或新里程碑。
 3. 继续确认 `M8 / M9` 是否保持在 supporting backlog，而不是在没有证据的情况下被拉回主线。

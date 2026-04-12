@@ -26,10 +26,10 @@
 
 | 项目 | 当前值 | 说明 |
 | --- | --- | --- |
-| 当前阶段 | `post-M12 mainline formalized; M13 active` | 当前正式路线已经从“rollout 后再看”切成 `M13 / M14 / M15` |
-| 当前切片 | `define-m13-m14-m15-post-m12-mainline` | 当前这轮在文档层收口 post-M12 正式主线定义 |
-| 当前执行线 | 把 post-M12 正式写成 `M13 PTL 监督环`、`M14 worker 接续与回流`、`M15 选择性多执行器调度`，并把 `worker 接续` 的含义写成人类维护者能直接理解的 durable 文档 | 当前这轮真正收口的工作 |
-| 当前验证 | roadmap、README、development plan、战略文档与编排模型对 `M13 / M14 / M15` 给出同一套定义；`deep` 继续通过 | 继续前如何证明这条线已收口 |
+| 当前阶段 | `PTL supervision and worker handoff layers closed; M15 evidence collection queued` | `M13 / M14` 已经从路线图方向收口成 durable 能力；当前在收集跨 repo 证据，判断 `M15` 是否真的需要 |
+| 当前切片 | `close-m13-and-m14-and-queue-m15-evidence` | 当前这轮已经把 `M13 / M14` 关完，并把主线切到 post-M14 证据采集 |
+| 当前执行线 | 在更多 repo 上 rollout 已完成的 `PTL 监督环` 与 `worker 接续与回流`，确认 worker 停下后项目仍能被 PTL durable 地接住并继续 | 当前这轮真正要验证的不是“能不能命名 M15”，而是“要不要真的做 M15” |
+| 当前验证 | PTL supervision / worker handoff 的控制面、门禁、进展、交接和文档都成立；`deep` 与 `release` 继续通过 | 继续前如何证明 `M13 / M14` 已收口，且 `M15` 仍保持 evidence-gated |
 
 ## 阶段总览
 
@@ -47,8 +47,8 @@
 | M10 | done | 增加由项目技术负责人（PTL）驱动的战略评估层 | M7 + 已批准的战略方向 | roadmap / 治理 / 架构调整建议成为 durable、可 review 的战略输出，而不是零散直觉 |
 | M11 | done | 增加由项目技术负责人（PTL）驱动的程序编排层 | M10 + durable program board | 先把单 Codex 的 durable 编排真相层稳定下来；如果未来需要多执行器调度，再单独立项 |
 | M12 | done | 增加由项目技术负责人（PTL）驱动的受监督长期交付层 | M11 + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点 |
-| M13 | active | 增加由项目技术负责人（PTL）驱动的监督环 | M12 + durable delivery supervision | PTL 通过周期性 / 事件驱动监督继续盯住项目推进，而不是让 worker 停下后项目也停住 |
-| M14 | next | 增加 worker 接续与回流 | M13 + durable handoff / supervision truth | worker 在 checkpoint、超时、失败或交接后，剩余工作仍能被恢复、转交、回队列或升级 |
+| M13 | done | 增加由项目技术负责人（PTL）驱动的监督环 | M12 + durable delivery supervision | PTL 通过周期性 / 事件驱动监督继续盯住项目推进，而不是让 worker 停下后项目也停住 |
+| M14 | done | 增加 worker 接续与回流 | M13 + durable handoff / supervision truth | worker 在 checkpoint、超时、失败或交接后，剩余工作仍能被恢复、转交、回队列或升级 |
 | M15 | later | 增加选择性多执行器调度 | M14 + 不相交写入边界 + 冲突控制 | 只有安全并行任务才进入多执行器；高耦合任务继续保持单主写入线 |
 
 ## 顺序执行队列
@@ -70,7 +70,8 @@
 | 13 | `close-m10-and-queue-m11` | 已完成 | 把 M10 从“方向成立”收口成“脚本、门禁、展示、文档都成立”，并明确把 M11 排成下一条主线 | `validate_strategy_surface.py`、`progress / continue / handoff`、README、roadmap、development plan 和控制面都对齐；`deep` 与 `release` 通过 |
 | 14 | `close-m11-and-queue-m12` | 已完成 | 把 M11 从“有方向和草图”收口成“program-board、门禁、展示、文档都成立”，并明确把 M12 排成下一条主线 | `validate_program_board.py`、`progress / continue / handoff`、README、roadmap、development plan 和控制面都对齐；`deep` 与 `release` 通过 |
 | 15 | `close-m12-and-open-rollout` | 已完成 | 把 M12 从“方向已批准”收口成“delivery-supervision、门禁、展示、文档都成立”，并把后续状态切到 rollout / 摩擦采集 | `validate_delivery_supervision.py`、`progress / continue / handoff`、README、roadmap、development plan 和控制面都对齐；`deep` 与 `release` 通过 |
-| 16 | `define-m13-m14-m15-post-m12-mainline` | 当前 | 把 post-M12 正式写成 `M13 / M14 / M15`，并明确 `worker 接续与回流` 的人话定义和边界 | roadmap、README、development plan、战略文档与编排模型都对齐；`deep` 通过 |
+| 16 | `define-m13-m14-m15-post-m12-mainline` | 已完成 | 把 post-M12 正式写成 `M13 / M14 / M15`，并明确 `worker 接续与回流` 的人话定义和边界 | roadmap、README、development plan、战略文档与编排模型都对齐；`deep` 通过 |
+| 17 | `close-m13-and-m14-and-queue-m15-evidence` | 当前 | 把 `M13 / M14` 真正收口成 PTL supervision / worker handoff 的 durable 控制面、门禁、进展与交接，并把主线切到 post-M14 证据采集 | `deep` 与 `release` 通过；控制面、README、roadmap、development plan 与进展输出都显示 `M13 / M14 done`、`M15 evidence-gated later` |
 
 ## 里程碑细节
 
@@ -186,7 +187,7 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | active |
+| 当前状态 | done |
 | 目标 | 增加由项目技术负责人（PTL）驱动的监督环 |
 | 依赖 | M12 + durable delivery supervision |
 | 退出条件 | PTL 能周期性 / 事件驱动地巡检、继续、重排或升级，而不是只在聊天里偶尔出现 |
@@ -195,7 +196,7 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | next |
+| 当前状态 | done |
 | 目标 | 增加 worker 接续与回流 |
 | 人话解释 | `worker 停了，项目不能跟着停` |
 | 依赖 | M13 + durable handoff / supervision truth |
@@ -214,13 +215,13 @@
 
 | 下一步 | 为什么做 |
 | --- | --- |
-| 继续从 `define-m13-m14-m15-post-m12-mainline` 之后恢复 | `M13` 已成为下一条正式主线；接下来先做 PTL 监督环，再做 worker 接续与回流，最后才考虑选择性多执行器调度 |
+| 继续从 `close-m13-and-m14-and-queue-m15-evidence` 之后恢复 | `M13 / M14` 已完成；下一步是在更多 repo 上 rollout PTL supervision + worker handoff，并根据真实证据判断 `M15` 是否值得立项 |
 
 ## 战略方向
 
 | 主题 | 范围 | 当前位置 |
 | --- | --- | --- |
-| 业务规划与程序编排层 | `project-assistant` 已完成以项目技术负责人（PTL）为核心的 `M10 / M11 / M12`；当前正式进入 `M13 PTL 监督环` 与 `M14 worker 接续与回流` 的 post-M12 主线；`M15` 继续保持为证据驱动的后续层，M8/M9 仍作为 supporting backlog 挂在这条主线之下 | active |
+| 业务规划与程序编排层 | `project-assistant` 已完成以项目技术负责人（PTL）为核心的 `M10 / M11 / M12 / M13 / M14`；当前进入 post-M14 证据采集，并继续把 `M15` 保持为证据驱动的后续层，M8/M9 仍作为 supporting backlog 挂在这条主线之下 | active |
 
 方向文档：
 

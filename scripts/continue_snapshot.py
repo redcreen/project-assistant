@@ -14,8 +14,10 @@ from control_surface_lib import (
     labeled_bullet_value,
     normalized_bullets,
     parse_delivery_supervision,
+    parse_ptl_supervision,
     parse_program_board,
     parse_strategy_surface,
+    parse_worker_handoff,
     parse_tier,
     read_text,
     section,
@@ -82,6 +84,24 @@ def zh_delivery_status(status: str) -> str:
     }.get(status.lower(), humanize_text(status))
 
 
+def zh_ptl_status(status: str) -> str:
+    return {
+        "active": "活跃",
+        "done": "已完成",
+        "next": "下一阶段",
+        "later": "更后面",
+    }.get(status.lower(), humanize_text(status))
+
+
+def zh_handoff_status(status: str) -> str:
+    return {
+        "active": "活跃",
+        "done": "已完成",
+        "next": "下一阶段",
+        "later": "更后面",
+    }.get(status.lower(), humanize_text(status))
+
+
 def humanize_text(text: str) -> str:
     return pretty_text_zh(text)
 
@@ -116,6 +136,8 @@ def main() -> int:
     strategy_state = parse_strategy_surface(repo)
     program_state = parse_program_board(repo)
     delivery_state = parse_delivery_supervision(repo)
+    ptl_state = parse_ptl_supervision(repo)
+    handoff_state = parse_worker_handoff(repo)
     execution_tasks = execution_task_lines(status_text)
     done_tasks, total_tasks = execution_task_progress(execution_tasks)
     next_actions = bullet_lines(section(status_text, "Next 3 Actions"))
@@ -147,6 +169,14 @@ def main() -> int:
         print(f"| 长期交付方向 | {humanize_text(delivery_state['direction'])} |")
         print(f"| 长期交付状态 | `{zh_delivery_status(delivery_state['status'])}` |")
         print(f"| 下一长期交付检查 | {humanize_text(delivery_state['next_checks'][0]) if delivery_state['next_checks'] else '暂无'} |")
+    if ptl_state["exists"]:
+        print(f"| PTL 监督方向 | {humanize_text(ptl_state['direction'])} |")
+        print(f"| PTL 监督状态 | `{zh_ptl_status(ptl_state['status'])}` |")
+        print(f"| 下一 PTL 检查 | {humanize_text(ptl_state['next_checks'][0]) if ptl_state['next_checks'] else '暂无'} |")
+    if handoff_state["exists"]:
+        print(f"| worker 接续方向 | {humanize_text(handoff_state['direction'])} |")
+        print(f"| worker 接续状态 | `{zh_handoff_status(handoff_state['status'])}` |")
+        print(f"| 下一 handoff 检查 | {humanize_text(handoff_state['next_checks'][0]) if handoff_state['next_checks'] else '暂无'} |")
     print(f"| 当前主要风险 | {humanize_text(first_risk(status_text))} |")
     print("| 完整看板 | `项目助手 进展` / `project assistant progress` |")
 

@@ -17,8 +17,12 @@ from control_surface_lib import (
 
 def replace_section(text: str, heading: str, body: str) -> str:
     pattern = rf"(^## {re.escape(heading)}\n)(.*?)(?=^## |\Z)"
-    replacement = rf"\1{body.rstrip()}\n\n"
-    updated, count = re.subn(pattern, replacement, text, flags=re.MULTILINE | re.DOTALL)
+    updated, count = re.subn(
+        pattern,
+        lambda match: f"{match.group(1)}{body.rstrip()}\n\n",
+        text,
+        flags=re.MULTILINE | re.DOTALL,
+    )
     if count:
         return updated.rstrip() + "\n"
     return text.rstrip() + f"\n\n## {heading}\n{body.rstrip()}\n"
@@ -184,6 +188,7 @@ def main() -> int:
         return 0
 
     rendered = render_strategy(repo)
+    always_refresh = {"Current Strategic Direction", "Next Strategic Checks"}
     for heading in [
         "Current Strategic Direction",
         "Strategy Evidence Contract",
@@ -194,7 +199,7 @@ def main() -> int:
         "Next Strategic Checks",
     ]:
         body = section(rendered, heading)
-        if not section(text, heading).strip():
+        if heading in always_refresh or not section(text, heading).strip():
             text = replace_section(text, heading, body)
     path.write_text(text.rstrip() + "\n", encoding="utf-8")
     print(".codex/strategy.md")

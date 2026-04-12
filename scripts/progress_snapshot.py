@@ -15,8 +15,10 @@ from control_surface_lib import (
     first_line,
     labeled_bullet_value,
     parse_delivery_supervision,
+    parse_ptl_supervision,
     parse_program_board,
     parse_strategy_surface,
+    parse_worker_handoff,
     parse_official_modules,
     parse_tier,
     primary_human_windows,
@@ -76,6 +78,7 @@ MEDIUM_SLICE_EXPLANATIONS = {
     "post-hardening feature follow-on": "在架构加固完成后推进下一条功能增强",
     "tighten-maintainer-facing-narrative-and-architecture-triggers": "把 progress / continue / handoff 改得更像给维护者看，并把架构升级触发变成自动信号",
     "evaluate-locale-aware-internal-output": "评估哪些内部控制面输出应该按语言优化，减少中文工作流里的冗余英文",
+    "close-m13-and-m14-and-queue-m15-evidence": "收口 PTL 监督环与 worker 接续层，并开始判断是否真的需要 M15 多执行器层",
 }
 
 MEDIUM_SLICE_VALUE = {
@@ -89,6 +92,7 @@ MEDIUM_SLICE_VALUE = {
     "post-hardening feature follow-on": "让项目从补结构切回有价值的功能增强。",
     "tighten-maintainer-facing-narrative-and-architecture-triggers": "让维护者回来接手时更少需要翻译，并让架构纠偏更早自动暴露。",
     "evaluate-locale-aware-internal-output": "让中文优先工作流更短、更顺手，同时不牺牲公开文档双语和 AI 恢复精度。",
+    "close-m13-and-m14-and-queue-m15-evidence": "让 PTL 监督环和 worker 接续都变成 durable 真相，并把是否需要 M15 交给后续证据来决定。",
 }
 
 TERM_CATALOG = {
@@ -130,12 +134,16 @@ EXACT_TEXT_MAP = {
     "program orchestration layer closed; m12 queued": "程序编排层已收口；M12 启动已排队",
     "supervised long-run delivery": "长期受监督交付层",
     "supervised long-run delivery layer closed; rollout queued": "长期受监督交付层已收口；rollout 已排队",
+    "ptl supervision loop": "PTL 监督环",
+    "worker handoff and re-entry": "worker 接续与回流",
+    "ptl supervision and worker handoff layers closed; m15 evidence collection queued": "PTL 监督环与 worker 接续层已收口；M15 证据采集已排队",
     "strategic evaluation layer foundation": "战略评估层基线",
     "strategic evaluation layer closed; m11 kickoff queued": "战略评估层已收口；M11 启动已排队",
     "establish-strategy-surface-and-review-contract": "建立战略面与 review contract",
     "close-m10-and-queue-m11": "关闭 M10 并排队 M11",
     "close-m11-and-queue-m12": "关闭 M11 并排队 M12",
     "close-m12-and-open-rollout": "关闭 M12 并打开 rollout",
+    "close-m13-and-m14-and-queue-m15-evidence": "关闭 M13 / M14 并排队 M15 证据采集",
     "activate-program-board-and-orchestration-boundary": "激活 program-board 与程序编排边界",
     "define-strategy-evidence-and-review-contract": "定义战略证据与 review contract",
     "activate-m10-strategic-evaluation-layer": "激活 M10 战略评估层",
@@ -1055,6 +1063,26 @@ def delivery_status_zh(status: str) -> str:
     }.get(status.lower(), pretty_text_zh(status))
 
 
+def ptl_status_zh(status: str) -> str:
+    return {
+        "active": "活跃",
+        "stable": "稳定",
+        "done": "已完成",
+        "next": "下一阶段",
+        "later": "更后面",
+    }.get(status.lower(), pretty_text_zh(status))
+
+
+def handoff_status_zh(status: str) -> str:
+    return {
+        "active": "活跃",
+        "stable": "稳定",
+        "done": "已完成",
+        "next": "下一阶段",
+        "later": "更后面",
+    }.get(status.lower(), pretty_text_zh(status))
+
+
 def compact_strategy_items(items: list[str], limit: int = 2) -> str:
     if not items:
         return "暂无"
@@ -1148,6 +1176,41 @@ def render_delivery_view(repo: Path) -> None:
             )
 
 
+def render_ptl_view(repo: Path) -> None:
+    ptl = parse_ptl_supervision(repo)
+    if not ptl["exists"]:
+        return
+    print("\n## PTL 监督视角")
+    print("| 维度 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 当前 PTL 方向 | {pretty_text_zh(ptl['direction'])} |")
+    print(f"| 当前状态 | `{ptl_status_zh(ptl['status'])}` |")
+    print(f"| 为什么现在做 | {pretty_text_zh(ptl['why_now'])} |")
+    print(f"| 监督触发 | {compact_program_rows(ptl['trigger_rows'], 'Trigger')} |")
+    print(f"| 常驻职责 | {compact_program_rows(ptl['responsibility_rows'], '角色')} |")
+    print(f"| 继续 / 重排 / 升级矩阵 | {compact_program_rows(ptl['matrix_rows'], '情况')} |")
+    print(f"| 当前监督检查 | {compact_program_rows(ptl['check_rows'], '检查项')} |")
+    print(f"| 下一 PTL 检查 | {compact_strategy_items(ptl['next_checks'])} |")
+
+
+def render_handoff_view(repo: Path) -> None:
+    handoff = parse_worker_handoff(repo)
+    if not handoff["exists"]:
+        return
+    print("\n## Worker 接续视角")
+    print("| 维度 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 当前 handoff 方向 | {pretty_text_zh(handoff['direction'])} |")
+    print(f"| 当前状态 | `{handoff_status_zh(handoff['status'])}` |")
+    print(f"| 为什么现在做 | {pretty_text_zh(handoff['why_now'])} |")
+    print(f"| handoff 触发 | {compact_program_rows(handoff['trigger_rows'], 'Trigger')} |")
+    print(f"| 恢复源 | {compact_program_rows(handoff['source_rows'], '恢复源')} |")
+    print(f"| 接续动作 | {compact_program_rows(handoff['action_rows'], 'PTL 动作')} |")
+    print(f"| 回流规则 | {compact_program_rows(handoff['queue_rows'], '情况')} |")
+    print(f"| 升级边界 | {compact_program_rows(handoff['escalation_rows'], '情况')} |")
+    print(f"| 下一 handoff 检查 | {compact_strategy_items(handoff['next_checks'])} |")
+
+
 def large_project_judgement_zh(phase_display: str, active_module: str, active_slice_display: str) -> str:
     slice_phrase = active_slice_display
     if slice_phrase.startswith("推进"):
@@ -1215,7 +1278,10 @@ def render_medium_progress(
     next_step_nature = "进入下一条 post-hardening feature slice" if line_complete else "继续当前增强切片并收口任务板"
     if is_skill_repo(repo):
         lowered_phase = current_phase.lower()
-        if "supervised long-run delivery" in lowered_phase or "rollout" in lowered_phase:
+        if "ptl supervision" in lowered_phase or "worker handoff" in lowered_phase or "m15" in lowered_phase:
+            execution_line_note = "当前这轮已经完成，下一步转向 post-M14 证据采集，并判断是否真的需要 M15 多执行器层" if line_complete else "当前这轮正在推进，下面的任务板就是本轮收口内容"
+            next_step_nature = "进入 post-M14 证据采集；M15 继续保持证据驱动 later 层" if line_complete else "继续当前 PTL 监督或 worker 接续切片并收口任务板"
+        elif "supervised long-run delivery" in lowered_phase or "rollout" in lowered_phase:
             execution_line_note = "当前这轮已经完成，下一步转向 rollout / 试跑与摩擦采集" if line_complete else "当前这轮正在推进，下面的任务板就是本轮收口内容"
             next_step_nature = "进入 rollout / 试跑与摩擦采集" if line_complete else "继续当前长期受监督交付切片并收口任务板"
         elif "program orchestration" in lowered_phase or "m12" in lowered_phase:
@@ -1283,6 +1349,8 @@ def render_medium_progress(
     render_strategy_view(repo)
     render_program_view(repo)
     render_delivery_view(repo)
+    render_ptl_view(repo)
+    render_handoff_view(repo)
 
     glossary_rows = relevant_terms(repo, active_slice, current_execution_line, readme_capabilities)
     if glossary_rows:
@@ -1465,6 +1533,8 @@ def render_large_progress(
     render_strategy_view(repo)
     render_program_view(repo)
     render_delivery_view(repo)
+    render_ptl_view(repo)
+    render_handoff_view(repo)
 
     if readme_capabilities or phase_capabilities:
         readme_path = preferred_existing_path(repo, ["README.zh-CN.md", "README.md"])

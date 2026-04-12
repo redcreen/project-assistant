@@ -10,7 +10,7 @@
 - 程序编排
 - 受监督的长期自动交付
 
-这个方向现在已经进入正式路线图。`M10` 战略评估层、`M11` 程序编排层和 `M12` 受监督的长期自动交付层都已经完成；`M13 PTL 监督环` 已成为下一条正式主线，`M14 worker 接续与回流` 已排成下一条接续里程碑，`M15 选择性多执行器调度` 保持在更后面的证据驱动层；`M8 / M9` 继续作为这条方向下的 supporting backlog。
+这个方向现在已经进入正式路线图。`M10` 战略评估层、`M11` 程序编排层、`M12` 受监督的长期自动交付层、`M13 PTL 监督环` 和 `M14 worker 接续与回流` 都已经完成；当前进入 post-M14 证据采集，用真实 repo 证据判断 `M15 选择性多执行器调度` 是否真的需要；`M8 / M9` 继续作为这条方向下的 supporting backlog。
 
 这里默认把负责这三层长期推进与升级判断的角色统一叫作：
 
@@ -149,8 +149,8 @@ PTL 在这里的角色不是产品 owner，也不是组织级 CTO。它更像一
 2. 它不能在没有人类批准的情况下自动改变业务方向、兼容性承诺或对外定位。
 3. `M8` 的 locale-aware internal output 与 `M9` 的 continue 压缩，现在都转成 `M10` 下的 supporting backlog，而不是继续占用主线里程碑。
 4. `M11` 已经把 durable program board、编排边界和维护者展示收口完成；`M12` 也已经把长期监督交付层收口成 durable `delivery-supervision` 面。
-5. `M13 / M14 / M15` 现在已经被正式命名：先做 PTL 监督环，再做 worker 接续与回流，最后才考虑选择性多执行器调度。
-6. `M15` 仍是受证据约束的后续层：如果任务没有不相交写入边界，就不应进入多执行器调度。
+5. `M13` 与 `M14` 已经收口成 durable 的 `PTL supervision` 与 `worker handoff` 控制面、门禁、进展与交接。
+6. `M15` 仍是受证据约束的后续层：如果任务没有不相交写入边界，或跨 repo rollout 没证明单 Codex PTL 模式已成瓶颈，就不应进入多执行器调度。
 
 ## Post-M12 正式主线
 
@@ -161,6 +161,7 @@ PTL 在这里的角色不是产品 owner，也不是组织级 CTO。它更像一
 | 目标 | 让项目技术负责人（PTL）不再只在聊天里被动出现，而是通过周期性 / 事件驱动的监督环持续盯住项目推进 |
 | 产物 | durable 的 PTL supervision loop：它知道什么时候巡检、什么时候继续、什么时候重排、什么时候升级 |
 | 人类角色 | 仍然只在业务方向变化、重大取舍或兼容性边界变化时介入 |
+| 当前状态 | 已完成，并已沉淀为 `.codex/ptl-supervision.md`、对应 sync / validate 脚本，以及 `progress / continue / handoff` 里的 PTL 监督摘要 |
 | 退出条件 | worker 停下后，项目不会一起停住；PTL 能继续推动项目到下一个 checkpoint 或裁决点 |
 
 ### M14：worker 接续与回流
@@ -171,6 +172,7 @@ PTL 在这里的角色不是产品 owner，也不是组织级 CTO。它更像一
 | 人话解释 | `worker 停了，项目不能跟着停` |
 | 产物 | durable 的 handoff / re-entry contract：它表达剩余任务、恢复入口、回流规则和升级条件 |
 | 人类角色 | 只在接续过程中暴露业务方向、兼容性或成本边界变化时介入 |
+| 当前状态 | 已完成，并已沉淀为 `.codex/worker-handoff.md`、对应 sync / validate 脚本，以及 `progress / continue / handoff` 里的 handoff 摘要 |
 | 退出条件 | worker 不再是“停下就丢活”；项目能通过 PTL 把未完成工作接住并继续 |
 
 ### M15：选择性多执行器调度
@@ -180,4 +182,5 @@ PTL 在这里的角色不是产品 owner，也不是组织级 CTO。它更像一
 | 目标 | 只对安全并行任务开放真正的多执行器调度 |
 | 产物 | 明确的 executor assignment、write-scope contract、结果回收口和冲突门禁 |
 | 人类角色 | 审批明显扩大成本、复杂度或外部影响的调度层扩张 |
+| 当前状态 | 仍保持 later / evidence-gated；只有在更多 repo 上证明单 Codex PTL 模式真的成为瓶颈时，才进入实现 |
 | 退出条件 | 只有边界清楚、冲突可控的任务才进入多执行器；高耦合任务继续保持单主写入线 |

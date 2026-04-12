@@ -20,7 +20,7 @@
 | 人类仍然负责 | 业务方向、产品优先级、兼容性承诺和重大取舍 |
 | 默认工作模型 | 人类给方向；`project-assistant` 负责规划、执行、验证、更新状态，并只在需要判断时升级给人类 |
 | 关键常驻角色 | 项目技术负责人（PTL）：在已批准业务方向内负责战略判断、程序编排、长期交付监督和升级 |
-| 当前战略方向 | `M10 / M11 / M12` 已完成；接下来正式进入 `M13 PTL 监督环`、`M14 worker 接续与回流`，并把 `M15 选择性多执行器调度` 保持在更后面的证据驱动层 |
+| 当前战略方向 | `M10 / M11 / M12 / M13 / M14` 已完成；当前进入 post-M14 证据采集，用真实 repo 证据判断 `M15 选择性多执行器调度` 是否真的需要 |
 | 程序编排层当前边界 | 先把“单 Codex 内的 durable 编排真相层”和“worker 停下后项目不断线”做稳定；多桌面 Codex / 多执行器自动调度仍属于后续能力 |
 | `M14` 人话解释 | `worker 停了，项目不能跟着停` |
 
@@ -28,9 +28,9 @@
 
 | 时间层级 | 重点 |
 | --- | --- |
-| 当前 | 做 `M13 PTL 监督环`：让 PTL 以周期性 / 事件驱动的方式持续盯项目，而不是只在聊天里偶尔出现 |
-| 下一步 | 做 `M14 worker 接续与回流`：让 worker 在 checkpoint、超时、失败或交接后，项目仍能被 PTL 接住并继续推进 |
-| 更后面 | 做 `M15 选择性多执行器调度`：只有当 rollout 证据和不相交写入边界都成立时，才引入真正多执行器 |
+| 当前 | 在更多 repo 上 rollout 已完成的 `M13 PTL 监督环` 与 `M14 worker 接续与回流`，确认 worker 停下后项目仍能被 PTL durable 地接住并继续 |
+| 下一步 | 根据 cross-repo 证据判断是否真的需要 `M15 选择性多执行器调度` |
+| 更后面 | 只有当证据显示单 Codex PTL 模式已经成为瓶颈，且不相交写入边界成立时，才引入真正多执行器 |
 | 战略入口 | [业务规划与程序编排方向](docs/reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md) |
 
 ## 安装
@@ -103,7 +103,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 把 PTL 的战略评估沉淀成 `.codex/strategy.md`，并区分“系统可以自动建议什么”和“必须人类审批什么”
 - 把 PTL 的程序编排沉淀成 `.codex/program-board.md`，并显式表达 workstreams、排序、并行边界和执行器输入；当前先面向单 Codex 总协调模式
 - 把 PTL 的长期受监督交付沉淀成 `.codex/delivery-supervision.md`，并显式表达 checkpoint 节奏、自动继续边界、升级时机和 backlog 回流规则
-- 把 PTL 监督环、worker 接续与回流，以及多执行器进入条件写成正式 roadmap / development plan / 战略文档，而不是停留在聊天里
+- 把 PTL 监督环与 worker 接续做成 `.codex/ptl-supervision.md` 与 `.codex/worker-handoff.md`，并把多执行器进入条件继续保持为证据驱动 later 层
 - 把 durable 文档整理到统一结构
 - 为新对话生成紧凑恢复包
 
@@ -124,9 +124,9 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - `progress`、`handoff`、控制面和门禁现在描述的是同一套当前真相
 - 代表性的中型 / 大型仓库现在都能给出更像“维护者恢复面板”的第一屏，而不是只有 raw slice 名
 - 至少一条架构复盘路径现在已经能从当前切片里的 drift 信号自动升级出来，而不是只靠手工提醒
-- 战略评估层、程序编排层和长期受监督交付层现在都已经是 PTL 可运行能力，而不只是 proposal 文档
+- 战略评估层、程序编排层、长期受监督交付层、PTL 监督环和 worker 接续层现在都已经是 PTL 可运行能力，而不只是 proposal 文档
 - 程序编排层当前是“一个 Codex 的总调度脑”，不是已经产品化成“自动拉起多个桌面 Codex 并回收结果”
-- 下一步的正式路线已经明确成 `M13 / M14 / M15`：先做 PTL 监督环，再做 worker 接续与回流，最后才考虑选择性多执行器调度
+- `M13 / M14` 已经关闭；下一步只在证据足够时才考虑是否打开 `M15 选择性多执行器调度`
 
 ## 常见工作流
 

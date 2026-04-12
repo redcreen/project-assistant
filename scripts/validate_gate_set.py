@@ -24,6 +24,8 @@ DEEP_ONLY_VALIDATORS = [
     "validate_strategy_surface.py",
     "validate_program_board.py",
     "validate_delivery_supervision.py",
+    "validate_ptl_supervision.py",
+    "validate_worker_handoff.py",
     "validate_development_log.py",
     "validate_architecture_retrofit.py",
 ]
