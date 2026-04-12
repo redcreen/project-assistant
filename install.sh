@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_URL="${PROJECT_ASSISTANT_REPO:-https://github.com/redcreen/project-assistant.git}"
-REF="${PROJECT_ASSISTANT_REF:-v0.1.1}"
+REF="${PROJECT_ASSISTANT_REF:-v0.1.2}"
 TARGET_DIR="${PROJECT_ASSISTANT_DIR:-$HOME/.codex/skills/project-assistant}"
 TMP_DIR="$(mktemp -d)"
 

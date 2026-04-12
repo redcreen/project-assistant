@@ -34,7 +34,7 @@
 One-line install from a stable tag:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.1/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.2/install.sh | bash
 ```
 
 Manual install:
@@ -56,7 +56,7 @@ Simplest path:
 Optional overrides:
 
 ```bash
-PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
+PROJECT_ASSISTANT_REF=v0.1.2 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
 ```
 
 ## Quick Start
