@@ -15,7 +15,7 @@ Detailed execution queue:
 
 | Horizon | Focus | Exit Signal |
 | --- | --- | --- |
-| Now | strategic evaluation becomes the active layer above execution and retrofit | durable strategy surfaces, review boundaries, and M10 truth are in place |
+| Now | keep the strategic-evaluation layer stable and prepare a durable `program-board` entry for program orchestration | M10 is closed, and M11 boundaries plus first inputs are explicit |
 | Next | program orchestration across multiple slices or workers | the system can coordinate multiple related streams without constant human continuation prompts |
 | Later | supervised long-run delivery plus selective M8/M9 carryover | long-running delivery advances until real business decisions, while locale-aware output and slimmer continue remain bounded supporting topics |
 
@@ -37,7 +37,7 @@ Detailed execution queue:
 
 | Milestone | Status | Goal | Depends On | Exit Criteria |
 | --- | --- | --- | --- | --- |
-| [M10](reference/project-assistant/development-plan.md#m10) | active | add a strategic-evaluation layer above execution and retrofit | [M7](reference/project-assistant/development-plan.md#m7) + approved strategic direction | the system can produce durable strategy judgments, track when governance/architecture tracks should be inserted, and keep business-direction changes gated to humans |
+| [M10](reference/project-assistant/development-plan.md#m10) | done | add a strategic-evaluation layer above execution and retrofit | [M7](reference/project-assistant/development-plan.md#m7) + approved strategic direction | the system can produce durable strategy judgments, track when governance/architecture tracks should be inserted, and keep business-direction changes gated to humans |
 | [M11](reference/project-assistant/development-plan.md#m11) | next | add a program-orchestration layer across multiple slices or workers | [M10](reference/project-assistant/development-plan.md#m10) + durable program board | the system can coordinate multiple related slices without constant human continuation prompts |
 | [M12](reference/project-assistant/development-plan.md#m12) | later | add supervised long-run delivery | [M11](reference/project-assistant/development-plan.md#m11) + stable escalation policy | long-running delivery can continue until a real business decision point instead of stopping for routine steering |
 
@@ -71,7 +71,7 @@ flowchart LR
 
 | Topic | Why It Matters | Current Position |
 | --- | --- | --- |
-| business planning and program orchestration | `project-assistant` now treats this as the confirmed next direction; M10 is active, while M8/M9 continue only as supporting backlog topics inside this larger strategic layer | active in roadmap and development plan |
+| business planning and program orchestration | `project-assistant` has closed M10 strategic evaluation; M11 program orchestration is next, while M8/M9 continue only as supporting backlog topics inside this larger strategic layer | active in roadmap and development plan |
 
 Direction document:
 

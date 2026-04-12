@@ -10,7 +10,7 @@ This document records the approved next major direction above the current `proje
 - program orchestration
 - supervised long-run delivery
 
-This direction is now part of the official roadmap. M10 is active. M8 and M9 are no longer the mainline; they remain bounded supporting backlog topics inside this strategic layer.
+This direction is now part of the official roadmap. M10 strategic evaluation is complete. M8 and M9 are no longer the mainline; they remain bounded supporting backlog topics inside this strategic layer, while M11 program orchestration becomes the next mainline.
 
 ## Why This Layer Is Needed
 
@@ -127,4 +127,4 @@ The direction is approved, but its authority remains bounded:
 1. `project-assistant` may propose roadmap reshaping, governance tracks, and architecture tracks.
 2. It may not auto-change business direction, compatibility promises, or external positioning without human approval.
 3. M8 locale-aware output and M9 slimmer continue snapshots now survive as supporting backlog topics under M10 rather than as the mainline.
-4. M11 and M12 stay downstream until M10 produces durable strategy surfaces and a stable review contract.
+4. M11 and M12 stay downstream until M10 produces durable strategy surfaces and a stable review contract. That condition is now met, so M11 becomes the next mainline.

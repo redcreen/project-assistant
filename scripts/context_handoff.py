@@ -14,6 +14,7 @@ from control_surface_lib import (
     first_line,
     labeled_bullet_value,
     normalized_bullets,
+    parse_strategy_surface,
     parse_tier,
     primary_human_windows,
     repo_capabilities,
@@ -83,6 +84,15 @@ def zh_gate(gate: str) -> str:
     }.get(gate.lower(), gate)
 
 
+def zh_strategy_status(status: str) -> str:
+    return {
+        "active": "活跃",
+        "done": "已完成",
+        "next": "下一阶段",
+        "later": "更后面",
+    }.get(status.lower(), pretty_text_zh(status))
+
+
 def humanize_text(text: str) -> str:
     return pretty_text_zh(text)
 
@@ -104,6 +114,7 @@ def main() -> int:
     if contains_cjk(english_execution_line):
         english_execution_line = labeled_bullet_value(section(status_text, "Current Execution Line"), "Plan Link") or active_slice
     architecture_state = classify_architecture_signal(repo)
+    strategy_state = parse_strategy_surface(repo)
     architecture_signal = architecture_state["signal"]
     escalation_gate = architecture_state["gate"]
     escalation_reason = architecture_state["reason"]
@@ -130,6 +141,8 @@ def main() -> int:
         ".codex/plan.md",
         ".codex/module-dashboard.md" if tier == "large" else ".codex/brief.md",
     ]
+    if strategy_state["exists"]:
+        restore_docs.insert(2, ".codex/strategy.md")
 
     print("# Context Handoff\n")
     print("## 摘要")
@@ -144,6 +157,10 @@ def main() -> int:
     print(f"| 架构信号 | `{zh_signal(architecture_signal)}` |")
     print(f"| 自动触发 | {humanize_text(architecture_state['automatic_review_trigger'])} |")
     print(f"| 升级 Gate | `{zh_gate(escalation_gate)}` |")
+    if strategy_state["exists"]:
+        print(f"| 战略方向 | {humanize_text(strategy_state['direction'])} |")
+        print(f"| 战略状态 | `{zh_strategy_status(strategy_state['status'])}` |")
+        print(f"| 下一战略检查 | {humanize_text(strategy_state['next_checks'][0]) if strategy_state['next_checks'] else '暂无'} |")
     if tier == "large":
         print(f"| 当前模块 | `{active_module}` |")
     print(f"| 当前主要风险 | {humanize_text(main_risk)} |")

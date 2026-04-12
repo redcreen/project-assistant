@@ -15,7 +15,7 @@
 
 | 时间层级 | 重点 | 退出信号 |
 | --- | --- | --- |
-| 当前 | 把战略评估层正式接到执行层和整改层之上 | durable 战略控制面、review 边界与 M10 当前真相已经建立 |
+| 当前 | 保持战略评估层稳定，并为程序编排层准备 durable `program-board` 入口 | M10 已关闭，M11 的 durable 边界和输入已明确 |
 | 下一步 | 程序编排层，管理多个切片或多个执行器 | 系统可以协调多条相关工作流，而不是持续依赖人工输入“继续” |
 | 更后面 | 受监督的长期自动交付，以及作为 supporting backlog 回收的 M8/M9 议题 | 长时间交付能推进到真正的业务裁决点，同时 locale-aware internal output 和 continue 压缩只作为受控子议题存在 |
 
@@ -37,7 +37,7 @@
 
 | 里程碑 | 状态 | 目标 | 依赖 | 退出条件 |
 | --- | --- | --- | --- | --- |
-| [M10](reference/project-assistant/development-plan.zh-CN.md#m10) | active | 增加位于执行层之上的战略评估层 | [M7](reference/project-assistant/development-plan.zh-CN.md#m7) + 已批准的战略方向 | 系统能产出 durable 战略判断、识别何时应插入治理/架构专项，并把业务方向变更继续交给人类审批 |
+| [M10](reference/project-assistant/development-plan.zh-CN.md#m10) | done | 增加位于执行层之上的战略评估层 | [M7](reference/project-assistant/development-plan.zh-CN.md#m7) + 已批准的战略方向 | 系统能产出 durable 战略判断、识别何时应插入治理/架构专项，并把业务方向变更继续交给人类审批 |
 | [M11](reference/project-assistant/development-plan.zh-CN.md#m11) | next | 增加跨多个切片或执行器的程序编排层 | [M10](reference/project-assistant/development-plan.zh-CN.md#m10) + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
 | [M12](reference/project-assistant/development-plan.zh-CN.md#m12) | later | 增加受监督的长期自动交付层 | [M11](reference/project-assistant/development-plan.zh-CN.md#m11) + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点，而不是在日常调度上不断停下来 |
 
@@ -71,7 +71,7 @@ flowchart LR
 
 | 主题 | 为什么重要 | 当前位置 |
 | --- | --- | --- |
-| 业务规划与程序编排层 | `project-assistant` 现在把这件事视为确认后的下一主线：`M10` 已激活，而 `M8 / M9` 退到 supporting backlog，等待被战略层重新编排吸收 | 已进入 roadmap 和 development plan |
+| 业务规划与程序编排层 | `project-assistant` 已经完成 `M10` 战略评估层；接下来进入 `M11` 程序编排层，`M8 / M9` 继续作为 supporting backlog 等待被重新编排吸收 | 已进入 roadmap 和 development plan |
 
 方向文档：
 

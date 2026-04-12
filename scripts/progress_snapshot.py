@@ -14,6 +14,7 @@ from control_surface_lib import (
     execution_task_progress,
     first_line,
     labeled_bullet_value,
+    parse_strategy_surface,
     parse_official_modules,
     parse_tier,
     primary_human_windows,
@@ -122,6 +123,14 @@ TERM_CATALOG = {
 }
 
 EXACT_TEXT_MAP = {
+    "strategic evaluation layer": "战略评估层",
+    "program orchestration layer": "程序编排层",
+    "strategic evaluation layer foundation": "战略评估层基线",
+    "strategic evaluation layer closed; m11 kickoff queued": "战略评估层已收口；M11 启动已排队",
+    "establish-strategy-surface-and-review-contract": "建立战略面与 review contract",
+    "close-m10-and-queue-m11": "关闭 M10 并排队 M11",
+    "define-strategy-evidence-and-review-contract": "定义战略证据与 review contract",
+    "activate-m10-strategic-evaluation-layer": "激活 M10 战略评估层",
     "governed execution / module-view active": "治理执行中 / 模块视角已启用",
     "stage 3: self-learning lifecycle baseline": "阶段 3：self-learning 生命周期基线",
     "narrative quality and automated architecture triggers": "维护者视角叙事收口与自动架构触发",
@@ -174,6 +183,21 @@ EXACT_TEXT_MAP = {
 }
 
 PHRASE_REPLACEMENTS = [
+    ("roadmap reshaping", "roadmap 重排建议"),
+    ("governance / architecture side-tracks", "治理 / 架构专项插入建议"),
+    ("milestone reorder suggestions", "里程碑重排建议"),
+    ("strategic carryover decisions for supporting backlog topics", "supporting backlog 议题的战略回收建议"),
+    ("confirm the closeout objective for", "确认收口目标："),
+    ("add a reusable strategic surface sync path and a strategy validator", "增加可复用的战略面 sync 路径和 strategy validator"),
+    ("wire strategic snapshots into", "把战略快照接入"),
+    ("close m10 across readme, roadmap, development plan, strategy docs, and control truth", "把 M10 在 README、roadmap、development plan、strategy docs 和 control truth 上全部收口"),
+    ("capture a devlog entry because m10 is now complete and m11 is officially queued", "记录一条开发日志，因为 M10 已完成且 M11 已正式排队"),
+    ("business direction changes", "业务方向变化"),
+    ("compatibility promises", "兼容性承诺"),
+    ("external positioning changes", "对外定位变化"),
+    ("significant cost or timeline tradeoffs", "显著成本或时间取舍"),
+    ("no automatic trigger is currently active", "当前没有自动触发"),
+    ("no blocker or escalation trigger is currently forcing a higher-level decision", "当前没有 blocker 或升级信号迫使做更高层裁决"),
     ("continue automatically", "自动继续"),
     ("raise but continue", "提醒后继续"),
     ("require user decision", "需要用户裁决"),
@@ -771,6 +795,8 @@ def medium_mainline_status_zh(repo: Path) -> str:
         status_text = read_text(repo / ".codex/status.md")
         active_slice = first_line(section(status_text, "Active Slice")).strip("`").lower()
         current_phase = first_line(section(status_text, "Current Phase")).strip("`").lower()
+        if "strategic evaluation" in current_phase or "strategic" in active_slice:
+            return "核心能力已完成；当前在做更高层的战略评估层，把“项目下一步怎么走”沉淀成可 review 的 repo 真相。"
         if "locale-aware" in current_phase or "locale-aware" in active_slice:
             return "核心能力已完成；当前在做内部控制面按语言收口的评估。"
         return "核心能力已完成；当前在做维护者体验与自动触发增强。"
@@ -785,6 +811,8 @@ def medium_mainline_status_zh(repo: Path) -> str:
 
 def medium_work_area_zh(active_slice: str, execution_line: str) -> str:
     lowered = f"{active_slice} {execution_line}".lower()
+    if any(token in lowered for token in ["strategic", "strategy", "program-board", "roadmap reshaping", "milestone reorder", "战略", "程序编排"]):
+        return "战略评估层"
     if any(token in lowered for token in ["locale-aware", "用户语言", "中文工作流", "冗余英文"]):
         return "内部输出与恢复面收口"
     if any(token in lowered for token in ["progress", "continue", "handoff", "narrative", "architecture trigger", "maintainer"]):
@@ -802,6 +830,8 @@ def medium_work_area_zh(active_slice: str, execution_line: str) -> str:
 
 def medium_slice_explanation_zh(active_slice: str, execution_line: str) -> str:
     lowered = active_slice.lower().strip()
+    if "strategy-surface" in lowered or "strategic" in lowered:
+        return "建立可复用的战略判断面，并明确哪些问题必须继续升级给人类 review"
     if lowered in MEDIUM_SLICE_EXPLANATIONS:
         return MEDIUM_SLICE_EXPLANATIONS[lowered]
     if "continuity" in execution_line.lower() or "triage" in execution_line.lower():
@@ -817,6 +847,8 @@ def medium_slice_explanation_zh(active_slice: str, execution_line: str) -> str:
 
 def medium_direct_value_zh(active_slice: str, execution_line: str) -> str:
     lowered = active_slice.lower().strip()
+    if "strategy-surface" in lowered or "strategic" in lowered:
+        return "让项目后续怎么走、何时插专项、何时改 roadmap 不再散落在聊天里，而是留在 repo 真相中。"
     if lowered in MEDIUM_SLICE_VALUE:
         return MEDIUM_SLICE_VALUE[lowered]
     if "continuity" in execution_line.lower() or "triage" in execution_line.lower():
@@ -948,6 +980,40 @@ def human_window_rows_zh() -> list[tuple[str, str]]:
     ]
 
 
+def strategy_status_zh(status: str) -> str:
+    return {
+        "active": "活跃",
+        "done": "已完成",
+        "next": "下一阶段",
+        "later": "更后面",
+        "supporting backlog": "supporting backlog",
+    }.get(status.lower(), pretty_text_zh(status))
+
+
+def compact_strategy_items(items: list[str], limit: int = 2) -> str:
+    if not items:
+        return "暂无"
+    shown = [pretty_text_zh(item) for item in items[:limit]]
+    if len(items) > limit:
+        shown.append("...")
+    return "；".join(shown)
+
+
+def render_strategy_view(repo: Path) -> None:
+    strategy = parse_strategy_surface(repo)
+    if not strategy["exists"]:
+        return
+    print("\n## 战略视角")
+    print("| 维度 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 当前战略方向 | {pretty_text_zh(strategy['direction'])} |")
+    print(f"| 当前状态 | `{strategy_status_zh(strategy['status'])}` |")
+    print(f"| 为什么现在做 | {pretty_text_zh(strategy['why_now'])} |")
+    print(f"| 系统可自动提出 | {compact_strategy_items(strategy['system_may_propose'])} |")
+    print(f"| 必须人类审批 | {compact_strategy_items(strategy['human_approves'])} |")
+    print(f"| 下一战略检查 | {compact_strategy_items(strategy['next_checks'])} |")
+
+
 def large_project_judgement_zh(phase_display: str, active_module: str, active_slice_display: str) -> str:
     slice_phrase = active_slice_display
     if slice_phrase.startswith("推进"):
@@ -1013,6 +1079,9 @@ def render_medium_progress(
     execution_line_note = "当前这轮已经完成，下一步转向下一条增强切片" if line_complete else "当前这轮正在推进，下面的任务板就是本轮收口内容"
     taskboard_conclusion = "这条长任务已经完成" if line_complete else "这条长任务正在推进"
     next_step_nature = "进入下一条 post-hardening feature slice" if line_complete else "继续当前增强切片并收口任务板"
+    if is_skill_repo(repo):
+        execution_line_note = "当前这轮已经完成，下一步转向 M11 程序编排层" if line_complete else "当前这轮正在推进，下面的任务板就是本轮收口内容"
+        next_step_nature = "进入下一条主线：M11 程序编排层" if line_complete else "继续当前战略或编排层切片并收口任务板"
     roadmap_path = preferred_existing_path(repo, ["docs/roadmap.zh-CN.md", "docs/roadmap.md"])
     plan_path = repo / ".codex/plan.md"
     status_path = repo / ".codex/status.md"
@@ -1068,6 +1137,8 @@ def render_medium_progress(
     print(f"| 自动触发 | {pretty_text_zh(automatic_review_trigger)} |")
     print(f"| 升级 Gate | `{zh_gate(escalation_gate or 'n/a')}` |")
     print(f"| 升级原因 | {pretty_text_zh(escalation_reason)} |")
+
+    render_strategy_view(repo)
 
     glossary_rows = relevant_terms(repo, active_slice, current_execution_line, readme_capabilities)
     if glossary_rows:
@@ -1246,6 +1317,8 @@ def render_large_progress(
     print(f"| 自动触发 | {pretty_text_zh(automatic_review_trigger)} |")
     print(f"| 升级门 | `{zh_gate(escalation_gate)}` |")
     print(f"| 升级原因 | {pretty_text_zh(escalation_reason)} |")
+
+    render_strategy_view(repo)
 
     if readme_capabilities or phase_capabilities:
         readme_path = preferred_existing_path(repo, ["README.zh-CN.md", "README.md"])

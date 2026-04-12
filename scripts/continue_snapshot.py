@@ -13,6 +13,7 @@ from control_surface_lib import (
     first_line,
     labeled_bullet_value,
     normalized_bullets,
+    parse_strategy_surface,
     parse_tier,
     read_text,
     section,
@@ -52,6 +53,15 @@ def zh_gate(gate: str) -> str:
     }.get(gate.lower(), gate)
 
 
+def zh_strategy_status(status: str) -> str:
+    return {
+        "active": "活跃",
+        "done": "已完成",
+        "next": "下一阶段",
+        "later": "更后面",
+    }.get(status.lower(), humanize_text(status))
+
+
 def humanize_text(text: str) -> str:
     return pretty_text_zh(text)
 
@@ -83,6 +93,7 @@ def main() -> int:
     active_slice = first_line(section(status_text, "Active Slice")) or "n/a"
     current_execution_line = labeled_bullet_value(section(status_text, "Current Execution Line"), "Objective") or active_slice
     architecture_state = classify_architecture_signal(repo)
+    strategy_state = parse_strategy_surface(repo)
     execution_tasks = execution_task_lines(status_text)
     done_tasks, total_tasks = execution_task_progress(execution_tasks)
     next_actions = bullet_lines(section(status_text, "Next 3 Actions"))
@@ -102,6 +113,10 @@ def main() -> int:
     print(f"| 架构信号 | `{zh_signal(architecture_state['signal'])}` |")
     print(f"| 自动触发 | {humanize_text(architecture_state['automatic_review_trigger'])} |")
     print(f"| 升级 Gate | `{zh_gate(architecture_state['gate'])}` |")
+    if strategy_state["exists"]:
+        print(f"| 战略方向 | {humanize_text(strategy_state['direction'])} |")
+        print(f"| 战略状态 | `{zh_strategy_status(strategy_state['status'])}` |")
+        print(f"| 下一战略检查 | {humanize_text(strategy_state['next_checks'][0]) if strategy_state['next_checks'] else '暂无'} |")
     print(f"| 当前主要风险 | {humanize_text(first_risk(status_text))} |")
     print("| 完整看板 | `项目助手 进展` / `project assistant progress` |")
 

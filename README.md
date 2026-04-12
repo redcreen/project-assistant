@@ -19,13 +19,13 @@
 | Strongest At | planning, retrofit, architecture supervision, progress reporting, development logs, documentation governance, and context handoff |
 | Human Still Owns | business direction, product priorities, compatibility promises, and major tradeoffs |
 | Default Working Model | human sets direction; `project-assistant` plans, executes, validates, updates state, and escalates only when judgment is required |
-| Active Strategic Direction | strategic evaluation is now the current mainline direction; program orchestration and supervised long-run delivery stay next |
+| Active Strategic Direction | strategic evaluation is now complete; program orchestration is the next mainline, and supervised long-run delivery stays behind it |
 
 ## Where It Is Going
 
 | Horizon | Focus |
 | --- | --- |
-| Current | strategic evaluation as the new active layer above execution and retrofit |
+| Current | keep the strategic-evaluation layer stable and prepare a durable `program-board` entry |
 | Next | program orchestration across multiple slices or workers |
 | Later | supervised long-run delivery plus selective carryover of M8/M9 concerns as supporting backlog |
 | Strategy Entry | [Strategic Planning And Program Orchestration Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md) |
@@ -96,6 +96,7 @@ Background flows (usually automatic):
 - Retrofit existing repos to convergence
 - Report progress with global and module views
 - Capture durable implementation reasoning as development logs
+- Persist strategic evaluation in `.codex/strategy.md`, including the boundary between system proposals and human approvals
 - Normalize durable docs into a standard system
 - Emit a compact context handoff for the next thread
 
@@ -116,7 +117,8 @@ What this means:
 - `progress`, `handoff`, the control surface, and validation gates now describe the same current truth
 - representative medium and large repos now show clearer maintainer-facing first screens, not only raw slice names
 - at least one architecture-review path now auto-escalates from current-slice drift instead of depending only on manual prompts
-- the next practical step is to use it on more repos and collect real friction, not to keep reshaping the core model first
+- the strategic-evaluation layer is now a real capability, not only a direction document
+- the next practical step is to define the durable `program-board` boundary for M11, then keep using it on more repos and collecting real friction
 
 ## Common Workflows
 

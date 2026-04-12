@@ -515,6 +515,8 @@ def main() -> int:
 
     sync_arch_script = Path(__file__).resolve().parent / "sync_architecture_supervision.py"
     subprocess.run([sys.executable, str(sync_arch_script), str(repo)], check=True)
+    sync_strategy_script = Path(__file__).resolve().parent / "sync_strategy_surface.py"
+    subprocess.run([sys.executable, str(sync_strategy_script), str(repo)], check=True)
 
     print(f"tier: {tier}")
     print(f"official modules: {', '.join(official_modules) or '(none)'}")

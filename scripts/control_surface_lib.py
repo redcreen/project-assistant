@@ -69,6 +69,25 @@ ARCHITECTURE_REVIEW_TRIGGER_GROUPS: tuple[tuple[tuple[str, ...], str, str], ...]
     ),
 )
 
+STRATEGY_EXPECTATION_KEYWORDS = (
+    "strategic evaluation",
+    "战略评估",
+    "strategic planning and program orchestration",
+    "战略规划与程序编排",
+    ".codex/strategy.md",
+    "program-board",
+)
+
+STRATEGY_REQUIRED_SECTIONS = [
+    "Current Strategic Direction",
+    "Strategy Evidence Contract",
+    "What This Layer Owns",
+    "Carryover Backlog",
+    "Human Review Boundary",
+    "Future Program-Board Boundary",
+    "Next Strategic Checks",
+]
+
 
 @dataclass
 class ValidationResult:
@@ -401,6 +420,43 @@ def has_bullet_label(text: str, label: str) -> bool:
     return any(line.strip().startswith(prefix) for line in text.splitlines())
 
 
+def parse_markdown_table(text: str) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    lines = [line.strip() for line in text.splitlines() if line.strip().startswith("|")]
+    if len(lines) < 3:
+        return rows
+    header_cells = [cell.strip() for cell in lines[0].strip("|").split("|")]
+    separator_cells = [cell.strip() for cell in lines[1].strip("|").split("|")]
+    if not header_cells or not all(set(cell) <= {"-", ":"} for cell in separator_cells if cell):
+        return rows
+    for line in lines[2:]:
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if len(cells) != len(header_cells):
+            continue
+        rows.append({header: cell for header, cell in zip(header_cells, cells)})
+    return rows
+
+
+def nested_items_after_label(text: str, label: str) -> list[str]:
+    lines = text.splitlines()
+    prefix = f"- {label}:"
+    items: list[str] = []
+    collecting = False
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith(prefix):
+            collecting = True
+            continue
+        if collecting:
+            if re.match(r"^- [A-Za-z].*:", stripped):
+                break
+            if stripped.startswith("- "):
+                items.append(stripped[2:].strip())
+    return items
+
+
 def latest_devlog_entry(repo: Path) -> str:
     devlog_dir = repo / "docs/devlog"
     if not devlog_dir.exists():
@@ -424,6 +480,65 @@ def normalized_bullets(text: str) -> list[str]:
             continue
         normalized.append(item)
     return normalized
+
+
+def strategy_surface_expected(repo: Path) -> bool:
+    strategy_path = repo / ".codex/strategy.md"
+    if strategy_path.exists():
+        return True
+    corpus_parts = [
+        read_text(repo / ".codex/plan.md"),
+        read_text(repo / ".codex/status.md"),
+        read_text(repo / "README.md"),
+        read_text(repo / "README.zh-CN.md"),
+        read_text(repo / "docs/roadmap.md"),
+        read_text(repo / "docs/roadmap.zh-CN.md"),
+    ]
+    docs_root = repo / "docs/reference"
+    if docs_root.exists():
+        for path in docs_root.rglob("*.md"):
+            corpus_parts.append(read_text(path))
+    lowered = "\n".join(part for part in corpus_parts if part).lower()
+    return any(keyword in lowered for keyword in STRATEGY_EXPECTATION_KEYWORDS)
+
+
+def parse_strategy_surface(repo: Path) -> dict[str, Any]:
+    path = repo / ".codex/strategy.md"
+    text = read_text(path)
+    if not text:
+        return {
+            "path": path,
+            "exists": False,
+            "expected": strategy_surface_expected(repo),
+            "direction": "n/a",
+            "status": "n/a",
+            "why_now": "n/a",
+            "evidence_contract": [],
+            "ownership_rows": [],
+            "carryover_rows": [],
+            "human_approves": [],
+            "system_may_propose": [],
+            "future_boundary": [],
+            "next_checks": [],
+        }
+
+    direction_block = section(text, "Current Strategic Direction")
+    human_block = section(text, "Human Review Boundary")
+    return {
+        "path": path,
+        "exists": True,
+        "expected": True,
+        "direction": labeled_bullet_value(direction_block, "Direction") or "n/a",
+        "status": labeled_bullet_value(direction_block, "Status") or "n/a",
+        "why_now": labeled_bullet_value(direction_block, "Why Now") or first_line(direction_block) or "n/a",
+        "evidence_contract": normalized_bullets(section(text, "Strategy Evidence Contract")),
+        "ownership_rows": parse_markdown_table(section(text, "What This Layer Owns")),
+        "carryover_rows": parse_markdown_table(section(text, "Carryover Backlog")),
+        "human_approves": nested_items_after_label(human_block, "Human Approves"),
+        "system_may_propose": nested_items_after_label(human_block, "System May Propose"),
+        "future_boundary": normalized_bullets(section(text, "Future Program-Board Boundary")),
+        "next_checks": normalized_bullets(section(text, "Next Strategic Checks")),
+    }
 
 
 def detect_automatic_architecture_review_trigger(context: str) -> tuple[str, str]:
@@ -564,6 +679,8 @@ def repo_capabilities(repo: Path) -> list[tuple[str, str]]:
         capabilities.append(("docs-retrofit", "文档整改与 Markdown 治理"))
     if (repo / "docs/devlog/README.md").exists():
         capabilities.append(("devlog", "开发日志索引与自动沉淀"))
+    if (repo / ".codex/strategy.md").exists():
+        capabilities.append(("strategy-surface", "战略评估层与 review contract"))
     if (repo / ".codex/module-dashboard.md").exists():
         capabilities.append(("module-progress", "模块视角进展面板"))
     if (repo / "README.zh-CN.md").exists() and (repo / "docs/README.zh-CN.md").exists():
@@ -647,6 +764,8 @@ def validate_repo(repo: Path) -> ValidationResult:
     required = [".codex/brief.md", ".codex/status.md", ".codex/COMMANDS.md", DOC_GOVERNANCE]
     if tier in {"medium", "large"}:
         required.append(".codex/plan.md")
+    if strategy_surface_expected(repo):
+        required.append(".codex/strategy.md")
     if tier == "large":
         required.append(".codex/module-dashboard.md")
 

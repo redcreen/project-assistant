@@ -26,10 +26,10 @@ It answers one practical question:
 
 | Item | Current Value | Meaning |
 | --- | --- | --- |
-| Current Phase | `strategic evaluation layer foundation` | Current maintainer-facing phase from `.codex/plan.md` |
-| Active Slice | `establish-strategy-surface-and-review-contract` | The slice tied to the current execution line |
-| Current Execution Line | define the first durable strategic surface, make the strategic layer official in docs and control truth, and fold M8/M9 into supporting backlog instead of the mainline | What the repo is trying to finish now |
-| Validation | strategy docs and control truth align; `.codex/strategy.md` exists; `deep` continues to pass | How this line proves itself before moving on |
+| Current Phase | `strategic evaluation layer closed; M11 kickoff queued` | Current maintainer-facing phase from `.codex/plan.md` |
+| Active Slice | `close-m10-and-queue-m11` | The slice tied to the current execution line |
+| Current Execution Line | close M10 across scripts, gates, snapshots, and durable docs, then queue M11 explicitly as the next mainline | What the repo is finishing now |
+| Validation | strategy scripts, validators, snapshots, README, roadmap, development plan, and control truth align; `deep` and `release` continue to pass | How this line proves itself before moving on |
 
 ## Milestone Overview
 
@@ -44,7 +44,7 @@ It answers one practical question:
 | M7 | done | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
 | M8 | deferred | locale-aware internal control-surface output | handoff + command templates + validation policy | becomes supporting backlog under M10 instead of the mainline |
 | M9 | deferred | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | becomes supporting backlog under M10 instead of the mainline |
-| M10 | active | add a strategic-evaluation layer above execution and retrofit | M7 + approved strategic direction | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs instead of ad hoc intuition |
+| M10 | done | add a strategic-evaluation layer above execution and retrofit | M7 + approved strategic direction | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs instead of ad hoc intuition |
 | M11 | next | add a program-orchestration layer across multiple slices or workers | M10 + durable program board | the system can coordinate several related slices without constant human continuation prompts |
 | M12 | later | add supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue until a real business decision point |
 
@@ -63,7 +63,8 @@ It answers one practical question:
 | 9 | `prepare project-assistant for broader repo adoption` | earlier slice | n/a | n/a |
 | 10 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | completed milestone slice | representative medium / large repos now read more like maintainer restore panels; at least one architecture trigger auto-escalates from drift | representative repo snapshots improved and automatic trigger visible |
 | 11 | `activate-m10-strategic-evaluation-layer` | completed transition slice | promote the strategic layer from proposal to active roadmap direction and align roadmap / README / control truth | docs, roadmap, development plan, and control truth all point to M10 |
-| 12 | `establish-strategy-surface-and-review-contract` | current | create the first durable strategy surface, define review boundaries, and record how M8/M9 move into supporting backlog | `.codex/strategy.md` exists; docs and control truth align; `deep` passes |
+| 12 | `establish-strategy-surface-and-review-contract` | completed | create the first durable strategy surface, define review boundaries, and record how M8/M9 move into supporting backlog | `.codex/strategy.md` exists; docs and control truth align; `deep` passes |
+| 13 | `close-m10-and-queue-m11` | current | turn M10 from “approved direction” into “scripts, gates, snapshots, and docs all agree”, then queue M11 as the next mainline | `validate_strategy_surface.py`, `progress / continue / handoff`, README, roadmap, development plan, and control truth all align; `deep` and `release` pass |
 
 ## Milestone Details
 
@@ -152,7 +153,7 @@ It answers one practical question:
 
 | Item | Current Value |
 | --- | --- |
-| Status | active |
+| Status | done |
 | Goal | add a strategic-evaluation layer above execution and retrofit |
 | Depends On | M7 + approved strategic direction |
 | Exit Criteria | roadmap / governance / architecture adjustments become explicit strategy outputs backed by durable surfaces and review rules |
@@ -179,13 +180,13 @@ It answers one practical question:
 
 | Next Move | Why |
 | --- | --- |
-| Continue from `establish-strategy-surface-and-review-contract` onward | the strategic layer is now the active mainline, so the next durable question is how to encode strategy judgment and review boundaries as first-class repo truth |
+| Continue from `close-m10-and-queue-m11` onward | M10 is now complete, so the next durable question is how to define the minimum `program-board` structure and orchestration boundary for M11 |
 
 ## Strategic Direction
 
 | Topic | Scope | Current Position |
 | --- | --- | --- |
-| business-planning and program-orchestration layer | `project-assistant` now treats this as the approved mainline direction. Strategic evaluation is active, M8/M9 are folded into supporting backlog, and M11/M12 stay queued behind durable strategy surfaces and review rules | active |
+| business-planning and program-orchestration layer | `project-assistant` has completed strategic evaluation. Program orchestration is next, while M8/M9 stay folded into supporting backlog under the same larger direction | active |
 
 Direction:
 
