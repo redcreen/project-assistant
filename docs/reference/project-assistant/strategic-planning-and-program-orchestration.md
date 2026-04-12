@@ -10,7 +10,7 @@ This document records the approved next major direction above the current `proje
 - program orchestration
 - supervised long-run delivery
 
-This direction is now part of the official roadmap. M10 strategic evaluation, M11 program orchestration, M12 supervised long-run delivery, `M13 PTL supervision loop`, and `M14 worker handoff and re-entry` are complete. The repo is now in post-M14 evidence collection to determine whether `M15 selective multi-executor scheduling` is actually needed; M8 and M9 continue as bounded supporting backlog topics under this direction.
+This direction is now part of the official roadmap. M10 strategic evaluation, M11 program orchestration, M12 supervised long-run delivery, `M13 PTL supervision loop`, `M14 worker handoff and re-entry`, and `M16 tool-first front door and hard-entry bridge` are complete. The repo is now in post-M16 rollout verification to determine whether `M15 selective multi-executor scheduling` is actually needed; M8 and M9 continue as bounded supporting backlog topics under this direction.
 
 The standing role across these three layers is named:
 
@@ -123,6 +123,12 @@ For the current single-Codex orchestration model versus a future multi-executor 
 
 - [orchestration-model.md](orchestration-model.md)
 
+## Behavior Backlog Candidates
+
+| Topic | Meaning | Current Position |
+| --- | --- | --- |
+| issue-driven closure loop | When a durable problem is identified, the system should eventually auto-run the sequence: capture the current problem, reasoning, and solution; write the key conclusions into devlog and architecture; sync roadmap / development plan; then carry the change through one long implementation run | supporting backlog / todo |
+
 ## Automation Boundary
 
 | The System May Do Automatically | The System Must Escalate |
@@ -151,6 +157,8 @@ The direction is approved, but its authority remains bounded:
 4. M11 has now closed its durable program board, orchestration boundary, and maintainer-facing snapshots. M12 has also closed supervised long-run delivery into a durable `delivery-supervision` surface.
 5. M13 and M14 are now closed as durable PTL-supervision and worker-handoff control surfaces, gates, progress views, and handoff surfaces.
 6. M15 remains evidence-gated: if tasks do not have disjoint write scopes, or cross-repo rollout has not shown the single-Codex PTL model to be the bottleneck, they should not enter the multi-executor layer.
+7. M16 has now turned `continue / progress / handoff` into one front door, one version-preflight path, one structured first-screen contract, and one durable `entry-routing` surface; desktop-host hard binding remains a later bridge problem and should not be claimed early.
+8. The “issue-driven closure loop” is now a recurring request pattern; later work should decide how to promote it into a default behavior instead of relying on repeated user reminders to “write the log, update architecture, sync roadmap / plan, then implement”.
 
 ## Formal Post-M12 Mainline
 

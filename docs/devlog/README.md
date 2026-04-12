@@ -19,6 +19,7 @@ This directory records durable implementation narratives: what went wrong, what 
 - [Close M11 Program Orchestration Layer](2026-04-12-close-m11-program-orchestration-layer.md)
 - [Close M12 Supervised Long-Run Delivery Layer](2026-04-12-close-m12-supervised-long-run-delivery-layer.md)
 - [Close M13 And M14 PTL Supervision And Worker Handoff](2026-04-12-close-m13-and-m14-ptl-supervision-and-worker-handoff.md)
+- [Close M16 Tool-First Front Door And Entry Routing](2026-04-12-close-m16-tool-first-front-door-and-entry-routing.md)
 - [Close M10 Strategic Evaluation Layer](2026-04-12-close-m10-strategic-evaluation-layer.md)
 - [Activate M10 Strategic Evaluation Layer](2026-04-12-activate-m10-strategic-evaluation-layer.md)
 - [Automate architecture signaling, release protection, and primary human windows](2026-04-12-automate-architecture-signaling-release-protection-and-primary-human-windows.md)

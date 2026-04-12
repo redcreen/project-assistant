@@ -1,6 +1,6 @@
 {
   "managedBy": "project-assistant",
-  "controlSurfaceVersion": 2,
+  "controlSurfaceVersion": 3,
   "tier": "medium",
   "officialModules": [],
   "surfaceVersions": {
@@ -8,7 +8,8 @@
     "programBoard": 1,
     "deliverySupervision": 1,
     "ptlSupervision": 1,
-    "workerHandoff": 1
+    "workerHandoff": 1,
+    "entryRouting": 1
   },
   "requiredFiles": [
     ".codex/brief.md",

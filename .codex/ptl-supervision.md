@@ -1,13 +1,13 @@
 # PTL Supervision
 
 ## Current PTL Direction
-- Direction: `PTL supervision loop`
-- Status: `done`
-- Why Now: 收口 M13 PTL 监督环与 M14 worker 接续层，把 PTL supervision 和 worker handoff / re-entry 都沉淀成 durable 控制面、门禁与维护者展示，并把下一步切到“是否真的需要 M15”的证据采集，而不是直接承诺多执行器
+- Direction: `tool-first front door closed; rollout verification queued`
+- Status: `active`
+- Why Now: repo 层统一前门已经收口；当前 PTL 仍要继续盯真实入口是否还会绕过前门，并把剩余问题升级成 bridge evidence，而不是继续让 worker 独自消化。
 
 ## PTL Supervision Contract
 
-- PTL 监督环必须读取 `.codex/strategy.md`、`.codex/program-board.md`、`.codex/delivery-supervision.md`、`.codex/plan.md` 和 `.codex/status.md`，不能只凭聊天上下文判断是否继续。
+- PTL 监督环必须读取 `.codex/strategy.md`、`.codex/program-board.md`、`.codex/delivery-supervision.md`、`.codex/entry-routing.md`、`.codex/plan.md` 和 `.codex/status.md`，不能只凭聊天上下文判断是否继续。
 - PTL 负责决定何时继续、何时重排、何时先提醒后继续、何时必须升级给人类；它不负责越权修改业务方向。
 - 每次 worker 停下、checkpoint 结束、验证失败或超时后，PTL 都必须重新做一次监督判断。
 - PTL 的监督循环必须把结论写回 durable 真相，而不是只在聊天里说一句“继续”。
@@ -44,12 +44,13 @@
 
 | 检查项 | 当前信号 | 说明 |
 | --- | --- | --- |
-| 监督输入完整 | green | strategy / program-board / delivery-supervision / plan / status 都存在 |
+| 监督输入完整 | green | strategy / program-board / delivery-supervision / entry-routing / plan / status 都存在 |
 | 继续边界清楚 | green | 何时继续 / 提醒 / 升级已有 durable 规则 |
 | worker 停下后的接管入口 | green | M14 已经把 handoff / re-entry contract 收口成 durable 真相 |
+| 真实前门是否统一 | yellow | 需要继续在更多旧代际仓库上验证真实 task / 新 session 仍会先走统一前门 |
 | 业务裁决越权防护 | green | 一旦跨到产品方向或兼容性承诺，PTL 只升级不代替决策 |
 
 ## Next PTL Checks
-1. 在真实 repo 上继续验证 PTL 监督判断会在 worker 停下后接住项目，而不是只在 skill 自己身上成立。
-2. 继续观察 worker handoff / re-entry 是否还暴露新的 durable 缺口，需要回写到 supervision contract。
+1. 在真实 repo 上继续验证 PTL 监督判断不仅会在 worker 停下后接住项目，也会先把入口收拢到统一前门。
+2. 继续观察真实 task / 新 session 是否还会绕过前门；如果会，先区分 repo 层问题和宿主桥接问题。
 3. 继续收集跨 repo 证据，判断何时才值得打开 M15 多执行器层。

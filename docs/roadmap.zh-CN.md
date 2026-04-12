@@ -6,7 +6,6 @@
 
 这个路线图只描述 `project-assistant` skill 自身的演进，不替代 `.codex/status.md` 中的当前执行状态。
 
-
 详细执行队列看这里：
 
 - [project-assistant/development-plan.zh-CN.md](reference/project-assistant/development-plan.zh-CN.md)
@@ -15,9 +14,9 @@
 
 | 时间层级 | 重点 | 退出信号 |
 | --- | --- | --- |
-| 当前 | 在更多 repo 上 rollout 已完成的 `M13 PTL 监督环` 和 `M14 worker 接续与回流`，并记录 worker 停下后的真实接续摩擦 | PTL supervision 与 worker handoff 在真实 repo 上继续证明“项目不断线” |
-| 下一步 | 只在跨 repo 证据证明单 Codex PTL 模式已经成为瓶颈时，才启动 `M15 选择性多执行器调度` | 拿到不相交写入边界、结果回收口和冲突门禁的真实证据 |
-| 更后面 | 如果证据不足，就继续保持单 Codex PTL 模式，把 `M15` 留在 later 层 | 不因为“听起来更强”就提前引入多执行器复杂度 |
+| 当前 | 在更多 repo 上 rollout 已完成的 `M16 统一硬入口与工具前门`，验证 task / 新 session / 旧代际仓库都会先走 preflight，再输出结构化 continue / progress / handoff 面板 | 代表性旧仓库不再绕过前门；维护者看到的是同一条统一入口行为 |
+| 下一步 | 继续 post-M16 证据采集，并只在 cross-repo 证据证明单 Codex PTL 模式已经成为瓶颈时，才启动 `M15 选择性多执行器调度` | 拿到不相交写入边界、结果回收口和冲突门禁的真实证据 |
+| 更后面 | 如果证据不足，就继续保持单 Codex PTL 模式，把 `M15` 留在 later 层，同时把 `M16` 作为固定入口契约维持稳定 | 不因为“听起来更强”就提前引入多执行器复杂度 |
 
 ## 里程碑
 
@@ -43,6 +42,7 @@
 | [M13](reference/project-assistant/development-plan.zh-CN.md#m13) | done | 增加由 PTL 驱动的监督环，让项目在 worker 停下后仍有常驻技术主责人继续盯进度、方向和升级 | [M12](reference/project-assistant/development-plan.zh-CN.md#m12) + durable delivery supervision | PTL 能周期性 / 事件驱动地巡检、决定继续 / 重排 / 升级，而不是依赖人类反复输入“继续” |
 | [M14](reference/project-assistant/development-plan.zh-CN.md#m14) | done | 增加 worker 接续与回流，让未完成工作可以被 PTL 恢复、转交、回队列，而不是在 worker 停下时一起丢掉 | [M13](reference/project-assistant/development-plan.zh-CN.md#m13) + durable handoff / supervision truth | worker 在 checkpoint、超时、失败或交接后，剩余工作仍能继续推进或被明确升级 |
 | [M15](reference/project-assistant/development-plan.zh-CN.md#m15) | later | 增加选择性多执行器调度，只对安全并行任务开放 | [M14](reference/project-assistant/development-plan.zh-CN.md#m14) + 不相交写入边界 + 冲突控制 | 只有 write scope 清楚、回收口明确、冲突门禁成立时，才允许真正多执行器并行 |
+| [M16](reference/project-assistant/development-plan.zh-CN.md#m16) | done | 增加统一硬入口与工具前门，让 `继续 / 进展 / 交接` 必须先走同一条前门、版本 preflight 和结构化输出 | [M14](reference/project-assistant/development-plan.zh-CN.md#m14) + 版本化控制面 + entry scripts | 旧项目会先自动升级到当前控制面代际，且 `continue / progress / handoff` 的第一屏不再绕回自由 prose |
 
 ## 里程碑流转
 
@@ -59,7 +59,8 @@ flowchart LR
     M11 --> M12["M12 长期受监督交付层"]
     M12 --> M13["M13 PTL 监督环"]
     M13 --> M14["M14 worker 接续与回流"]
-    M14 --> M15["M15 选择性多执行器调度"]
+    M14 --> M16["M16 统一硬入口与工具前门"]
+    M16 --> M15["M15 选择性多执行器调度"]
 ```
 
 ## 风险与依赖
@@ -69,18 +70,23 @@ flowchart LR
 - 长任务执行线必须停在真实检查点，不能变成不可见的后台黑箱
 - 公开文档双语质量仍然依赖内容生成，不仅是文件对和切换链接
 - 如果未来要支持精确 context 门禁，仍然需要运行时暴露对应指标
-- `M8 / M9` 提到的问题仍然重要，其中 `M9` 现在也承接“自动压缩上下文”这个专题；但它们都作为 `M10` 下的 supporting backlog 管理，而不是继续占据主线
-- 战略层必须持续基于 repo 证据给出判断，不能越权自动改变业务方向
-- 程序编排层必须等战略层的 review 合约稳定后再落地
-- `M13` 的重点不是再加一个抽象名词，而是让 PTL 真正像常驻项目技术负责人一样持续盯住推进
-- `M14` 的重点不是只恢复聊天上下文，而是让 worker 停下后，工作仍能被 PTL durable 地接住、回流或转交
+- `M8 / M9` 仍然重要，但现在都作为 supporting backlog 管理，而不是继续占据主线
 - `M15` 只面向安全并行任务；如果多个任务会改同一批文件、同一控制面或同一抽象边界，就不应进入多执行器层
+- `M16` 的重点不是再加一个 CLI，而是让 `continue / progress / handoff` 的真实入口不再依赖模型自己“记得先跑脚本”
+- `M16` 必须继续明确边界：repo 现在拥有统一前门和 script backend，但不应谎称桌面宿主已经完全硬绑定
+
+## 行为型 Backlog
+
+| 主题 | 为什么要做 | 当前定位 |
+| --- | --- | --- |
+| 问题驱动收口环 | 这类请求会反复出现：先把当前问题、解决思路和方案写进 devlog，再把关键结论同步到 architecture、roadmap、development plan，然后直接进入一口气长任务实现。未来这不应再依赖用户逐条提醒。 | supporting backlog / todo |
 
 ## 战略方向
 
 | 主题 | 为什么重要 | 当前位置 |
 | --- | --- | --- |
-| 业务规划与程序编排层 | `project-assistant` 已经完成以项目技术负责人（PTL）为核心的 `M10 / M11 / M12 / M13 / M14`；当前进入 post-M14 证据采集，并继续把 `M15` 保持为证据驱动的后续层，`M8 / M9` 仍作为 supporting backlog 受控管理 | 已进入 roadmap 和 development plan |
+| 业务规划与程序编排层 | `project-assistant` 已完成以项目技术负责人（PTL）为核心的 `M10 / M11 / M12 / M13 / M14`，并新增 `M16` 把 `continue / progress / handoff` 收成统一硬入口；`M15` 继续保持为证据驱动的 later 层，`M8 / M9` 仍作为 bounded supporting backlog | active in roadmap and development plan |
+| 问题驱动收口环 | 当 durable 问题被识别后，skill 未来应自动触发“日志 -> 架构 -> 路线图 / 开发计划 -> 长任务实现”的闭环，而不是依赖用户重复下指令 | supporting backlog / todo |
 
 方向文档：
 

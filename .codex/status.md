@@ -7,49 +7,46 @@
 
 ## Current Phase
 
-`PTL supervision and worker handoff layers closed; M15 evidence collection queued`
+`post-M16 rollout verification active`
 
 ## Active Slice
-`close-m13-and-m14-and-queue-m15-evidence`
+`verify-unified-front-door-rollout-on-legacy-repos`
 
 ## Current Execution Line
-- Objective: 收口 M13 PTL 监督环与 M14 worker 接续层，把 PTL supervision 和 worker handoff / re-entry 都沉淀成 durable 控制面、门禁与维护者展示，并把下一步切到“是否真的需要 M15”的证据采集，而不是直接承诺多执行器
-- Plan Link: close-m13-and-m14-and-queue-m15-evidence
-- Runway: one checkpoint covering M13 closeout, M14 closeout, validation, and post-M14 evidence queueing
-- Progress: 9 / 9 tasks complete
+- Objective: 在代表性旧代际仓库上继续验证统一前门：`continue / progress / handoff` 会先升级到当前控制面代际，再输出结构化第一屏，并把剩余摩擦明确区分为 repo 层问题还是宿主桥接问题
+- Plan Link: verify-unified-front-door-rollout-on-legacy-repos
+- Runway: one checkpoint covering legacy-repo rollout evidence, host-bridge gap isolation, and next-step routing
+- Progress: 4 / 6 tasks complete
 - Stop Conditions:
   - blocker requires human direction
   - validation fails and changes the direction
   - business, compatibility, or cost decision requires user judgment
 
 ## Execution Tasks
-- [x] EL-1 confirm the closeout objective for `close-m13-and-m14-and-queue-m15-evidence`: 让 M13 / M14 从“路线图方向”升级成“PTL supervision、worker handoff、门禁、展示、文档都成立”
-- [x] EL-2 verify dependencies and affected boundaries: PTL supervision sync / validate, worker handoff sync / validate, progress / continue / handoff, roadmap / development-plan / README, control truth
-- [x] EL-3 confirm architecture signal, root-cause hypothesis, and correct layer still hold
-- [x] EL-4 add a reusable PTL supervision sync path and a PTL supervision validator
-- [x] EL-5 add a reusable worker handoff sync path and a worker handoff validator
-- [x] EL-6 把 PTL supervision / worker handoff 摘要接入 `progress / continue / handoff`
-- [x] EL-7 close M13 and M14 across README, roadmap, development plan, strategy docs, orchestration docs, and control truth
-- [x] EL-8 运行验证：`deep` 与 `release` 在 M13 / M14 收口后继续通过
-- [x] EL-9 capture a devlog entry because M13 / M14 are now complete and M15 remains evidence-gated
+- [x] EL-1 confirm the rollout objective for `verify-unified-front-door-rollout-on-legacy-repos`: 证明旧代际仓库会先升级再输出结构化第一屏
+- [x] EL-2 verify dependencies and affected boundaries: `project_assistant_entry.py`、`sync_resume_readiness.py`、`continue / progress / handoff` entry、README、architecture、roadmap、development plan、`.codex/entry-routing.md`
+- [x] EL-3 confirm architecture signal, host-bridge boundary, and correct layer still hold
+- [x] EL-4 validate representative medium / large legacy repos through the unified front door
+- [ ] EL-5 isolate the remaining host-bridge gap and decide the next concrete bridge step
+- [ ] EL-6 keep rollout evidence and next-step routing aligned across control truth and docs
 
 ## Development Log Capture
 - Trigger Level: high
 - Pending Capture: no
-- Last Entry: docs/devlog/2026-04-12-close-m13-and-m14-ptl-supervision-and-worker-handoff.md
+- Last Entry: docs/devlog/2026-04-12-close-m16-tool-first-front-door-and-entry-routing.md
 
 ## Architecture Supervision
-- Signal: `green`
-- Signal Basis: no blocker or escalation trigger is currently forcing a higher-level decision
-- Root Cause Hypothesis: 现在最大的缺口不再是“有没有 post-M12 方向”，而是 PTL 能不能在 worker 停下后真正接住项目，并把 handoff / re-entry 也写成 durable 真相
-- Correct Layer: durable PTL supervision、worker handoff / re-entry、post-M14 evidence collection、future milestone selection
-- Automatic Review Trigger: no automatic trigger is currently active
-- Escalation Gate: continue automatically
+- Signal: `yellow`
+- Signal Basis: repo 层统一前门已收口，但真实桌面 task / 新 session 仍可能绕过这条前门，所以当前还需要保持 rollout / bridge 摩擦可见
+- Root Cause Hypothesis: 当前剩余问题已经从 repo 脚本能力转成宿主 / 工具桥接问题；继续用 repo 内文案修补已经不能单独解决桌面真实入口绕过前门的问题
+- Correct Layer: `.codex/entry-routing.md`、architecture、rollout evidence、宿主 / 插件桥接设计，而不是继续只改 snapshot 文案
+- Automatic Review Trigger: 当真实 task / 新 session 再次绕过统一前门时自动触发
+- Escalation Gate: raise but continue
 
 ## Current Escalation State
-- Current Gate: continue automatically
-- Reason: M13 / M14 已经关闭；后续仅剩“是否真的需要 M15”的证据采集，仍在既定方向内，可以继续推进而不需要新的用户级取舍
-- Next Review Trigger: review again when post-M14 evidence suggests M15 is justified, a supporting backlog topic re-enters the mainline, or a business-direction tradeoff appears
+- Current Gate: raise but continue
+- Reason: repo 层统一前门已完成，但真实桌面桥接仍需继续采证和隔离问题
+- Next Review Trigger: review again when blockers change, the active slice rolls forward, or release-facing work begins
 
 ## Done
 
@@ -90,20 +87,26 @@
   - `progress / continue / handoff` 现在都能直接显示 handoff / re-entry 视角
   - README、roadmap、development plan、战略文档、编排模型和控制面都把 M14 视为已完成里程碑
   - M15 明确保持为 evidence-gated later 层，而不是被提前当成当前能力
+- M16 `tool-first front door and hard-entry bridge` 已关闭：
+  - `project_assistant_entry.py`、`bin/project-assistant` 与 `.codex/entry-routing.md` 已成为 durable 的统一前门
+  - `sync_entry_routing.py` 与 `validate_entry_routing.py` 已建立
+  - `continue / progress / handoff` 现在共享前门、版本 preflight 与结构化第一屏契约
+  - README、architecture、roadmap、development plan、usage 和控制面都把 M16 视为已完成里程碑
 
 ## In Progress
 
-- post-M14 evidence collection 已排队：下一步是把完整的 PTL supervision + worker handoff 模型带到更多 repo 上，并记录是否真的需要 M15
+- post-M16 rollout verification 已激活：当前主线是在更多旧代际仓库上验证统一前门是否总是先升级再输出结构化面板
 - supporting backlog 再吸收判断仍在后续：`M8 / M9` 何时回主线，继续以跨 repo 证据为准
 
 ## Blockers / Open Decisions
 
 - None currently.
 - Follow-up: 自动压缩上下文仍是后续专题，目标是在不丢 durable 恢复信息的前提下，分层压缩 `continue / progress / handoff` 的输出体量与重复内容
-- Follow-up: 只有当 post-M14 证据证明单 Codex PTL 模式已经成为瓶颈时，才考虑打开 M15
+- Follow-up: 只有当 post-M16 证据证明单 Codex PTL 模式已经成为瓶颈时，才考虑打开 M15
+- Follow-up: 把“当前问题 -> 解决思路 -> 方案 -> devlog -> architecture -> roadmap / development plan -> 一口气长任务实现”固化成默认行为；当 durable 问题被识别后，`project-assistant` 不应再依赖用户逐条提醒这套收口顺序
 
 ## Next 3 Actions
 
-1. 在更多 medium / large 仓库上使用完整的 PTL supervision + worker handoff 模型，并记录 worker 停下后的真实接续摩擦
-2. 根据真实跨 repo 证据决定 `M8 / M9` 是否继续保持在 supporting backlog
-3. 当证据显示单 Codex PTL 模式真的成为瓶颈时，再决定是否需要 M15 选择性多执行器调度
+1. 把真实桌面 task / 新 session 仍可能绕过统一前门的行为正式收成 host-bridge evidence
+2. 基于 rollout 证据设计下一步宿主 / 插件桥接方案，而不是继续只改 repo 文案
+3. 继续把 `M8 / M9` 保持在 supporting backlog，并只在真正需要时再评估 `M15`

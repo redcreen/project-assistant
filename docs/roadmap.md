@@ -6,7 +6,6 @@
 
 This roadmap describes the evolution of the `project-assistant` skill itself. It does not replace current execution truth from `.codex/status.md`.
 
-
 Detailed execution queue:
 
 - [project-assistant/development-plan.md](reference/project-assistant/development-plan.md)
@@ -15,9 +14,9 @@ Detailed execution queue:
 
 | Horizon | Focus | Exit Signal |
 | --- | --- | --- |
-| Now | roll out the completed `M13 PTL supervision loop` and `M14 worker handoff and re-entry` on more repos, and record real worker-stop / re-entry friction | PTL supervision and worker handoff keep proving “the project does not stop with the worker” on real repos |
-| Next | start `M15 selective multi-executor scheduling` only if cross-repo evidence proves the single-Codex PTL model is now the bottleneck | disjoint write scopes, merge paths, and conflict gates must be real, not assumed |
-| Later | if evidence stays weak, keep the single-Codex PTL model and hold `M15` as a later layer | do not introduce multi-executor complexity just because it sounds stronger |
+| Now | roll out the completed `M16 tool-first front door and hard entry bridge`, and verify that task / new-session / legacy-repo entry paths all run preflight before structured continue / progress / handoff output | representative legacy repos no longer bypass the front door, and maintainers see one canonical entry behavior |
+| Next | keep collecting post-M16 evidence, and start `M15 selective multi-executor scheduling` only if cross-repo evidence proves the single-Codex PTL model is now the bottleneck | disjoint write scopes, merge paths, and conflict gates must be real, not assumed |
+| Later | if evidence stays weak, keep the single-Codex PTL model, keep `M15` later, and treat `M16` as the stable front-door contract | do not introduce multi-executor complexity just because it sounds stronger |
 
 ## Milestones
 
@@ -43,6 +42,7 @@ Detailed execution queue:
 | [M13](reference/project-assistant/development-plan.md#m13) | done | add a PTL supervision loop so the project keeps a standing technical lead even after a worker stops | [M12](reference/project-assistant/development-plan.md#m12) + durable delivery supervision | the PTL can inspect, continue, re-sequence, or escalate through periodic and event-driven checks without relying on repeated human continuation prompts |
 | [M14](reference/project-assistant/development-plan.md#m14) | done | add worker handoff and re-entry so unfinished work can be resumed, reassigned, or re-queued instead of dying with the worker | [M13](reference/project-assistant/development-plan.md#m13) + durable handoff / supervision truth | after a checkpoint, timeout, failure, or handoff, the remaining work still has a durable path forward |
 | [M15](reference/project-assistant/development-plan.md#m15) | later | add selective multi-executor scheduling only for safe parallel work | [M14](reference/project-assistant/development-plan.md#m14) + disjoint write scopes + conflict control | true parallel execution is only allowed when write boundaries, merge paths, and conflict gates are explicit |
+| [M16](reference/project-assistant/development-plan.md#m16) | done | add a tool-first front door and hard-entry bridge so `continue / progress / handoff` must pass through one router, version preflight, and structured first-screen contract | [M14](reference/project-assistant/development-plan.md#m14) + versioned control surface + entry scripts | legacy repos auto-upgrade before resume, and the first screen no longer falls back to free-form prose |
 
 ## Milestone Flow
 
@@ -59,7 +59,8 @@ flowchart LR
     M11 --> M12["M12 Supervised Long-Run Delivery"]
     M12 --> M13["M13 PTL Supervision Loop"]
     M13 --> M14["M14 Worker Handoff And Re-entry"]
-    M14 --> M15["M15 Selective Multi-Executor Scheduling"]
+    M14 --> M16["M16 Tool-First Front Door"]
+    M16 --> M15["M15 Selective Multi-Executor Scheduling"]
 ```
 
 ## Risks and Dependencies
@@ -75,12 +76,21 @@ flowchart LR
 - M13 is not just another abstract layer name; it must make the PTL behave like a standing supervision loop that keeps the project moving
 - M14 is not only about restoring chat context; it must let the PTL catch, re-queue, reassign, or resume unfinished work after a worker stops
 - M15 only applies to safe parallel work; if two tasks touch the same files, control truth, or abstraction boundary, they should stay out of the multi-executor layer
+- M16 is not “just another CLI”; it exists to stop entry correctness from depending on whether the model remembers to call the right script first
+- M16 must keep the boundary explicit: the repo now owns a canonical front door and script backend, but it should not falsely claim that the desktop host is already hard-bound
+
+## Behavior Backlog
+
+| Topic | Why It Matters | Current Position |
+| --- | --- | --- |
+| issue-driven closure loop | This request pattern will keep recurring: write the current problem, reasoning, and solution into a devlog, sync the key conclusions into architecture plus roadmap / development plan, and then carry the change through one long implementation run. The skill should eventually do this by default instead of relying on repeated user reminders. | supporting backlog / todo |
 
 ## Strategic Direction
 
 | Topic | Why It Matters | Current Position |
 | --- | --- | --- |
-| business planning and program orchestration | `project-assistant` has now closed the PTL-centered `M10 / M11 / M12 / M13 / M14`; it is now in post-M14 evidence collection while `M15` stays an evidence-gated later layer, and M8/M9 remain bounded supporting backlog topics | active in roadmap and development plan |
+| business planning, orchestration, and hard-entry routing | `project-assistant` has now closed the PTL-centered `M10 / M11 / M12 / M13 / M14` layers and added `M16` to make `continue / progress / handoff` pass through one canonical front door; `M15` stays evidence-gated later, and M8/M9 remain bounded supporting backlog topics | active in roadmap and development plan |
+| issue-driven closure loop | When a durable problem is identified, the skill should eventually auto-run the loop `devlog -> architecture -> roadmap / development plan -> long-task implementation` instead of waiting for the user to restate the sequence | supporting backlog / todo |
 
 Direction document:
 

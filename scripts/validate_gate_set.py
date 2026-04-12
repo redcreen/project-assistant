@@ -26,6 +26,7 @@ DEEP_ONLY_VALIDATORS = [
     "validate_delivery_supervision.py",
     "validate_ptl_supervision.py",
     "validate_worker_handoff.py",
+    "validate_entry_routing.py",
     "validate_development_log.py",
     "validate_architecture_retrofit.py",
 ]

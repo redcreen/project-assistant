@@ -165,14 +165,35 @@ WORKER_HANDOFF_REQUIRED_SECTIONS = [
     "Next Handoff Checks",
 ]
 
+ENTRY_ROUTING_EXPECTATION_KEYWORDS = (
+    "tool-first front door",
+    "工具前门",
+    "统一入口",
+    ".codex/entry-routing.md",
+    "project_assistant_entry.py",
+    "project-assistant continue",
+    "project assistant continue",
+)
+
+ENTRY_ROUTING_REQUIRED_SECTIONS = [
+    "Current Entry Direction",
+    "Entry Routing Contract",
+    "Front Door Layers",
+    "Preflight Contract",
+    "Structured Output Contract",
+    "Host / Tool Bridge Boundary",
+    "Next Entry Checks",
+]
+
 CONTROL_SURFACE_MANAGED_BY = "project-assistant"
-CONTROL_SURFACE_VERSION = 2
+CONTROL_SURFACE_VERSION = 3
 CONTROL_SURFACE_COMPONENT_VERSIONS: dict[str, int] = {
     "strategy": 1,
     "programBoard": 1,
     "deliverySupervision": 1,
     "ptlSupervision": 1,
     "workerHandoff": 1,
+    "entryRouting": 1,
 }
 CONTROL_SURFACE_COMPONENT_ORDER: tuple[str, ...] = (
     "strategy",
@@ -180,6 +201,7 @@ CONTROL_SURFACE_COMPONENT_ORDER: tuple[str, ...] = (
     "deliverySupervision",
     "ptlSupervision",
     "workerHandoff",
+    "entryRouting",
 )
 CONTROL_SURFACE_REQUIRED_COMPONENTS_BY_TIER: dict[str, tuple[str, ...]] = {
     "small": (),
@@ -192,6 +214,7 @@ CONTROL_SURFACE_COMPONENT_PATHS: dict[str, str] = {
     "deliverySupervision": ".codex/delivery-supervision.md",
     "ptlSupervision": ".codex/ptl-supervision.md",
     "workerHandoff": ".codex/worker-handoff.md",
+    "entryRouting": ".codex/entry-routing.md",
 }
 
 
@@ -979,6 +1002,72 @@ def parse_worker_handoff(repo: Path) -> dict[str, Any]:
     }
 
 
+def entry_routing_expected(repo: Path) -> bool:
+    surface_path = repo / ".codex/entry-routing.md"
+    if surface_path.exists():
+        return True
+    version_state = control_surface_version_state(repo)
+    if version_state["managed"] and "entryRouting" in version_state["requiredSurfaceVersions"]:
+        return True
+    corpus_parts = [
+        read_text(repo / ".codex/plan.md"),
+        read_text(repo / ".codex/status.md"),
+        read_text(repo / ".codex/strategy.md"),
+        read_text(repo / ".codex/program-board.md"),
+        read_text(repo / ".codex/delivery-supervision.md"),
+        read_text(repo / ".codex/ptl-supervision.md"),
+        read_text(repo / ".codex/worker-handoff.md"),
+        read_text(repo / "README.md"),
+        read_text(repo / "README.zh-CN.md"),
+        read_text(repo / "docs/architecture.md"),
+        read_text(repo / "docs/architecture.zh-CN.md"),
+        read_text(repo / "docs/roadmap.md"),
+        read_text(repo / "docs/roadmap.zh-CN.md"),
+    ]
+    docs_root = repo / "docs/reference"
+    if docs_root.exists():
+        for path in docs_root.rglob("*.md"):
+            corpus_parts.append(read_text(path))
+    lowered = "\n".join(part for part in corpus_parts if part).lower()
+    return any(keyword in lowered for keyword in ENTRY_ROUTING_EXPECTATION_KEYWORDS)
+
+
+def parse_entry_routing(repo: Path) -> dict[str, Any]:
+    path = repo / ".codex/entry-routing.md"
+    text = read_text(path)
+    if not text:
+        return {
+            "path": path,
+            "exists": False,
+            "expected": entry_routing_expected(repo),
+            "direction": "n/a",
+            "status": "n/a",
+            "why_now": "n/a",
+            "contract": [],
+            "front_door_rows": [],
+            "preflight_rows": [],
+            "output_rows": [],
+            "bridge_rows": [],
+            "next_checks": [],
+        }
+
+    direction_block = section(text, "Current Entry Direction")
+    return {
+        "path": path,
+        "exists": True,
+        "expected": True,
+        "direction": labeled_bullet_value(direction_block, "Direction") or "n/a",
+        "status": labeled_bullet_value(direction_block, "Status") or "n/a",
+        "why_now": labeled_bullet_value(direction_block, "Why Now") or first_line(direction_block) or "n/a",
+        "contract": normalized_bullets(section(text, "Entry Routing Contract")),
+        "front_door_rows": parse_markdown_table(section(text, "Front Door Layers")),
+        "preflight_rows": parse_markdown_table(section(text, "Preflight Contract")),
+        "output_rows": parse_markdown_table(section(text, "Structured Output Contract")),
+        "bridge_rows": parse_markdown_table(section(text, "Host / Tool Bridge Boundary")),
+        "next_checks": normalized_bullets(section(text, "Next Entry Checks")),
+    }
+
+
 def detect_automatic_architecture_review_trigger(context: str) -> tuple[str, str]:
     lowered = context.lower()
     for keywords, trigger, next_review in ARCHITECTURE_REVIEW_TRIGGER_GROUPS:
@@ -1127,6 +1216,8 @@ def repo_capabilities(repo: Path) -> list[tuple[str, str]]:
         capabilities.append(("ptl-supervision", "PTL 监督环与持续巡检 contract"))
     if (repo / ".codex/worker-handoff.md").exists():
         capabilities.append(("worker-handoff", "worker 接续与回流 contract"))
+    if (repo / ".codex/entry-routing.md").exists():
+        capabilities.append(("entry-routing", "统一工具前门、版本 preflight 与结构化入口 contract"))
     if (repo / ".codex/module-dashboard.md").exists():
         capabilities.append(("module-progress", "模块视角进展面板"))
     if (repo / "README.zh-CN.md").exists() and (repo / "docs/README.zh-CN.md").exists():
@@ -1237,6 +1328,8 @@ def validate_repo(repo: Path) -> ValidationResult:
         required.append(".codex/ptl-supervision.md")
     if worker_handoff_expected(repo):
         required.append(".codex/worker-handoff.md")
+    if entry_routing_expected(repo):
+        required.append(".codex/entry-routing.md")
     if tier == "large":
         required.append(".codex/module-dashboard.md")
 

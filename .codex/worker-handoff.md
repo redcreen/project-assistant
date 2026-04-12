@@ -1,9 +1,9 @@
 # Worker Handoff
 
 ## Current Handoff Direction
-- Direction: `worker handoff and re-entry`
+- Direction: `tool-first front door closed; rollout verification queued`
 - Status: `done`
-- Why Now: 收口 M13 PTL 监督环与 M14 worker 接续层，把 PTL supervision 和 worker handoff / re-entry 都沉淀成 durable 控制面、门禁与维护者展示，并把下一步切到“是否真的需要 M15”的证据采集，而不是直接承诺多执行器
+- Why Now: 把真实入口问题收口成统一前门、版本 preflight、结构化第一屏、CLI 前门和 durable `entry-routing` 控制面，并继续验证旧项目会先升级再继续
 
 ## Worker Handoff Contract
 

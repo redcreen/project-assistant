@@ -1,9 +1,9 @@
 # Program Board
 
 ## Current Program Direction
-- Direction: `program orchestration layer`
-- Status: `done`
-- Why Now: 收口 M13 PTL 监督环与 M14 worker 接续层，把 PTL supervision 和 worker handoff / re-entry 都沉淀成 durable 控制面、门禁与维护者展示，并把下一步切到“是否真的需要 M15”的证据采集，而不是直接承诺多执行器
+- Direction: `close-m16-tool-first-front-door-and-queue-rollout-verification`
+- Status: `active`
+- Why Now: repo 层统一前门已经收口；当前需要继续采集跨 repo rollout 证据，并把剩余入口摩擦稳定归类到正确层。
 
 ## Program Orchestration Contract
 
@@ -17,27 +17,27 @@
 
 | Workstream | Scope | State | Priority | Current Focus | Next Checkpoint |
 | --- | --- | --- | --- | --- | --- |
-| post-M14 evidence collection | 在更多仓库上 rollout PTL supervision + worker handoff，并记录是否真的需要 M15 | active | P0 | 采集 worker 停下后的真实接续摩擦、写入边界和结果回收证据 | 决定 M15 是否值得立项 |
+| post-M16 rollout verification | 在更多旧代际仓库上 rollout 统一前门，并验证 continue / progress / handoff 会先升级再输出结构化面板 | active | P0 | 采集真实入口是否仍被绕过、是否需要宿主桥接 | 决定 M15 是否值得立项 |
 | control truth and gates | 保持 `.codex` 真相、门禁和 release 保护一致 | stable | P1 | 保持 strategy / program board / delivery supervision / plan / status / handoff 一致 | 继续只允许一套 control truth |
-| maintainer-facing outputs | 让 progress / continue / handoff 对维护者和未来接手者足够清楚 | stable | P1 | 让 PTL supervision / worker handoff 状态直接出现在第一屏 | 只有 rollout 证据要求时再调整 |
+| maintainer-facing outputs | 让 progress / continue / handoff 对维护者和未来接手者足够清楚 | stable | P1 | 让统一前门输出的第一屏继续保持结构化、表格优先、中文优先 | 只有 rollout 证据要求时再调整 |
 | supporting backlog routing | 管理 M8 / M9 这类 supporting backlog 议题，不让它们无计划回流主线 | active | P1 | 用 rollout 证据决定 M8 / M9 是否继续保持 backlog | 在没有证据前继续保持 backlog |
 
 ## Sequencing Queue
 
 | Order | Workstream | Slice / Input | Executor | Status |
 | --- | --- | --- | --- | --- |
-| 1 | post-M14 evidence collection | carry PTL supervision + worker handoff onto more repos and record friction | supervisor | active |
+| 1 | post-M16 rollout verification | carry the unified front door onto more legacy repos and record entry friction | supervisor | active |
 | 2 | control truth and gates | keep supervision surfaces, strategy, program board, plan, and status aligned while evidence accumulates | delivery worker | active |
-| 3 | maintainer-facing outputs | only adjust progress / continue / handoff when rollout evidence shows confusion | docs-and-release | active |
+| 3 | maintainer-facing outputs | only adjust continue / progress / handoff when rollout evidence shows confusion after the front door | docs-and-release | active |
 | 4 | supporting backlog routing | decide whether M8 / M9 stay backlog or re-enter with evidence | supervisor | next |
 
 ## Executor Inputs
 
 | Executor | Current Input | Why It Exists | Status |
 | --- | --- | --- | --- |
-| supervisor | `.codex/strategy.md` + `.codex/program-board.md` + `.codex/delivery-supervision.md` + `.codex/status.md` | 在 rollout 期间决定 evidence 怎样回流成 M15 判断或 backlog 调整 | active |
+| supervisor | `.codex/strategy.md` + `.codex/program-board.md` + `.codex/delivery-supervision.md` + `.codex/entry-routing.md` + `.codex/status.md` | 在 rollout 期间决定前门摩擦怎样回流成 M15 判断、宿主桥接判断或 backlog 调整 | active |
 | delivery worker | active slice + execution tasks + validator outputs | 推进当前 checkpoint 并保持与 program-board 对齐 | active |
-| docs-and-release | README + roadmap + development-plan + gate outputs | 保持 durable docs、交接与发布面一致 | active |
+| docs-and-release | README + architecture + roadmap + development-plan + gate outputs | 保持 durable docs、统一入口说明、交接与发布面一致 | active |
 
 ## Parallel-Safe Boundaries
 

@@ -21,17 +21,18 @@
 | 默认工作模型 | 人类给方向；`project-assistant` 负责规划、执行、验证、更新状态，并只在需要判断时升级给人类 |
 | 关键常驻角色 | 项目技术负责人（PTL）：在已批准业务方向内负责战略判断、程序编排、长期交付监督和升级 |
 | 项目起点 | [项目起点与工作方法](docs/reference/project-assistant/project-origin-and-working-method.zh-CN.md)：原始问题是“先目标、再方案、再架构、再 roadmap / test case / development plan、再让 AI 按 plan 交付，会不会更稳” |
-| 当前战略方向 | `M10 / M11 / M12 / M13 / M14` 已完成；当前进入 post-M14 证据采集，用真实 repo 证据判断 `M15 选择性多执行器调度` 是否真的需要 |
+| 当前战略方向 | `M10 / M11 / M12 / M13 / M14` 已完成；`M16 统一硬入口与工具前门` 也已完成，当前进入 post-M16 rollout 验证，用真实 repo 证据判断 `M15 选择性多执行器调度` 是否真的需要 |
 | 程序编排层当前边界 | 先把“单 Codex 内的 durable 编排真相层”和“worker 停下后项目不断线”做稳定；多桌面 Codex / 多执行器自动调度仍属于后续能力 |
 | `M14` 人话解释 | `worker 停了，项目不能跟着停` |
-| `继续` 的自动行为 | 先读取 `.codex/control-surface.json`；如果控制面版本过旧，或缺少当前 surface 版本，就先做最小安全补齐，再继续当前执行线 |
+| `M16` 人话解释 | `继续 / 进展 / 交接` 先走同一条前门，旧项目先升级，再输出结构化第一屏 |
+| `继续` 的自动行为 | 先读取 `.codex/control-surface.json`；如果控制面版本过旧，或缺少当前 surface 版本，就先做最小安全补齐，再通过统一前门继续当前执行线 |
 
 ## 它接下来要去哪里
 
 | 时间层级 | 重点 |
 | --- | --- |
-| 当前 | 在更多 repo 上 rollout 已完成的 `M13 PTL 监督环` 与 `M14 worker 接续与回流`，确认 worker 停下后项目仍能被 PTL durable 地接住并继续 |
-| 下一步 | 根据 cross-repo 证据判断是否真的需要 `M15 选择性多执行器调度` |
+| 当前 | 在更多 repo 上 rollout 已完成的 `M16 统一硬入口与工具前门`，确认 task / 新 session / 旧代际仓库都会先走 preflight，再输出结构化 continue / progress / handoff 第一屏 |
+| 下一步 | 根据 cross-repo 证据判断是否真的需要 `M15 选择性多执行器调度`，而不是因为“脚本已经有了”就提前承诺宿主级多执行器 |
 | 更后面 | 只有当证据显示单 Codex PTL 模式已经成为瓶颈，且不相交写入边界成立时，才引入真正多执行器 |
 | 战略入口 | [业务规划与程序编排方向](docs/reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md) |
 | 方法起点 | [项目起点与工作方法](docs/reference/project-assistant/project-origin-and-working-method.zh-CN.md) |
@@ -98,6 +99,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 把架构监督状态和升级 gate 并排展示在执行线旁边
 - 把 `progress / continue / handoff` 做成更像给维护者看的第一屏，而不是只剩 raw status dump
 - 让 `继续` 自动判断旧项目是否需要最小控制面升级，而不是把这个判断甩给用户
+- 让 `继续 / 进展 / 交接` 共用一个统一前门，不再依赖模型先“记得调用正确脚本”
 - 当当前切片出现 ownership、boundary 或 repeated-fix drift 时，自动把架构复盘升上来
 - 用一个简短的 `Usable Now` 快照告诉你现在已经能直接用什么
 - 把现有仓库整改到收敛状态
@@ -129,8 +131,9 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 代表性的中型 / 大型仓库现在都能给出更像“维护者恢复面板”的第一屏，而不是只有 raw slice 名
 - 至少一条架构复盘路径现在已经能从当前切片里的 drift 信号自动升级出来，而不是只靠手工提醒
 - 战略评估层、程序编排层、长期受监督交付层、PTL 监督环和 worker 接续层现在都已经是 PTL 可运行能力，而不只是 proposal 文档
+- `M16` 已把 `continue / progress / handoff` 收成统一前门、版本 preflight 与结构化第一屏契约；桌面宿主级硬绑定仍是后续桥接问题
 - 程序编排层当前是“一个 Codex 的总调度脑”，不是已经产品化成“自动拉起多个桌面 Codex 并回收结果”
-- `M13 / M14` 已经关闭；下一步只在证据足够时才考虑是否打开 `M15 选择性多执行器调度`
+- `M13 / M14 / M16` 已经关闭；下一步只在证据足够时才考虑是否打开 `M15 选择性多执行器调度`
 
 ## 常见工作流
 
@@ -240,6 +243,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - [架构](docs/architecture.zh-CN.md)
 - [路线图](docs/roadmap.zh-CN.md)
 - [战略方向](docs/reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md)
+- [编排与入口模型](docs/reference/project-assistant/orchestration-model.zh-CN.md)
 - [测试计划](docs/test-plan.zh-CN.md)
 - [开发日志](docs/devlog/README.zh-CN.md)
 - [ADR 索引](docs/adr/README.zh-CN.md)

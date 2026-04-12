@@ -1,9 +1,9 @@
 # Strategy
 
 ## Current Strategic Direction
-- Direction: `strategic evaluation layer`
+- Direction: `close-m16-tool-first-front-door-and-queue-rollout-verification`
 - Status: `active`
-- Why Now: 收口 M13 PTL 监督环与 M14 worker 接续层，把 PTL supervision 和 worker handoff / re-entry 都沉淀成 durable 控制面、门禁与维护者展示，并把下一步切到“是否真的需要 M15”的证据采集，而不是直接承诺多执行器
+- Why Now: repo 层统一前门已经收口；当前需要继续采集跨 repo rollout 证据，并明确把剩余问题归类为宿主 / 插件桥接问题还是 repo 层问题。
 
 ## What This Layer Owns
 
@@ -21,6 +21,7 @@
 | --- | --- | --- |
 | M8 locale-aware internal output | supporting backlog | 这是表现层优化，不再是当前最大缺口 |
 | M9 slimmer continue snapshot | supporting backlog | 这是恢复体量优化，不再是当前最大缺口 |
+| M15 selective multi-executor scheduling | later / evidence-gated | 只有当前门已稳定、单 Codex PTL 真成瓶颈、且不相交写入边界成立时，才允许升主线 |
 
 ## Human Review Boundary
 
@@ -37,8 +38,8 @@
 
 ## Next Strategic Checks
 1. 在 rollout / dogfooding 过程中继续要求战略判断引用 durable repo 证据，而不是只凭聊天感受。
-2. 当 cross-repo adoption 摩擦重复出现时，再决定是否要插新的治理 / 架构专项或新里程碑。
-3. 继续确认 `M8 / M9` 是否保持在 supporting backlog，而不是在没有证据的情况下被拉回主线。
+2. 当 cross-repo adoption 里仍出现“真实入口绕过前门”的案例时，先区分是 repo 层问题还是宿主桥接问题。
+3. 继续确认 `M8 / M9` 是否保持在 supporting backlog，以及 `M15` 是否仍应保持 evidence-gated later。
 
 ## Strategy Evidence Contract
 - 战略建议必须引用 roadmap、development plan、当前 `.codex/status.md` 和 `.codex/plan.md`，不能只凭聊天直觉。
@@ -51,4 +52,5 @@
 - M10 owns strategic judgment, evidence-backed suggestions, and the human review boundary.
 - M11 now owns sequencing, orchestration, parallel-safe slices, and durable program-board state.
 - M12 now owns longer-running checkpoint rhythm, supervised delivery loops, escalation timing, and rollout handoff through `.codex/delivery-supervision.md`.
+- M16 now owns the unified front door, version preflight, structured first-screen contract, and durable `entry-routing` truth.
 - Future milestones should arise from rollout evidence, not by reopening M10 or M11 responsibilities.

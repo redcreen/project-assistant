@@ -129,12 +129,17 @@ def task_kind_zh(line: str) -> str:
 def print_upgrade_notice(result: ResumeReadinessResult) -> None:
     if not result.upgrade_needed:
         return
-    upgraded = ", ".join(result.required_surface_versions) if result.required_surface_versions else "control surface"
+    upgraded = ", ".join(result.layers_synced) if result.layers_synced else "control-surface"
     syncs = ", ".join(result.syncs_run) if result.syncs_run else "none"
+    detected = (
+        "检测到旧控制面代际，已先自动补齐。"
+        if result.generation_upgraded
+        else "检测到控制面缺层或局部版本落后，已先自动补齐。"
+    )
     print("## 继续前升级")
     print("| 项目 | 当前值 |")
     print("| --- | --- |")
-    print("| 检测结果 | 检测到旧控制面代际，已先自动补齐。 |")
+    print(f"| 检测结果 | {detected} |")
     print(f"| 控制面版本 | `{result.detected_version} -> {result.current_version}` |")
     print(f"| 补齐层 | `{upgraded}` |")
     print(f"| 已执行 | `{syncs}` |")

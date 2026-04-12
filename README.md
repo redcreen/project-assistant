@@ -21,17 +21,18 @@
 | Default Working Model | human sets direction; `project-assistant` plans, executes, validates, updates state, and escalates only when judgment is required |
 | Core Standing Role | Project Technical Lead (PTL): inside an approved direction, it owns strategic judgment, program orchestration, long-run delivery supervision, and escalation timing |
 | Project Origin | [Project Origin And Working Method](docs/reference/project-assistant/project-origin-and-working-method.md): the original question was whether it is more stable to clarify goals, approach, architecture, roadmap, test cases, and a development plan before AI delivery starts |
-| Active Strategic Direction | `M10 / M11 / M12 / M13 / M14` are complete; the repo is now in post-M14 evidence collection to decide whether `M15 selective multi-executor scheduling` is actually needed |
+| Active Strategic Direction | `M10 / M11 / M12 / M13 / M14` are complete; `M16 tool-first front door and hard-entry bridge` is also complete, and the repo is now in post-M16 rollout verification to decide whether `M15 selective multi-executor scheduling` is actually needed |
 | Current Program-Orchestration Boundary | stabilize the durable single-Codex orchestration truth and keep the project alive after a worker stops; automatic multi-desktop-Codex scheduling remains a future layer |
 | Plain-Language Meaning Of `M14` | `when a worker stops, the project should not stop with it` |
-| Automatic `continue` Behavior | first read `.codex/control-surface.json`; if the control-surface version is old or missing required surface versions, apply the minimum safe upgrade before resuming |
+| Plain-Language Meaning Of `M16` | `continue / progress / handoff` share one front door, upgrade old repos first, and only then render the first structured screen |
+| Automatic `continue` Behavior | first read `.codex/control-surface.json`; if the control-surface version is old or missing required surface versions, apply the minimum safe upgrade before resuming through one canonical front door |
 
 ## Where It Is Going
 
 | Horizon | Focus |
 | --- | --- |
-| Current | roll out the completed `M13 PTL supervision loop` and `M14 worker handoff and re-entry` on more repos, and prove that the PTL keeps the project moving after a worker stops |
-| Next | decide from cross-repo evidence whether `M15 selective multi-executor scheduling` is actually needed |
+| Current | roll out the completed `M16 tool-first front door and hard-entry bridge` on more repos, and prove that task / new-session / legacy-repo entry paths all run preflight before structured continue / progress / handoff output |
+| Next | decide from cross-repo evidence whether `M15 selective multi-executor scheduling` is actually needed, instead of promising host-level hard binding too early |
 | Later | only introduce real multi-executor dispatch when evidence shows the single-Codex PTL model is the bottleneck and disjoint write scopes are explicit |
 | Strategy Entry | [Strategic Planning And Program Orchestration Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md) |
 | Method Origin | [Project Origin And Working Method](docs/reference/project-assistant/project-origin-and-working-method.md) |
@@ -98,6 +99,7 @@ Background flows (usually automatic):
 - Keep a compact architecture-supervision state and escalation gate beside the execution line
 - Render `progress / continue / handoff` as maintainer-facing first screens instead of AI-only status dumps
 - Make `continue` auto-detect when a repo's control-surface version is stale, and run the minimum safe upgrade instead of pushing that judgment onto the user
+- Route `continue / progress / handoff` through one canonical front door instead of depending on the model to remember which script to call first
 - Promote architecture review automatically when the current slice shows ownership, boundary, or repeated-fix drift
 - Surface a short `Usable Now` snapshot so you can see what is already ready to use
 - Retrofit existing repos to convergence
@@ -128,8 +130,9 @@ What this means:
 - representative medium and large repos now show clearer maintainer-facing first screens, not only raw slice names
 - at least one architecture-review path now auto-escalates from current-slice drift instead of depending only on manual prompts
 - the PTL strategic-evaluation, program-orchestration, supervised-long-run-delivery, PTL-supervision, and worker-handoff layers are now real capabilities, not only direction documents
+- `M16` now closes the unified front door, version preflight, and structured first-screen contract; desktop-host hard binding remains a later bridge problem
 - the current orchestration layer is a durable single-Codex coordination brain, not yet a productized multi-desktop-Codex dispatcher
-- `M13 / M14` are now closed; `M15` remains a later evidence-gated layer instead of an active promise
+- `M13 / M14 / M16` are now closed; `M15` remains a later evidence-gated layer instead of an active promise
 
 ## Common Workflows
 
@@ -239,6 +242,7 @@ project assistant handoff
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Strategic Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md)
+- [Orchestration And Entry Model](docs/reference/project-assistant/orchestration-model.md)
 - [Test Plan](docs/test-plan.md)
 - [Development Log](docs/devlog/README.md)
 - [ADR Index](docs/adr/README.md)

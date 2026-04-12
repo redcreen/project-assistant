@@ -10,7 +10,7 @@
 - 程序编排
 - 受监督的长期自动交付
 
-这个方向现在已经进入正式路线图。`M10` 战略评估层、`M11` 程序编排层、`M12` 受监督的长期自动交付层、`M13 PTL 监督环` 和 `M14 worker 接续与回流` 都已经完成；当前进入 post-M14 证据采集，用真实 repo 证据判断 `M15 选择性多执行器调度` 是否真的需要；`M8 / M9` 继续作为这条方向下的 supporting backlog。
+这个方向现在已经进入正式路线图。`M10` 战略评估层、`M11` 程序编排层、`M12` 受监督的长期自动交付层、`M13 PTL 监督环`、`M14 worker 接续与回流` 和 `M16 统一硬入口与工具前门` 都已经完成；当前进入 post-M16 rollout 验证，用真实 repo 证据判断 `M15 选择性多执行器调度` 是否真的需要；`M8 / M9` 继续作为这条方向下的 supporting backlog。
 
 这里默认把负责这三层长期推进与升级判断的角色统一叫作：
 
@@ -123,6 +123,12 @@ PTL 在这里的角色不是产品 owner，也不是组织级 CTO。它更像一
 
 - [orchestration-model.zh-CN.md](orchestration-model.zh-CN.md)
 
+## 行为型 Backlog 候选
+
+| 主题 | 含义 | 当前定位 |
+| --- | --- | --- |
+| 问题驱动收口环 | 当 durable 问题被识别后，系统未来应自动执行：记录当前问题、解决思路和方案；把关键结论写入 devlog 与 architecture；同步 roadmap / development plan；再一口气进入长任务实现 | supporting backlog / todo |
+
 ## 自动化边界
 
 | 系统可以自动做 | 系统必须升级给人类 |
@@ -151,6 +157,8 @@ PTL 在这里的角色不是产品 owner，也不是组织级 CTO。它更像一
 4. `M11` 已经把 durable program board、编排边界和维护者展示收口完成；`M12` 也已经把长期监督交付层收口成 durable `delivery-supervision` 面。
 5. `M13` 与 `M14` 已经收口成 durable 的 `PTL supervision` 与 `worker handoff` 控制面、门禁、进展与交接。
 6. `M15` 仍是受证据约束的后续层：如果任务没有不相交写入边界，或跨 repo rollout 没证明单 Codex PTL 模式已成瓶颈，就不应进入多执行器调度。
+7. `M16` 已把 `continue / progress / handoff` 收成统一前门、版本 preflight、结构化第一屏和 durable `entry-routing` contract；桌面宿主级强绑定仍是后续桥接问题，不应被提前宣称成已完成。
+8. “问题驱动收口环”已经是稳定出现的请求模式，后续应评估把它升级成默认行为，而不是继续依赖用户逐条提醒“写日志、写架构、改 roadmap / plan、然后实现”。
 
 ## Post-M12 正式主线
 

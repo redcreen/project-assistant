@@ -157,6 +157,7 @@ Use for one feature, subproject, or multi-session milestone.
 - Keep an `Architecture Supervision` block beside the task board so the current root-cause hypothesis and correct layer stay visible.
 - Keep an escalation section so the repo records whether the assistant should continue automatically, raise but continue, or require user decision.
 - During long execution or retrofit runs, emit short visible progress notes so the user knows which phase is running, what changed, and what checkpoint remains.
+- When the repo exposes a unified front door, `continue / progress / handoff` should render through that front door first and only add prose later under a separate action block.
 
 ## Architecture Retrofit Template
 

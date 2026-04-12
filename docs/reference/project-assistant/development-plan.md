@@ -6,9 +6,9 @@
 
 This document is the durable maintainer-facing execution plan that sits below `docs/roadmap.md` and above `.codex/plan.md`.
 
-It answers one practical question:
+It answers:
 
-`what should happen next, where should maintainers resume, and what detail sits underneath each roadmap milestone?`
+`what should happen next, where maintainers should resume, and what detail sits underneath each roadmap milestone?`
 
 ## Related Documents
 
@@ -26,10 +26,10 @@ It answers one practical question:
 
 | Item | Current Value | Meaning |
 | --- | --- | --- |
-| Current Phase | `PTL supervision and worker handoff layers closed; M15 evidence collection queued` | `M13 / M14` are now durable capabilities rather than only roadmap names; the repo is now collecting cross-repo evidence to decide whether `M15` is actually needed |
-| Active Slice | `close-m13-and-m14-and-queue-m15-evidence` | the current line has already closed `M13 / M14` and switched the mainline to post-M14 evidence collection |
-| Current Execution Line | roll out the completed `PTL supervision loop` and `worker handoff and re-entry` on more repos, and prove that the PTL can durably catch and continue work after a worker stops | the current question is no longer “can we name M15,” but “should M15 exist at all” |
-| Validation | PTL supervision / worker handoff control surfaces, gates, progress, handoff, and docs all exist; `deep` and `release` still pass | How this line proves `M13 / M14` are closed while `M15` remains evidence-gated |
+| Current Phase | `post-M16 rollout verification active` | `M16` has turned hard entry, version preflight, and structured first screens into durable capabilities; the repo is now gathering rollout evidence across real repos |
+| Active Slice | `verify-unified-front-door-rollout-on-legacy-repos` | the current line has moved from “close M16” to “prove how legacy repos and real entry paths behave” |
+| Current Execution Line | verify on more legacy repos that `continue / progress / handoff` always go through the front door, upgrade older control surfaces first, and only then emit structured panels, while isolating the remaining host-bridge evidence | the real question is now entry reliability, not whether `M15` should be promised early |
+| Validation | `project_assistant_entry.py`, `sync_resume_readiness.py`, the `entry-routing` surface, and `deep` / `release` all hold | the next evidence check is whether representative legacy repos stay on this path |
 
 ## Milestone Overview
 
@@ -42,14 +42,15 @@ It answers one practical question:
 | M5 | done | establish bilingual public-doc switching and validation | i18n rules + i18n validator | public docs switch cleanly between English and Chinese |
 | M6 | done | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
 | M7 | done | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
-| M8 | deferred | locale-aware internal control-surface output | handoff + command templates + validation policy | becomes supporting backlog under M10 instead of the mainline |
-| M9 | deferred | automatic context compression plus slimmer continue/resume/handoff snapshots without losing recoverability | continue snapshot + handoff + validation policy | becomes supporting backlog under M10 instead of the mainline |
-| M10 | done | add a PTL-driven strategic-evaluation layer above execution and retrofit | M7 + approved strategic direction | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs instead of ad hoc intuition |
-| M11 | done | add a PTL-driven program-orchestration layer across multiple slices or workers | M10 + durable program board | stabilize the durable orchestration truth inside one Codex first; if multi-executor scheduling is needed later, create it as a separate milestone |
+| M8 | deferred | locale-aware internal control-surface output | handoff + command templates + validation policy | becomes supporting backlog instead of the mainline |
+| M9 | deferred | automatic context compression plus slimmer continue/resume/handoff snapshots without losing recoverability | continue snapshot + handoff + validation policy | becomes supporting backlog instead of the mainline |
+| M10 | done | add a PTL-driven strategic-evaluation layer | M7 + approved strategic direction | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs |
+| M11 | done | add a PTL-driven program-orchestration layer | M10 + durable program board | the system coordinates multiple related slices instead of depending on repeated human “continue” prompts |
 | M12 | done | add PTL-driven supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue until a real business decision point |
-| M13 | done | add a PTL-driven supervision loop | M12 + durable delivery supervision | the PTL keeps watching delivery through periodic and event-driven checks instead of letting the project stop with the worker |
-| M14 | done | add worker handoff and re-entry | M13 + durable handoff / supervision truth | after checkpoints, timeouts, failures, or handoffs, unfinished work can still be resumed, reassigned, re-queued, or escalated |
-| M15 | later | add selective multi-executor scheduling | M14 + disjoint write scopes + conflict control | only safe parallel work enters multi-executor scheduling; tightly coupled work stays on one primary write line |
+| M13 | done | add a PTL-driven supervision loop | M12 + durable delivery supervision | the PTL keeps watching the project through periodic and event-driven checks |
+| M14 | done | add worker handoff and re-entry | M13 + durable handoff / supervision truth | `when a worker stops, the project should not stop with it` becomes durable behavior |
+| M15 | later | add selective multi-executor scheduling | M14 + disjoint write scopes + conflict control | only safe parallel work enters multi-executor scheduling |
+| M16 | done | add the tool-first front door and hard-entry bridge | M14 + versioned control surface + entry scripts | legacy repos auto-upgrade before resume, and `continue / progress / handoff` no longer fall back to free-form prose first |
 
 ## Ordered Execution Queue
 
@@ -65,114 +66,35 @@ It answers one practical question:
 | 8 | `make architecture retrofit a first-class flow` | earlier slice | n/a | n/a |
 | 9 | `prepare project-assistant for broader repo adoption` | earlier slice | n/a | n/a |
 | 10 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | completed milestone slice | representative medium / large repos now read more like maintainer restore panels; at least one architecture trigger auto-escalates from drift | representative repo snapshots improved and automatic trigger visible |
-| 11 | `activate-m10-strategic-evaluation-layer` | completed transition slice | promote the strategic layer from proposal to active roadmap direction and align roadmap / README / control truth | docs, roadmap, development plan, and control truth all point to M10 |
+| 11 | `activate-m10-strategic-evaluation-layer` | completed | promote the strategic layer from proposal to active roadmap direction and align roadmap / README / control truth | docs, roadmap, development plan, and control truth all point to M10 |
 | 12 | `establish-strategy-surface-and-review-contract` | completed | create the first durable strategy surface, define review boundaries, and record how M8/M9 move into supporting backlog | `.codex/strategy.md` exists; docs and control truth align; `deep` passes |
-| 13 | `close-m10-and-queue-m11` | completed | turn M10 from “approved direction” into “scripts, gates, snapshots, and docs all agree”, then queue M11 as the next mainline | `validate_strategy_surface.py`, `progress / continue / handoff`, README, roadmap, development plan, and control truth all align; `deep` and `release` pass |
-| 14 | `close-m11-and-queue-m12` | completed | turn M11 from “program direction plus board sketch” into “program-board, gates, snapshots, and docs all agree”, then queue M12 as the next mainline | `validate_program_board.py`, `progress / continue / handoff`, README, roadmap, development plan, and control truth all align; `deep` and `release` pass |
-| 15 | `close-m12-and-open-rollout` | completed | turn M12 from “approved direction” into “delivery-supervision, gates, snapshots, and docs all agree”, then open rollout / friction collection as the next durable state | `validate_delivery_supervision.py`, `progress / continue / handoff`, README, roadmap, development plan, and control truth all align; `deep` and `release` pass |
-| 16 | `define-m13-m14-m15-post-m12-mainline` | completed | formalize post-M12 into `M13 / M14 / M15` and explain the practical meaning of `worker handoff and re-entry` | roadmap, README, development plan, strategic direction doc, and orchestration model all align; `deep` passes |
-| 17 | `close-m13-and-m14-and-queue-m15-evidence` | current | turn `M13 / M14` into durable PTL supervision / worker handoff control surfaces, gates, progress, and handoff, then switch the mainline into post-M14 evidence collection | `deep` and `release` pass; control truth, README, roadmap, development plan, and snapshots all show `M13 / M14 done` and `M15 evidence-gated later` |
+| 13 | `close-m10-and-queue-m11` | completed | turn M10 into scripts, gates, snapshots, and docs that all agree | `deep` and `release` pass |
+| 14 | `close-m11-and-queue-m12` | completed | turn M11 into a durable program board with gates, snapshots, and docs that all agree | `deep` and `release` pass |
+| 15 | `close-m12-and-open-rollout` | completed | turn M12 into delivery-supervision, gates, snapshots, and docs that all agree | `deep` and `release` pass |
+| 16 | `define-m13-m14-m15-post-m12-mainline` | completed | formalize post-M12 into `M13 / M14 / M15` and explain the practical meaning of worker handoff and re-entry | roadmap, README, development plan, strategic direction doc, and orchestration model all align |
+| 17 | `close-m13-and-m14-and-queue-m15-evidence` | completed | turn `M13 / M14` into durable PTL supervision / worker handoff control surfaces, gates, progress, and handoff | `deep` and `release` pass; control truth, README, roadmap, development plan, and snapshots all show `M13 / M14 done` |
+| 18 | `close-m16-tool-first-front-door-and-queue-rollout-verification` | completed | turn the real entry problem into one front door, one preflight, one structured-output contract, and one durable `entry-routing` surface | `project_assistant_entry.py`, `sync_resume_readiness.py`, `validate_entry_routing.py`, `deep`, and `release` all pass; representative legacy repos can upgrade first and then render panels |
+| 19 | `formalize-issue-driven-closure-loop` | supporting backlog / todo | turn the recurring request shape `current problem -> reasoning -> solution -> devlog -> architecture -> roadmap / development plan -> one long implementation run` into a default skill behavior instead of relying on repeated user reminders | when implemented, durable problems should automatically trigger this closure chain |
 
 ## Milestone Details
-
-### M1
-
-| Item | Current Value |
-| --- | --- |
-| Status | done |
-| Goal | establish `.codex` control surface and tiering |
-| Depends On | core skill routing |
-| Exit Criteria | current state is recoverable |
-
-### M2
-
-| Item | Current Value |
-| --- | --- |
-| Status | done |
-| Goal | establish convergent retrofit |
-| Depends On | control-surface scripts |
-| Exit Criteria | retrofit no longer stops midway |
-
-### M3
-
-| Item | Current Value |
-| --- | --- |
-| Status | done |
-| Goal | establish progress and handoff workflows |
-| Depends On | module layer + snapshot scripts |
-| Exit Criteria | progress and handoff are stable |
-
-### M4
-
-| Item | Current Value |
-| --- | --- |
-| Status | done |
-| Goal | establish durable-doc standards and doc validation |
-| Depends On | document standards + docs scripts |
-| Exit Criteria | durable docs pass structural gates |
-
-### M5
-
-| Item | Current Value |
-| --- | --- |
-| Status | done |
-| Goal | establish bilingual public-doc switching and validation |
-| Depends On | i18n rules + i18n validator |
-| Exit Criteria | public docs switch cleanly between English and Chinese |
-
-### M6
-
-| Item | Current Value |
-| --- | --- |
-| Status | done |
-| Goal | shift to an embedded architect-assistant operating model |
-| Depends On | previous milestones |
-| Exit Criteria | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
-
-### M7
-
-| Item | Current Value |
-| --- | --- |
-| Status | done |
-| Goal | improve narrative quality and automated architecture triggers |
-| Depends On | M6 |
-| Exit Criteria | less manual cleanup after retrofit and fewer direction-correction prompts |
-
-### M8
-
-| Item | Current Value |
-| --- | --- |
-| Status | deferred |
-| Goal | locale-aware internal control-surface output |
-| Depends On | handoff + command templates + validation policy |
-| Exit Criteria | this remains a bounded supporting backlog topic under M10 instead of a mainline milestone |
-
-### M9
-
-| Item | Current Value |
-| --- | --- |
-| Status | deferred |
-| Goal | automatic context compression plus slimmer continue/resume/handoff snapshots without losing recoverability |
-| Depends On | continue snapshot + handoff + validation policy |
-| Exit Criteria | this remains a bounded supporting backlog topic under M10 instead of a mainline milestone |
 
 ### M10
 
 | Item | Current Value |
 | --- | --- |
 | Status | done |
-| Goal | add a PTL-driven strategic-evaluation layer above execution and retrofit |
+| Goal | add a PTL-driven strategic-evaluation layer |
 | Depends On | M7 + approved strategic direction |
-| Exit Criteria | roadmap / governance / architecture adjustments become explicit strategy outputs backed by durable surfaces and review rules |
+| Exit Criteria | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs |
 
 ### M11
 
 | Item | Current Value |
 | --- | --- |
 | Status | done |
-| Goal | add a PTL-driven program-orchestration layer across multiple slices or workers |
+| Goal | add a PTL-driven program-orchestration layer |
 | Depends On | M10 + durable program board |
-| Exit Criteria | the system can coordinate several related slices without constant human continuation prompts; the first stable form is a single-Codex orchestration truth, while multi-executor scheduling stays evidence-driven future scope |
+| Exit Criteria | the system can coordinate multiple related slices instead of depending on repeated human “continue” prompts |
 
 ### M12
 
@@ -190,7 +112,7 @@ It answers one practical question:
 | Status | done |
 | Goal | add a PTL-driven supervision loop |
 | Depends On | M12 + durable delivery supervision |
-| Exit Criteria | the PTL can inspect, continue, resequence, or escalate through periodic and event-driven checks instead of only appearing in chat |
+| Exit Criteria | the PTL can inspect, continue, resequence, or escalate through periodic and event-driven checks |
 
 ### M14
 
@@ -200,7 +122,7 @@ It answers one practical question:
 | Goal | add worker handoff and re-entry |
 | Plain-Language Meaning | `when a worker stops, the project should not stop with it` |
 | Depends On | M13 + durable handoff / supervision truth |
-| Exit Criteria | after a checkpoint, timeout, failure, or handoff, remaining work still has a durable path forward through resume, reassignment, re-queueing, or escalation |
+| Exit Criteria | remaining work still has a durable path forward through resume, reassignment, re-queueing, or escalation |
 
 ### M15
 
@@ -209,20 +131,30 @@ It answers one practical question:
 | Status | later |
 | Goal | add selective multi-executor scheduling |
 | Depends On | M14 + disjoint write scopes + conflict control |
-| Exit Criteria | only work with clear write boundaries and safe merge paths enters multi-executor scheduling; tightly coupled work stays on one primary write line |
+| Exit Criteria | only work with clear write boundaries and safe merge paths enters multi-executor scheduling |
+
+### M16
+
+| Item | Current Value |
+| --- | --- |
+| Status | done |
+| Goal | add the tool-first front door and hard-entry bridge |
+| Depends On | M14 + versioned control surface + entry scripts |
+| Exit Criteria | `continue / progress / handoff` share one front door, one preflight path, and one structured first-screen contract; the repo also owns a durable `entry-routing` contract and a CLI front door |
 
 ## Current Next Step
 
 | Next Move | Why |
 | --- | --- |
-| Continue from `close-m13-and-m14-and-queue-m15-evidence` onward | `M13 / M14` are complete; the next work is to roll out PTL supervision + worker handoff on more repos and use real evidence to decide whether `M15` deserves to exist |
+| Continue from `close-m16-tool-first-front-door-and-queue-rollout-verification` onward | `M16` is now complete; the next work is to prove the front door on more legacy repos and keep `M15` evidence-gated |
+| Reserve `formalize-issue-driven-closure-loop` | this request shape is now recurring often enough that it should become a first-class default behavior in the skill |
 
 ## Strategic Direction
 
 | Topic | Scope | Current Position |
 | --- | --- | --- |
-| business-planning and program-orchestration layer | `project-assistant` has completed the PTL-centered `M10 / M11 / M12 / M13 / M14`; it is now in post-M14 evidence collection while `M15` remains an evidence-gated later layer and M8/M9 stay as supporting backlog under that line | active |
+| business planning, orchestration, and hard-entry routing | `project-assistant` has closed the PTL-centered `M10 / M11 / M12 / M13 / M14` layers and added `M16` so `continue / progress / handoff` now share a canonical front door; `M15` remains evidence-gated later, and M8/M9 stay bounded supporting backlog | active |
 
-Direction:
+Direction document:
 
-- [Strategic Planning And Program Orchestration Direction](strategic-planning-and-program-orchestration.md)
+- [Strategic Planning And Program Orchestration](strategic-planning-and-program-orchestration.md)

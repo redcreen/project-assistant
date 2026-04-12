@@ -10,6 +10,7 @@ from pathlib import Path
 from control_surface_lib import (
     CONTROL_SURFACE_COMPONENT_VERSIONS,
     DELIVERY_SUPERVISION_REQUIRED_SECTIONS,
+    ENTRY_ROUTING_REQUIRED_SECTIONS,
     PROGRAM_BOARD_REQUIRED_SECTIONS,
     PTL_SUPERVISION_REQUIRED_SECTIONS,
     STRATEGY_REQUIRED_SECTIONS,
@@ -47,6 +48,28 @@ class ResumeReadinessResult:
     def upgrade_needed(self) -> bool:
         return bool(self.reasons)
 
+    @property
+    def generation_upgraded(self) -> bool:
+        return self.detected_version != self.current_version
+
+    @property
+    def layers_synced(self) -> tuple[str, ...]:
+        mapping = {
+            "sync_control_surface.py": "control-surface",
+            "sync_strategy_surface.py": "strategy",
+            "sync_program_board.py": "programBoard",
+            "sync_delivery_supervision.py": "deliverySupervision",
+            "sync_ptl_supervision.py": "ptlSupervision",
+            "sync_worker_handoff.py": "workerHandoff",
+            "sync_entry_routing.py": "entryRouting",
+        }
+        labels: list[str] = []
+        for script in self.syncs_run:
+            label = mapping.get(script, script)
+            if label not in labels:
+                labels.append(label)
+        return tuple(labels)
+
 
 SURFACE_SYNCS: tuple[SurfaceSync, ...] = (
     SurfaceSync(
@@ -83,6 +106,13 @@ SURFACE_SYNCS: tuple[SurfaceSync, ...] = (
         script="sync_worker_handoff.py",
         component="workerHandoff",
         required_sections=tuple(WORKER_HANDOFF_REQUIRED_SECTIONS),
+    ),
+    SurfaceSync(
+        name="entry routing",
+        path=".codex/entry-routing.md",
+        script="sync_entry_routing.py",
+        component="entryRouting",
+        required_sections=tuple(ENTRY_ROUTING_REQUIRED_SECTIONS),
     ),
 )
 
