@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import PurePosixPath
 from pathlib import Path
 
-from control_surface_lib import classify_markdown_role, load_doc_governance_config, match_glob
+from control_surface_lib import COMMON_ROOT_DOCS, classify_markdown_role, load_doc_governance_config, match_glob
 IGNORED_DIRS = {".git", "node_modules", ".obsidian", "__pycache__"}
 
 DURABLE_IN_REPORTS_TOKENS = (
@@ -28,6 +29,20 @@ def inventory_markdown(repo: Path) -> list[Path]:
     return sorted(items)
 
 
+def question_token_matches(rel: str, tokens: list[str]) -> bool:
+    path = PurePosixPath(rel.lower())
+    stem = path.stem.lower()
+    name = path.name.lower()
+    parent = path.parent.name.lower() if path.parent != PurePosixPath(".") else ""
+    return any(
+        token in stem
+        or token in name
+        or token == stem
+        or token == parent
+        for token in tokens
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate full Markdown governance convergence.")
     parser.add_argument("repo", type=Path, help="Repository root")
@@ -48,7 +63,9 @@ def main() -> int:
     root_docs = sorted(p for p in repo.glob("*.md"))
     allowed_root = set(str(item) for item in governance.get("rootKeep", []))
     for path in root_docs:
-        if path.name not in allowed_root:
+        rel = path.relative_to(repo).as_posix()
+        role = classify_markdown_role(repo, rel, governance)
+        if path.name not in allowed_root and not (path.name in COMMON_ROOT_DOCS and role in {"durable", "release"}):
             warnings.append(f"unexpected root markdown file: {path.name}")
 
     docs_home = (repo / "docs/README.md").read_text(encoding="utf-8") if (repo / "docs/README.md").exists() else ""
@@ -97,8 +114,7 @@ def main() -> int:
                 continue
             if any(match_glob(rel, pattern) for pattern in allowed_globs):
                 continue
-            lowered = rel.lower()
-            if any(token in lowered for token in tokens):
+            if question_token_matches(rel, tokens):
                 warnings.append(f"{question}-like doc outside owned set: {rel}")
 
     payload = {"ok": not missing and not warnings, "missing": missing, "warnings": warnings}
