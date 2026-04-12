@@ -55,6 +55,11 @@ def update_install_refs(version: str) -> None:
         )
         replace_text(
             path,
+            r"git clone --branch v[0-9]+\.[0-9]+\.[0-9]+ https://github\.com/redcreen/project-assistant\.git",
+            f"git clone --branch {tag} https://github.com/redcreen/project-assistant.git",
+        )
+        replace_text(
+            path,
             r"PROJECT_ASSISTANT_REF=v[0-9]+\.[0-9]+\.[0-9]+",
             f"PROJECT_ASSISTANT_REF={tag}",
         )
