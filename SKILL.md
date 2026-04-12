@@ -25,7 +25,7 @@ Primary modes:
 - `架构` / `architecture`
 - `架构整改` / `architecture-retrofit`
 - `执行` / `execute`
-- `恢复` / `resume`
+- `继续` / `恢复` / `continue` / `resume`
 - `进展` / `progress`
 - `整改` / `retrofit`
 - `文档整改` / `docs-retrofit`
@@ -39,6 +39,7 @@ Treat `文档整改`, `文档重构`, and `整理文档系统` as the documentat
 Treat `架构整改`, `架构重构整改`, and `architecture retrofit` as the architecture-focused variant of `retrofit`.
 Treat `发布`, `打标`, and `发版` as the release flow when the repo supports versioned install docs.
 Treat `architecture`, `docs retrofit`, `devlog`, `release`, and `handoff` as the English-friendly variants of those flows.
+Treat `继续` / `continue` as the default short resume-and-keep-going entry.
 
 Choose command examples to match the user's language:
 
@@ -259,8 +260,12 @@ Stop only when:
 ### 恢复 / Resume
 
 - read current control docs first
-- summarize current phase, active slice, blockers, and next 3 actions
+- render a compact continue snapshot instead of a full dashboard
+- include current phase, active slice, long task, execution progress, architecture signal, next work, and the visible task board
+- keep it short and explicitly say that full progress is available via `项目助手 进展` / `project assistant progress`
 - continue from the right slice instead of replanning from zero
+
+If `scripts/continue_snapshot.py` exists, run it first.
 
 ### 进展 / Progress
 

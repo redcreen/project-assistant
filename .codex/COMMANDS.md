@@ -18,7 +18,7 @@
 
 - `项目助手 启动这个项目` / `project assistant start this project`
 - `项目助手 规划下一阶段` / `project assistant plan the next phase`
-- `项目助手 恢复当前状态` / `project assistant resume current status`
+- `项目助手 继续` / `project assistant continue`
 - `项目助手 整改这个仓库` / `project assistant retrofit this repo`
 - `项目助手 文档整改这个仓库` / `project assistant docs retrofit this repo`
 - `项目助手 收口当前阶段` / `project assistant close out the current phase`

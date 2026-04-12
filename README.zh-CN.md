@@ -57,7 +57,7 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 后台流程（通常自动运行）：
 
 - `项目助手 启动这个项目`
-- `项目助手 恢复当前状态`
+- `项目助手 继续`
 - `项目助手 架构 整改`
 - `项目助手 整改`
 - `项目助手 文档整改`
@@ -104,6 +104,7 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 长任务执行时，应通过可见的任务板体现 done/total 进度，而不是只剩下一段抽象状态描述
 - 架构层还应持续表明：现在是可以自动继续、提醒但继续，还是必须停下来等用户裁决
 - 进展和交接里还应明确告诉你：现在到底有哪些能力已经可用
+- `继续` 应默认带一个简版进展快照；如果要完整全局视图，再用 `项目助手 进展`
 
 ### 启动或接管项目
 
@@ -115,6 +116,12 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 
 ```text
 项目助手 进展
+```
+
+### 直接继续当前工作
+
+```text
+项目助手 继续
 ```
 
 ### 从架构层审查当前方向

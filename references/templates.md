@@ -500,18 +500,49 @@ Use when the session is long and the user needs a new-thread restore pack.
 
 ## Copy-Paste Commands
 ```text
-项目助手 恢复当前项目状态，然后继续执行当前切片：...
+项目助手 继续。先读取 .codex/status.md、.codex/plan.md；然后继续执行当前切片：...
 项目助手 告诉我这个项目当前进展，用全局视角、模块视角和图示输出。
 项目助手 继续当前切片，并先运行验证：...
 ```
 
 ```text
-project assistant resume current status and continue the active slice: ...
+project assistant continue. Read .codex/status.md and .codex/plan.md first; then continue the active slice: ...
 project assistant progress
 project assistant continue the active slice and run validation first: ...
 ```
 
 ## Next 3 Actions
+1.
+2.
+3.
+```
+
+## Continue Snapshot Template
+
+Use when the user says `项目助手 继续` / `project assistant continue`.
+
+```md
+# Continue Snapshot
+
+## Continue Now
+- Current Phase:
+- Active Slice:
+- Long Task:
+- Execution Progress:
+- Architecture Signal:
+- Main Risk:
+- Full Dashboard: use `项目助手 进展` / `project assistant progress`
+
+## Next Work
+1.
+2.
+3.
+
+## Task Board
+- [ ] EL-1 ...
+- [ ] EL-2 ...
+
+## Stored Next 3 Actions
 1.
 2.
 3.
@@ -613,7 +644,7 @@ Use for `.codex/COMMANDS.md` when the repo needs a human-facing quick reminder.
 
 - `项目助手 启动这个项目` / `project assistant start this project`
 - `项目助手 规划下一阶段` / `project assistant plan the next phase`
-- `项目助手 恢复当前状态` / `project assistant resume current status`
+- `项目助手 继续` / `project assistant continue`
 - `项目助手 架构 整改` / `project assistant architecture retrofit`
 - `项目助手 整改这个仓库` / `project assistant retrofit this repo`
 - `项目助手 收口当前阶段` / `project assistant close out the current phase`

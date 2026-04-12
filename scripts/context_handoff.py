@@ -149,9 +149,9 @@ def main() -> int:
     print("\n### Chinese")
     print("```text")
     print(
-        f"项目助手 恢复当前项目状态，然后继续当前执行线：{current_execution_line}。先读取 "
+        f"项目助手 继续。先读取 "
         + docs_cn
-        + "。"
+        + f"；然后继续当前执行线：{current_execution_line}。"
     )
     print("项目助手 告诉我这个项目当前进展，用全局视角、模块视角和图示输出。")
     test_line = f"项目助手 继续当前执行线，并先运行验证：{primary_test_cn}"
@@ -163,8 +163,8 @@ def main() -> int:
     print("\n### English")
     print("```text")
     print(
-        f"project assistant resume current status and continue the current execution line: {english_execution_line}. "
-        f"Read {docs_en} first."
+        f"project assistant continue. Read {docs_en} first; then continue the current execution line: "
+        f"{english_execution_line}."
     )
     print("project assistant progress")
     test_line = f"project assistant continue the current execution line and run validation first: {primary_test_en}"

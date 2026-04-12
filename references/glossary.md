@@ -9,7 +9,7 @@ Use this glossary in user-facing communication. Prefer the Chinese alias in norm
 | `启动` | `bootstrap` | 为新项目、新阶段建立最小控制面 |
 | `规划` | `plan` | 明确目标、约束、架构、路线、测试与执行切片 |
 | `执行` | `execute` | 按当前切片实现，并同步更新控制面 |
-| `恢复` | `resume` | 恢复当前状态，找到正确续做位置 |
+| `继续` | `continue / resume` | 恢复当前状态并继续当前执行线 |
 | `进展` | `progress` | 汇总项目当前进展、风险、下一步 |
 | `整改` | `retrofit` | 把已有项目调整到这套治理规范 |
 | `收口` | `closeout` | 收尾当前切片或阶段，并准备下一阶段 |

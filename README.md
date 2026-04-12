@@ -57,7 +57,7 @@ Primary human windows:
 Background flows (usually automatic):
 
 - `project assistant start this project`
-- `project assistant resume current status`
+- `project assistant continue`
 - `project assistant architecture retrofit`
 - `project assistant retrofit`
 - `project assistant docs retrofit`
@@ -104,6 +104,7 @@ Default working style:
 - its long-run execution should stay visible through an execution-task board, not disappear into free-form status prose
 - the architecture layer should keep showing whether the assistant can continue automatically, should raise-but-continue, or must stop for user judgment
 - progress and handoff should also tell you which capabilities are already usable now
+- `continue` should default to a compact progress snapshot; use `project assistant progress` when you want the full dashboard
 
 ### Start or take over a project
 
@@ -115,6 +116,12 @@ project assistant start this project
 
 ```text
 project assistant progress
+```
+
+### Continue the current execution line
+
+```text
+project assistant continue
 ```
 
 ### Review the current direction at the architecture level

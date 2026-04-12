@@ -37,7 +37,7 @@ Chinese menu:
 - 启动（bootstrap）
 - 规划（plan）
 - 执行（execute）
-- 恢复（resume）
+- 继续（continue / resume）
 - 整改（retrofit）
 - 收口（closeout）：结束当前阶段并准备下一阶段
 
@@ -52,6 +52,7 @@ Chinese menu:
 
 示例：
 - 项目助手 启动这个项目
+- 项目助手 继续
 - 项目助手 告诉我项目进展
 - 项目助手 先做整改审计
 
@@ -72,7 +73,7 @@ Background flows (usually automatic):
 - start
 - plan
 - execute
-- resume
+- continue
 - retrofit
 - closeout
 
@@ -88,6 +89,7 @@ Default working style:
 
 Examples:
 - project assistant start this project
+- project assistant continue
 - project assistant progress
 - project assistant retrofit
 

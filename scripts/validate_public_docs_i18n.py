@@ -10,10 +10,10 @@ from control_surface_lib import load_doc_governance_config, match_glob
 
 
 EN_COMMAND_RE = re.compile(
-    r"(?im)(?:^|[`>\-\s])(?:\$project-assistant|project assistant\s+(?:menu|start|resume|progress|retrofit|docs retrofit|devlog|handoff|release))\b"
+    r"(?im)(?:^|[`>\-\s])(?:\$project-assistant|project assistant\s+(?:menu|start|continue|resume|progress|retrofit|docs retrofit|devlog|handoff|release))\b"
 )
 ZH_COMMAND_RE = re.compile(
-    r"(?im)(?:^|[`>\-\s])项目助手(?:\s+(?:菜单|启动这个项目|恢复当前状态|进展|整改|文档整改|开发日志|压缩上下文|发布))?"
+    r"(?im)(?:^|[`>\-\s])项目助手(?:\s+(?:菜单|启动这个项目|继续|恢复当前状态|进展|整改|文档整改|开发日志|压缩上下文|发布))?"
 )
 
 def read_text(path: Path) -> str:

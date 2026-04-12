@@ -21,7 +21,7 @@ Everything else should increasingly behave like a background flow that the assis
 - `规划` = `plan`
 - `架构` = `architecture`
 - `执行` = `execute`
-- `恢复` = `resume`
+- `继续` = `continue / resume`
 - `进展` = `progress`
 - `整改` = `retrofit`
 - `文档整改` = `docs-retrofit`
@@ -36,7 +36,7 @@ English simple commands:
 - `project assistant start this project`
 - `project assistant plan the next phase`
 - `project assistant architecture`
-- `project assistant resume current status`
+- `project assistant continue`
 - `project assistant progress`
 - `project assistant retrofit`
 - `project assistant docs retrofit`
@@ -141,14 +141,20 @@ English usage notes:
 
 ## Resume Work | 恢复工作
 
-- `用 $project-assistant 恢复当前项目状态，然后继续下一步。`
-- `Use $project-assistant to resume this repo from the current status and continue execution.`
-- `project assistant resume current status`
+- `项目助手 继续`
+- `用 $project-assistant 继续这个仓库的当前执行线。`
+- `Use $project-assistant to continue this repo from the current execution line.`
+- `project assistant continue`
+- `兼容别名：项目助手 恢复当前状态 / project assistant resume current status`
 
 默认语义：
 
-- 恢复后不应停在“已恢复，请继续输入”
+- `继续` 直接表示“恢复当前状态并继续当前执行线”
+- `继续` 默认先给一个简版进展快照，而不是完整 dashboard
+- 简版快照至少要带：当前阶段、当前切片、当前长任务、执行进度、架构信号、接下来要做的事
+- “接下来要做的事”应优先来自当前任务板里的未完成任务，这样和下面的 task board 是对应的
 - 应直接进入当前执行线，继续一段有意义的长任务
+- 同时要明确提示：如果想看完整全局视图，用 `项目助手 进展`
 - 恢复输出应优先展示执行线目标、done/total 进度和当前可见子任务板
 - 恢复输出也应展示当前架构监督信号和升级 gate
 - 恢复输出也应带一个 `Usable Now` 快照，让用户知道当前有哪些能力已经能直接使用
@@ -248,7 +254,7 @@ English usage notes:
 - `项目助手 帮助`
 - `启动这个项目`
 - `规划下一阶段`
-- `恢复当前状态`
+- `继续`
 - `告诉我项目进展`
 - `先做整改审计`
 - `直接整改这个仓库`
