@@ -5,7 +5,7 @@ import argparse
 import re
 from pathlib import Path
 
-from control_surface_lib import completion_band, completion_percent, parse_official_modules, parse_tier
+from control_surface_lib import completion_band, completion_percent, parse_official_modules, parse_tier, read_text
 
 
 def section(text: str, heading: str) -> str:
@@ -19,6 +19,14 @@ def first_line(text: str) -> str:
         line = line.strip()
         if line:
             return line.strip("`")
+    return ""
+
+
+def first_heading(text: str) -> str:
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("# "):
+            return stripped[2:].strip()
     return ""
 
 
@@ -108,6 +116,16 @@ def module_health_breakdown(module_summaries: list[dict[str, str]]) -> str:
     return ", ".join(parts) if parts else "n/a"
 
 
+def project_display_name(repo: Path) -> str:
+    brief_heading = first_heading(read_text(repo / ".codex/brief.md"))
+    if brief_heading and brief_heading.lower() != "project brief":
+        return brief_heading
+    readme_heading = first_heading(read_text(repo / "README.md"))
+    if readme_heading:
+        return readme_heading
+    return repo.name
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Render a quick markdown progress snapshot from the control surface.")
     parser.add_argument("repo", type=Path, help="Repository root")
@@ -116,6 +134,7 @@ def main() -> int:
     repo = args.repo.resolve()
     tier = parse_tier(repo)
     status_text = (repo / ".codex/status.md").read_text(encoding="utf-8")
+    project_name = project_display_name(repo)
 
     current_phase = first_line(section(status_text, "Current Phase"))
     active_slice = first_line(section(status_text, "Active Slice"))
@@ -124,6 +143,7 @@ def main() -> int:
 
     print("# Progress Dashboard\n")
     print("## Summary")
+    print(f"- Project: `{project_name}`")
     print(f"- Tier: `{tier}`")
     print(f"- Current Phase: `{current_phase}`")
     print(f"- Active Slice: `{active_slice}`")
@@ -174,7 +194,7 @@ def main() -> int:
         print("\n## Module Flow")
         print("```mermaid")
         print("flowchart TB")
-        print('    P["Unified Memory Core"]')
+        print(f'    P["{project_name}"]')
         for module, summary in zip(official_modules, module_summaries):
             label = module_display_name(module)
             status_label = f"{mermaid_status_label(summary['status'])} / {summary['completion_percent']}%"

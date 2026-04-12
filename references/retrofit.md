@@ -54,6 +54,7 @@ If available, use:
 - `scripts/validate_markdown_governance.py` to enforce full-tree Markdown ownership gates
 - `scripts/validate_doc_quality.py` to enforce that public docs are no longer scaffold-like or broken
 - `scripts/validate_gate_set.py` to run the layered `fast` / `deep` gate sets
+- `scripts/validate_control_surface_quality.py` to stop `.codex/*` from passing in template state
 
 ## Mandatory Self-Check
 

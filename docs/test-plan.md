@@ -23,6 +23,7 @@ Primary risks:
 | Docs retrofit | repo has public docs | run docs retrofit flow | README and docs system are normalized and validate |
 | Public-doc i18n | repo requires bilingual public docs | run i18n validator | English/Chinese doc pairs and switch links exist |
 | Public-doc quality | repo has public docs | run doc-quality validator | public docs contain no placeholder prose, empty diagrams, or broken local links |
+| Control-surface quality | repo has `.codex/*` | run control-surface quality validator | brief, plan, status, and module docs are not left in TODO/template state |
 
 ## Automation Coverage
 
@@ -31,6 +32,7 @@ Primary risks:
 - `scripts/validate_public_docs_i18n.py`
 - `scripts/validate_gate_set.py`
 - `scripts/validate_doc_quality.py`
+- `scripts/validate_control_surface_quality.py`
 
 ## Manual Checks
 
@@ -53,3 +55,4 @@ Before calling the skill update complete:
 - public-doc i18n validation passes on the skill repo
 - layered gate-set validation passes on the skill repo
 - doc-quality validation passes on the skill repo
+- control-surface quality validation passes on the skill repo

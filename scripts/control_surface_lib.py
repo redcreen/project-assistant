@@ -97,6 +97,20 @@ def parse_official_modules(repo: Path) -> list[str]:
 
     candidates: list[str] = []
 
+    module_dir = repo / ".codex/modules"
+    if module_dir.exists():
+        for path in sorted(module_dir.glob("*.md")):
+            if path.stem:
+                candidates.append(slugify(path.stem))
+
+    if candidates:
+        return dedupe_preserve_order(candidates)
+
+    dashboard_text = read_text(repo / ".codex/module-dashboard.md")
+    dashboard_rows = parse_module_dashboard_rows(dashboard_text)
+    if dashboard_rows:
+        return sorted(dashboard_rows)
+
     module_map = read_text(repo / "docs/module-map.md")
     for line in module_map.splitlines():
         if not line.strip().startswith("|"):
@@ -127,37 +141,6 @@ def parse_official_modules(repo: Path) -> list[str]:
 
     if candidates:
         return dedupe_preserve_order(candidates)
-
-    project_roadmap = read_text(repo / "project-roadmap.md")
-    match = re.search(
-        r"first-class modules are:\s*(.*?)\n## ",
-        project_roadmap,
-        re.IGNORECASE | re.DOTALL,
-    )
-    if not match:
-        match = re.search(
-            r"一等模块组织：\s*(.*?)\n## ",
-            project_roadmap,
-            re.IGNORECASE | re.DOTALL,
-        )
-    if match:
-        for line in match.group(1).splitlines():
-            m = re.match(r"\s*\d+\.\s+\**`?([^`\n*]+?)`?\**\s*$", line)
-            if m:
-                candidates.append(slugify(m.group(1)))
-
-    if candidates:
-        return dedupe_preserve_order(candidates)
-
-    architecture_map = read_text(repo / "docs/unified-memory-core/architecture/README.md")
-    for line in architecture_map.splitlines():
-        m = re.match(r"\s*-\s+\[([^\]]+)\]\(([^)]+)\)", line)
-        if not m:
-            continue
-        label = m.group(1).strip()
-        if label.lower() in {"deployment-topology", "../deployment-topology.md"}:
-            continue
-        candidates.append(slugify(label))
 
     return dedupe_preserve_order(candidates)
 
@@ -278,12 +261,7 @@ def load_doc_governance_config(repo: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         payload = {}
     merged = default_doc_governance_payload(repo, parse_tier(repo), parse_official_modules(repo))
-    if payload.get("userCustomized") is True:
-        return merge_doc_governance(merged, payload)
-    explicit_moves = payload.get("explicitMoves")
-    if isinstance(explicit_moves, dict) and explicit_moves:
-        merged["explicitMoves"] = {str(k): str(v) for k, v in explicit_moves.items()}
-    return merged
+    return merge_doc_governance(merged, payload)
 
 
 def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
@@ -580,14 +558,7 @@ def write_doc_governance_config(repo: Path, tier: str, official_modules: list[st
         except json.JSONDecodeError:
             existing = {}
     defaults = default_doc_governance_payload(repo, tier, official_modules)
-    if existing.get("userCustomized") is True:
-        payload = merge_doc_governance(defaults, existing)
-    else:
-        payload = defaults
-        explicit_moves = existing.get("explicitMoves")
-        if isinstance(explicit_moves, dict) and explicit_moves:
-            payload = dict(payload)
-            payload["explicitMoves"] = {str(k): str(v) for k, v in explicit_moves.items()}
+    payload = merge_doc_governance(defaults, existing) if existing else defaults
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 

@@ -126,6 +126,8 @@ Prefer the bundled scripts when present:
   中文：校验全仓 Markdown 是否已经完成职责收口
 - `scripts/validate_doc_quality.py`
   中文：校验公开文档是否仍然停留在模板态、假双语或坏链接状态
+- `scripts/validate_control_surface_quality.py`
+  中文：校验 `.codex/*` 活文档是否还停留在模板态
 - `scripts/validate_gate_set.py`
   中文：按 `fast` / `deep` 分层运行门禁
 - `scripts/progress_snapshot.py`
@@ -220,7 +222,7 @@ If scripts exist:
 Gate policy:
 
 - `fast` = `validate_control_surface.py` + `validate_docs_system.py` + `validate_public_docs_i18n.py`
-- `deep` = `fast` + `validate_markdown_governance.py` + `validate_doc_quality.py`
+- `deep` = `fast` + `validate_markdown_governance.py` + `validate_doc_quality.py` + `validate_control_surface_quality.py`
 - `整改` and `文档整改` must finish on `deep`
 - `发布` must pass `deep` before tagging
 

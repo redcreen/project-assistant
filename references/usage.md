@@ -33,6 +33,7 @@ Gate commands:
 
 - `python3 scripts/validate_gate_set.py /path/to/repo --profile fast`
 - `python3 scripts/validate_gate_set.py /path/to/repo --profile deep`
+- `python3 scripts/validate_control_surface_quality.py /path/to/repo --format text`
 
 ## Start or Bootstrap | 启动
 
@@ -107,6 +108,7 @@ Gate commands:
 - `整改` = 控制面整改 + 文档整改 + 全仓 Markdown 治理
 - `文档整改` = 先补控制面，再做文档系统和全仓 Markdown 治理
 - `.codex/doc-governance.json` = 文档治理配置入口，用来声明公开文档范围、根目录保留文档和 Markdown 所有权
+- `deep` 现在还会检查 `.codex/*` 是否仍然停留在模板态
 - 如果项目要求公开文档双语，则整改还应补齐中英文可切换文档对
 - 如果仓库仍有 legacy 深层文档树，整改应把它们迁入 `docs/reference/`、`docs/workstreams/` 或 `docs/archive/`
 - 完成前还应通过 `validate_doc_quality.py`，避免公开文档停留在模板态、假双语或坏链接状态
