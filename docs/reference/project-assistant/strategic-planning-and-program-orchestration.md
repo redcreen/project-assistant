@@ -109,6 +109,10 @@ The AI system should increasingly handle:
 
 These should sit alongside existing control-surface files, not replace them.
 
+For the current single-Codex orchestration model versus a future multi-executor layer, see:
+
+- [orchestration-model.md](orchestration-model.md)
+
 ## Automation Boundary
 
 | The System May Do Automatically | The System Must Escalate |

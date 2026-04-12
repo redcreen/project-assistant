@@ -109,6 +109,10 @@ AI 系统则应逐步承担：
 
 这两者应该和现有控制面并列，而不是替代 `plan / status`。
 
+当前单 Codex 编排模型与未来多执行器层的区别看这里：
+
+- [orchestration-model.zh-CN.md](orchestration-model.zh-CN.md)
+
 ## 自动化边界
 
 | 系统可以自动做 | 系统必须升级给人类 |

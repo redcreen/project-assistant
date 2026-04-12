@@ -8,6 +8,7 @@
 - Architecture: [architecture.md](architecture.md)
 - Roadmap: [roadmap.md](roadmap.md)
 - Strategic direction: [reference/project-assistant/strategic-planning-and-program-orchestration.md](reference/project-assistant/strategic-planning-and-program-orchestration.md)
+- Orchestration model: [reference/project-assistant/orchestration-model.md](reference/project-assistant/orchestration-model.md)
 - Testing: [test-plan.md](test-plan.md)
 - Development log: [devlog/README.md](devlog/README.md)
 - ADRs: [adr/README.md](adr/README.md)
@@ -21,6 +22,7 @@
 | Plan an architecture-first repo correction | [../references/architecture-retrofit.md](../references/architecture-retrofit.md) |
 | See what is next | [roadmap.md](roadmap.md) |
 | See the approved strategic layer beyond the current roadmap | [reference/project-assistant/strategic-planning-and-program-orchestration.md](reference/project-assistant/strategic-planning-and-program-orchestration.md) |
+| Understand the current single-Codex orchestration model vs a future multi-executor layer | [reference/project-assistant/orchestration-model.md](reference/project-assistant/orchestration-model.md) |
 | Verify correctness | [test-plan.md](test-plan.md) |
 | Reconstruct a non-obvious implementation path | [devlog/README.md](devlog/README.md) |
 | Review durable design decisions | [adr/README.md](adr/README.md) |
