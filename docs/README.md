@@ -17,6 +17,7 @@
 | --- | --- |
 | Try the project quickly | [README](../README.md) |
 | Understand the system | [architecture.md](architecture.md) |
+| Plan an architecture-first repo correction | [../references/architecture-retrofit.md](../references/architecture-retrofit.md) |
 | See what is next | [roadmap.md](roadmap.md) |
 | Verify correctness | [test-plan.md](test-plan.md) |
 | Reconstruct a non-obvious implementation path | [devlog/README.md](devlog/README.md) |

@@ -23,6 +23,7 @@ Primary modes:
 - `启动` / `bootstrap`
 - `规划` / `plan`
 - `架构` / `architecture`
+- `架构整改` / `architecture-retrofit`
 - `执行` / `execute`
 - `恢复` / `resume`
 - `进展` / `progress`
@@ -35,6 +36,7 @@ Primary modes:
 
 Also trigger this skill when the user clearly asks for project startup, rescue, architecture supervision, progress, retrofit, recovery, development logging, or handoff, even if the exact alias is not used.
 Treat `文档整改`, `文档重构`, and `整理文档系统` as the documentation-focused variant of `retrofit`.
+Treat `架构整改`, `架构重构整改`, and `architecture retrofit` as the architecture-focused variant of `retrofit`.
 Treat `发布`, `打标`, and `发版` as the release flow when the repo supports versioned install docs.
 Treat `architecture`, `docs retrofit`, `devlog`, `release`, and `handoff` as the English-friendly variants of those flows.
 
@@ -68,6 +70,15 @@ If the user asks:
 
 return a short architecture submenu instead of the general menu.
 
+Primary human-facing windows:
+
+- `项目助手 菜单` / `project assistant menu`
+- `项目助手 进展` / `project assistant progress`
+- `项目助手 架构` / `project assistant architecture`
+- `项目助手 开发日志` / `project assistant devlog`
+
+Most other flows should behave like background operating flows unless the user explicitly overrides them.
+
 ## Core Contract
 
 1. classify the work as `small`, `medium`, or `large`
@@ -75,8 +86,10 @@ return a short architecture submenu instead of the general menu.
 3. execute one slice at a time
 4. default to a meaningful uninterrupted execution line instead of waiting for repeated "continue" prompts
 5. express that execution line as a visible task board mapped back to the active slice or development plan
-6. keep status fresh at session boundaries
-7. for existing repos, retrofit to convergence rather than stopping in a partial state
+6. keep a compact architecture-supervision state beside that task board
+7. use an explicit escalation gate: continue automatically, raise but continue, or require user decision
+8. keep status fresh at session boundaries
+9. for existing repos, retrofit to convergence rather than stopping in a partial state
 
 ### Tier Rules
 
@@ -109,6 +122,7 @@ Use `.codex/subprojects/*.md` only for active cross-cutting workstreams. Do not 
 Document ownership and templates live in:
 
 - [references/bootstrap.md](references/bootstrap.md)
+- [references/architecture-retrofit.md](references/architecture-retrofit.md)
 - [references/document-standards.md](references/document-standards.md)
 - [references/governance.md](references/governance.md)
 - [references/templates.md](references/templates.md)
@@ -139,16 +153,28 @@ Prefer the bundled scripts when present:
   中文：校验公开文档是否仍然停留在模板态、假双语或坏链接状态
 - `scripts/validate_control_surface_quality.py`
   中文：校验 `.codex/*` 活文档是否还停留在模板态
+- `scripts/sync_execution_line.py`
+  中文：从 active slice 自动生成更长的执行线任务板
+- `scripts/sync_architecture_supervision.py`
+  中文：从当前执行线、blockers 和升级状态自动刷新架构信号与升级 gate
+- `scripts/sync_architecture_retrofit.py`
+  中文：生成 repo 本地的架构整改工作底稿
 - `scripts/validate_gate_set.py`
   中文：按 `fast` / `deep` 分层运行门禁
 - `scripts/write_development_log.py`
   中文：写入一条带问题、思考、解决方案和验证的开发日志
 - `scripts/validate_development_log.py`
   中文：校验开发日志索引和条目结构是否完整
+- `scripts/validate_architecture_retrofit.py`
+  中文：校验架构整改工作底稿是否真实可用
+- `scripts/capability_snapshot.py`
+  中文：汇总当前仓库现在已经可用的项目助手能力
 - `scripts/progress_snapshot.py`
   中文：生成机器校验过的项目进展面板
 - `scripts/context_handoff.py`
   中文：生成上下文压缩 / 新对话恢复包
+- `scripts/validate_release_readiness.py`
+  中文：按架构信号、升级 gate 和开发日志状态校验发布就绪度
 - `scripts/release_skill.py`
   中文：更新版本、安装地址，并创建 release commit 和 tag
 
@@ -172,6 +198,7 @@ If `scripts/sync_control_surface.py` exists, run it before filling content.
 - define validation before implementation
 - define the current execution line: a meaningful autonomous run that should continue until a checkpoint, blocker, or decision gate
 - define the execution task board under that line so the user can see done/total progress at a glance
+- define the architecture-supervision state for that line: signal, root-cause hypothesis, correct layer, rejected shortcut, and escalation gate
 
 Prefer a single execution plan unless the project truly needs both a roadmap and a development plan.
 
@@ -185,6 +212,7 @@ Recommended subcommands:
 - `项目助手 架构 复盘` / `project assistant architecture retrospective`
 - `项目助手 架构 根因` / `project assistant architecture root-cause`
 - `项目助手 架构 扩展性` / `project assistant architecture extensibility`
+- `项目助手 架构 整改` / `project assistant architecture retrofit`
 
 When the user enters only `项目助手 架构` or `project assistant architecture`, show these subcommands with one-line explanations.
 Mark the most common subcommand first and include a short "when to use it" note for each item.
@@ -195,6 +223,8 @@ Default responsibilities:
 - check whether the chosen layer or abstraction boundary is correct
 - reject one-off hardcoding that should become a reusable mechanism
 - evaluate extensibility risk before or after implementation
+- set a visible supervision signal: `green`, `yellow`, or `red`
+- set an escalation gate: `continue automatically`, `raise but continue`, or `require user decision`
 
 Review order:
 
@@ -203,6 +233,7 @@ Review order:
 3. pull code paths, diffs, or concrete evidence only when the high-level review needs proof
 
 For `medium` and `large` work, architecture supervision should run implicitly inside `plan`, `execute`, `retrofit`, and `closeout`, while these commands remain available as explicit manual overrides.
+If the user explicitly chooses architecture retrofit, prefer the architecture-retrofit flow over generic retrofit.
 
 ### 执行 / Execute
 
@@ -210,6 +241,7 @@ For `medium` and `large` work, architecture supervision should run implicitly in
 - derive a current execution line from the active slice
 - map the execution line back to one explicit slice via `Plan Link`
 - keep a visible execution task board with checkbox tasks and `EL-*` ids
+- keep a visible architecture-supervision block beside the task board
 - let the execution task board expand to as many subtasks as the checkpoint needs, often 5-20+ tasks for a meaningful long run
 - prefer one meaningful uninterrupted run, with a target of roughly 20-30 minutes of autonomous progress when the repo and task support it
 - do not stop after every micro-step just to ask for "continue"
@@ -222,6 +254,7 @@ Stop only when:
 - a blocker or failed validation needs human direction
 - a business, product, compatibility, or cost tradeoff requires user judgment
 - the current direction is judged red by architecture supervision
+- the escalation gate is `require user decision`
 
 ### 恢复 / Resume
 
@@ -237,6 +270,8 @@ If `scripts/progress_snapshot.py` exists, run it first.
 
 For `medium` and `large` projects, progress output should be a compact dashboard, not free-form prose. For large projects, include module view and Mermaid when it improves orientation.
 When an execution line exists, surface its task board and done/total count as a first-class part of the dashboard.
+When architecture supervision is active, surface its signal and escalation gate beside the execution line.
+When capabilities have become usable, surface a compact `Usable Now` snapshot so the user can see what is ready, not only what is still being built.
 
 ### 整改 / Retrofit
 
@@ -249,6 +284,9 @@ Hard rules:
 - retrofit must fail closed
 - do not stop in an intermediate state
 - default retrofit includes documentation retrofit
+- if the repo is a git worktree and has uncommitted changes, prompt whether to create a checkpoint commit before restructuring
+- do not auto-commit without user approval
+- if the user wants to continue without committing, proceed without reverting their changes
 
 Default scope of `整改`:
 
@@ -283,10 +321,38 @@ Gate policy:
 
 - `fast` = `validate_control_surface.py` + `validate_docs_system.py` + `validate_public_docs_i18n.py`
 - `deep` = `fast` + `validate_markdown_governance.py` + `validate_doc_quality.py` + `validate_control_surface_quality.py` + `validate_development_log.py`
+- `release` = `deep` + `validate_release_readiness.py`
 - `整改` and `文档整改` must finish on `deep`
-- `发布` must pass `deep` before tagging
+- `发布` must pass `release` before tagging
 
 For large projects with first-class modules, retrofit is not complete without the module layer.
+
+### 架构整改 / Architecture Retrofit
+
+Use [references/architecture-retrofit.md](references/architecture-retrofit.md).
+
+Architecture retrofit is for direction drift, not just structure drift.
+It defaults to direct convergence, not audit-only output.
+
+Default sequence:
+
+1. run `scripts/sync_architecture_retrofit.py`
+2. read `.codex/architecture-retrofit.md`
+3. turn that note into one or more explicit slices
+4. generate the current execution line from the chosen architecture-retrofit slice
+5. apply the architecture retrofit, not only the architecture-retrofit note
+6. keep the architecture signal visible during the retrofit
+7. finish on `deep`; if release-facing behavior changed, also finish on `release`
+
+Only stop at an audit note or retrofit checklist when the user explicitly says:
+
+- `先不要改文件`
+- `先审计`
+- `先出整改方案`
+- `plan first`
+- `audit only`
+
+If the repo is a git worktree and has uncommitted changes, run the same dirty-worktree preflight before applying architecture retrofit changes.
 
 ### 发布 / Release
 
@@ -301,6 +367,7 @@ Preferred maintainer hint:
 - `可发布。执行：项目助手 发布 patch`
 
 If the repo contains `VERSION`, `install.sh`, and tag-based install docs, prefer `scripts/release_skill.py`.
+When scripts are available, prefer computed architecture signal output over stale prose and keep the release path on `validate_gate_set.py --profile release`.
 
 ### 开发日志 / Devlog
 
@@ -315,6 +382,7 @@ Write or update a development log when:
 Default behavior:
 
 - write or update the devlog automatically when a durable reasoning thread appears
+- keep a visible trigger-strength policy in the control surface so the assistant knows what must be captured and what can be skipped
 - keep the manual `项目助手 开发日志` / `project assistant devlog` entry as an override or backfill window
 
 Default location:

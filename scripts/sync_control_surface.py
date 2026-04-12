@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import argparse
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 from control_surface_lib import (
@@ -10,6 +12,7 @@ from control_surface_lib import (
     completion_percent,
     parse_official_modules,
     parse_tier,
+    read_text,
     write_control_surface_config,
     write_doc_governance_config,
 )
@@ -100,6 +103,36 @@ PLAN_TEMPLATE = """# Project Plan
 - [ ] EL-3 run the primary validation for the slice
 - [ ] EL-4 refresh status, next checkpoint, and next 3 actions
 
+## Development Log Capture
+
+- Trigger Level: high
+- Auto-Capture When:
+  - the root-cause hypothesis changes
+  - a reusable mechanism replaces repeated local fixes
+  - a retrofit changes governance, architecture, or release policy
+  - a tradeoff or rejected shortcut is likely to matter in future work
+- Skip When:
+  - the change is mechanical or formatting-only
+  - no durable reasoning changed
+  - the work simply followed an already-approved path
+  - the change stayed local and introduced no durable tradeoff
+
+## Architecture Supervision
+
+- Signal: `yellow`
+- Signal Basis: current slice is explicit, but architecture supervision should stay visible until the default operating model fully converges
+- Problem Class: architecture supervision is still mostly a policy, not yet a fully encoded operating surface
+- Root Cause Hypothesis: execution and validation know the active slice, but the architecture judgment is not yet expressed as a durable state
+- Correct Layer: control surface and validation gates
+- Rejected Shortcut: relying on free-form prose instead of a reusable architecture-review state
+- Escalation Gate: raise but continue
+
+## Escalation Model
+
+- Continue Automatically: implementation and validation work stay within the current direction and do not alter business behavior
+- Raise But Continue: the assistant sees architectural drift or scope pressure but can still converge within the agreed direction
+- Require User Decision: product behavior, compatibility, performance, cost, or UX tradeoffs would change the intended direction
+
 ## Slices
 - Slice: control-surface alignment
   - Objective: establish or refresh `.codex/brief.md`, `.codex/plan.md`, `.codex/status.md`, and `.codex/COMMANDS.md`
@@ -121,6 +154,13 @@ PLAN_TEMPLATE = """# Project Plan
   - Risks: repo falls back into ad hoc maintenance
   - Validation: `status.md` records the next 3 actions
   - Exit Condition: next slice is concrete
+
+- Slice: architecture retrofit
+  - Objective: correct wrong boundaries, duplicate architecture owners, or repeated wrong-layer fixes through an architecture-first retrofit
+  - Dependencies: `sync_architecture_retrofit.py`, control surface, current architecture signal
+  - Risks: repo keeps fixing symptoms locally while the real boundary problem remains
+  - Validation: `.codex/architecture-retrofit.md` exists, is usable, and `validate_architecture_retrofit.py` passes
+  - Exit Condition: target architecture, scope, execution strategy, and exit conditions are explicit
 """
 
 
@@ -157,6 +197,26 @@ Control surface and durable-doc alignment.
 - [ ] EL-3 record the next checkpoint for the repo
 - [ ] EL-4 prepare the next 3 actions from a validated state
 
+## Development Log Capture
+
+- Trigger Level: high
+- Pending Capture: no
+- Last Entry: none
+
+## Architecture Supervision
+
+- Signal: `yellow`
+- Signal Basis: current slice is explicit, but architecture supervision should stay visible until the default operating model fully converges
+- Root Cause Hypothesis: the repo may still drift toward local fixes because the architecture judgment is not yet encoded as a reusable state
+- Correct Layer: control surface and validation gates
+- Escalation Gate: raise but continue
+
+## Current Escalation State
+
+- Current Gate: raise but continue
+- Reason: the assistant can keep converging the repo unless a business or compatibility tradeoff changes the intended direction
+- Next Review Trigger: review again when blockers change, the active slice rolls forward, or release-facing work begins
+
 ## Done
 
 - repository scanned
@@ -179,34 +239,37 @@ Control surface and durable-doc alignment.
 
 COMMANDS_TEMPLATE = """# Commands
 
-## Chinese
+## Primary Windows | 中文主窗口
 
 - `项目助手 菜单`
-- `项目助手 启动这个项目`
-- `项目助手 规划下一阶段`
-- `项目助手 恢复当前状态`
-- `项目助手 告诉我项目进展`
-- `项目助手 先做整改审计`
-- `项目助手 整改这个仓库`
-- `项目助手 文档整改这个仓库`
-- `项目助手 收口当前阶段`
+- `项目助手 进展`
+- `项目助手 架构`
+- `项目助手 开发日志`
 
-## English
+## Primary Windows | English
 
 - `project assistant menu`
-- `project assistant start this project`
-- `project assistant plan the next phase`
-- `project assistant resume current status`
 - `project assistant progress`
-- `project assistant retrofit audit`
-- `project assistant retrofit this repo`
-- `project assistant docs retrofit this repo`
-- `project assistant close out the current phase`
+- `project assistant architecture`
+- `project assistant devlog`
+
+## Background Flows | 后台主流程
+
+- `项目助手 启动这个项目` / `project assistant start this project`
+- `项目助手 规划下一阶段` / `project assistant plan the next phase`
+- `项目助手 恢复当前状态` / `project assistant resume current status`
+- `项目助手 架构 整改` / `project assistant architecture retrofit`
+- `项目助手 整改这个仓库` / `project assistant retrofit this repo`
+- `项目助手 文档整改这个仓库` / `project assistant docs retrofit this repo`
+- `项目助手 收口当前阶段` / `project assistant close out the current phase`
+- `项目助手 发布 patch` / `project assistant release patch`
+- `项目助手 压缩上下文` / `project assistant handoff`
 
 ## Notes
 
-- Use the language that matches the user.
-- Natural-language variations are fine as long as intent stays clear.
+- Human users usually only need the four primary windows above.
+- The other flows should run mostly in the background unless the user explicitly overrides them.
+- Use the language that matches the user, and accept natural-language variations when the intent is clear.
 """
 
 
@@ -224,6 +287,11 @@ def ensure_core_doc(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
+def template_sections(text: str) -> list[tuple[str, str]]:
+    matches = re.finditer(r"^## (.+?)\n(.*?)(?=^## |\Z)", text, re.MULTILINE | re.DOTALL)
+    return [(match.group(1).strip(), match.group(2).strip()) for match in matches]
+
+
 DEFAULT_ENTRY_RULES = """- 当前状态，以 [status.md](status.md) 为准
 - 模块边界，以 [../docs/module-map.md](../docs/module-map.md) 为准
 - 模块内状态，以 `modules/*.md` 为准
@@ -236,6 +304,21 @@ def section(text: str, heading: str) -> str:
     pattern = rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)"
     match = re.search(pattern, text, re.MULTILINE | re.DOTALL)
     return match.group(1).strip() if match else ""
+
+
+def ensure_sections(path: Path, template: str) -> None:
+    if not path.exists():
+        path.write_text(template, encoding="utf-8")
+        return
+    text = path.read_text(encoding="utf-8")
+    changed = False
+    for heading, body in template_sections(template):
+        if section(text, heading).strip():
+            continue
+        text = text.rstrip() + f"\n\n## {heading}\n\n{body}\n"
+        changed = True
+    if changed:
+        path.write_text(text.rstrip() + "\n", encoding="utf-8")
 
 
 def first_line(text: str) -> str:
@@ -379,7 +462,17 @@ def ensure_commands_doc(repo: Path) -> None:
     path = repo / ".codex/COMMANDS.md"
     text = path.read_text(encoding="utf-8") if path.exists() else ""
     lowered = text.lower()
-    if "项目助手" in text and "project assistant" in lowered:
+    primary_windows = [
+        "项目助手 菜单",
+        "项目助手 进展",
+        "项目助手 架构",
+        "项目助手 开发日志",
+        "project assistant menu",
+        "project assistant progress",
+        "project assistant architecture",
+        "project assistant devlog",
+    ]
+    if "项目助手" in text and "project assistant" in lowered and all(item.lower() in lowered or item in text for item in primary_windows):
         return
     path.write_text(COMMANDS_TEMPLATE, encoding="utf-8")
 
@@ -398,13 +491,12 @@ def main() -> int:
     official_modules = parse_official_modules(repo)
     why_tier = tier_reason(tier)
     ensure_core_doc(codex_dir / "brief.md", BRIEF_TEMPLATE.format(tier=tier, why_tier=why_tier))
-    ensure_core_doc(
-        codex_dir / "plan.md",
-        PLAN_TEMPLATE.format(
-            current_phase="Retrofit and baseline alignment." if tier != "large" else "Retrofit, module alignment, and baseline execution."
-        ),
+    plan_template = PLAN_TEMPLATE.format(
+        current_phase="Retrofit and baseline alignment." if tier != "large" else "Retrofit, module alignment, and baseline execution."
     )
-    ensure_core_doc(codex_dir / "status.md", STATUS_TEMPLATE.format(tier=tier, why_tier=why_tier))
+    status_template = STATUS_TEMPLATE.format(tier=tier, why_tier=why_tier)
+    ensure_sections(codex_dir / "plan.md", plan_template)
+    ensure_sections(codex_dir / "status.md", status_template)
     write_control_surface_config(repo, tier, official_modules)
     write_doc_governance_config(repo, tier, official_modules)
 
@@ -418,6 +510,9 @@ def main() -> int:
 
         dashboard = codex_dir / "module-dashboard.md"
         dashboard.write_text(render_dashboard(repo, official_modules), encoding="utf-8")
+
+    sync_arch_script = Path(__file__).resolve().parent / "sync_architecture_supervision.py"
+    subprocess.run([sys.executable, str(sync_arch_script), str(repo)], check=True)
 
     print(f"tier: {tier}")
     print(f"official modules: {', '.join(official_modules) or '(none)'}")

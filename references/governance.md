@@ -58,6 +58,8 @@ Must answer:
 - what the current execution line is: the next meaningful autonomous run the assistant should complete before returning
 - which slice the execution line belongs to via `Plan Link`
 - what visible execution task board sits under that line, including checkbox tasks and a clear done/total count
+- what the current architecture-supervision judgment is
+- what escalation model decides whether the assistant continues automatically, raises but continues, or stops for user judgment
 
 ### status
 
@@ -66,6 +68,8 @@ Must answer:
 - current phase
 - active slice
 - current execution line
+- current architecture-supervision signal
+- current escalation gate
 - done
 - in progress
 - blockers or open decisions
@@ -151,9 +155,26 @@ Default behavior:
 - make the execution line visible as a task board, not just a sentence
 - let the task board grow to the detail needed for the checkpoint, including 5-20+ subtasks when that improves clarity
 - keep that task board mapped to the active slice instead of drifting into unrelated maintenance
+- keep a compact architecture-supervision state beside the task board so execution does not lose the higher-level direction
+- prefer a computed architecture signal and escalation state over stale prose when scripts are available
 - stop only at a meaningful checkpoint, blocker, failed validation that needs direction, or user-decision gate
 
+## Escalation Model Rule
+
+Use three gates:
+
+- `continue automatically`: safe to keep executing inside the agreed direction
+- `raise but continue`: record the risk or drift, but keep converging unless the risk changes the business direction
+- `require user decision`: stop and ask the user because product behavior, compatibility, UX, performance, or cost tradeoffs would change the intended direction
+
 Use manual commands as override windows, not as the primary control surface for ordinary progress.
+
+Prefer the four primary human windows:
+
+- `项目助手 菜单` / `project assistant menu`
+- `项目助手 进展` / `project assistant progress`
+- `项目助手 架构` / `project assistant architecture`
+- `项目助手 开发日志` / `project assistant devlog`
 
 ## Architecture Supervision Rule
 

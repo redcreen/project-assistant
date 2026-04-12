@@ -46,16 +46,20 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 
 - `项目助手`
 
-常用命令：
+主窗口：
 
 - `项目助手 菜单`
-- `项目助手 启动这个项目`
-- `项目助手 架构`
-- `项目助手 恢复当前状态`
 - `项目助手 进展`
+- `项目助手 架构`
+- `项目助手 开发日志`
+
+后台流程（通常自动运行）：
+
+- `项目助手 启动这个项目`
+- `项目助手 恢复当前状态`
+- `项目助手 架构 整改`
 - `项目助手 整改`
 - `项目助手 文档整改`
-- `项目助手 开发日志`
 - `项目助手 压缩上下文`
 
 ## 核心能力
@@ -65,6 +69,8 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 把工作拆成可验证的切片
 - 把当前工作收敛成一条有检查点的长任务执行线，而不是频繁等待“继续”
 - 把执行线显示成一个可见的子任务板，并用 `Plan Link` 映射回当前切片
+- 把架构监督状态和升级 gate 并排展示在执行线旁边
+- 用一个简短的 `Usable Now` 快照告诉你现在已经能直接用什么
 - 把现有仓库整改到收敛状态
 - 用全局和模块视角汇报进展
 - 把重要问题、思考路径和解决方案沉淀成开发日志
@@ -79,6 +85,8 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - `project-assistant` 默认负责规划、架构监督、实现、验证、状态更新和开发日志
 - 只有在检查点、阻塞点或需要业务裁决时才应该停下来问你
 - 长任务执行时，应通过可见的任务板体现 done/total 进度，而不是只剩下一段抽象状态描述
+- 架构层还应持续表明：现在是可以自动继续、提醒但继续，还是必须停下来等用户裁决
+- 进展和交接里还应明确告诉你：现在到底有哪些能力已经可用
 
 ### 启动或接管项目
 
@@ -107,6 +115,18 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 准备改代码前，先看当前方向是不是在修局部现象
 - 你怀疑 AI 为了当前功能开始硬编码
 - 你希望先从整体边界和扩展性看一眼再继续实现
+
+### 做架构整改，而不是只做普通整改
+
+```text
+项目助手 架构 整改
+```
+
+适用场景：
+
+- 问题核心是边界、状态流或抽象方向错了
+- 不是缺文档，而是架构 owner 和正确层级已经漂了
+- “修一个冒一个”说明需要架构优先的整改，而不是继续局部补丁
 
 ### 整体整改仓库
 
@@ -179,9 +199,15 @@ project-assistant/
 - `scripts/validate_markdown_governance.py`
 - `scripts/validate_doc_quality.py`
 - `scripts/validate_control_surface_quality.py`
+- `scripts/sync_execution_line.py`
+- `scripts/sync_architecture_supervision.py`
+- `scripts/sync_architecture_retrofit.py`
 - `scripts/validate_gate_set.py`
+- `scripts/validate_release_readiness.py`
 - `scripts/write_development_log.py`
 - `scripts/validate_development_log.py`
+- `scripts/validate_architecture_retrofit.py`
+- `scripts/capability_snapshot.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
 - `scripts/release_skill.py`
@@ -196,8 +222,10 @@ python3 scripts/validate_markdown_governance.py /path/to/repo --format text
 python3 scripts/validate_doc_quality.py /path/to/repo --format text
 python3 scripts/validate_control_surface_quality.py /path/to/repo --format text
 python3 scripts/validate_development_log.py /path/to/repo --format text
+python3 scripts/validate_architecture_retrofit.py /path/to/repo --format text
 python3 scripts/validate_gate_set.py /path/to/repo --profile fast
 python3 scripts/validate_gate_set.py /path/to/repo --profile deep
+python3 scripts/validate_gate_set.py /path/to/repo --profile release
 ```
 
 ### 发布
@@ -212,6 +240,12 @@ python3 scripts/validate_gate_set.py /path/to/repo --profile deep
 
 ```bash
 python3 scripts/release_skill.py patch
+```
+
+更严格的发布保护可以先跑：
+
+```bash
+python3 scripts/validate_gate_set.py /path/to/repo --profile release
 ```
 
 它会自动：

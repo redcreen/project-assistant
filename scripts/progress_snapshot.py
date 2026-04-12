@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 
 from control_surface_lib import (
+    classify_architecture_signal,
     completion_band,
     completion_percent,
     display_execution_task,
@@ -15,7 +16,9 @@ from control_surface_lib import (
     labeled_bullet_value,
     parse_official_modules,
     parse_tier,
+    primary_human_windows,
     read_text,
+    repo_capabilities,
     section,
 )
 
@@ -137,8 +140,17 @@ def main() -> int:
     current_phase = first_line(section(status_text, "Current Phase"))
     active_slice = first_line(section(status_text, "Active Slice"))
     current_execution_line = labeled_bullet_value(section(status_text, "Current Execution Line"), "Objective")
+    architecture_state = classify_architecture_signal(repo)
+    architecture_signal = architecture_state["signal"]
+    signal_basis = architecture_state["signal_basis"]
+    root_cause_hypothesis = architecture_state["root_cause_hypothesis"]
+    correct_layer = architecture_state["correct_layer"]
+    escalation_gate = architecture_state["gate"]
+    escalation_reason = architecture_state["reason"]
     execution_tasks = execution_task_lines(status_text)
     done_tasks, total_tasks = execution_task_progress(execution_tasks)
+    capabilities = repo_capabilities(repo)
+    human_windows = primary_human_windows("zh")
     next_actions = section(status_text, "Next 3 Actions")
     main_risk = first_risk(status_text)
 
@@ -150,6 +162,8 @@ def main() -> int:
     print(f"- Active Slice: `{active_slice}`")
     print(f"- Current Execution Line: `{current_execution_line or 'n/a'}`")
     print(f"- Execution Progress: `{done_tasks} / {total_tasks}`")
+    print(f"- Architecture Signal: `{architecture_signal or 'n/a'}`")
+    print(f"- Escalation Gate: `{escalation_gate or 'n/a'}`")
     print(f"- Main Risk: {main_risk}")
 
     print("\n## Global View")
@@ -165,6 +179,30 @@ def main() -> int:
             print("- Execution Tasks:")
             for item in execution_tasks:
                 print(f"  - {display_execution_task(item)}")
+
+    if architecture_signal or escalation_gate or root_cause_hypothesis or correct_layer:
+        print("\n## Architecture Supervision")
+        if architecture_signal:
+            print(f"- Signal: {architecture_signal}")
+        if root_cause_hypothesis:
+            print(f"- Root Cause Hypothesis: {root_cause_hypothesis}")
+        if correct_layer:
+            print(f"- Correct Layer: {correct_layer}")
+        if signal_basis:
+            print(f"- Signal Basis: {signal_basis}")
+        if escalation_gate:
+            print(f"- Escalation Gate: {escalation_gate}")
+        if escalation_reason:
+            print(f"- Escalation Reason: {escalation_reason}")
+
+    if capabilities:
+        print("\n## Usable Now")
+        for _, label in capabilities:
+            print(f"- {label}")
+
+    print("\n## Human Windows")
+    for item in human_windows:
+        print(f"- `{item}`")
 
     module_dir = repo / ".codex/modules"
     official_modules = parse_official_modules(repo)

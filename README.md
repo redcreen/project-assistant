@@ -46,16 +46,20 @@ Use one simple entry:
 
 - `project assistant`
 
-Common commands:
+Primary human windows:
 
 - `project assistant menu`
-- `project assistant start this project`
-- `project assistant architecture`
-- `project assistant resume current status`
 - `project assistant progress`
+- `project assistant architecture`
+- `project assistant devlog`
+
+Background flows (usually automatic):
+
+- `project assistant start this project`
+- `project assistant resume current status`
+- `project assistant architecture retrofit`
 - `project assistant retrofit`
 - `project assistant docs retrofit`
-- `project assistant devlog`
 - `project assistant handoff`
 
 ## Core Capabilities
@@ -65,6 +69,8 @@ Common commands:
 - Plan work in verifiable slices
 - Turn the active slice into a checkpoint-based long execution line instead of waiting for repeated "continue" prompts
 - Show that execution line as a visible task board with done/total progress and a `Plan Link` back to the active slice
+- Keep a compact architecture-supervision state and escalation gate beside the execution line
+- Surface a short `Usable Now` snapshot so you can see what is already ready to use
 - Retrofit existing repos to convergence
 - Report progress with global and module views
 - Capture durable implementation reasoning as development logs
@@ -79,6 +85,8 @@ Default working style:
 - `project-assistant` should usually plan, supervise, implement, validate, refresh status, and capture devlogs on its own
 - it should only stop at checkpoints, blockers, or decisions that require user judgment
 - its long-run execution should stay visible through an execution-task board, not disappear into free-form status prose
+- the architecture layer should keep showing whether the assistant can continue automatically, should raise-but-continue, or must stop for user judgment
+- progress and handoff should also tell you which capabilities are already usable now
 
 ### Start or take over a project
 
@@ -107,6 +115,18 @@ When to use it:
 - before changing code, if you want a higher-level check on the direction
 - when the implementation is drifting toward hardcoded shortcuts
 - when you want to test the abstraction boundary before adding more code
+
+### Retrofit architecture, not only docs or control surface
+
+```text
+project assistant architecture retrofit
+```
+
+Use it when the repo needs an architecture-first correction:
+
+- the real problem is boundary drift, not only missing docs
+- duplicate architecture docs or wrong-layer fixes keep accumulating
+- repeated fixes suggest the source of truth or module boundaries are wrong
 
 ### Retrofit the whole repo
 
@@ -179,9 +199,15 @@ project-assistant/
 - `scripts/validate_markdown_governance.py`
 - `scripts/validate_doc_quality.py`
 - `scripts/validate_control_surface_quality.py`
+- `scripts/sync_execution_line.py`
+- `scripts/sync_architecture_supervision.py`
+- `scripts/sync_architecture_retrofit.py`
 - `scripts/validate_gate_set.py`
+- `scripts/validate_release_readiness.py`
 - `scripts/write_development_log.py`
 - `scripts/validate_development_log.py`
+- `scripts/validate_architecture_retrofit.py`
+- `scripts/capability_snapshot.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
 - `scripts/release_skill.py`
@@ -196,8 +222,10 @@ python3 scripts/validate_markdown_governance.py /path/to/repo --format text
 python3 scripts/validate_doc_quality.py /path/to/repo --format text
 python3 scripts/validate_control_surface_quality.py /path/to/repo --format text
 python3 scripts/validate_development_log.py /path/to/repo --format text
+python3 scripts/validate_architecture_retrofit.py /path/to/repo --format text
 python3 scripts/validate_gate_set.py /path/to/repo --profile fast
 python3 scripts/validate_gate_set.py /path/to/repo --profile deep
+python3 scripts/validate_gate_set.py /path/to/repo --profile release
 ```
 
 ### Release
@@ -212,6 +240,12 @@ Equivalent script command:
 
 ```bash
 python3 scripts/release_skill.py patch
+```
+
+Stricter release protection uses the same gate profile:
+
+```bash
+python3 scripts/validate_gate_set.py /path/to/repo --profile release
 ```
 
 What it does:

@@ -126,6 +126,7 @@
   "questionExcludeGlobs": [
     ".codex/**",
     "docs/adr/**",
+    "docs/devlog/**",
     "scripts/**",
     "agents/**"
   ],

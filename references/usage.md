@@ -2,6 +2,17 @@
 
 Use these prompt patterns to invoke the skill cleanly.
 
+## Primary Windows | 主窗口
+
+These are the human-facing windows you should need most of the time:
+
+- `项目助手 菜单` / `project assistant menu`
+- `项目助手 进展` / `project assistant progress`
+- `项目助手 架构` / `project assistant architecture`
+- `项目助手 开发日志` / `project assistant devlog`
+
+Everything else should increasingly behave like a background flow that the assistant runs on its own.
+
 ## Simple Commands | 简单指令
 
 - 推荐总入口：`项目助手`
@@ -37,8 +48,14 @@ Gate commands:
 
 - `python3 scripts/validate_gate_set.py /path/to/repo --profile fast`
 - `python3 scripts/validate_gate_set.py /path/to/repo --profile deep`
+- `python3 scripts/validate_gate_set.py /path/to/repo --profile release`
 - `python3 scripts/validate_control_surface_quality.py /path/to/repo --format text`
 - `python3 scripts/validate_development_log.py /path/to/repo --format text`
+- `python3 scripts/validate_architecture_retrofit.py /path/to/repo --format text`
+- `python3 scripts/capability_snapshot.py /path/to/repo --format text`
+- `python3 scripts/sync_execution_line.py /path/to/repo --slice "slice name" --force`
+- `python3 scripts/sync_architecture_supervision.py /path/to/repo`
+- `python3 scripts/sync_architecture_retrofit.py /path/to/repo`
 
 ## Start or Bootstrap | 启动
 
@@ -58,6 +75,8 @@ Gate commands:
 - 当前执行线下面要有一个可见的子任务板（execution tasks）
 - 子任务板必须通过 `Plan Link` 映射回一个明确 slice
 - 子任务数量没有硬上限；只要仍属于同一个检查点，5-20+ 个子任务都可以
+- 同时要给出架构监督状态和升级模型，避免执行时重新掉回局部修补
+- 如果已有 active slice，优先用 `sync_execution_line.py` 自动生成更长任务板，而不是手写零散 next actions
 
 ## Architecture Supervision | 架构监督
 
@@ -77,12 +96,14 @@ When to start with it:
 - `项目助手 架构 复盘`
 - `项目助手 架构 根因`
 - `项目助手 架构 扩展性`
+- `项目助手 架构 整改`
 - `Use $project-assistant to review this change from the architecture level before implementation.`
 - `project assistant architecture`
 - `project assistant architecture review`
 - `project assistant architecture retrospective`
 - `project assistant architecture root-cause`
 - `project assistant architecture extensibility`
+- `project assistant architecture retrofit`
 
 When the user enters only `项目助手 架构` or `project assistant architecture`, return the architecture submenu instead of a generic response.
 
@@ -98,6 +119,9 @@ Recommended usage notes:
   用途：怀疑问题源头不在当前改动点时使用
 - `项目助手 架构 扩展性`
   用途：准备新增抽象、接口或模块边界时使用
+- `项目助手 架构 整改`
+  用途：当边界、状态流或架构所有权已经系统性错位，需要直接执行架构优先的整改并收敛时使用
+  额外：如果仓库有未提交改动，先提示是否做 checkpoint 提交
 
 English usage notes:
 
@@ -111,6 +135,9 @@ English usage notes:
   Use: when symptoms keep reappearing and the cause may be elsewhere
 - `project assistant architecture extensibility`
   Use: before introducing abstractions, interfaces, or reusable mechanisms
+- `project assistant architecture retrofit`
+  Use: when the repo needs an architecture-first retrofit that should execute to convergence, not stop at a checklist
+  Extra: if the repo is dirty, ask whether to create a checkpoint commit first
 
 ## Resume Work | 恢复工作
 
@@ -123,6 +150,8 @@ English usage notes:
 - 恢复后不应停在“已恢复，请继续输入”
 - 应直接进入当前执行线，继续一段有意义的长任务
 - 恢复输出应优先展示执行线目标、done/total 进度和当前可见子任务板
+- 恢复输出也应展示当前架构监督信号和升级 gate
+- 恢复输出也应带一个 `Usable Now` 快照，让用户知道当前有哪些能力已经能直接使用
 
 ## Ask for Progress | 查看进展
 
@@ -150,8 +179,10 @@ English usage notes:
 
 - `项目助手 整改`
 - `项目助手 文档整改`
+- `项目助手 架构 整改`
 - `project assistant retrofit`
 - `project assistant docs retrofit`
+- `project assistant architecture retrofit`
 - `project assistant docs retrofit all markdown`
 - `用 $project-assistant 对这个仓库做整改审计（retrofit audit），先不要改文件。`
 - `用 $project-assistant 审计这个仓库并给出 retrofit plan，先不要改文件。`
@@ -164,6 +195,7 @@ English usage notes:
 - `用 $project-assistant 整改这个仓库，并通过控制面校验和文档校验后再结束。`
 - `用 $project-assistant 文档整改这个仓库，并通过全仓 Markdown 门禁后再结束。`
 - `用 $project-assistant 把这个大项目整改到模块视角，补 module dashboard 和 modules 状态文件。`
+- `用 $project-assistant 先做架构整改，生成架构整改工作底稿，再按它来切执行线。`
 - `用 $project-assistant 整改这个仓库，并通过脚本校验后再结束。`
 - `Use $project-assistant to align this repo to the operating model and apply the minimum safe changes.`
 
@@ -189,6 +221,12 @@ English usage notes:
 - `文档整改` = 先补控制面，再做文档系统和全仓 Markdown 治理
 - `执行` = 默认进入一个有检查点的长任务执行线，而不是每做一点就等用户输入继续
 - `执行线` = 一个和 active slice 明确映射的任务板，不只是抽象一句话
+- `架构监督状态` = 和执行线并排存在的高层判断面，至少包含 signal、root cause、correct layer、escalation gate
+- `自动架构信号更新` = 用 `sync_architecture_supervision.py` 从当前执行线、blockers 和升级状态推导 signal / gate / next review trigger
+- `升级模型` = `continue automatically / raise but continue / require user decision`
+- `可用能力快照` = 用最短列表告诉用户“现在已经能用什么”，不只汇报还在开发什么
+- `sync_execution_line.py` = 把 active slice 自动展开成更长、更可视的任务板
+- `release` profile = `deep` 加 `release readiness`，用于本地发布和更严格的 CI 保护
 - `.codex/doc-governance.json` = 文档治理配置入口，用来声明公开文档范围、根目录保留文档和 Markdown 所有权
 - `deep` 现在还会检查 `.codex/*` 是否仍然停留在模板态
 - `开发日志` = 把值得长期保留的问题、思考路径、解决方案和验证过程沉淀到 `docs/devlog/*.md`
@@ -197,6 +235,7 @@ English usage notes:
 - 如果仓库仍有 legacy 深层文档树，整改应把它们迁入 `docs/reference/`、`docs/workstreams/` 或 `docs/archive/`
 - 完成前还应通过 `validate_doc_quality.py`，避免公开文档停留在模板态、假双语或坏链接状态
 - 日常迭代优先跑 `fast` 门禁；整改收口和发布前必须跑 `deep` 门禁
+- 发布前还应通过 `validate_release_readiness.py`
 
 ## Close a Phase | 阶段收口
 

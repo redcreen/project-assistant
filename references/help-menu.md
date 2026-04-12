@@ -26,16 +26,19 @@ If the user is writing in English, return an English-first menu.
 Chinese menu:
 
 ```md
-项目助手可用命令：
+项目助手主窗口：
 
-- 启动（bootstrap）：建立项目控制面
-- 规划（plan）：明确目标、阶段、切片、测试
-- 执行（execute）：按当前切片推进实现
-- 恢复（resume）：恢复当前状态并继续
 - 进展（progress）：查看全局/子项目进展
-- 整改（retrofit）：把现有项目补齐到规范
-- 开发日志（devlog）：记录重要问题、思考和解决方案
 - 架构（architecture）：进入架构监督与复盘子命令
+- 开发日志（devlog）：记录重要问题、思考和解决方案
+- 菜单（menu）：查看入口与当前人工窗口
+
+后台流程（通常自动运行，不必频繁手工调用）：
+- 启动（bootstrap）
+- 规划（plan）
+- 执行（execute）
+- 恢复（resume）
+- 整改（retrofit）
 - 收口（closeout）：结束当前阶段并准备下一阶段
 
 最常用：
@@ -45,6 +48,7 @@ Chinese menu:
 默认工作方式：
 - 你主要给需求和业务方向
 - 项目助手默认会自己规划、监督、执行、验证，并在检查点再回来汇报
+- 进展和恢复默认会带一个“现在可用能力”快照，避免只看到还在开发什么
 
 示例：
 - 项目助手 启动这个项目
@@ -57,18 +61,20 @@ Chinese menu:
 English menu:
 
 ```md
-Project Assistant commands:
+Project Assistant primary windows:
 
-- start: create the control surface
-- plan: clarify goals, slices, and validation
-- execute: continue the active slice
-- resume: recover state and continue
 - progress: show global or module progress
-- retrofit: align the repo to the operating model
-- docs retrofit: normalize the doc system
-- devlog: record a durable development note
 - architecture: open architecture supervision subcommands
-- handoff: prepare a new-thread resume pack
+- devlog: record a durable development note
+- menu: show the human-facing windows
+
+Background flows (usually automatic):
+- start
+- plan
+- execute
+- resume
+- retrofit
+- closeout
 
 Most common:
 - If you are unsure where to start, use `project assistant menu`
@@ -77,6 +83,8 @@ Most common:
 Default working style:
 - you mainly provide business direction
 - Project Assistant should usually plan, supervise, execute, validate, and return at checkpoints on its own
+- it should keep architecture signal and escalation gate visible instead of hiding higher-level judgment inside free-form notes
+- progress and handoff should also show what is usable now, not only what is still in progress
 
 Examples:
 - project assistant start this project
@@ -99,6 +107,8 @@ Architecture submenu:
   什么时候用：你感觉在“修一个又冒一个”，想先判断根因是否判断错层了
 - 项目助手 架构 扩展性
   什么时候用：准备加抽象、接口、模块边界或复用机制时，先看扩展路径是否合理
+- 项目助手 架构 整改
+  什么时候用：边界、状态流或抽象整体错位，已经不是局部 review 能解决，而要直接做系统性架构收敛
 
 English:
 - Most common: `project assistant architecture review`
@@ -109,6 +119,8 @@ English:
   When to use: when fixes keep cascading and you want to test whether the real cause is elsewhere
 - project assistant architecture extensibility
   When to use: before adding abstractions, interfaces, or reusable mechanisms
+- project assistant architecture retrofit
+  When to use: when boundaries, state flow, or abstractions are wrong at a system level and the repo needs an architecture-first retrofit that should actually land
 ```
 
 ## Concision Rule

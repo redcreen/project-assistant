@@ -71,6 +71,19 @@ Use for one feature, subproject, or multi-session milestone.
 - [ ] EL-2
 - [ ] EL-3
 
+## Architecture Supervision
+- Signal:
+- Problem Class:
+- Root Cause Hypothesis:
+- Correct Layer:
+- Rejected Shortcut:
+- Escalation Gate:
+
+## Escalation Model
+- Continue Automatically:
+- Raise But Continue:
+- Require User Decision:
+
 ## Slices
 - Slice:
   - Objective:
@@ -115,6 +128,16 @@ Use for one feature, subproject, or multi-session milestone.
 - [ ] EL-2
 - [ ] EL-3
 
+## Architecture Supervision
+- Signal:
+- Root Cause Hypothesis:
+- Correct Layer:
+- Escalation Gate:
+
+## Current Escalation State
+- Current Gate:
+- Reason:
+
 ## Done
 
 ## In Progress
@@ -130,6 +153,36 @@ Use for one feature, subproject, or multi-session milestone.
 - Treat `Execution Tasks` as the visible task board for that run.
 - Always map the task board back to one slice through `Plan Link`.
 - The board does not need a hard cap; use as many tasks as the checkpoint needs, often anywhere from 5 to 20+ tasks.
+- Keep an `Architecture Supervision` block beside the task board so the current root-cause hypothesis and correct layer stay visible.
+- Keep an escalation section so the repo records whether the assistant should continue automatically, raise but continue, or require user decision.
+
+## Architecture Retrofit Template
+
+Use for `.codex/architecture-retrofit.md` when the repo needs an architecture-first retrofit rather than another local patch round.
+
+```md
+# Architecture Retrofit
+
+## Trigger
+
+## Primary Symptoms
+
+## Root-Cause Drivers
+
+## Affected Boundaries
+
+## Current Architecture Sources
+
+## Target Architecture
+
+## Retrofit Scope
+
+## Execution Strategy
+
+## Validation
+
+## Exit Conditions
+```
 
 ## Module Dashboard Template
 
@@ -542,30 +595,33 @@ Use for `.codex/COMMANDS.md` when the repo needs a human-facing quick reminder.
 ```md
 # Commands
 
-## Chinese
+## Primary Windows | 中文主窗口
 
 - `项目助手 菜单`
-- `项目助手 启动这个项目`
-- `项目助手 规划下一阶段`
-- `项目助手 恢复当前状态`
-- `项目助手 告诉我项目进展`
-- `项目助手 先做整改审计`
-- `项目助手 直接整改这个仓库`
-- `项目助手 收口当前阶段`
+- `项目助手 进展`
+- `项目助手 架构`
+- `项目助手 开发日志`
 
-## English
+## Primary Windows | English
 
 - `project assistant menu`
-- `project assistant start this project`
-- `project assistant plan the next phase`
-- `project assistant resume current status`
 - `project assistant progress`
-- `project assistant retrofit audit`
-- `project assistant retrofit this repo`
-- `project assistant close out the current phase`
+- `project assistant architecture`
+- `project assistant devlog`
+
+## Background Flows | 后台主流程
+
+- `项目助手 启动这个项目` / `project assistant start this project`
+- `项目助手 规划下一阶段` / `project assistant plan the next phase`
+- `项目助手 恢复当前状态` / `project assistant resume current status`
+- `项目助手 架构 整改` / `project assistant architecture retrofit`
+- `项目助手 整改这个仓库` / `project assistant retrofit this repo`
+- `项目助手 收口当前阶段` / `project assistant close out the current phase`
 
 ## Notes
 
+- Human users should usually need only the four primary windows above.
+- The other flows should mostly run in the background unless the user explicitly overrides them.
 - Use the language that matches the user.
 - Natural-language variations are fine as long as intent stays clear.
 ```

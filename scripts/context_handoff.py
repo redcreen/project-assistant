@@ -7,12 +7,15 @@ import re
 from pathlib import Path
 
 from control_surface_lib import (
+    classify_architecture_signal,
     display_execution_task,
     execution_task_lines,
     execution_task_progress,
     first_line,
     labeled_bullet_value,
     parse_tier,
+    primary_human_windows,
+    repo_capabilities,
     section,
 )
 
@@ -28,6 +31,10 @@ def bullet_lines(text: str) -> list[str]:
         elif re.match(r"^\d+\.\s+", stripped):
             items.append(re.sub(r"^\d+\.\s+", "", stripped))
     return items
+
+
+def contains_cjk(text: str) -> bool:
+    return any("\u4e00" <= ch <= "\u9fff" for ch in text)
 
 
 def detect_commands(repo: Path) -> tuple[str, str, list[str]]:
@@ -71,8 +78,18 @@ def main() -> int:
     current_phase = first_line(section(status_text, "Current Phase")) or "n/a"
     active_slice = first_line(section(status_text, "Active Slice")) or "n/a"
     current_execution_line = labeled_bullet_value(section(status_text, "Current Execution Line"), "Objective") or active_slice
+    english_execution_line = current_execution_line
+    if contains_cjk(english_execution_line):
+        english_execution_line = labeled_bullet_value(section(status_text, "Current Execution Line"), "Plan Link") or active_slice
+    architecture_state = classify_architecture_signal(repo)
+    architecture_signal = architecture_state["signal"]
+    escalation_gate = architecture_state["gate"]
+    escalation_reason = architecture_state["reason"]
     execution_tasks = execution_task_lines(status_text)
     done_tasks, total_tasks = execution_task_progress(execution_tasks)
+    capabilities = repo_capabilities(repo)
+    human_windows_zh = primary_human_windows("zh")
+    human_windows_en = primary_human_windows("en")
     blockers = bullet_lines(section(status_text, "Blockers / Open Decisions"))
     main_risk = blockers[0] if blockers else "No major blocker recorded."
     next_actions = bullet_lines(section(status_text, "Next 3 Actions"))
@@ -100,9 +117,26 @@ def main() -> int:
     print(f"- Active Slice: `{active_slice}`")
     print(f"- Current Execution Line: `{current_execution_line}`")
     print(f"- Execution Progress: `{done_tasks} / {total_tasks}`")
+    print(f"- Architecture Signal: `{architecture_signal}`")
+    print(f"- Escalation Gate: `{escalation_gate}`")
     if tier == "large":
         print(f"- Active Module: `{active_module}`")
     print(f"- Main Risk: {main_risk}")
+    if escalation_reason:
+        print(f"- Escalation Reason: {escalation_reason}")
+
+    if capabilities:
+        print("\n## Usable Now")
+        for _, label in capabilities:
+            print(f"- {label}")
+
+    print("\n## Human Windows")
+    print("### Chinese")
+    for item in human_windows_zh:
+        print(f"- `{item}`")
+    print("\n### English")
+    for item in human_windows_en:
+        print(f"- `{item}`")
 
     print("\n## Restore Order")
     for idx, item in enumerate(restore_docs, start=1):
@@ -129,7 +163,7 @@ def main() -> int:
     print("\n### English")
     print("```text")
     print(
-        f"project assistant resume current status and continue the current execution line: {current_execution_line}. "
+        f"project assistant resume current status and continue the current execution line: {english_execution_line}. "
         f"Read {docs_en} first."
     )
     print("project assistant progress")

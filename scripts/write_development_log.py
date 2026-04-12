@@ -73,6 +73,32 @@ def refresh_indexes(devlog_dir: Path) -> None:
     (devlog_dir / "README.zh-CN.md").write_text(DEVLOG_HOME_ZH.format(entries="\n".join(zh_lines)), encoding="utf-8")
 
 
+def replace_section(text: str, heading: str, body: str) -> str:
+    pattern = rf"(^## {re.escape(heading)}\n)(.*?)(?=^## |\Z)"
+    replacement = rf"\1{body.rstrip()}\n\n"
+    updated, count = re.subn(pattern, replacement, text, flags=re.MULTILINE | re.DOTALL)
+    if count:
+        return updated.rstrip() + "\n"
+    return text.rstrip() + f"\n\n## {heading}\n{body.rstrip()}\n"
+
+
+def refresh_status_devlog_state(repo: Path, entry_rel: str) -> None:
+    status_path = repo / ".codex/status.md"
+    if not status_path.exists():
+        return
+    text = status_path.read_text(encoding="utf-8")
+    if "## Development Log Capture" not in text:
+        return
+    body = "\n".join(
+        [
+            "- Trigger Level: high",
+            "- Pending Capture: no",
+            f"- Last Entry: {entry_rel}",
+        ]
+    )
+    status_path.write_text(replace_section(text, "Development Log Capture", body), encoding="utf-8")
+
+
 def render_entry(args: argparse.Namespace) -> str:
     if args.lang == "zh-CN":
         followups = "\n".join(f"- {item}" for item in args.followup) if args.followup else "- 无"
@@ -163,7 +189,9 @@ def main() -> int:
     entry_path = devlog_dir / f"{args.date}-{slug}.md"
     entry_path.write_text(render_entry(args), encoding="utf-8")
     refresh_indexes(devlog_dir)
-    print(entry_path.relative_to(repo).as_posix())
+    rel = entry_path.relative_to(repo).as_posix()
+    refresh_status_devlog_state(repo, rel)
+    print(rel)
     return 0
 
 

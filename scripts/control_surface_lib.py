@@ -26,6 +26,30 @@ COMMON_ROOT_DOCS = [
     "SECURITY.zh-CN.md",
 ]
 
+ARCHITECTURE_DECISION_KEYWORDS = (
+    "require user decision",
+    "user decision",
+    "product behavior",
+    "compatibility",
+    "breaking",
+    "cost",
+    "pricing",
+    "release blocked",
+    "security",
+    "policy change",
+)
+
+ARCHITECTURE_CAUTION_KEYWORDS = (
+    "drift",
+    "hardcod",
+    "root cause",
+    "wrong layer",
+    "unclear",
+    "risk",
+    "blocker",
+    "tradeoff",
+)
+
 
 @dataclass
 class ValidationResult:
@@ -198,12 +222,188 @@ def labeled_bullet_value(text: str, label: str) -> str:
     return ""
 
 
+def has_labeled_bullet(text: str, label: str) -> bool:
+    return bool(labeled_bullet_value(text, label))
+
+
+def has_bullet_label(text: str, label: str) -> bool:
+    prefix = f"- {label}:"
+    return any(line.strip().startswith(prefix) for line in text.splitlines())
+
+
+def latest_devlog_entry(repo: Path) -> str:
+    devlog_dir = repo / "docs/devlog"
+    if not devlog_dir.exists():
+        return ""
+    entries = [p for p in devlog_dir.glob("20*.md") if p.is_file()]
+    if not entries:
+        return ""
+    latest = max(entries, key=lambda p: (p.stat().st_mtime, p.name))
+    return latest.relative_to(repo).as_posix()
+
+
+def normalized_bullets(text: str) -> list[str]:
+    normalized: list[str] = []
+    for item in bullet_lines(text):
+        lowered = item.lower()
+        if lowered in {"todo", "none", "无", "n/a"}:
+            continue
+        if lowered.startswith("none") or lowered.startswith("no blocker") or lowered.startswith("无阻塞"):
+            continue
+        normalized.append(item)
+    return normalized
+
+
+def classify_architecture_signal(repo: Path) -> dict[str, str]:
+    status_text = read_text(repo / ".codex/status.md")
+    plan_text = read_text(repo / ".codex/plan.md")
+    status_arch = section(status_text, "Architecture Supervision")
+    plan_arch = section(plan_text, "Architecture Supervision")
+    escalation_text = section(status_text, "Current Escalation State")
+
+    blockers = normalized_bullets(section(status_text, "Blockers / Open Decisions"))
+    active_slice = first_line(section(status_text, "Active Slice")) or labeled_bullet_value(
+        section(status_text, "Current Execution Line"), "Plan Link"
+    )
+    current_line = labeled_bullet_value(section(status_text, "Current Execution Line"), "Objective")
+    tasks = execution_task_lines(status_text)
+    done_tasks, total_tasks = execution_task_progress(tasks)
+    pending_capture = labeled_bullet_value(section(status_text, "Development Log Capture"), "Pending Capture").lower()
+
+    root_cause = labeled_bullet_value(status_arch, "Root Cause Hypothesis") or labeled_bullet_value(
+        plan_arch, "Root Cause Hypothesis"
+    )
+    correct_layer = labeled_bullet_value(status_arch, "Correct Layer") or labeled_bullet_value(plan_arch, "Correct Layer")
+    problem_class = labeled_bullet_value(plan_arch, "Problem Class") or "active slice governance and architectural fit"
+    rejected_shortcut = labeled_bullet_value(plan_arch, "Rejected Shortcut") or "letting execution continue without a visible architecture signal"
+
+    signal = "green"
+    gate = "continue automatically"
+    basis_parts: list[str] = []
+    reason = "current execution can proceed inside the existing direction without a user-level tradeoff"
+
+    lowered_blockers = " | ".join(blockers).lower()
+    if not current_line:
+        signal = "yellow"
+        gate = "raise but continue"
+        basis_parts.append("current execution line is missing an objective")
+        reason = "execution should refresh its checkpoint before continuing"
+    if not active_slice:
+        signal = "yellow"
+        gate = "raise but continue"
+        basis_parts.append("active slice is not explicit")
+        reason = "execution should refresh slice ownership before continuing"
+    if total_tasks == 0:
+        signal = "yellow"
+        gate = "raise but continue"
+        basis_parts.append("execution task board is missing")
+        reason = "execution should restore a visible task board before continuing"
+
+    if blockers:
+        if any(keyword in lowered_blockers for keyword in ARCHITECTURE_DECISION_KEYWORDS):
+            signal = "red"
+            gate = "require user decision"
+            basis_parts = ["open blockers mention a product, compatibility, release, or cost decision"]
+            reason = "current blockers have crossed into user-decision territory"
+        else:
+            if signal != "red":
+                signal = "yellow"
+                gate = "raise but continue"
+                basis_parts.append("open blockers or architectural risks are still recorded")
+                reason = "the current direction can continue, but the supervision state should stay visible"
+
+    if signal != "red" and any(keyword in f"{problem_class} {root_cause} {rejected_shortcut}".lower() for keyword in ARCHITECTURE_CAUTION_KEYWORDS):
+        if not basis_parts:
+            basis_parts.append("architecture supervision is guarding against local-only fixes")
+
+    if signal == "green" and pending_capture in {"yes", "true", "pending"}:
+        basis_parts.append("development-log capture is pending but does not yet block execution")
+
+    if not root_cause:
+        root_cause = "the repo can drift back to local fixes if the current slice loses a visible architectural checkpoint"
+    if not correct_layer:
+        correct_layer = "control surface, validators, and reporting"
+
+    next_review_trigger = "review again when blockers change, the active slice rolls forward, or release-facing work begins"
+    signal_basis = "; ".join(dedupe_preserve_order(basis_parts)) if basis_parts else "no blocker or escalation trigger is currently forcing a higher-level decision"
+
+    existing_gate = labeled_bullet_value(escalation_text, "Current Gate").lower()
+    if existing_gate == "require user decision" and signal != "red":
+        signal = "yellow"
+        gate = "raise but continue"
+        signal_basis = "existing escalation state requested user attention earlier; keep review visible until it is deliberately cleared"
+        reason = "the repo should acknowledge the earlier escalation before returning to silent execution"
+
+    return {
+        "signal": signal,
+        "signal_basis": signal_basis,
+        "problem_class": problem_class,
+        "root_cause_hypothesis": root_cause,
+        "correct_layer": correct_layer,
+        "rejected_shortcut": rejected_shortcut,
+        "gate": gate,
+        "reason": reason,
+        "next_review_trigger": next_review_trigger,
+        "active_slice": active_slice or "n/a",
+        "current_execution_line": current_line or "n/a",
+        "execution_progress": f"{done_tasks} / {total_tasks}",
+    }
+
+
+def repo_capabilities(repo: Path) -> list[tuple[str, str]]:
+    status_text = read_text(repo / ".codex/status.md")
+    capabilities: list[tuple[str, str]] = []
+    if status_text:
+        capabilities.append(("resume-status", "恢复当前状态与下一步"))
+    if section(status_text, "Current Execution Line") and execution_task_lines(status_text):
+        capabilities.append(("execution-board", "长任务执行线与可见任务板"))
+    if section(status_text, "Architecture Supervision") and section(status_text, "Current Escalation State"):
+        capabilities.append(("architecture-supervision", "默认架构监督与升级 gate"))
+    if (repo / "scripts/sync_architecture_supervision.py").exists():
+        capabilities.append(("architecture-auto-signal", "自动架构信号更新"))
+    if (repo / "scripts/sync_architecture_retrofit.py").exists():
+        capabilities.append(("architecture-retrofit", "架构整改审计与工作底稿"))
+    if (repo / ".codex/doc-governance.json").exists() and (repo / "docs/README.md").exists():
+        capabilities.append(("docs-retrofit", "文档整改与 Markdown 治理"))
+    if (repo / "docs/devlog/README.md").exists():
+        capabilities.append(("devlog", "开发日志索引与自动沉淀"))
+    if (repo / ".codex/module-dashboard.md").exists():
+        capabilities.append(("module-progress", "模块视角进展面板"))
+    if (repo / "README.zh-CN.md").exists() and (repo / "docs/README.zh-CN.md").exists():
+        capabilities.append(("bilingual-public-docs", "公开文档中英文切换"))
+    if (repo / ".github/workflows/deep-gate.yml").exists():
+        capabilities.append(("ci-deep-gate", "CI deep 门禁"))
+    if (repo / ".github/workflows/release-readiness.yml").exists():
+        capabilities.append(("ci-release-readiness", "CI release readiness 门禁"))
+    if (repo / ".github/workflows/release-protection.yml").exists():
+        capabilities.append(("ci-release-protection", "CI 更严格发布保护门禁"))
+    if (repo / "VERSION").exists() and (repo / "install.sh").exists():
+        capabilities.append(("release-flow", "版本发布与 tag 安装地址"))
+    return capabilities
+
+
+def primary_human_windows(language: str = "zh") -> list[str]:
+    if language.startswith("en"):
+        return [
+            "project assistant menu",
+            "project assistant progress",
+            "project assistant architecture",
+            "project assistant devlog",
+        ]
+    return [
+        "项目助手 菜单",
+        "项目助手 进展",
+        "项目助手 架构",
+        "项目助手 开发日志",
+    ]
+
+
 def extract_slice_titles(plan_text: str) -> list[str]:
     titles: list[str] = []
     for line in plan_text.splitlines():
         stripped = line.strip()
         if stripped.startswith("- Slice:"):
-            titles.append(stripped.split(":", 1)[1].strip())
+            titles.append(stripped.split(":", 1)[1].strip().strip("`"))
     return titles
 
 
@@ -232,6 +432,12 @@ def validate_commands_doc(text: str) -> list[str]:
         warnings.append(".codex/COMMANDS.md missing Chinese simple commands")
     if "project assistant" not in lowered:
         warnings.append(".codex/COMMANDS.md missing English simple commands")
+    for required in ["项目助手 菜单", "项目助手 进展", "项目助手 架构", "项目助手 开发日志"]:
+        if required not in text:
+            warnings.append(f".codex/COMMANDS.md missing primary window command: {required}")
+    for required in ["project assistant menu", "project assistant progress", "project assistant architecture", "project assistant devlog"]:
+        if required not in lowered:
+            warnings.append(f".codex/COMMANDS.md missing primary window command: {required}")
     return warnings
 
 
@@ -253,7 +459,9 @@ def validate_repo(repo: Path) -> ValidationResult:
 
     status_text = read_text(repo / ".codex/status.md")
     plan_text = read_text(repo / ".codex/plan.md")
-    if tier == "large" and "retrofit" in status_text.lower():
+    current_phase = first_line(section(status_text, "Current Phase")).lower()
+    active_slice = first_line(section(status_text, "Active Slice")).lower()
+    if tier == "large" and ("retrofit" in current_phase or "retrofit" in active_slice):
         warnings.append("status still contains retrofit-oriented language")
 
     if tier in {"medium", "large"}:
@@ -261,12 +469,30 @@ def validate_repo(repo: Path) -> ValidationResult:
             warnings.append(".codex/status.md missing Current Execution Line section")
         if "## Execution Tasks" not in status_text:
             warnings.append(".codex/status.md missing Execution Tasks section")
+        if "## Development Log Capture" not in status_text:
+            warnings.append(".codex/status.md missing Development Log Capture section")
+        if "## Architecture Supervision" not in status_text:
+            warnings.append(".codex/status.md missing Architecture Supervision section")
+        if "## Current Escalation State" not in status_text:
+            warnings.append(".codex/status.md missing Current Escalation State section")
         if "## Current Execution Line" not in plan_text:
             warnings.append(".codex/plan.md missing Current Execution Line section")
         if "## Execution Tasks" not in plan_text:
             warnings.append(".codex/plan.md missing Execution Tasks section")
+        if "## Development Log Capture" not in plan_text:
+            warnings.append(".codex/plan.md missing Development Log Capture section")
+        if "## Architecture Supervision" not in plan_text:
+            warnings.append(".codex/plan.md missing Architecture Supervision section")
+        if "## Escalation Model" not in plan_text:
+            warnings.append(".codex/plan.md missing Escalation Model section")
         status_execution = section(status_text, "Current Execution Line")
         plan_execution = section(plan_text, "Current Execution Line")
+        status_devlog = section(status_text, "Development Log Capture")
+        plan_devlog = section(plan_text, "Development Log Capture")
+        status_arch = section(status_text, "Architecture Supervision")
+        plan_arch = section(plan_text, "Architecture Supervision")
+        status_escalation = section(status_text, "Current Escalation State")
+        plan_escalation = section(plan_text, "Escalation Model")
         if "Plan Link:" not in status_execution:
             warnings.append(".codex/status.md missing Plan Link in Current Execution Line")
         if "Progress:" not in status_execution:
@@ -275,9 +501,27 @@ def validate_repo(repo: Path) -> ValidationResult:
             warnings.append(".codex/plan.md missing Plan Link in Current Execution Line")
         if "Progress:" not in plan_execution:
             warnings.append(".codex/plan.md missing Progress in Current Execution Line")
+        for label in ["Signal", "Signal Basis", "Root Cause Hypothesis", "Correct Layer", "Escalation Gate"]:
+            if not has_labeled_bullet(status_arch, label):
+                warnings.append(f".codex/status.md missing {label} in Architecture Supervision")
+        for label in ["Signal", "Signal Basis", "Problem Class", "Root Cause Hypothesis", "Correct Layer", "Rejected Shortcut", "Escalation Gate"]:
+            if not has_labeled_bullet(plan_arch, label):
+                warnings.append(f".codex/plan.md missing {label} in Architecture Supervision")
+        for label in ["Trigger Level", "Pending Capture", "Last Entry"]:
+            if not has_bullet_label(status_devlog, label):
+                warnings.append(f".codex/status.md missing {label} in Development Log Capture")
+        for label in ["Trigger Level", "Auto-Capture When", "Skip When"]:
+            if not has_bullet_label(plan_devlog, label):
+                warnings.append(f".codex/plan.md missing {label} in Development Log Capture")
+        for label in ["Current Gate", "Reason", "Next Review Trigger"]:
+            if not has_labeled_bullet(status_escalation, label):
+                warnings.append(f".codex/status.md missing {label} in Current Escalation State")
+        for label in ["Continue Automatically", "Raise But Continue", "Require User Decision"]:
+            if not has_labeled_bullet(plan_escalation, label):
+                warnings.append(f".codex/plan.md missing {label} in Escalation Model")
         slice_titles = extract_slice_titles(plan_text)
-        status_plan_link = next((item.split(":", 1)[1].strip() for item in status_execution.splitlines() if item.strip().startswith("- Plan Link:")), "")
-        plan_plan_link = next((item.split(":", 1)[1].strip() for item in plan_execution.splitlines() if item.strip().startswith("- Plan Link:")), "")
+        status_plan_link = next((item.split(":", 1)[1].strip().strip("`") for item in status_execution.splitlines() if item.strip().startswith("- Plan Link:")), "")
+        plan_plan_link = next((item.split(":", 1)[1].strip().strip("`") for item in plan_execution.splitlines() if item.strip().startswith("- Plan Link:")), "")
         if status_plan_link and status_plan_link not in slice_titles:
             warnings.append(".codex/status.md Plan Link does not match any plan slice")
         if plan_plan_link and plan_plan_link not in slice_titles:
@@ -393,6 +637,7 @@ def merge_question_owner(default_spec: dict[str, Any], override_spec: dict[str, 
 
 def merge_doc_governance(defaults: dict[str, Any], existing: dict[str, Any]) -> dict[str, Any]:
     merged = dict(defaults)
+    user_customized = bool(existing.get("userCustomized"))
     list_keys = {
         "rootKeep",
         "requiredPaths",
@@ -418,7 +663,10 @@ def merge_doc_governance(defaults: dict[str, Any], existing: dict[str, Any]) -> 
             payload.update(value)
             merged[key] = payload
         elif key in list_keys and isinstance(value, list):
-            merged[key] = unique_list(list(defaults.get(key, [])) + value)
+            if user_customized and key in {"rootKeep", "requiredPaths", "publicDocIncludeGlobs", "publicDocExcludeGlobs", "questionExcludeGlobs", "officialModules"}:
+                merged[key] = unique_list(value)
+            else:
+                merged[key] = unique_list(list(defaults.get(key, [])) + value)
         else:
             merged[key] = value
     return merged
@@ -478,7 +726,10 @@ def default_doc_governance_payload(repo: Path, tier: str, official_modules: list
             "questionOwners": {
                 "architecture": {
                     "allowed": ["docs/architecture.md", "docs/architecture.zh-CN.md"],
-                    "allowedGlobs": [],
+                    "allowedGlobs": [
+                        "references/*architecture*.md",
+                        "references/**/*architecture*.md",
+                    ],
                     "tokens": ["architecture"],
                 },
                 "roadmap": {
@@ -500,6 +751,7 @@ def default_doc_governance_payload(repo: Path, tier: str, official_modules: list
             "questionExcludeGlobs": [
                 ".codex/**",
                 "docs/adr/**",
+                "docs/devlog/**",
                 "scripts/**",
                 "agents/**",
             ],
@@ -639,6 +891,7 @@ def default_doc_governance_payload(repo: Path, tier: str, official_modules: list
         "questionExcludeGlobs": [
             ".codex/**",
             "docs/adr/**",
+            "docs/devlog/**",
             "docs/archive/**",
             "reports/generated/**",
             "workspace/**",

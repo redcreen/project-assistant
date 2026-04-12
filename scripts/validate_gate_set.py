@@ -22,6 +22,11 @@ DEEP_ONLY_VALIDATORS = [
     "validate_doc_quality.py",
     "validate_control_surface_quality.py",
     "validate_development_log.py",
+    "validate_architecture_retrofit.py",
+]
+
+RELEASE_ONLY_VALIDATORS = [
+    "validate_release_readiness.py",
 ]
 
 
@@ -48,14 +53,16 @@ def run_validator(script_name: str, repo: Path) -> tuple[bool, str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run layered retrofit validation gates.")
     parser.add_argument("repo", type=Path, help="Repository root")
-    parser.add_argument("--profile", choices=["auto", "fast", "deep"], default="auto")
+    parser.add_argument("--profile", choices=["auto", "fast", "deep", "release"], default="auto")
     args = parser.parse_args()
 
     repo = args.repo.resolve()
     profile = resolved_profile(repo, args.profile)
     validators = list(FAST_VALIDATORS)
-    if profile == "deep":
+    if profile in {"deep", "release"}:
         validators.extend(DEEP_ONLY_VALIDATORS)
+    if profile == "release":
+        validators.extend(RELEASE_ONLY_VALIDATORS)
 
     failed = False
     print(f"profile: {profile}")

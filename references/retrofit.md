@@ -16,11 +16,13 @@ Short Chinese commands:
 
 - `项目助手 整改`
 - `项目助手 文档整改`
+- `项目助手 架构 整改`
 
 Short English commands:
 
 - `project assistant retrofit`
 - `project assistant docs retrofit`
+- `project assistant architecture retrofit`
 
 ## Core Rule
 
@@ -44,6 +46,31 @@ Unless the user explicitly narrows the scope, `整改` includes both:
 That means README, docs landing, architecture, roadmap, test-plan, ADR layout, and document navigation are part of normal retrofit, not a separate optional pass.
 It also means root Markdown clutter, `reports/` misuse, legacy single-file bilingual docs, and archive/reference separation must be resolved, not merely left in place beside the new stack.
 
+If the user says `架构整改` / `architecture retrofit`, keep the same convergence expectation but switch the priority order:
+
+1. architecture root cause and target boundaries
+2. canonical architecture ownership and duplicate architecture-doc cleanup
+3. affected modules, interfaces, tests, and release surfaces
+4. only then the rest of the structure cleanup
+
+Important default:
+
+- `架构整改` is not plan-only by default
+- it should continue from architecture diagnosis into actual repo changes and finish on the applicable gates
+- stop after an audit note or retrofit checklist only when the user explicitly asks for `audit-only`, `先审计`, or `先不要改文件`
+
+## Dirty Worktree Preflight
+
+Before `整改`, `文档整改`, or `架构整改` starts applying changes:
+
+1. check whether the repo is a git worktree
+2. if it is dirty, tell the user briefly
+3. ask whether to create a checkpoint commit first
+4. do not auto-commit without approval
+5. if the user wants to continue without committing, proceed and do not revert their changes
+
+Keep this prompt short. It is a safety preflight, not a planning discussion.
+
 If available, use:
 
 - `scripts/sync_control_surface.py` to scaffold missing control-surface artifacts
@@ -57,6 +84,8 @@ If available, use:
 - `scripts/validate_control_surface_quality.py` to stop `.codex/*` from passing in template state
 - `scripts/write_development_log.py` to record durable debugging or retrofit conclusions
 - `scripts/validate_development_log.py` to enforce that the development-log index and entries stay usable
+- `scripts/sync_architecture_retrofit.py` to generate a repo-local architecture-retrofit working note
+- `scripts/validate_architecture_retrofit.py` to stop the architecture-retrofit note from staying in template state
 
 ## Mandatory Self-Check
 
@@ -228,6 +257,27 @@ Use layered gates:
 - `fast` during iterative work
 - `deep` before declaring retrofit complete
 - `deep` before release
+- `release` when architecture-sensitive release paths or workflows changed
+
+## Architecture Retrofit Rule
+
+Use architecture retrofit when the repo is structurally aligned enough to work, but the direction is still wrong.
+
+Typical triggers:
+
+- repeated fixes keep reappearing in different places
+- the correct layer is unclear, so hardcoded shortcuts keep accumulating
+- multiple architecture docs compete as active owners
+- module boundaries or state flow are drifting away from the intended architecture
+- release or CI behavior still assumes an outdated architecture direction
+
+Architecture retrofit should leave behind:
+
+- `.codex/architecture-retrofit.md`
+- one explicit target architecture direction
+- one explicit list of affected boundaries
+- one explicit execution strategy for the retrofit
+- one explicit exit condition set
 
 ## Documentation Retrofit Rule
 

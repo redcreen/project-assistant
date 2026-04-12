@@ -17,6 +17,7 @@
 | --- | --- |
 | 快速试用项目 | [README](../README.zh-CN.md) |
 | 理解系统结构 | [architecture.zh-CN.md](architecture.zh-CN.md) |
+| 规划一次架构优先的整改 | [../references/architecture-retrofit.md](../references/architecture-retrofit.md) |
 | 了解下一步计划 | [roadmap.zh-CN.md](roadmap.zh-CN.md) |
 | 了解验证方式 | [test-plan.zh-CN.md](test-plan.zh-CN.md) |
 | 追溯一次不直观的问题与实现路径 | [devlog/README.zh-CN.md](devlog/README.zh-CN.md) |

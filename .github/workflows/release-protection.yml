@@ -1,0 +1,42 @@
+name: Release Protection
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "VERSION"
+      - "install.sh"
+      - "README.md"
+      - "README.zh-CN.md"
+      - "scripts/release_skill.py"
+      - "scripts/validate_release_readiness.py"
+      - ".codex/status.md"
+      - ".codex/plan.md"
+      - ".github/workflows/release-*.yml"
+  pull_request:
+    paths:
+      - "VERSION"
+      - "install.sh"
+      - "README.md"
+      - "README.zh-CN.md"
+      - "scripts/release_skill.py"
+      - "scripts/validate_release_readiness.py"
+      - ".codex/status.md"
+      - ".codex/plan.md"
+      - ".github/workflows/release-*.yml"
+
+jobs:
+  release-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run release protection validation
+        run: python3 scripts/validate_gate_set.py . --profile release

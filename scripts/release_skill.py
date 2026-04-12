@@ -66,16 +66,16 @@ def ensure_clean() -> None:
         raise SystemExit("working tree must be clean before release")
 
 
-def ensure_deep_gates() -> None:
+def ensure_release_gates() -> None:
     result = subprocess.run(
-        [sys.executable, str(GATE_SCRIPT), str(ROOT), "--profile", "deep"],
+        [sys.executable, str(GATE_SCRIPT), str(ROOT), "--profile", "release"],
         cwd=ROOT,
         text=True,
         capture_output=True,
     )
     if result.returncode != 0:
         detail = (result.stdout + "\n" + result.stderr).strip()
-        raise SystemExit(f"deep validation gates failed before release\n{detail}")
+        raise SystemExit(f"release validation gates failed before release\n{detail}")
 
 
 def main() -> int:
@@ -85,7 +85,7 @@ def main() -> int:
     args = parser.parse_args()
 
     ensure_clean()
-    ensure_deep_gates()
+    ensure_release_gates()
     current = read_version()
     next_version = bump(current, args.mode)
     tag = f"v{next_version}"

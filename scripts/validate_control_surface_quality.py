@@ -24,6 +24,9 @@ TEMPLATE_SNIPPETS = [
     "establish the next meaningful autonomous run",
     "one checkpoint-sized execution line",
     "confirm the active slice and intended checkpoint",
+    "architecture supervision is still mostly a policy",
+    "the repo may still drift toward local fixes",
+    "the assistant can keep converging the repo unless",
 ]
 
 
@@ -49,6 +52,43 @@ def extract_tasks(text: str) -> list[str]:
     return tasks
 
 
+def has_bullet_label(text: str, label: str) -> bool:
+    prefix = f"- {label}:"
+    return any(line.strip().startswith(prefix) for line in text.splitlines())
+
+
+def has_substantive_labeled_bullet(text: str, label: str) -> bool:
+    for line in text.splitlines():
+        stripped = line.strip()
+        prefix = f"- {label}:"
+        if stripped.startswith(prefix):
+            value = stripped.split(":", 1)[1].strip().strip("`")
+            min_len = 1 if label in {"Signal", "Current Gate", "Escalation Gate", "Trigger Level", "Pending Capture"} else 8
+            return len(value) >= min_len
+    return False
+
+
+def has_nested_items_after_label(text: str, label: str) -> bool:
+    lines = text.splitlines()
+    prefix = f"- {label}:"
+    for index, line in enumerate(lines):
+        if line.strip().startswith(prefix):
+            for follow in lines[index + 1 :]:
+                stripped = follow.strip()
+                if not stripped:
+                    continue
+                if stripped.startswith("- "):
+                    return True
+                if re.match(r"^\d+\.\s+", stripped):
+                    return True
+                if stripped.startswith("- ") and not follow.startswith("  "):
+                    break
+                if re.match(r"^- [A-Za-z].*:", stripped):
+                    break
+            return False
+    return False
+
+
 def warn_quality(rel: str, text: str, warnings: list[str]) -> None:
     if not text:
         warnings.append(f"{rel} is missing content")
@@ -67,6 +107,30 @@ def warn_quality(rel: str, text: str, warnings: list[str]) -> None:
             warnings.append(f"{rel} has too few execution tasks for a meaningful execution line")
         if not tasks:
             warnings.append(f"{rel} execution tasks are missing checkbox-style task lines")
+    if "## Architecture Supervision" in text:
+        for label in ["Signal", "Signal Basis", "Root Cause Hypothesis", "Correct Layer", "Escalation Gate"]:
+            if not has_substantive_labeled_bullet(section_block(text, "Architecture Supervision"), label):
+                warnings.append(f"{rel} has an Architecture Supervision section without a concrete {label}")
+    if "## Development Log Capture" in text:
+        block = section_block(text, "Development Log Capture")
+        if "Pending Capture" in block or "Last Entry" in block:
+            for label in ["Trigger Level", "Pending Capture", "Last Entry"]:
+                if not has_substantive_labeled_bullet(block, label):
+                    warnings.append(f"{rel} has a Development Log Capture section without a concrete {label}")
+        else:
+            if not has_substantive_labeled_bullet(block, "Trigger Level"):
+                warnings.append(f"{rel} has a Development Log Capture section without a concrete Trigger Level")
+            for label in ["Auto-Capture When", "Skip When"]:
+                if not has_bullet_label(block, label) or not has_nested_items_after_label(block, label):
+                    warnings.append(f"{rel} has a Development Log Capture section without a concrete {label}")
+    if "## Escalation Model" in text:
+        for label in ["Continue Automatically", "Raise But Continue", "Require User Decision"]:
+            if not has_substantive_labeled_bullet(section_block(text, "Escalation Model"), label):
+                warnings.append(f"{rel} has an Escalation Model section without a concrete {label}")
+    if "## Current Escalation State" in text:
+        for label in ["Current Gate", "Reason", "Next Review Trigger"]:
+            if not has_substantive_labeled_bullet(section_block(text, "Current Escalation State"), label):
+                warnings.append(f"{rel} has a Current Escalation State section without a concrete {label}")
 
 
 def main() -> int:
