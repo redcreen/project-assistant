@@ -26,10 +26,10 @@
 
 | 项目 | 当前值 | 说明 |
 | --- | --- | --- |
-| 当前阶段 | `strategic evaluation layer closed; M11 kickoff queued` | 来自 `.codex/plan.md` 的当前维护阶段 |
-| 当前切片 | `close-m10-and-queue-m11` | 当前执行线绑定的切片 |
-| 当前执行线 | 收口 M10 战略评估层，把脚本、门禁、展示层和 durable 文档都切到完成状态，并把 M11 明确排成下一条主线 | 当前这轮真正收口的工作 |
-| 当前验证 | 战略面脚本、校验、`progress / continue / handoff`、README、roadmap、development plan 与控制面一致；`deep` 和 `release` 继续通过 | 继续前如何证明这条线已收口 |
+| 当前阶段 | `supervised long-run delivery layer closed; rollout queued` | 来自 `.codex/plan.md` 的当前维护阶段 |
+| 当前切片 | `close-m12-and-open-rollout` | 当前执行线绑定的切片 |
+| 当前执行线 | 收口 M12 长期受监督交付层，把 delivery-supervision、checkpoint rhythm、自动继续边界与升级时机都切到 durable 真相，并把后续状态切到 rollout / 摩擦采集 | 当前这轮真正收口的工作 |
+| 当前验证 | delivery-supervision 脚本、校验、`progress / continue / handoff`、README、roadmap、development plan 与控制面一致；`deep` 和 `release` 继续通过 | 继续前如何证明这条线已收口 |
 
 ## 阶段总览
 
@@ -45,8 +45,8 @@
 | M8 | deferred | 按语言优化内部控制面输出 | handoff + command templates + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
 | M9 | deferred | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | 转成 M10 下的 supporting backlog，而不是继续占据主线 |
 | M10 | done | 增加位于执行层之上的战略评估层 | M7 + 已批准的战略方向 | roadmap / 治理 / 架构调整建议成为 durable、可 review 的战略输出，而不是零散直觉 |
-| M11 | next | 增加跨多个切片或执行器的程序编排层 | M10 + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
-| M12 | later | 增加受监督的长期自动交付层 | M11 + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点 |
+| M11 | done | 增加跨多个切片或执行器的程序编排层 | M10 + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
+| M12 | done | 增加受监督的长期自动交付层 | M11 + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点 |
 
 ## 顺序执行队列
 
@@ -64,7 +64,9 @@
 | 10 | `tighten-maintainer-facing-narrative-and-architecture-triggers` | 已完成的里程碑切片 | representative medium / large repo 的第一屏更接近维护者恢复面板；至少一条架构触发已能自动升级 | representative repo snapshots 改善且自动触发可见 |
 | 11 | `activate-m10-strategic-evaluation-layer` | 已完成的切换切片 | 把战略层从“提案”提升成 active roadmap 方向，并让 roadmap / README / 控制面指向同一个当前主线 | 文档、路线图、开发计划和控制面都指向 M10 |
 | 12 | `establish-strategy-surface-and-review-contract` | 已完成 | 创建第一份 durable strategy surface，定义 review 边界，并明确 M8/M9 怎样并入 supporting backlog | `.codex/strategy.md` 存在；文档与控制面一致；`deep` 通过 |
-| 13 | `close-m10-and-queue-m11` | 当前 | 把 M10 从“方向成立”收口成“脚本、门禁、展示、文档都成立”，并明确把 M11 排成下一条主线 | `validate_strategy_surface.py`、`progress / continue / handoff`、README、roadmap、development plan 和控制面都对齐；`deep` 与 `release` 通过 |
+| 13 | `close-m10-and-queue-m11` | 已完成 | 把 M10 从“方向成立”收口成“脚本、门禁、展示、文档都成立”，并明确把 M11 排成下一条主线 | `validate_strategy_surface.py`、`progress / continue / handoff`、README、roadmap、development plan 和控制面都对齐；`deep` 与 `release` 通过 |
+| 14 | `close-m11-and-queue-m12` | 已完成 | 把 M11 从“有方向和草图”收口成“program-board、门禁、展示、文档都成立”，并明确把 M12 排成下一条主线 | `validate_program_board.py`、`progress / continue / handoff`、README、roadmap、development plan 和控制面都对齐；`deep` 与 `release` 通过 |
+| 15 | `close-m12-and-open-rollout` | 当前 | 把 M12 从“方向已批准”收口成“delivery-supervision、门禁、展示、文档都成立”，并把后续状态切到 rollout / 摩擦采集 | `validate_delivery_supervision.py`、`progress / continue / handoff`、README、roadmap、development plan 和控制面都对齐；`deep` 与 `release` 通过 |
 
 ## 里程碑细节
 
@@ -162,7 +164,7 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | next |
+| 当前状态 | done |
 | 目标 | 增加跨多个切片或执行器的程序编排层 |
 | 依赖 | M10 + durable program board |
 | 退出条件 | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
@@ -171,7 +173,7 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | later |
+| 当前状态 | done |
 | 目标 | 增加受监督的长期自动交付层 |
 | 依赖 | M11 + 稳定升级策略 |
 | 退出条件 | 长期交付能持续推进到真正的业务裁决点 |
@@ -180,13 +182,13 @@
 
 | 下一步 | 为什么做 |
 | --- | --- |
-| 继续从 `close-m10-and-queue-m11` 之后恢复 | M10 已经完成；下一个 durable 问题是怎样为 M11 建立 `program-board` 的最小结构与编排边界 |
+| 继续从 `close-m12-and-open-rollout` 之后恢复 | M12 已经完成；下一个 durable 问题是怎样让 rollout / 摩擦证据决定 post-M12 里程碑或 supporting backlog 回流 |
 
 ## 战略方向
 
 | 主题 | 范围 | 当前位置 |
 | --- | --- | --- |
-| 业务规划与程序编排层 | `project-assistant` 已完成战略评估层，接下来进入程序编排层；M8/M9 继续作为 supporting backlog 挂在这条主线之下 | active |
+| 业务规划与程序编排层 | `project-assistant` 已完成战略评估层、程序编排层和长期受监督交付层；当前进入 rollout / 摩擦采集阶段；M8/M9 继续作为 supporting backlog 挂在这条主线之下 | active |
 
 方向文档：
 

@@ -15,9 +15,9 @@
 
 | 时间层级 | 重点 | 退出信号 |
 | --- | --- | --- |
-| 当前 | 保持战略评估层稳定，并为程序编排层准备 durable `program-board` 入口 | M10 已关闭，M11 的 durable 边界和输入已明确 |
-| 下一步 | 程序编排层，管理多个切片或多个执行器 | 系统可以协调多条相关工作流，而不是持续依赖人工输入“继续” |
-| 更后面 | 受监督的长期自动交付，以及作为 supporting backlog 回收的 M8/M9 议题 | 长时间交付能推进到真正的业务裁决点，同时 locale-aware internal output 和 continue 压缩只作为受控子议题存在 |
+| 当前 | 把完整分层模型带到更多仓库上试跑，收集 rollout 摩擦，并保持 strategy / program / delivery 三层控制面一致 | M12 已关闭，rollout 证据开始替代内部拍脑袋命名下一里程碑 |
+| 下一步 | 根据 rollout 证据决定是否需要新的 post-M12 里程碑，或是否让 supporting backlog 局部回流 | 下一条命名里程碑只来自重复出现的 rollout 摩擦，而不是内部猜测 |
+| 更后面 | 只在 rollout 证据足够时，再把 M8/M9 这类 supporting backlog 议题按受控方式并入主线 | 在真实 adoption 证据出现前，supporting backlog 不会无计划回流主线 |
 
 ## 里程碑
 
@@ -38,8 +38,8 @@
 | 里程碑 | 状态 | 目标 | 依赖 | 退出条件 |
 | --- | --- | --- | --- | --- |
 | [M10](reference/project-assistant/development-plan.zh-CN.md#m10) | done | 增加位于执行层之上的战略评估层 | [M7](reference/project-assistant/development-plan.zh-CN.md#m7) + 已批准的战略方向 | 系统能产出 durable 战略判断、识别何时应插入治理/架构专项，并把业务方向变更继续交给人类审批 |
-| [M11](reference/project-assistant/development-plan.zh-CN.md#m11) | next | 增加跨多个切片或执行器的程序编排层 | [M10](reference/project-assistant/development-plan.zh-CN.md#m10) + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
-| [M12](reference/project-assistant/development-plan.zh-CN.md#m12) | later | 增加受监督的长期自动交付层 | [M11](reference/project-assistant/development-plan.zh-CN.md#m11) + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点，而不是在日常调度上不断停下来 |
+| [M11](reference/project-assistant/development-plan.zh-CN.md#m11) | done | 增加跨多个切片或执行器的程序编排层 | [M10](reference/project-assistant/development-plan.zh-CN.md#m10) + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
+| [M12](reference/project-assistant/development-plan.zh-CN.md#m12) | done | 增加受监督的长期自动交付层 | [M11](reference/project-assistant/development-plan.zh-CN.md#m11) + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点，而不是在日常调度上不断停下来 |
 
 ## 里程碑流转
 
@@ -66,12 +66,13 @@ flowchart LR
 - `M8 / M9` 提到的问题仍然重要，但现在作为 `M10` 下的 supporting backlog 管理，而不是继续占据主线
 - 战略层必须持续基于 repo 证据给出判断，不能越权自动改变业务方向
 - 程序编排层必须等战略层的 review 合约稳定后再落地
+- 任何 post-M12 里程碑都应来自重复的 rollout 摩擦，而不是在没有证据时重开已关闭层
 
 ## 战略方向
 
 | 主题 | 为什么重要 | 当前位置 |
 | --- | --- | --- |
-| 业务规划与程序编排层 | `project-assistant` 已经完成 `M10` 战略评估层；接下来进入 `M11` 程序编排层，`M8 / M9` 继续作为 supporting backlog 等待被重新编排吸收 | 已进入 roadmap 和 development plan |
+| 业务规划与程序编排层 | `project-assistant` 已经完成 `M10` 战略评估层、`M11` 程序编排层和 `M12` 长期受监督交付层；当前重点转为 rollout / 摩擦采集，`M8 / M9` 继续作为 supporting backlog 等待被受控吸收 | 已进入 roadmap 和 development plan |
 
 方向文档：
 

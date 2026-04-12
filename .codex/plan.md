@@ -2,44 +2,44 @@
 
 ## Current Phase
 
-`strategic evaluation layer closed; M11 kickoff queued`
+`supervised long-run delivery layer closed; rollout queued`
 
 ## Current Execution Line
-- Objective: 收口 M10 战略评估层，把脚本、门禁、展示层和 durable 文档都切到完成状态，并把 M11 明确排成下一条主线而不是隐式漂入实现
-- Plan Link: close-m10-and-queue-m11
-- Runway: one checkpoint covering M10 closeout, M11 queueing, validation, and state refresh
+- Objective: 收口 M12 长期受监督交付层，把 checkpoint 节奏、自动继续边界、升级时机、执行器监督循环和 backlog 回流规则沉淀成 durable `delivery-supervision` 真相，并把后续状态切到 rollout / 摩擦采集，而不是继续停在内部里程碑叙事里
+- Plan Link: close-m12-and-open-rollout
+- Runway: one checkpoint covering M12 closeout, rollout queueing, validation, and state refresh
 - Progress: 8 / 8 tasks complete
 - Stop Conditions:
   - blocker requires human direction
   - validation fails and changes the direction
   - business, compatibility, or cost decision requires user judgment
-- Validation: 战略面脚本、校验、`progress / continue / handoff`、README、roadmap、development plan 与控制面一致；`deep` 和 `release` 继续通过
+- Validation: delivery-supervision 脚本、校验、`progress / continue / handoff`、README、roadmap、development plan 与控制面一致；`deep` 和 `release` 继续通过
 
 ## Architecture Supervision
 - Signal: `green`
 - Signal Basis: no blocker or escalation trigger is currently forcing a higher-level decision
-- Problem Class: M10 的方向已确认，但必须先把“方向成立”和“能力落地”收成同一套 durable 真相，避免文档说做完了、脚本却还没接上
-- Root Cause Hypothesis: 如果不把战略面脚本化、门禁化、展示化，M10 仍会停留在提案层，维护者回来时看不到真正可执行的战略层
-- Correct Layer: `.codex/strategy.md`、strategy sync / validate、maintainer-facing snapshots、README / roadmap / development-plan closeout
-- Rejected Shortcut: 只改 roadmap 状态，把 M10 标成 done，但不补脚本和展示层闭环
+- Problem Class: M12 的方向已确认，但必须先把“长期监督交付成立”和“rollout handoff 可恢复”收成同一套 durable 真相，避免 checkpoint 节奏与升级边界只存在于聊天里
+- Root Cause Hypothesis: 如果不把 checkpoint rhythm、auto-continue boundary、escalation timing 和 rollout handoff 脚本化、门禁化、展示化，M12 仍会停留在路线图目标层，人类还是需要反复盯着项目推进
+- Correct Layer: `.codex/delivery-supervision.md`、delivery-supervision sync / validate、maintainer-facing snapshots、README / roadmap / development-plan closeout
+- Rejected Shortcut: 只宣称“已经支持长期自动交付”，但不把 checkpoint 节奏和升级边界写成 durable 控制面
 - Automatic Review Trigger: no automatic trigger is currently active
 - Escalation Gate: continue automatically
 
 ## Escalation Model
 
-- Continue Automatically: 当前工作是在已批准的战略方向内补齐控制面、文档和 review 边界，不改变业务方向
-- Raise But Continue: 出现监督信号偏黄、但仍能在既定战略方向内收敛时，先记录风险再继续
+- Continue Automatically: 当前工作是在已批准的战略方向内补齐长期监督交付的 durable 面，不改变业务方向
+- Raise But Continue: rollout 摩擦或监督信号偏黄，但仍能在既有方向内收敛时，先记录风险再继续
 - Require User Decision: 需要改变业务方向、兼容性承诺、外部定位或显著成本 / 时间边界时，必须停下来等用户裁决
 
 ## Execution Tasks
-- [x] EL-1 confirm the closeout objective for `close-m10-and-queue-m11`: 让 M10 从“方向成立”升级成“脚本、门禁、展示、文档都成立”
-- [x] EL-2 verify dependencies and affected boundaries: strategy sync / validate, progress / continue / handoff, roadmap / development-plan / README, control truth
+- [x] EL-1 confirm the closeout objective for `close-m12-and-open-rollout`: 让 M12 从“方向成立”升级成“delivery-supervision、门禁、展示、文档都成立”
+- [x] EL-2 verify dependencies and affected boundaries: delivery-supervision sync / validate, progress / continue / handoff, roadmap / development-plan / README, control truth
 - [x] EL-3 confirm architecture signal, root-cause hypothesis, and correct layer still hold
-- [x] EL-4 add a reusable strategic surface sync path and a strategy validator
-- [x] EL-5 wire strategic snapshots into `progress / continue / handoff`
-- [x] EL-6 close M10 across README, roadmap, development plan, strategy docs, and control truth
-- [x] EL-7 run validation: `deep` and `release` both pass after the M10 closeout
-- [x] EL-8 capture a devlog entry because M10 is now complete and M11 is officially queued
+- [x] EL-4 add a reusable delivery-supervision sync path and a delivery-supervision validator
+- [x] EL-5 把 delivery-supervision 摘要接入 `progress / continue / handoff`
+- [x] EL-6 close M12 across README, roadmap, development plan, delivery-supervision docs, and control truth
+- [x] EL-7 运行验证：`deep` 与 `release` 在 M12 收口后继续通过
+- [x] EL-8 capture a devlog entry because M12 is now complete and rollout is officially queued
 
 ## Development Log Capture
 - Trigger Level: high
@@ -56,9 +56,9 @@
 
 ## Slices
 
-- Slice: close-m10-and-queue-m11
-  - Objective: 关闭 M10，把战略层能力从“方向与文档”推进到“脚本、门禁、展示、文档都成立”，并把 M11 明确排到下一条主线
-  - Dependencies: `.codex/strategy.md`、strategy sync / validate、README、roadmap、development plan、progress / continue / handoff
-  - Risks: M10 看起来完成，但脚本层和维护者第一屏仍看不到战略层；M11 在没有明确排队的情况下隐式开始
-  - Validation: `validate_strategy_surface.py` 通过；`deep` 与 `release` 通过；文档和控制面都把 M10 标成 done、M11 标成 next
-  - Exit Condition: M10 成为 durable、可恢复、可校验的已完成里程碑，M11 以明确的下一主线排队
+- Slice: close-m12-and-open-rollout
+  - Objective: 关闭 M12，把长期监督交付层从“路线图目标”推进到“delivery-supervision、门禁、展示、文档都成立”，并把后续状态切到 rollout / 摩擦采集
+  - Dependencies: `.codex/delivery-supervision.md`、delivery-supervision sync / validate、README、roadmap、development plan、progress / continue / handoff
+  - Risks: M12 看起来完成，但 checkpoint 节奏、自动继续边界和升级时机没有进入第一屏和门禁；rollout 仍旧需要人工频繁盯着
+  - Validation: `validate_delivery_supervision.py` 通过；`deep` 与 `release` 通过；文档和控制面都把 M12 标成 done、rollout 标成 queued
+  - Exit Condition: M12 成为 durable、可恢复、可校验的已完成里程碑，后续工作进入 rollout / 摩擦采集阶段

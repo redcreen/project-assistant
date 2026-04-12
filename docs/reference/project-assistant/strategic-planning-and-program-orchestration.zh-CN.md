@@ -10,7 +10,7 @@
 - 程序编排
 - 受监督的长期自动交付
 
-这个方向现在已经进入正式路线图。`M10` 战略评估层已经完成，`M8 / M9` 被并入这条方向下的 supporting backlog，而不再继续占据主线位置；下一条主线是 `M11` 程序编排层。
+这个方向现在已经进入正式路线图。`M10` 战略评估层、`M11` 程序编排层和 `M12` 受监督的长期自动交付层都已经完成；`M8 / M9` 被并入这条方向下的 supporting backlog，而不再继续占据主线位置；当前重点转向 rollout / 摩擦采集，并用真实 adoption 证据决定是否需要 post-M12 里程碑。
 
 ## 为什么需要这一层
 
@@ -99,6 +99,7 @@ AI 系统则应逐步承担：
 | --- | --- |
 | `.codex/strategy.md` | 当前战略判断、专项插入建议、roadmap 调整建议、需要人类裁决的点 |
 | `.codex/program-board.md` | 活跃 workstreams、编排状态、串并行边界、执行器分工和调度检查点 |
+| `.codex/delivery-supervision.md` | checkpoint 节奏、自动继续边界、升级时机、执行器监督循环和 backlog 回流规则 |
 
 这两者应该和现有控制面并列，而不是替代 `plan / status`。
 
@@ -127,4 +128,5 @@ AI 系统则应逐步承担：
 1. `project-assistant` 可以提出 roadmap 重排、治理专项和架构专项建议。
 2. 它不能在没有人类批准的情况下自动改变业务方向、兼容性承诺或对外定位。
 3. `M8` 的 locale-aware internal output 与 `M9` 的 continue 压缩，现在都转成 `M10` 下的 supporting backlog，而不是继续占用主线里程碑。
-4. `M11` 和 `M12` 继续排在后面；现在 `M10` 已经产出 durable 战略控制面和稳定 review 合约，所以下一条主线正式转向 `M11`。
+4. `M11` 已经把 durable program board、编排边界和维护者展示收口完成；`M12` 也已经把长期监督交付层收口成 durable `delivery-supervision` 面。
+5. 下一阶段不再先命名内部里程碑，而是先做 rollout / 摩擦采集，让 post-M12 方向来自真实 adoption 证据。

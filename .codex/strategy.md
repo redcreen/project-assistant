@@ -13,8 +13,8 @@
 | roadmap 调整建议 | yes | 但只提建议，不自动改业务方向 |
 | 是否插入治理 / 架构专项 | yes | 需要基于 repo 证据和长期风险 |
 | 项目定位是否需要提升 | yes | 作为建议输出，仍需人类审批 |
-| 多个切片 / 多个执行器编排 | not yet | 留给 M11 |
-| 长时间自动交付 | not yet | 留给 M12 |
+| 多个切片 / 多个执行器编排 | 已由 M11 承接 | 现在由 `.codex/program-board.md` 承接 |
+| 长时间自动交付 | 已由 M12 承接 | 现在由 `.codex/delivery-supervision.md` 承接 |
 
 ## Carryover Backlog
 
@@ -38,9 +38,9 @@
 
 ## Next Strategic Checks
 
-1. 在准备激活 M11 之前，先评审第一版 `program-board` 的 durable 结构和边界。
-2. 当 roadmap 调整建议、治理专项或架构专项再次出现时，继续要求战略判断引用 durable repo 证据。
-3. 继续确认 `M8 / M9` 是否保持在 supporting backlog，而不是被无计划地拉回主线。
+1. 在 rollout / dogfooding 过程中继续要求战略判断引用 durable repo 证据，而不是只凭聊天感受。
+2. 当 cross-repo adoption 摩擦重复出现时，再决定是否要插新的治理 / 架构专项或新里程碑。
+3. 继续确认 `M8 / M9` 是否保持在 supporting backlog，而不是在没有证据的情况下被拉回主线。
 
 ## Strategy Evidence Contract
 - 战略建议必须引用 roadmap、development plan、当前 `.codex/status.md` 和 `.codex/plan.md`，不能只凭聊天直觉。
@@ -51,5 +51,6 @@
 
 ## Future Program-Board Boundary
 - M10 owns strategic judgment, evidence-backed suggestions, and the human review boundary.
-- M11 should own sequencing, orchestration, parallel-safe slices, and durable program-board state.
-- Do not let M10 silently grow into full orchestration before the program-board contract exists.
+- M11 now owns sequencing, orchestration, parallel-safe slices, and durable program-board state.
+- M12 now owns longer-running checkpoint rhythm, supervised delivery loops, escalation timing, and rollout handoff through `.codex/delivery-supervision.md`.
+- Future milestones should arise from rollout evidence, not by reopening M10 or M11 responsibilities.

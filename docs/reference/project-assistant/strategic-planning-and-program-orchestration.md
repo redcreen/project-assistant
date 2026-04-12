@@ -10,7 +10,7 @@ This document records the approved next major direction above the current `proje
 - program orchestration
 - supervised long-run delivery
 
-This direction is now part of the official roadmap. M10 strategic evaluation is complete. M8 and M9 are no longer the mainline; they remain bounded supporting backlog topics inside this strategic layer, while M11 program orchestration becomes the next mainline.
+This direction is now part of the official roadmap. M10 strategic evaluation, M11 program orchestration, and M12 supervised long-run delivery are complete. M8 and M9 are no longer the mainline; they remain bounded supporting backlog topics inside this strategic layer, while rollout / friction collection becomes the current durable follow-through so any post-M12 milestone is driven by real adoption evidence.
 
 ## Why This Layer Is Needed
 
@@ -99,6 +99,7 @@ The AI system should increasingly handle:
 | --- | --- |
 | `.codex/strategy.md` | current strategic judgment, proposed track insertions, roadmap-change proposals, and human decision points |
 | `.codex/program-board.md` | active workstreams, orchestration state, sequencing, parallel-safe slices, and supervising checkpoints |
+| `.codex/delivery-supervision.md` | checkpoint rhythm, automatic-continue boundaries, escalation timing, executor supervision loop, and backlog re-entry rules |
 
 These should sit alongside existing control-surface files, not replace them.
 
@@ -127,4 +128,5 @@ The direction is approved, but its authority remains bounded:
 1. `project-assistant` may propose roadmap reshaping, governance tracks, and architecture tracks.
 2. It may not auto-change business direction, compatibility promises, or external positioning without human approval.
 3. M8 locale-aware output and M9 slimmer continue snapshots now survive as supporting backlog topics under M10 rather than as the mainline.
-4. M11 and M12 stay downstream until M10 produces durable strategy surfaces and a stable review contract. That condition is now met, so M11 becomes the next mainline.
+4. M11 has now closed its durable program board, orchestration boundary, and maintainer-facing snapshots. M12 has also closed supervised long-run delivery into a durable `delivery-supervision` surface.
+5. The next step is rollout / friction collection rather than naming another internal milestone first; post-M12 direction should come from real adoption evidence.

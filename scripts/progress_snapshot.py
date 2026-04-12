@@ -14,6 +14,8 @@ from control_surface_lib import (
     execution_task_progress,
     first_line,
     labeled_bullet_value,
+    parse_delivery_supervision,
+    parse_program_board,
     parse_strategy_surface,
     parse_official_modules,
     parse_tier,
@@ -125,10 +127,16 @@ TERM_CATALOG = {
 EXACT_TEXT_MAP = {
     "strategic evaluation layer": "战略评估层",
     "program orchestration layer": "程序编排层",
+    "program orchestration layer closed; m12 queued": "程序编排层已收口；M12 启动已排队",
+    "supervised long-run delivery": "长期受监督交付层",
+    "supervised long-run delivery layer closed; rollout queued": "长期受监督交付层已收口；rollout 已排队",
     "strategic evaluation layer foundation": "战略评估层基线",
     "strategic evaluation layer closed; m11 kickoff queued": "战略评估层已收口；M11 启动已排队",
     "establish-strategy-surface-and-review-contract": "建立战略面与 review contract",
     "close-m10-and-queue-m11": "关闭 M10 并排队 M11",
+    "close-m11-and-queue-m12": "关闭 M11 并排队 M12",
+    "close-m12-and-open-rollout": "关闭 M12 并打开 rollout",
+    "activate-program-board-and-orchestration-boundary": "激活 program-board 与程序编排边界",
     "define-strategy-evidence-and-review-contract": "定义战略证据与 review contract",
     "activate-m10-strategic-evaluation-layer": "激活 M10 战略评估层",
     "governed execution / module-view active": "治理执行中 / 模块视角已启用",
@@ -192,6 +200,14 @@ PHRASE_REPLACEMENTS = [
     ("wire strategic snapshots into", "把战略快照接入"),
     ("close m10 across readme, roadmap, development plan, strategy docs, and control truth", "把 M10 在 README、roadmap、development plan、strategy docs 和 control truth 上全部收口"),
     ("capture a devlog entry because m10 is now complete and m11 is officially queued", "记录一条开发日志，因为 M10 已完成且 M11 已正式排队"),
+    ("add a reusable program-board sync path and a program-board validator", "增加可复用的 program-board sync 路径和 program-board validator"),
+    ("wire program-board summaries into `progress / continue / handoff`", "把 program-board 摘要接入 `progress / continue / handoff`"),
+    ("close m11 across readme, roadmap, development plan, program-board docs, and control truth", "把 M11 在 README、roadmap、development plan、program-board docs 和 control truth 上全部收口"),
+    ("capture a devlog entry because m11 is now complete and m12 is officially queued", "记录一条开发日志，因为 M11 已完成且 M12 已正式排队"),
+    ("add a reusable delivery-supervision sync path and a delivery-supervision validator", "增加可复用的 delivery-supervision sync 路径和 validator"),
+    ("wire delivery-supervision summaries into `progress / continue / handoff`", "把 delivery-supervision 摘要接入 `progress / continue / handoff`"),
+    ("close m12 across readme, roadmap, development plan, delivery-supervision docs, and control truth", "把 M12 在 README、roadmap、development plan、delivery-supervision docs 和 control truth 上全部收口"),
+    ("capture a devlog entry because m12 is now complete and rollout is officially queued", "记录一条开发日志，因为 M12 已完成且 rollout 已正式排队"),
     ("business direction changes", "业务方向变化"),
     ("compatibility promises", "兼容性承诺"),
     ("external positioning changes", "对外定位变化"),
@@ -795,6 +811,14 @@ def medium_mainline_status_zh(repo: Path) -> str:
         status_text = read_text(repo / ".codex/status.md")
         active_slice = first_line(section(status_text, "Active Slice")).strip("`").lower()
         current_phase = first_line(section(status_text, "Current Phase")).strip("`").lower()
+        if "supervised long-run delivery" in current_phase or "delivery-supervision" in active_slice or "close-m12" in active_slice:
+            if "closed" in current_phase or "rollout" in current_phase:
+                return "核心能力、战略层、程序编排层与长期受监督交付层都已完成；当前进入 rollout 与摩擦采集阶段。"
+            return "核心能力、战略层与程序编排层已完成；当前在做长期受监督交付层，把 checkpoint 节奏、自动继续边界和升级时机沉淀成 durable 真相。"
+        if "program orchestration" in current_phase or "orchestration" in active_slice or "program-board" in active_slice:
+            if "closed" in current_phase or "m12" in current_phase or "queue" in active_slice:
+                return "核心能力、战略层与程序编排层已完成；当前正在为长期受监督交付层排队。"
+            return "核心能力与战略层已完成；当前在做程序编排层，把多个切片或执行器的推进沉淀成 durable program board。"
         if "strategic evaluation" in current_phase or "strategic" in active_slice:
             return "核心能力已完成；当前在做更高层的战略评估层，把“项目下一步怎么走”沉淀成可 review 的 repo 真相。"
         if "locale-aware" in current_phase or "locale-aware" in active_slice:
@@ -811,6 +835,10 @@ def medium_mainline_status_zh(repo: Path) -> str:
 
 def medium_work_area_zh(active_slice: str, execution_line: str) -> str:
     lowered = f"{active_slice} {execution_line}".lower()
+    if any(token in lowered for token in ["supervised long-run delivery", "delivery-supervision", "checkpoint rhythm", "长期受监督交付", "close-m12", "rollout"]):
+        return "长期受监督交付层"
+    if any(token in lowered for token in ["program orchestration", "program-board", "sequencing", "executor", "orchestration", "程序编排"]):
+        return "程序编排层"
     if any(token in lowered for token in ["strategic", "strategy", "program-board", "roadmap reshaping", "milestone reorder", "战略", "程序编排"]):
         return "战略评估层"
     if any(token in lowered for token in ["locale-aware", "用户语言", "中文工作流", "冗余英文"]):
@@ -830,6 +858,10 @@ def medium_work_area_zh(active_slice: str, execution_line: str) -> str:
 
 def medium_slice_explanation_zh(active_slice: str, execution_line: str) -> str:
     lowered = active_slice.lower().strip()
+    if "delivery-supervision" in lowered or "supervised long-run" in lowered or "close-m12-and-open-rollout" in lowered:
+        return "把 checkpoint 节奏、自动继续边界、升级时机和执行器监督循环收口成 durable delivery-supervision，并把项目切到 rollout / 摩擦采集阶段"
+    if "program-board" in lowered or "orchestration" in lowered or "close-m11-and-queue-m12" in lowered:
+        return "把 durable program-board、编排状态和维护者恢复面全部收口，并把 M12 排成下一条主线"
     if "strategy-surface" in lowered or "strategic" in lowered:
         return "建立可复用的战略判断面，并明确哪些问题必须继续升级给人类 review"
     if lowered in MEDIUM_SLICE_EXPLANATIONS:
@@ -847,6 +879,10 @@ def medium_slice_explanation_zh(active_slice: str, execution_line: str) -> str:
 
 def medium_direct_value_zh(active_slice: str, execution_line: str) -> str:
     lowered = active_slice.lower().strip()
+    if "delivery-supervision" in lowered or "supervised long-run" in lowered or "close-m12-and-open-rollout" in lowered:
+        return "让系统明确知道什么时候可以自动继续、什么时候该提醒、什么时候必须停下来等人类裁决，并把这套节奏沉淀成 durable 交付真相。"
+    if "program-board" in lowered or "orchestration" in lowered or "close-m11-and-queue-m12" in lowered:
+        return "让多个相关切片和执行器的推进顺序、边界和升级点不再散落在聊天里，而是留在 durable program board 里。"
     if "strategy-surface" in lowered or "strategic" in lowered:
         return "让项目后续怎么走、何时插专项、何时改 roadmap 不再散落在聊天里，而是留在 repo 真相中。"
     if lowered in MEDIUM_SLICE_VALUE:
@@ -990,6 +1026,35 @@ def strategy_status_zh(status: str) -> str:
     }.get(status.lower(), pretty_text_zh(status))
 
 
+def program_status_zh(status: str) -> str:
+    return {
+        "active": "活跃",
+        "done": "已完成",
+        "next": "下一阶段",
+        "later": "更后面",
+        "supporting backlog": "supporting backlog",
+    }.get(status.lower(), pretty_text_zh(status))
+
+
+def workstream_state_zh(status: str) -> str:
+    return {
+        "active": "活跃",
+        "stable": "稳定",
+        "done": "已完成",
+        "supporting backlog": "supporting backlog",
+    }.get(status.lower(), pretty_text_zh(status))
+
+
+def delivery_status_zh(status: str) -> str:
+    return {
+        "active": "活跃",
+        "stable": "稳定",
+        "done": "已完成",
+        "next": "下一阶段",
+        "later": "更后面",
+    }.get(status.lower(), pretty_text_zh(status))
+
+
 def compact_strategy_items(items: list[str], limit: int = 2) -> str:
     if not items:
         return "暂无"
@@ -1012,6 +1077,75 @@ def render_strategy_view(repo: Path) -> None:
     print(f"| 系统可自动提出 | {compact_strategy_items(strategy['system_may_propose'])} |")
     print(f"| 必须人类审批 | {compact_strategy_items(strategy['human_approves'])} |")
     print(f"| 下一战略检查 | {compact_strategy_items(strategy['next_checks'])} |")
+
+
+def compact_program_rows(rows: list[dict[str, str]], key: str, limit: int = 2) -> str:
+    if not rows:
+        return "暂无"
+    values = [pretty_text_zh(item.get(key, "")) for item in rows[:limit] if item.get(key, "").strip()]
+    values = [value for value in values if value]
+    if not values:
+        return "暂无"
+    if len(rows) > limit:
+        values.append("...")
+    return "；".join(values)
+
+
+def render_program_view(repo: Path) -> None:
+    program = parse_program_board(repo)
+    if not program["exists"]:
+        return
+    print("\n## 程序编排视角")
+    print("| 维度 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 当前程序方向 | {pretty_text_zh(program['direction'])} |")
+    print(f"| 当前状态 | `{program_status_zh(program['status'])}` |")
+    print(f"| 为什么现在做 | {pretty_text_zh(program['why_now'])} |")
+    print(f"| 活跃工作流 | {compact_program_rows(program['workstreams'], 'Workstream')} |")
+    print(f"| 当前编排序列 | {compact_program_rows(program['queue'], 'Slice / Input')} |")
+    print(f"| 当前执行器输入 | {compact_program_rows(program['executors'], 'Executor')} |")
+    print(f"| Supporting Backlog | {compact_program_rows(program['backlog'], 'Topic')} |")
+    print(f"| 下一程序检查 | {compact_strategy_items(program['next_checks'])} |")
+
+    if program["workstreams"]:
+        print("\n## 程序编排工作流")
+        print("| 工作流 | 范围 | 状态 | 优先级 | 当前焦点 | 下一检查点 |")
+        print("| --- | --- | --- | --- | --- | --- |")
+        for row in program["workstreams"]:
+            print(
+                f"| {pretty_text_zh(row.get('Workstream', 'n/a'))} | {pretty_text_zh(row.get('Scope', 'n/a'))} | "
+                f"{workstream_state_zh(row.get('State', 'n/a'))} | `{row.get('Priority', 'n/a')}` | "
+                f"{pretty_text_zh(row.get('Current Focus', 'n/a'))} | {pretty_text_zh(row.get('Next Checkpoint', 'n/a'))} |"
+            )
+
+
+def render_delivery_view(repo: Path) -> None:
+    delivery = parse_delivery_supervision(repo)
+    if not delivery["exists"]:
+        return
+    print("\n## 长期交付视角")
+    print("| 维度 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 当前长期交付方向 | {pretty_text_zh(delivery['direction'])} |")
+    print(f"| 当前状态 | `{delivery_status_zh(delivery['status'])}` |")
+    print(f"| 为什么现在做 | {pretty_text_zh(delivery['why_now'])} |")
+    print(f"| Checkpoint 节奏 | {compact_program_rows(delivery['checkpoint_rows'], 'Checkpoint')} |")
+    print(f"| 自动继续边界 | {compact_program_rows(delivery['continue_rows'], 'Situation')} |")
+    print(f"| 升级时机 | {compact_program_rows(delivery['escalation_rows'], 'When')} |")
+    print(f"| 执行器监督循环 | {compact_program_rows(delivery['executor_rows'], 'Executor')} |")
+    print(f"| Backlog 回流规则 | {compact_program_rows(delivery['backlog_rows'], 'Topic')} |")
+    print(f"| 下一长期交付检查 | {compact_strategy_items(delivery['next_checks'])} |")
+
+    if delivery["checkpoint_rows"]:
+        print("\n## 长期交付检查点")
+        print("| 顺序 | 检查点 | 发生什么 | Owner | 什么时候 |")
+        print("| --- | --- | --- | --- | --- |")
+        for row in delivery["checkpoint_rows"]:
+            print(
+                f"| {row.get('Order', 'n/a')} | {pretty_text_zh(row.get('Checkpoint', 'n/a'))} | "
+                f"{pretty_text_zh(row.get('What Happens', 'n/a'))} | {pretty_text_zh(row.get('Owner', 'n/a'))} | "
+                f"{pretty_text_zh(row.get('When', 'n/a'))} |"
+            )
 
 
 def large_project_judgement_zh(phase_display: str, active_module: str, active_slice_display: str) -> str:
@@ -1080,8 +1214,16 @@ def render_medium_progress(
     taskboard_conclusion = "这条长任务已经完成" if line_complete else "这条长任务正在推进"
     next_step_nature = "进入下一条 post-hardening feature slice" if line_complete else "继续当前增强切片并收口任务板"
     if is_skill_repo(repo):
-        execution_line_note = "当前这轮已经完成，下一步转向 M11 程序编排层" if line_complete else "当前这轮正在推进，下面的任务板就是本轮收口内容"
-        next_step_nature = "进入下一条主线：M11 程序编排层" if line_complete else "继续当前战略或编排层切片并收口任务板"
+        lowered_phase = current_phase.lower()
+        if "supervised long-run delivery" in lowered_phase or "rollout" in lowered_phase:
+            execution_line_note = "当前这轮已经完成，下一步转向 rollout / 试跑与摩擦采集" if line_complete else "当前这轮正在推进，下面的任务板就是本轮收口内容"
+            next_step_nature = "进入 rollout / 试跑与摩擦采集" if line_complete else "继续当前长期受监督交付切片并收口任务板"
+        elif "program orchestration" in lowered_phase or "m12" in lowered_phase:
+            execution_line_note = "当前这轮已经完成，下一步转向 M12 长期受监督交付层" if line_complete else "当前这轮正在推进，下面的任务板就是本轮收口内容"
+            next_step_nature = "进入下一条主线：M12 长期受监督交付层" if line_complete else "继续当前程序编排层切片并收口任务板"
+        else:
+            execution_line_note = "当前这轮已经完成，下一步转向 M11 程序编排层" if line_complete else "当前这轮正在推进，下面的任务板就是本轮收口内容"
+            next_step_nature = "进入下一条主线：M11 程序编排层" if line_complete else "继续当前战略或编排层切片并收口任务板"
     roadmap_path = preferred_existing_path(repo, ["docs/roadmap.zh-CN.md", "docs/roadmap.md"])
     plan_path = repo / ".codex/plan.md"
     status_path = repo / ".codex/status.md"
@@ -1139,6 +1281,8 @@ def render_medium_progress(
     print(f"| 升级原因 | {pretty_text_zh(escalation_reason)} |")
 
     render_strategy_view(repo)
+    render_program_view(repo)
+    render_delivery_view(repo)
 
     glossary_rows = relevant_terms(repo, active_slice, current_execution_line, readme_capabilities)
     if glossary_rows:
@@ -1319,6 +1463,8 @@ def render_large_progress(
     print(f"| 升级原因 | {pretty_text_zh(escalation_reason)} |")
 
     render_strategy_view(repo)
+    render_program_view(repo)
+    render_delivery_view(repo)
 
     if readme_capabilities or phase_capabilities:
         readme_path = preferred_existing_path(repo, ["README.zh-CN.md", "README.md"])

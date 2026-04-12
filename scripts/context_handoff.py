@@ -14,6 +14,8 @@ from control_surface_lib import (
     first_line,
     labeled_bullet_value,
     normalized_bullets,
+    parse_delivery_supervision,
+    parse_program_board,
     parse_strategy_surface,
     parse_tier,
     primary_human_windows,
@@ -93,6 +95,24 @@ def zh_strategy_status(status: str) -> str:
     }.get(status.lower(), pretty_text_zh(status))
 
 
+def zh_program_status(status: str) -> str:
+    return {
+        "active": "活跃",
+        "done": "已完成",
+        "next": "下一阶段",
+        "later": "更后面",
+    }.get(status.lower(), pretty_text_zh(status))
+
+
+def zh_delivery_status(status: str) -> str:
+    return {
+        "active": "活跃",
+        "done": "已完成",
+        "next": "下一阶段",
+        "later": "更后面",
+    }.get(status.lower(), pretty_text_zh(status))
+
+
 def humanize_text(text: str) -> str:
     return pretty_text_zh(text)
 
@@ -115,6 +135,8 @@ def main() -> int:
         english_execution_line = labeled_bullet_value(section(status_text, "Current Execution Line"), "Plan Link") or active_slice
     architecture_state = classify_architecture_signal(repo)
     strategy_state = parse_strategy_surface(repo)
+    program_state = parse_program_board(repo)
+    delivery_state = parse_delivery_supervision(repo)
     architecture_signal = architecture_state["signal"]
     escalation_gate = architecture_state["gate"]
     escalation_reason = architecture_state["reason"]
@@ -143,6 +165,10 @@ def main() -> int:
     ]
     if strategy_state["exists"]:
         restore_docs.insert(2, ".codex/strategy.md")
+    if program_state["exists"]:
+        restore_docs.insert(3 if strategy_state["exists"] else 2, ".codex/program-board.md")
+    if delivery_state["exists"]:
+        restore_docs.insert(4 if strategy_state["exists"] and program_state["exists"] else 3 if (strategy_state["exists"] or program_state["exists"]) else 2, ".codex/delivery-supervision.md")
 
     print("# Context Handoff\n")
     print("## 摘要")
@@ -161,6 +187,14 @@ def main() -> int:
         print(f"| 战略方向 | {humanize_text(strategy_state['direction'])} |")
         print(f"| 战略状态 | `{zh_strategy_status(strategy_state['status'])}` |")
         print(f"| 下一战略检查 | {humanize_text(strategy_state['next_checks'][0]) if strategy_state['next_checks'] else '暂无'} |")
+    if program_state["exists"]:
+        print(f"| 程序编排方向 | {humanize_text(program_state['direction'])} |")
+        print(f"| 程序编排状态 | `{zh_program_status(program_state['status'])}` |")
+        print(f"| 下一程序检查 | {humanize_text(program_state['next_checks'][0]) if program_state['next_checks'] else '暂无'} |")
+    if delivery_state["exists"]:
+        print(f"| 长期交付方向 | {humanize_text(delivery_state['direction'])} |")
+        print(f"| 长期交付状态 | `{zh_delivery_status(delivery_state['status'])}` |")
+        print(f"| 下一长期交付检查 | {humanize_text(delivery_state['next_checks'][0]) if delivery_state['next_checks'] else '暂无'} |")
     if tier == "large":
         print(f"| 当前模块 | `{active_module}` |")
     print(f"| 当前主要风险 | {humanize_text(main_risk)} |")

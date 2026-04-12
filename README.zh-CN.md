@@ -19,15 +19,15 @@
 | 当前最强能力 | 项目规划、整改收敛、架构监督、进展汇报、开发日志、文档治理、上下文交接 |
 | 人类仍然负责 | 业务方向、产品优先级、兼容性承诺和重大取舍 |
 | 默认工作模型 | 人类给方向；`project-assistant` 负责规划、执行、验证、更新状态，并只在需要判断时升级给人类 |
-| 当前战略方向 | 战略评估层已经完成；程序编排层是下一条主线，长期受监督交付层继续排在后面 |
+| 当前战略方向 | 战略评估层、程序编排层和长期受监督交付层都已完成；当前主线转入 rollout 与摩擦采集 |
 
 ## 它接下来要去哪里
 
 | 时间层级 | 重点 |
 | --- | --- |
-| 当前 | 维持战略评估层稳定，并为程序编排层准备 durable `program-board` 入口 |
-| 下一步 | 程序编排层，管理多个切片或多个执行器 |
-| 更后面 | 受监督的长期自动交付，以及作为 supporting backlog 回收的 M8/M9 议题 |
+| 当前 | 把完整分层模型带到更多仓库上试跑，收集 rollout 摩擦，并保持 strategy / program / delivery 三层控制面一致 |
+| 下一步 | 根据 rollout 证据决定是否需要新的 post-M12 里程碑，或是否让 supporting backlog 局部回流 |
+| 更后面 | 只在 rollout 证据足够时，再把 M8/M9 这类 supporting backlog 议题按受控方式并入主线 |
 | 战略入口 | [业务规划与程序编排方向](docs/reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md) |
 
 ## 安装
@@ -97,6 +97,8 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 用全局和模块视角汇报进展
 - 把重要问题、思考路径和解决方案沉淀成开发日志
 - 把战略评估沉淀成 `.codex/strategy.md`，并区分“系统可以自动建议什么”和“必须人类审批什么”
+- 把程序编排沉淀成 `.codex/program-board.md`，并显式表达 workstreams、排序、并行边界和执行器输入
+- 把长期受监督交付沉淀成 `.codex/delivery-supervision.md`，并显式表达 checkpoint 节奏、自动继续边界、升级时机和 backlog 回流规则
 - 把 durable 文档整理到统一结构
 - 为新对话生成紧凑恢复包
 
@@ -117,8 +119,8 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - `progress`、`handoff`、控制面和门禁现在描述的是同一套当前真相
 - 代表性的中型 / 大型仓库现在都能给出更像“维护者恢复面板”的第一屏，而不是只有 raw slice 名
 - 至少一条架构复盘路径现在已经能从当前切片里的 drift 信号自动升级出来，而不是只靠手工提醒
-- 战略评估层现在已经是可运行能力，而不只是 proposal 文档
-- 下一步最值得做的是为 `M11` 定义 durable `program-board` 和程序编排边界，然后继续在更多项目上试跑并收集摩擦点
+- 战略评估层、程序编排层和长期受监督交付层现在都已经是可运行能力，而不只是 proposal 文档
+- 下一步最值得做的是 rollout：把完整模型带到更多仓库上试跑，收集摩擦点，再决定是否需要 post-M12 里程碑或让 `M8 / M9` 局部回流
 
 ## 常见工作流
 

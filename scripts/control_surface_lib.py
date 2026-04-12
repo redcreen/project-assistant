@@ -88,6 +88,45 @@ STRATEGY_REQUIRED_SECTIONS = [
     "Next Strategic Checks",
 ]
 
+PROGRAM_BOARD_EXPECTATION_KEYWORDS = (
+    "program orchestration",
+    "程序编排",
+    ".codex/program-board.md",
+    "durable program board",
+    "durable `program-board`",
+    "program-board",
+)
+
+PROGRAM_BOARD_REQUIRED_SECTIONS = [
+    "Current Program Direction",
+    "Program Orchestration Contract",
+    "Active Workstreams",
+    "Sequencing Queue",
+    "Executor Inputs",
+    "Parallel-Safe Boundaries",
+    "Supporting Backlog Routing",
+    "Next Orchestration Checks",
+]
+
+DELIVERY_SUPERVISION_EXPECTATION_KEYWORDS = (
+    "supervised long-run delivery",
+    "长期受监督交付",
+    ".codex/delivery-supervision.md",
+    "delivery supervision",
+    "checkpoint rhythm",
+)
+
+DELIVERY_SUPERVISION_REQUIRED_SECTIONS = [
+    "Current Delivery Direction",
+    "Supervised Delivery Contract",
+    "Checkpoint Rhythm",
+    "Automatic Continue Boundaries",
+    "Escalation Timing",
+    "Executor Supervision Loop",
+    "Backlog Re-entry Policy",
+    "Next Delivery Checks",
+]
+
 
 @dataclass
 class ValidationResult:
@@ -541,6 +580,125 @@ def parse_strategy_surface(repo: Path) -> dict[str, Any]:
     }
 
 
+def program_board_expected(repo: Path) -> bool:
+    board_path = repo / ".codex/program-board.md"
+    if board_path.exists():
+        return True
+    corpus_parts = [
+        read_text(repo / ".codex/plan.md"),
+        read_text(repo / ".codex/status.md"),
+        read_text(repo / ".codex/strategy.md"),
+        read_text(repo / "README.md"),
+        read_text(repo / "README.zh-CN.md"),
+        read_text(repo / "docs/roadmap.md"),
+        read_text(repo / "docs/roadmap.zh-CN.md"),
+    ]
+    docs_root = repo / "docs/reference"
+    if docs_root.exists():
+        for path in docs_root.rglob("*.md"):
+            corpus_parts.append(read_text(path))
+    lowered = "\n".join(part for part in corpus_parts if part).lower()
+    return any(keyword in lowered for keyword in PROGRAM_BOARD_EXPECTATION_KEYWORDS)
+
+
+def parse_program_board(repo: Path) -> dict[str, Any]:
+    path = repo / ".codex/program-board.md"
+    text = read_text(path)
+    if not text:
+        return {
+            "path": path,
+            "exists": False,
+            "expected": program_board_expected(repo),
+            "direction": "n/a",
+            "status": "n/a",
+            "why_now": "n/a",
+            "contract": [],
+            "workstreams": [],
+            "queue": [],
+            "executors": [],
+            "boundaries": [],
+            "backlog": [],
+            "next_checks": [],
+        }
+
+    direction_block = section(text, "Current Program Direction")
+    return {
+        "path": path,
+        "exists": True,
+        "expected": True,
+        "direction": labeled_bullet_value(direction_block, "Direction") or "n/a",
+        "status": labeled_bullet_value(direction_block, "Status") or "n/a",
+        "why_now": labeled_bullet_value(direction_block, "Why Now") or first_line(direction_block) or "n/a",
+        "contract": normalized_bullets(section(text, "Program Orchestration Contract")),
+        "workstreams": parse_markdown_table(section(text, "Active Workstreams")),
+        "queue": parse_markdown_table(section(text, "Sequencing Queue")),
+        "executors": parse_markdown_table(section(text, "Executor Inputs")),
+        "boundaries": parse_markdown_table(section(text, "Parallel-Safe Boundaries")),
+        "backlog": parse_markdown_table(section(text, "Supporting Backlog Routing")),
+        "next_checks": normalized_bullets(section(text, "Next Orchestration Checks")),
+    }
+
+
+def delivery_supervision_expected(repo: Path) -> bool:
+    surface_path = repo / ".codex/delivery-supervision.md"
+    if surface_path.exists():
+        return True
+    corpus_parts = [
+        read_text(repo / ".codex/plan.md"),
+        read_text(repo / ".codex/status.md"),
+        read_text(repo / ".codex/strategy.md"),
+        read_text(repo / ".codex/program-board.md"),
+        read_text(repo / "README.md"),
+        read_text(repo / "README.zh-CN.md"),
+        read_text(repo / "docs/roadmap.md"),
+        read_text(repo / "docs/roadmap.zh-CN.md"),
+    ]
+    docs_root = repo / "docs/reference"
+    if docs_root.exists():
+        for path in docs_root.rglob("*.md"):
+            corpus_parts.append(read_text(path))
+    lowered = "\n".join(part for part in corpus_parts if part).lower()
+    return any(keyword in lowered for keyword in DELIVERY_SUPERVISION_EXPECTATION_KEYWORDS)
+
+
+def parse_delivery_supervision(repo: Path) -> dict[str, Any]:
+    path = repo / ".codex/delivery-supervision.md"
+    text = read_text(path)
+    if not text:
+        return {
+            "path": path,
+            "exists": False,
+            "expected": delivery_supervision_expected(repo),
+            "direction": "n/a",
+            "status": "n/a",
+            "why_now": "n/a",
+            "contract": [],
+            "checkpoint_rows": [],
+            "continue_rows": [],
+            "escalation_rows": [],
+            "executor_rows": [],
+            "backlog_rows": [],
+            "next_checks": [],
+        }
+
+    direction_block = section(text, "Current Delivery Direction")
+    return {
+        "path": path,
+        "exists": True,
+        "expected": True,
+        "direction": labeled_bullet_value(direction_block, "Direction") or "n/a",
+        "status": labeled_bullet_value(direction_block, "Status") or "n/a",
+        "why_now": labeled_bullet_value(direction_block, "Why Now") or first_line(direction_block) or "n/a",
+        "contract": normalized_bullets(section(text, "Supervised Delivery Contract")),
+        "checkpoint_rows": parse_markdown_table(section(text, "Checkpoint Rhythm")),
+        "continue_rows": parse_markdown_table(section(text, "Automatic Continue Boundaries")),
+        "escalation_rows": parse_markdown_table(section(text, "Escalation Timing")),
+        "executor_rows": parse_markdown_table(section(text, "Executor Supervision Loop")),
+        "backlog_rows": parse_markdown_table(section(text, "Backlog Re-entry Policy")),
+        "next_checks": normalized_bullets(section(text, "Next Delivery Checks")),
+    }
+
+
 def detect_automatic_architecture_review_trigger(context: str) -> tuple[str, str]:
     lowered = context.lower()
     for keywords, trigger, next_review in ARCHITECTURE_REVIEW_TRIGGER_GROUPS:
@@ -681,6 +839,10 @@ def repo_capabilities(repo: Path) -> list[tuple[str, str]]:
         capabilities.append(("devlog", "开发日志索引与自动沉淀"))
     if (repo / ".codex/strategy.md").exists():
         capabilities.append(("strategy-surface", "战略评估层与 review contract"))
+    if (repo / ".codex/program-board.md").exists():
+        capabilities.append(("program-board", "程序编排层与 durable program board"))
+    if (repo / ".codex/delivery-supervision.md").exists():
+        capabilities.append(("delivery-supervision", "长期受监督交付层与 checkpoint rhythm"))
     if (repo / ".codex/module-dashboard.md").exists():
         capabilities.append(("module-progress", "模块视角进展面板"))
     if (repo / "README.zh-CN.md").exists() and (repo / "docs/README.zh-CN.md").exists():
@@ -766,6 +928,10 @@ def validate_repo(repo: Path) -> ValidationResult:
         required.append(".codex/plan.md")
     if strategy_surface_expected(repo):
         required.append(".codex/strategy.md")
+    if program_board_expected(repo):
+        required.append(".codex/program-board.md")
+    if delivery_supervision_expected(repo):
+        required.append(".codex/delivery-supervision.md")
     if tier == "large":
         required.append(".codex/module-dashboard.md")
 

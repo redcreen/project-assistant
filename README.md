@@ -19,15 +19,15 @@
 | Strongest At | planning, retrofit, architecture supervision, progress reporting, development logs, documentation governance, and context handoff |
 | Human Still Owns | business direction, product priorities, compatibility promises, and major tradeoffs |
 | Default Working Model | human sets direction; `project-assistant` plans, executes, validates, updates state, and escalates only when judgment is required |
-| Active Strategic Direction | strategic evaluation is now complete; program orchestration is the next mainline, and supervised long-run delivery stays behind it |
+| Active Strategic Direction | strategic evaluation, program orchestration, and supervised long-run delivery are now complete; rollout and friction collection are the current mainline |
 
 ## Where It Is Going
 
 | Horizon | Focus |
 | --- | --- |
-| Current | keep the strategic-evaluation layer stable and prepare a durable `program-board` entry |
-| Next | program orchestration across multiple slices or workers |
-| Later | supervised long-run delivery plus selective carryover of M8/M9 concerns as supporting backlog |
+| Current | use the full layered model on more repos, collect rollout friction, and keep strategy / program / delivery surfaces aligned |
+| Next | decide whether rollout evidence warrants a new post-M12 milestone or selective backlog re-entry |
+| Later | selectively absorb M8/M9 supporting-backlog topics only when rollout evidence justifies it |
 | Strategy Entry | [Strategic Planning And Program Orchestration Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md) |
 
 ## Install
@@ -97,6 +97,8 @@ Background flows (usually automatic):
 - Report progress with global and module views
 - Capture durable implementation reasoning as development logs
 - Persist strategic evaluation in `.codex/strategy.md`, including the boundary between system proposals and human approvals
+- Persist program orchestration in `.codex/program-board.md`, including workstreams, sequencing, parallel-safe boundaries, and executor inputs
+- Persist supervised long-run delivery in `.codex/delivery-supervision.md`, including checkpoint rhythm, automatic-continue boundaries, escalation timing, and backlog re-entry rules
 - Normalize durable docs into a standard system
 - Emit a compact context handoff for the next thread
 
@@ -117,8 +119,8 @@ What this means:
 - `progress`, `handoff`, the control surface, and validation gates now describe the same current truth
 - representative medium and large repos now show clearer maintainer-facing first screens, not only raw slice names
 - at least one architecture-review path now auto-escalates from current-slice drift instead of depending only on manual prompts
-- the strategic-evaluation layer is now a real capability, not only a direction document
-- the next practical step is to define the durable `program-board` boundary for M11, then keep using it on more repos and collecting real friction
+- the strategic-evaluation, program-orchestration, and supervised-long-run-delivery layers are now real capabilities, not only direction documents
+- the next practical step is rollout: use the full stack on more repos, collect friction, and only then decide whether a post-M12 milestone or M8/M9 re-entry is justified
 
 ## Common Workflows
 
