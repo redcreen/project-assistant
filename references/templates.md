@@ -58,6 +58,19 @@ Use for one feature, subproject, or multi-session milestone.
 
 ## Current Phase
 
+## Current Execution Line
+- Objective:
+- Plan Link:
+- Runway:
+- Progress:
+- Stop Conditions:
+- Validation:
+
+## Execution Tasks
+- [ ] EL-1
+- [ ] EL-2
+- [ ] EL-3
+
 ## Slices
 - Slice:
   - Objective:
@@ -90,6 +103,18 @@ Use for one feature, subproject, or multi-session milestone.
 
 ## Active Slice
 
+## Current Execution Line
+- Objective:
+- Plan Link:
+- Runway:
+- Progress:
+- Stop Conditions:
+
+## Execution Tasks
+- [ ] EL-1
+- [ ] EL-2
+- [ ] EL-3
+
 ## Done
 
 ## In Progress
@@ -98,6 +123,13 @@ Use for one feature, subproject, or multi-session milestone.
 
 ## Next 3 Actions
 ```
+
+## Execution Line Notes
+
+- Treat `Current Execution Line` as the one checkpoint-sized long run the assistant should finish before returning.
+- Treat `Execution Tasks` as the visible task board for that run.
+- Always map the task board back to one slice through `Plan Link`.
+- The board does not need a hard cap; use as many tasks as the checkpoint needs, often anywhere from 5 to 20+ tasks.
 
 ## Module Dashboard Template
 
@@ -215,6 +247,29 @@ Use for multi-milestone or architecture-heavy work.
 | Perform a task | |
 | Look up exact contracts | |
 | See what is next | |
+```
+
+## Development Log Template
+
+Use for durable debugging narratives, retrofit discoveries, or implementation decisions that future maintainers should understand.
+
+```md
+# Title
+
+- Date:
+- Status:
+
+## Problem
+
+## Thinking
+
+## Solution
+
+## Validation
+
+## Follow-Ups
+
+## Related Files
 ```
 
 ```md

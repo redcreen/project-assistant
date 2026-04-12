@@ -3,9 +3,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 from control_surface_lib import load_doc_governance_config, match_glob
+
+
+EN_COMMAND_RE = re.compile(
+    r"(?im)(?:^|[`>\-\s])(?:\$project-assistant|project assistant\s+(?:menu|start|resume|progress|retrofit|docs retrofit|devlog|handoff|release))\b"
+)
+ZH_COMMAND_RE = re.compile(
+    r"(?im)(?:^|[`>\-\s])项目助手(?:\s+(?:菜单|启动这个项目|恢复当前状态|进展|整改|文档整改|开发日志|压缩上下文|发布))?"
+)
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
@@ -89,8 +98,8 @@ def has_switch_line(text: str, english: Path, chinese: Path) -> bool:
 
 
 def command_language_warning(path: Path, text: str, english_doc: bool) -> str | None:
-    has_chinese_command = "项目助手" in text
-    has_english_command = "project assistant" in text.lower() or "$project-assistant" in text
+    has_chinese_command = bool(ZH_COMMAND_RE.search(text))
+    has_english_command = bool(EN_COMMAND_RE.search(text))
     if english_doc and has_chinese_command and not has_english_command:
         return f"{path} uses Chinese-only command examples in an English public doc"
     if not english_doc and has_english_command and not has_chinese_command:

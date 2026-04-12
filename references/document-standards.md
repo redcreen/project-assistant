@@ -196,6 +196,26 @@ Primary job:
 
 - provide exact facts: config, CLI flags, env vars, API contracts, schemas
 
+### devlog/*.md
+
+Audience:
+
+- maintainers
+- future debuggers
+- contributors who need the reasoning path, not only the final result
+
+Primary job:
+
+- record a durable implementation narrative for a non-obvious problem or decision
+
+Must answer:
+
+- what problem or tension appeared
+- what evidence or thinking changed the direction
+- what solution was chosen
+- how it was validated
+- what follow-up remains
+
 ## Content-Type Rule
 
 Prefer the Diátaxis split:

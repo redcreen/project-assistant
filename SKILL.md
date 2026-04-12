@@ -1,6 +1,6 @@
 ---
 name: project-assistant
-description: Scale Codex-led software delivery with right-sized planning, status tracking, staged execution, retrofit, progress reporting, and context handoff. 适用于项目规划、架构讨论、roadmap、test case、development plan、阶段推进、状态恢复、项目整改、进展汇报、上下文交接。
+description: Scale Codex-led software delivery with right-sized planning, status tracking, staged execution, retrofit, progress reporting, development logs, and context handoff. 适用于项目规划、架构讨论、roadmap、test case、development plan、阶段推进、状态恢复、项目整改、进展汇报、开发日志、上下文交接。
 ---
 
 # Project Assistant
@@ -22,19 +22,21 @@ Primary modes:
 
 - `启动` / `bootstrap`
 - `规划` / `plan`
+- `架构` / `architecture`
 - `执行` / `execute`
 - `恢复` / `resume`
 - `进展` / `progress`
 - `整改` / `retrofit`
 - `文档整改` / `docs-retrofit`
+- `开发日志` / `devlog`
 - `发布` / `release`
 - `压缩上下文` / `交接` / `handoff`
 - `收口` / `closeout`
 
-Also trigger this skill when the user clearly asks for project startup, rescue, progress, retrofit, recovery, or handoff, even if the exact alias is not used.
+Also trigger this skill when the user clearly asks for project startup, rescue, architecture supervision, progress, retrofit, recovery, development logging, or handoff, even if the exact alias is not used.
 Treat `文档整改`, `文档重构`, and `整理文档系统` as the documentation-focused variant of `retrofit`.
 Treat `发布`, `打标`, and `发版` as the release flow when the repo supports versioned install docs.
-Treat `docs retrofit`, `release`, and `handoff` as the English-friendly variants of those flows.
+Treat `architecture`, `docs retrofit`, `devlog`, `release`, and `handoff` as the English-friendly variants of those flows.
 
 Choose command examples to match the user's language:
 
@@ -59,13 +61,22 @@ If the user asks:
 
 return a short command menu. Use [references/usage.md](references/usage.md) and [references/help-menu.md](references/help-menu.md).
 
+If the user asks:
+
+- `项目助手 架构`
+- `project assistant architecture`
+
+return a short architecture submenu instead of the general menu.
+
 ## Core Contract
 
 1. classify the work as `small`, `medium`, or `large`
 2. create or refresh the minimum required control surface
 3. execute one slice at a time
-4. keep status fresh at session boundaries
-5. for existing repos, retrofit to convergence rather than stopping in a partial state
+4. default to a meaningful uninterrupted execution line instead of waiting for repeated "continue" prompts
+5. express that execution line as a visible task board mapped back to the active slice or development plan
+6. keep status fresh at session boundaries
+7. for existing repos, retrofit to convergence rather than stopping in a partial state
 
 ### Tier Rules
 
@@ -130,6 +141,10 @@ Prefer the bundled scripts when present:
   中文：校验 `.codex/*` 活文档是否还停留在模板态
 - `scripts/validate_gate_set.py`
   中文：按 `fast` / `deep` 分层运行门禁
+- `scripts/write_development_log.py`
+  中文：写入一条带问题、思考、解决方案和验证的开发日志
+- `scripts/validate_development_log.py`
+  中文：校验开发日志索引和条目结构是否完整
 - `scripts/progress_snapshot.py`
   中文：生成机器校验过的项目进展面板
 - `scripts/context_handoff.py`
@@ -155,14 +170,58 @@ If `scripts/sync_control_surface.py` exists, run it before filling content.
 - clarify goal, scope, constraints, and definition of done
 - slice work into independently verifiable steps
 - define validation before implementation
+- define the current execution line: a meaningful autonomous run that should continue until a checkpoint, blocker, or decision gate
+- define the execution task board under that line so the user can see done/total progress at a glance
 
 Prefer a single execution plan unless the project truly needs both a roadmap and a development plan.
+
+### 架构 / Architecture
+
+Use architecture mode as the manual supervision entry.
+
+Recommended subcommands:
+
+- `项目助手 架构 监督` / `project assistant architecture review`
+- `项目助手 架构 复盘` / `project assistant architecture retrospective`
+- `项目助手 架构 根因` / `project assistant architecture root-cause`
+- `项目助手 架构 扩展性` / `project assistant architecture extensibility`
+
+When the user enters only `项目助手 架构` or `project assistant architecture`, show these subcommands with one-line explanations.
+Mark the most common subcommand first and include a short "when to use it" note for each item.
+
+Default responsibilities:
+
+- identify whether the current change is addressing a symptom or a root cause
+- check whether the chosen layer or abstraction boundary is correct
+- reject one-off hardcoding that should become a reusable mechanism
+- evaluate extensibility risk before or after implementation
+
+Review order:
+
+1. start from the high-level package: goal, constraints, root-cause hypothesis, affected boundaries, proposed layer
+2. challenge the direction before reading local implementation details
+3. pull code paths, diffs, or concrete evidence only when the high-level review needs proof
+
+For `medium` and `large` work, architecture supervision should run implicitly inside `plan`, `execute`, `retrofit`, and `closeout`, while these commands remain available as explicit manual overrides.
 
 ### 执行 / Execute
 
 - work one slice at a time
+- derive a current execution line from the active slice
+- map the execution line back to one explicit slice via `Plan Link`
+- keep a visible execution task board with checkbox tasks and `EL-*` ids
+- let the execution task board expand to as many subtasks as the checkpoint needs, often 5-20+ tasks for a meaningful long run
+- prefer one meaningful uninterrupted run, with a target of roughly 20-30 minutes of autonomous progress when the repo and task support it
+- do not stop after every micro-step just to ask for "continue"
 - verify before moving on
 - refresh `status` and `plan` as truth changes
+
+Stop only when:
+
+- a checkpoint for the current execution line is reached
+- a blocker or failed validation needs human direction
+- a business, product, compatibility, or cost tradeoff requires user judgment
+- the current direction is judged red by architecture supervision
 
 ### 恢复 / Resume
 
@@ -177,6 +236,7 @@ Use [references/progress-reporting.md](references/progress-reporting.md).
 If `scripts/progress_snapshot.py` exists, run it first.
 
 For `medium` and `large` projects, progress output should be a compact dashboard, not free-form prose. For large projects, include module view and Mermaid when it improves orientation.
+When an execution line exists, surface its task board and done/total count as a first-class part of the dashboard.
 
 ### 整改 / Retrofit
 
@@ -222,7 +282,7 @@ If scripts exist:
 Gate policy:
 
 - `fast` = `validate_control_surface.py` + `validate_docs_system.py` + `validate_public_docs_i18n.py`
-- `deep` = `fast` + `validate_markdown_governance.py` + `validate_doc_quality.py` + `validate_control_surface_quality.py`
+- `deep` = `fast` + `validate_markdown_governance.py` + `validate_doc_quality.py` + `validate_control_surface_quality.py` + `validate_development_log.py`
 - `整改` and `文档整改` must finish on `deep`
 - `发布` must pass `deep` before tagging
 
@@ -242,6 +302,29 @@ Preferred maintainer hint:
 
 If the repo contains `VERSION`, `install.sh`, and tag-based install docs, prefer `scripts/release_skill.py`.
 
+### 开发日志 / Devlog
+
+Use [references/development-log.md](references/development-log.md).
+
+Write or update a development log when:
+
+- retrofit, debugging, or implementation produced durable reasoning worth keeping
+- a future maintainer would otherwise need to reconstruct the same path from diffs
+- a design boundary changed because evidence or constraints invalidated the original assumption
+
+Default behavior:
+
+- write or update the devlog automatically when a durable reasoning thread appears
+- keep the manual `项目助手 开发日志` / `project assistant devlog` entry as an override or backfill window
+
+Default location:
+
+- `docs/devlog/README.md`
+- `docs/devlog/README.zh-CN.md`
+- `docs/devlog/YYYY-MM-DD-topic.md`
+
+Prefer `scripts/write_development_log.py` when present. Treat the log as a durable reasoning note, not as a replacement for `status`, `roadmap`, or ADRs.
+
 ### 压缩上下文 / 交接 / Handoff
 
 Use [references/context-guard.md](references/context-guard.md).
@@ -258,6 +341,26 @@ When asked to compress context or prepare a new thread:
 - prefer `scripts/context_handoff.py`
 
 You may proactively suggest `项目助手 压缩上下文` at natural phase boundaries or when the user is losing orientation, but do not spam it.
+
+## Default Interaction Model
+
+The user should primarily provide:
+
+- business direction
+- priority
+- hard constraints
+- decisions that truly require product or business judgment
+
+Project Assistant should default to handling:
+
+- planning
+- architecture supervision
+- execution
+- validation
+- status refresh
+- development-log capture
+
+Treat explicit commands as override windows, not as the primary way the user must drive ordinary progress.
 
 ### 收口 / Closeout
 
@@ -286,6 +389,7 @@ One operational question should have one primary answer:
 - next execution order -> `plan`
 - stable system shape -> `architecture` / `adr`
 - milestones -> `roadmap`
+- durable reasoning path -> `docs/devlog/*.md`
 - run outputs -> reports / evals / audits
 
 If two docs answer the same question, collapse or demote one of them.

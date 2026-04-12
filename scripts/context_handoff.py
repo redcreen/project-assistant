@@ -6,27 +6,19 @@ import json
 import re
 from pathlib import Path
 
-from control_surface_lib import parse_tier
+from control_surface_lib import (
+    display_execution_task,
+    execution_task_lines,
+    execution_task_progress,
+    first_line,
+    labeled_bullet_value,
+    parse_tier,
+    section,
+)
 
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
-
-
-def section(text: str, heading: str) -> str:
-    pattern = rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)"
-    match = re.search(pattern, text, re.MULTILINE | re.DOTALL)
-    return match.group(1).strip() if match else ""
-
-
-def first_line(text: str) -> str:
-    for line in text.splitlines():
-        stripped = line.strip()
-        if stripped:
-            return stripped.strip("`")
-    return ""
-
-
 def bullet_lines(text: str) -> list[str]:
     items: list[str] = []
     for line in text.splitlines():
@@ -78,6 +70,9 @@ def main() -> int:
 
     current_phase = first_line(section(status_text, "Current Phase")) or "n/a"
     active_slice = first_line(section(status_text, "Active Slice")) or "n/a"
+    current_execution_line = labeled_bullet_value(section(status_text, "Current Execution Line"), "Objective") or active_slice
+    execution_tasks = execution_task_lines(status_text)
+    done_tasks, total_tasks = execution_task_progress(execution_tasks)
     blockers = bullet_lines(section(status_text, "Blockers / Open Decisions"))
     main_risk = blockers[0] if blockers else "No major blocker recorded."
     next_actions = bullet_lines(section(status_text, "Next 3 Actions"))
@@ -103,6 +98,8 @@ def main() -> int:
     print(f"- Tier: `{tier}`")
     print(f"- Current Phase: `{current_phase}`")
     print(f"- Active Slice: `{active_slice}`")
+    print(f"- Current Execution Line: `{current_execution_line}`")
+    print(f"- Execution Progress: `{done_tasks} / {total_tasks}`")
     if tier == "large":
         print(f"- Active Module: `{active_module}`")
     print(f"- Main Risk: {main_risk}")
@@ -118,12 +115,12 @@ def main() -> int:
     print("\n### Chinese")
     print("```text")
     print(
-        f"项目助手 恢复当前项目状态，然后继续执行当前切片：{active_slice}。先读取 "
+        f"项目助手 恢复当前项目状态，然后继续当前执行线：{current_execution_line}。先读取 "
         + docs_cn
         + "。"
     )
     print("项目助手 告诉我这个项目当前进展，用全局视角、模块视角和图示输出。")
-    test_line = f"项目助手 继续当前切片，并先运行验证：{primary_test_cn}"
+    test_line = f"项目助手 继续当前执行线，并先运行验证：{primary_test_cn}"
     if extra_checks:
         test_line += "；补充检查：" + "，".join(extra_checks)
     print(test_line + "。")
@@ -132,11 +129,11 @@ def main() -> int:
     print("\n### English")
     print("```text")
     print(
-        f"project assistant resume current status and continue the active slice: {active_slice}. "
+        f"project assistant resume current status and continue the current execution line: {current_execution_line}. "
         f"Read {docs_en} first."
     )
     print("project assistant progress")
-    test_line = f"project assistant continue the active slice and run validation first: {primary_test_en}"
+    test_line = f"project assistant continue the current execution line and run validation first: {primary_test_en}"
     if extra_checks:
         test_line += "; extra checks: " + ", ".join(extra_checks)
     print(test_line + ".")
@@ -148,6 +145,11 @@ def main() -> int:
             print(f"{idx}. {item}")
     else:
         print("1. No next actions recorded.")
+
+    if execution_tasks:
+        print("\n## Execution Tasks")
+        for idx, item in enumerate(execution_tasks, start=1):
+            print(f"{idx}. {display_execution_task(item)}")
 
     print("\n## Notes")
     print("- Start a new thread with this output and the repo path when you need a clean context.")

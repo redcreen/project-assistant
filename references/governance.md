@@ -55,6 +55,9 @@ Must answer:
 - what order they should happen in
 - what dependencies or risks matter
 - what validation closes each slice
+- what the current execution line is: the next meaningful autonomous run the assistant should complete before returning
+- which slice the execution line belongs to via `Plan Link`
+- what visible execution task board sits under that line, including checkbox tasks and a clear done/total count
 
 ### status
 
@@ -62,6 +65,7 @@ Must answer:
 
 - current phase
 - active slice
+- current execution line
 - done
 - in progress
 - blockers or open decisions
@@ -135,6 +139,35 @@ Demote:
 Archive:
 
 - archive obsolete reports or superseded plans so the active surface stays small
+
+## Autonomous Execution Rule
+
+Project Assistant should not require the user to repeatedly type "continue" for normal execution.
+
+Default behavior:
+
+- once the goal, constraints, and active slice are clear, run a meaningful execution line
+- prefer a checkpoint-sized autonomous run, often around 20-30 minutes of real work when the task supports it
+- make the execution line visible as a task board, not just a sentence
+- let the task board grow to the detail needed for the checkpoint, including 5-20+ subtasks when that improves clarity
+- keep that task board mapped to the active slice instead of drifting into unrelated maintenance
+- stop only at a meaningful checkpoint, blocker, failed validation that needs direction, or user-decision gate
+
+Use manual commands as override windows, not as the primary control surface for ordinary progress.
+
+## Architecture Supervision Rule
+
+Architecture supervision should begin with a high-level package, not a full implementation dump.
+
+Start from:
+
+- goal
+- constraints
+- root-cause hypothesis
+- affected boundaries
+- proposed layer of change
+
+Only pull detailed code, diffs, or call chains when the high-level review needs evidence.
 
 ## Retrofit Completion Rule
 

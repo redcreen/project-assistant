@@ -5,21 +5,19 @@ import argparse
 import re
 from pathlib import Path
 
-from control_surface_lib import completion_band, completion_percent, parse_official_modules, parse_tier, read_text
-
-
-def section(text: str, heading: str) -> str:
-    pattern = rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)"
-    match = re.search(pattern, text, re.MULTILINE | re.DOTALL)
-    return match.group(1).strip() if match else ""
-
-
-def first_line(text: str) -> str:
-    for line in text.splitlines():
-        line = line.strip()
-        if line:
-            return line.strip("`")
-    return ""
+from control_surface_lib import (
+    completion_band,
+    completion_percent,
+    display_execution_task,
+    execution_task_lines,
+    execution_task_progress,
+    first_line,
+    labeled_bullet_value,
+    parse_official_modules,
+    parse_tier,
+    read_text,
+    section,
+)
 
 
 def first_heading(text: str) -> str:
@@ -118,7 +116,7 @@ def module_health_breakdown(module_summaries: list[dict[str, str]]) -> str:
 
 def project_display_name(repo: Path) -> str:
     brief_heading = first_heading(read_text(repo / ".codex/brief.md"))
-    if brief_heading and brief_heading.lower() != "project brief":
+    if brief_heading and brief_heading.lower() not in {"project brief", "brief"}:
         return brief_heading
     readme_heading = first_heading(read_text(repo / "README.md"))
     if readme_heading:
@@ -138,6 +136,9 @@ def main() -> int:
 
     current_phase = first_line(section(status_text, "Current Phase"))
     active_slice = first_line(section(status_text, "Active Slice"))
+    current_execution_line = labeled_bullet_value(section(status_text, "Current Execution Line"), "Objective")
+    execution_tasks = execution_task_lines(status_text)
+    done_tasks, total_tasks = execution_task_progress(execution_tasks)
     next_actions = section(status_text, "Next 3 Actions")
     main_risk = first_risk(status_text)
 
@@ -147,12 +148,23 @@ def main() -> int:
     print(f"- Tier: `{tier}`")
     print(f"- Current Phase: `{current_phase}`")
     print(f"- Active Slice: `{active_slice}`")
+    print(f"- Current Execution Line: `{current_execution_line or 'n/a'}`")
+    print(f"- Execution Progress: `{done_tasks} / {total_tasks}`")
     print(f"- Main Risk: {main_risk}")
 
     print("\n## Global View")
     print("| Area | Status | Current Focus | Exit Condition |")
     print("| --- | --- | --- | --- |")
     print(f"| Project | {current_phase or 'n/a'} | {active_slice or 'n/a'} | Advance the current slice without losing module-view clarity |")
+
+    if current_execution_line:
+        print("\n## Current Execution Line")
+        print(f"- Objective: {current_execution_line}")
+        if execution_tasks:
+            print(f"- Progress: {done_tasks} / {total_tasks}")
+            print("- Execution Tasks:")
+            for item in execution_tasks:
+                print(f"  - {display_execution_task(item)}")
 
     module_dir = repo / ".codex/modules"
     official_modules = parse_official_modules(repo)

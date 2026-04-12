@@ -79,6 +79,27 @@ PLAN_TEMPLATE = """# Project Plan
 
 {current_phase}
 
+## Current Execution Line
+
+- Objective: establish the next meaningful autonomous run
+- Plan Link: next execution selection
+- Runway: one checkpoint-sized execution line
+- Progress: 0 / 4 tasks complete
+- Stop Conditions:
+  - blocker requires human direction
+  - validation fails and changes the direction
+  - business, compatibility, or cost decision requires user judgment
+- Validation:
+  - current execution line is reflected in `status.md`
+  - next checkpoint is explicit
+
+## Execution Tasks
+
+- [ ] EL-1 confirm the active slice and intended checkpoint
+- [ ] EL-2 run the highest-value implementation step in this execution line
+- [ ] EL-3 run the primary validation for the slice
+- [ ] EL-4 refresh status, next checkpoint, and next 3 actions
+
 ## Slices
 - Slice: control-surface alignment
   - Objective: establish or refresh `.codex/brief.md`, `.codex/plan.md`, `.codex/status.md`, and `.codex/COMMANDS.md`
@@ -117,6 +138,24 @@ Retrofit in progress.
 ## Active Slice
 
 Control surface and durable-doc alignment.
+
+## Current Execution Line
+
+- Objective: align the control surface, define the next checkpoint, and run validation before closing the current execution line
+- Plan Link: next execution selection
+- Runway: one checkpoint-sized execution line
+- Progress: 0 / 4 tasks complete
+- Stop Conditions:
+  - blocker requires human direction
+  - validation fails and changes the direction
+  - business, compatibility, or cost decision requires user judgment
+
+## Execution Tasks
+
+- [ ] EL-1 establish or refresh `.codex` control files
+- [ ] EL-2 verify public docs against the current standard
+- [ ] EL-3 record the next checkpoint for the repo
+- [ ] EL-4 prepare the next 3 actions from a validated state
 
 ## Done
 
@@ -254,6 +293,10 @@ def status_snapshot(repo: Path) -> tuple[str, str, str, list[str]]:
     return phase, active_slice, blockers[0] if blockers else "No major blocker recorded.", next_actions
 
 
+def execution_tasks(text: str) -> list[str]:
+    return bullet_lines(section(text, "Execution Tasks"))
+
+
 def render_dashboard(repo: Path, official_modules: list[str]) -> str:
     dashboard_path = repo / ".codex/module-dashboard.md"
     existing = dashboard_path.read_text(encoding="utf-8") if dashboard_path.exists() else ""
@@ -264,6 +307,9 @@ def render_dashboard(repo: Path, official_modules: list[str]) -> str:
     current_execution = section(existing, "Current Execution Order")
 
     phase, active_slice, main_risk, next_actions = status_snapshot(repo)
+    status_text = read_text(repo / ".codex/status.md")
+    current_execution_line = first_line(section(status_text, "Current Execution Line")) or active_slice
+    execution_task_lines = execution_tasks(status_text)
     module_summaries = [load_module_summary(repo / ".codex/modules" / f"{module}.md") for module in official_modules]
     average_completion = round(sum(int(item["completion_percent"]) for item in module_summaries) / len(module_summaries)) if module_summaries else 0
     active_module = module_display_name(official_modules[0]) if official_modules else "n/a"
@@ -280,9 +326,11 @@ def render_dashboard(repo: Path, official_modules: list[str]) -> str:
                 break
 
     if not current_execution:
-        current_execution = "\n".join(
-            f"{idx}. {item}" for idx, item in enumerate(next_actions[:4], start=1)
-        ) or "1. Follow `.codex/status.md` next actions."
+        task_lines = execution_task_lines or next_actions[:4]
+        current_execution = f"- Execution Line: {current_execution_line}\n" + (
+            "\n".join(f"{idx}. {item}" for idx, item in enumerate(task_lines, start=1))
+            or "1. Follow `.codex/status.md` next actions."
+        )
 
     rows = "\n".join(
         f"| {module_display_name(module)} | {summary['status']} | {summary['completion_percent']}% ({summary['completion_band']}) | {summary['implemented']} | {summary['remaining']} | {summary['next_checkpoint']} | [modules/{module}.md](modules/{module}.md) |"

@@ -8,7 +8,9 @@
   ],
   "requiredPaths": [
     "references/README.md",
-    "references/README.zh-CN.md"
+    "references/README.zh-CN.md",
+    "docs/devlog/README.md",
+    "docs/devlog/README.zh-CN.md"
   ],
   "docsHomeLinks": {
     "en": [
@@ -27,7 +29,8 @@
     "references/README.md"
   ],
   "publicDocExcludeGlobs": [
-    ".codex/**"
+    ".codex/**",
+    "docs/devlog/20*.md"
   ],
   "ownershipRules": [
     {

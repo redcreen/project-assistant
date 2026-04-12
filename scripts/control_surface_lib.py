@@ -164,6 +164,67 @@ def has_required_headings(text: str, headings: list[str]) -> bool:
     return all(f"## {heading}" in text for heading in headings)
 
 
+def section(text: str, heading: str) -> str:
+    pattern = rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)"
+    match = re.search(pattern, text, re.MULTILINE | re.DOTALL)
+    return match.group(1).strip() if match else ""
+
+
+def first_line(text: str) -> str:
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped:
+            return stripped.strip("`")
+    return ""
+
+
+def bullet_lines(text: str) -> list[str]:
+    items: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- "):
+            items.append(stripped[2:].strip())
+        elif re.match(r"^\d+\.\s+", stripped):
+            items.append(re.sub(r"^\d+\.\s+", "", stripped))
+    return items
+
+
+def labeled_bullet_value(text: str, label: str) -> str:
+    for line in text.splitlines():
+        stripped = line.strip()
+        prefix = f"- {label}:"
+        if stripped.startswith(prefix):
+            return stripped.split(":", 1)[1].strip().strip("`")
+    return ""
+
+
+def extract_slice_titles(plan_text: str) -> list[str]:
+    titles: list[str] = []
+    for line in plan_text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- Slice:"):
+            titles.append(stripped.split(":", 1)[1].strip())
+    return titles
+
+
+def execution_task_lines(text: str) -> list[str]:
+    return [
+        line.strip()
+        for line in section(text, "Execution Tasks").splitlines()
+        if re.match(r"^\s*-\s+\[[ xX]\]\s+", line)
+    ]
+
+
+def display_execution_task(line: str) -> str:
+    return re.sub(r"^\s*-\s+", "", line).strip()
+
+
+def execution_task_progress(task_lines: list[str]) -> tuple[int, int]:
+    total = len(task_lines)
+    done = sum(1 for line in task_lines if "[x]" in line.lower())
+    return done, total
+
+
 def validate_commands_doc(text: str) -> list[str]:
     warnings: list[str] = []
     lowered = text.lower()
@@ -191,8 +252,42 @@ def validate_repo(repo: Path) -> ValidationResult:
             missing.append(rel)
 
     status_text = read_text(repo / ".codex/status.md")
+    plan_text = read_text(repo / ".codex/plan.md")
     if tier == "large" and "retrofit" in status_text.lower():
         warnings.append("status still contains retrofit-oriented language")
+
+    if tier in {"medium", "large"}:
+        if "## Current Execution Line" not in status_text:
+            warnings.append(".codex/status.md missing Current Execution Line section")
+        if "## Execution Tasks" not in status_text:
+            warnings.append(".codex/status.md missing Execution Tasks section")
+        if "## Current Execution Line" not in plan_text:
+            warnings.append(".codex/plan.md missing Current Execution Line section")
+        if "## Execution Tasks" not in plan_text:
+            warnings.append(".codex/plan.md missing Execution Tasks section")
+        status_execution = section(status_text, "Current Execution Line")
+        plan_execution = section(plan_text, "Current Execution Line")
+        if "Plan Link:" not in status_execution:
+            warnings.append(".codex/status.md missing Plan Link in Current Execution Line")
+        if "Progress:" not in status_execution:
+            warnings.append(".codex/status.md missing Progress in Current Execution Line")
+        if "Plan Link:" not in plan_execution:
+            warnings.append(".codex/plan.md missing Plan Link in Current Execution Line")
+        if "Progress:" not in plan_execution:
+            warnings.append(".codex/plan.md missing Progress in Current Execution Line")
+        slice_titles = extract_slice_titles(plan_text)
+        status_plan_link = next((item.split(":", 1)[1].strip() for item in status_execution.splitlines() if item.strip().startswith("- Plan Link:")), "")
+        plan_plan_link = next((item.split(":", 1)[1].strip() for item in plan_execution.splitlines() if item.strip().startswith("- Plan Link:")), "")
+        if status_plan_link and status_plan_link not in slice_titles:
+            warnings.append(".codex/status.md Plan Link does not match any plan slice")
+        if plan_plan_link and plan_plan_link not in slice_titles:
+            warnings.append(".codex/plan.md Plan Link does not match any plan slice")
+        for rel, text in [(".codex/status.md", status_text), (".codex/plan.md", plan_text)]:
+            task_lines = execution_task_lines(text)
+            if not task_lines:
+                warnings.append(f"{rel} missing execution task checkboxes")
+            elif not all(re.search(r"\bEL-\d+\b", line) for line in task_lines):
+                warnings.append(f"{rel} execution tasks missing EL-* task ids")
 
     commands_text = read_text(repo / ".codex/COMMANDS.md")
     if commands_text:
@@ -349,10 +444,12 @@ def default_doc_governance_payload(repo: Path, tier: str, official_modules: list
             "requiredPaths": [
                 "references/README.md",
                 "references/README.zh-CN.md",
+                "docs/devlog/README.md",
+                "docs/devlog/README.zh-CN.md",
             ],
             "docsHomeLinks": {
-                "en": ["../SKILL.md", "../references/README.md"],
-                "zh": ["../SKILL.md", "../references/README.zh-CN.md"],
+                "en": ["../SKILL.md", "../references/README.md", "devlog/README.md"],
+                "zh": ["../SKILL.md", "../references/README.zh-CN.md", "devlog/README.zh-CN.md"],
             },
             "publicDocIncludeGlobs": [
                 "README.md",
@@ -362,6 +459,7 @@ def default_doc_governance_payload(repo: Path, tier: str, official_modules: list
             ],
             "publicDocExcludeGlobs": [
                 ".codex/**",
+                "docs/devlog/20*.md",
             ],
             "ownershipRules": [
                 {"glob": ".codex/*.md", "role": "living"},
@@ -414,25 +512,29 @@ def default_doc_governance_payload(repo: Path, tier: str, official_modules: list
         "tier": tier,
         "officialModules": official_modules,
         "rootKeep": default_root_keep(repo, False),
-        "requiredPaths": [
-            "docs/reference/README.md",
-            "docs/reference/README.zh-CN.md",
-            "docs/workstreams/README.md",
-            "docs/workstreams/README.zh-CN.md",
-            "docs/archive/README.md",
-            "docs/archive/README.zh-CN.md",
-            "reports/generated/README.md",
-        ],
+            "requiredPaths": [
+                "docs/reference/README.md",
+                "docs/reference/README.zh-CN.md",
+                "docs/workstreams/README.md",
+                "docs/workstreams/README.zh-CN.md",
+                "docs/archive/README.md",
+                "docs/archive/README.zh-CN.md",
+                "docs/devlog/README.md",
+                "docs/devlog/README.zh-CN.md",
+                "reports/generated/README.md",
+            ],
         "docsHomeLinks": {
             "en": [
                 "reference/README.md",
                 "workstreams/README.md",
                 "archive/README.md",
+                "devlog/README.md",
             ],
             "zh": [
                 "reference/README.zh-CN.md",
                 "workstreams/README.zh-CN.md",
                 "archive/README.zh-CN.md",
+                "devlog/README.zh-CN.md",
             ],
         },
         "publicDocIncludeGlobs": [
@@ -449,10 +551,12 @@ def default_doc_governance_payload(repo: Path, tier: str, official_modules: list
             "docs/workstreams/**/*.md",
             "docs/how-to/*.md",
             "docs/how-to/**/*.md",
+            "docs/devlog/README.md",
             "integrations/**/README.md",
         ],
         "publicDocExcludeGlobs": [
             ".codex/**",
+            "docs/devlog/20*.md",
             "docs/archive/**",
             "reports/**",
             "workspace/**",

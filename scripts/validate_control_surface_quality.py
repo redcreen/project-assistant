@@ -21,7 +21,32 @@ TEMPLATE_SNIPPETS = [
     "slice: durable-doc alignment",
     "slice: next execution selection",
     "repository scanned",
+    "establish the next meaningful autonomous run",
+    "one checkpoint-sized execution line",
+    "confirm the active slice and intended checkpoint",
 ]
+
+
+def section_block(text: str, heading: str) -> str:
+    pattern = rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)"
+    match = re.search(pattern, text, re.MULTILINE | re.DOTALL)
+    return match.group(1).strip() if match else ""
+
+
+def section_has_substance(text: str, heading: str) -> bool:
+    block = section_block(text, heading)
+    lines = [line.strip("` ").strip() for line in block.splitlines() if line.strip()]
+    return any(len(line) > 12 for line in lines)
+
+
+def extract_tasks(text: str) -> list[str]:
+    block = section_block(text, "Execution Tasks")
+    tasks: list[str] = []
+    for line in block.splitlines():
+        stripped = line.strip()
+        if re.match(r"^- \[[ xX]\]\s+", stripped):
+            tasks.append(stripped)
+    return tasks
 
 
 def warn_quality(rel: str, text: str, warnings: list[str]) -> None:
@@ -34,6 +59,14 @@ def warn_quality(rel: str, text: str, warnings: list[str]) -> None:
     for snippet in TEMPLATE_SNIPPETS:
         if snippet in lowered:
             warnings.append(f"{rel} still contains control-surface template text: {snippet}")
+    if "## Current Execution Line" in text and not section_has_substance(text, "Current Execution Line"):
+        warnings.append(f"{rel} has a Current Execution Line section without concrete content")
+    if "## Execution Tasks" in text:
+        tasks = extract_tasks(text)
+        if len(tasks) < 2:
+            warnings.append(f"{rel} has too few execution tasks for a meaningful execution line")
+        if not tasks:
+            warnings.append(f"{rel} execution tasks are missing checkbox-style task lines")
 
 
 def main() -> int:

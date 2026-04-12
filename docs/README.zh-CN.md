@@ -8,6 +8,7 @@
 - 架构：[architecture.zh-CN.md](architecture.zh-CN.md)
 - 路线图：[roadmap.zh-CN.md](roadmap.zh-CN.md)
 - 测试：[test-plan.zh-CN.md](test-plan.zh-CN.md)
+- 开发日志：[devlog/README.zh-CN.md](devlog/README.zh-CN.md)
 - ADR：[adr/README.zh-CN.md](adr/README.zh-CN.md)
 
 ## 按目标阅读
@@ -18,6 +19,7 @@
 | 理解系统结构 | [architecture.zh-CN.md](architecture.zh-CN.md) |
 | 了解下一步计划 | [roadmap.zh-CN.md](roadmap.zh-CN.md) |
 | 了解验证方式 | [test-plan.zh-CN.md](test-plan.zh-CN.md) |
+| 追溯一次不直观的问题与实现路径 | [devlog/README.zh-CN.md](devlog/README.zh-CN.md) |
 | 查看持久设计决策 | [adr/README.zh-CN.md](adr/README.zh-CN.md) |
 
 ## Skill 参考

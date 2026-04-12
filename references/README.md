@@ -11,6 +11,6 @@ This directory contains the durable operating references behind the skill.
 - [../SKILL.md](../SKILL.md)
 - [usage.md](usage.md)
 - [retrofit.md](retrofit.md)
+- [development-log.md](development-log.md)
 - [document-standards.md](document-standards.md)
 - [governance.md](governance.md)
-

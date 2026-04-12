@@ -55,6 +55,8 @@ If available, use:
 - `scripts/validate_doc_quality.py` to enforce that public docs are no longer scaffold-like or broken
 - `scripts/validate_gate_set.py` to run the layered `fast` / `deep` gate sets
 - `scripts/validate_control_surface_quality.py` to stop `.codex/*` from passing in template state
+- `scripts/write_development_log.py` to record durable debugging or retrofit conclusions
+- `scripts/validate_development_log.py` to enforce that the development-log index and entries stay usable
 
 ## Mandatory Self-Check
 
@@ -167,6 +169,7 @@ Use this sequence:
 7. normalize durable docs to the standard document roles
 8. update navigation in `README` and `docs/README`
 9. move generated evidence out of planning paths
+10. if durable reasoning appeared during retrofit, create or update a development-log entry
 
 ### 6. Verify Alignment
 
@@ -218,6 +221,7 @@ Run the validation script when present instead of relying only on manual inspect
 For documentation retrofit, `validate_docs_system.py` is part of the gate set when present.
 For full Markdown retrofit, `validate_markdown_governance.py` is also part of the gate set when present.
 For public-doc quality, `validate_doc_quality.py` is part of the gate set when present.
+For durable reasoning capture, `validate_development_log.py` is part of the gate set when present.
 
 Use layered gates:
 
@@ -266,6 +270,7 @@ Documentation retrofit should:
 - migrate legacy deep trees such as `docs/<legacy-root>/architecture|roadmaps|testing|todo` into governed locations
 - resolve the ownership of every Markdown file in the repo, not only the top-level stack
 - leave no `unclear` Markdown file in root, `docs/`, or `reports/`
+- when retrofit produces durable implementation reasoning, capture it under `docs/devlog/`
 
 Do not rewrite project truth just to fit a prettier template.
 

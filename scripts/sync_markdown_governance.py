@@ -14,7 +14,7 @@ IGNORED_DIRS = {".git", "node_modules", ".obsidian", "__pycache__"}
 DURABLE_TOKENS = ("architecture", "roadmap", "policy", "strategy", "blueprint", "design", "workstream")
 ARCHIVE_TOKENS = ("todo", "journal", "candidate", "scope", "note", "notes", "scratch", "investigation", "smoke-test", "testsuite")
 LEGACY_DOC_BUCKETS = {"architecture", "roadmaps", "blueprints", "testing", "todo"}
-CANONICAL_DOC_DIRS = {"adr", "reference", "workstreams", "archive", "how-to"}
+CANONICAL_DOC_DIRS = {"adr", "reference", "workstreams", "archive", "how-to", "devlog"}
 
 SKILL_REFERENCE_HOME = """# Reference Pack
 
@@ -106,6 +106,58 @@ WORKSTREAMS_HOME_ZH = """# 工作流文档
 
 - [memory-search/README.md](memory-search/README.md)
 - [self-learning/README.md](self-learning/README.md)
+"""
+
+DEVLOG_HOME = """# Development Log
+
+[English](README.md) | [中文](README.zh-CN.md)
+
+## Purpose
+
+This directory records durable implementation narratives: what went wrong, what we considered, what we changed, and how we verified it.
+
+## When To Write Here
+
+- a retrofit or bugfix produced a non-obvious conclusion
+- an implementation path changed because of evidence or constraints
+- future maintainers would benefit from the reasoning, not only the final diff
+
+## Entry Expectations
+
+- record the problem
+- capture the key thinking path
+- explain the chosen solution
+- note the validation and follow-up
+
+## Entries
+
+- add date-based entries such as `2026-04-12-control-surface-convergence.md`
+"""
+
+DEVLOG_HOME_ZH = """# 开发日志
+
+[English](README.md) | [中文](README.zh-CN.md)
+
+## 目的
+
+这个目录记录值得长期保留的实现过程：问题是什么、思考过程是什么、最后怎么解决、又是如何验证的。
+
+## 什么时候写
+
+- 一次整改或 bugfix 产出了非显然结论
+- 方案因为证据或约束发生了关键转向
+- 未来维护者不仅需要看最终 diff，还需要看推理过程
+
+## 条目要求
+
+- 记录问题
+- 记录关键思考路径
+- 解释最终方案
+- 记录验证与后续动作
+
+## 条目
+
+- 建议按日期命名，例如 `2026-04-12-control-surface-convergence.md`
 """
 
 ARCHIVE_HOME = """# Archive
@@ -246,6 +298,7 @@ def governance_link_line(link: str, chinese: bool = False) -> str:
         "reference/README.md": "reference docs",
         "workstreams/README.md": "workstreams",
         "archive/README.md": "archive",
+        "devlog/README.md": "development log",
     }
     label_map_zh = {
         "../SKILL.md": "skill 合约",
@@ -253,6 +306,7 @@ def governance_link_line(link: str, chinese: bool = False) -> str:
         "reference/README.zh-CN.md": "参考文档",
         "workstreams/README.zh-CN.md": "工作流文档",
         "archive/README.zh-CN.md": "归档文档",
+        "devlog/README.zh-CN.md": "开发日志",
     }
     label = (label_map_zh if chinese else label_map_en).get(normalized)
     if not label:
@@ -664,6 +718,8 @@ def main() -> int:
         write_targets = [
             (repo / "references/README.md", SKILL_REFERENCE_HOME),
             (repo / "references/README.zh-CN.md", SKILL_REFERENCE_HOME_ZH),
+            (repo / "docs/devlog/README.md", DEVLOG_HOME),
+            (repo / "docs/devlog/README.zh-CN.md", DEVLOG_HOME_ZH),
         ]
     else:
         write_targets = [
@@ -673,6 +729,8 @@ def main() -> int:
             (repo / "docs/workstreams/README.zh-CN.md", WORKSTREAMS_HOME_ZH),
             (repo / "docs/archive/README.md", ARCHIVE_HOME),
             (repo / "docs/archive/README.zh-CN.md", ARCHIVE_HOME_ZH),
+            (repo / "docs/devlog/README.md", DEVLOG_HOME),
+            (repo / "docs/devlog/README.zh-CN.md", DEVLOG_HOME_ZH),
             (repo / "reports/generated/README.md", GENERATED_HOME),
             (repo / "docs/workstreams/self-learning/README.md", SELF_LEARNING_HOME),
             (repo / "docs/workstreams/memory-search/README.md", MEMORY_SEARCH_HOME),

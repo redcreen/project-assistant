@@ -8,6 +8,7 @@
 - Architecture: [architecture.md](architecture.md)
 - Roadmap: [roadmap.md](roadmap.md)
 - Testing: [test-plan.md](test-plan.md)
+- Development log: [devlog/README.md](devlog/README.md)
 - ADRs: [adr/README.md](adr/README.md)
 
 ## By Goal
@@ -18,6 +19,7 @@
 | Understand the system | [architecture.md](architecture.md) |
 | See what is next | [roadmap.md](roadmap.md) |
 | Verify correctness | [test-plan.md](test-plan.md) |
+| Reconstruct a non-obvious implementation path | [devlog/README.md](devlog/README.md) |
 | Review durable design decisions | [adr/README.md](adr/README.md) |
 
 ## Skill References

@@ -21,6 +21,7 @@ DEEP_ONLY_VALIDATORS = [
     "validate_markdown_governance.py",
     "validate_doc_quality.py",
     "validate_control_surface_quality.py",
+    "validate_development_log.py",
 ]
 
 

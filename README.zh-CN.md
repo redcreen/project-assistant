@@ -2,7 +2,7 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-> 一个用于项目规划、整改收敛、进展汇报、文档治理和上下文交接的 Codex skill。
+> 一个用于项目规划、整改收敛、进展汇报、开发日志、文档治理和上下文交接的 Codex skill。
 
 ## 适用对象
 
@@ -50,10 +50,12 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 
 - `项目助手 菜单`
 - `项目助手 启动这个项目`
+- `项目助手 架构`
 - `项目助手 恢复当前状态`
 - `项目助手 进展`
 - `项目助手 整改`
 - `项目助手 文档整改`
+- `项目助手 开发日志`
 - `项目助手 压缩上下文`
 
 ## 核心能力
@@ -61,12 +63,22 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 创建并维护 `.codex` 控制面
 - 维护 `.codex/doc-governance.json` 作为 Markdown 治理契约
 - 把工作拆成可验证的切片
+- 把当前工作收敛成一条有检查点的长任务执行线，而不是频繁等待“继续”
+- 把执行线显示成一个可见的子任务板，并用 `Plan Link` 映射回当前切片
 - 把现有仓库整改到收敛状态
 - 用全局和模块视角汇报进展
+- 把重要问题、思考路径和解决方案沉淀成开发日志
 - 把 durable 文档整理到统一结构
 - 为新对话生成紧凑恢复包
 
 ## 常见工作流
+
+默认工作方式：
+
+- 你主要给需求、业务方向、优先级和硬约束
+- `project-assistant` 默认负责规划、架构监督、实现、验证、状态更新和开发日志
+- 只有在检查点、阻塞点或需要业务裁决时才应该停下来问你
+- 长任务执行时，应通过可见的任务板体现 done/total 进度，而不是只剩下一段抽象状态描述
 
 ### 启动或接管项目
 
@@ -79,6 +91,22 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 ```text
 项目助手 进展
 ```
+
+### 从架构层审查当前方向
+
+```text
+项目助手 架构
+```
+
+最常用：
+
+- `项目助手 架构 监督`
+
+什么时候用：
+
+- 准备改代码前，先看当前方向是不是在修局部现象
+- 你怀疑 AI 为了当前功能开始硬编码
+- 你希望先从整体边界和扩展性看一眼再继续实现
 
 ### 整体整改仓库
 
@@ -99,6 +127,12 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 项目助手 文档整改
 ```
 
+### 记录一条值得保留的实现结论
+
+```text
+项目助手 开发日志
+```
+
 ### 为新对话做交接
 
 ```text
@@ -111,6 +145,7 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - [架构](docs/architecture.zh-CN.md)
 - [路线图](docs/roadmap.zh-CN.md)
 - [测试计划](docs/test-plan.zh-CN.md)
+- [开发日志](docs/devlog/README.zh-CN.md)
 - [ADR 索引](docs/adr/README.zh-CN.md)
 - [Skill 契约](SKILL.md)
 - [参考规则](references/README.zh-CN.md)
@@ -145,6 +180,8 @@ project-assistant/
 - `scripts/validate_doc_quality.py`
 - `scripts/validate_control_surface_quality.py`
 - `scripts/validate_gate_set.py`
+- `scripts/write_development_log.py`
+- `scripts/validate_development_log.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
 - `scripts/release_skill.py`
@@ -158,6 +195,7 @@ python3 scripts/validate_public_docs_i18n.py /path/to/repo --format text
 python3 scripts/validate_markdown_governance.py /path/to/repo --format text
 python3 scripts/validate_doc_quality.py /path/to/repo --format text
 python3 scripts/validate_control_surface_quality.py /path/to/repo --format text
+python3 scripts/validate_development_log.py /path/to/repo --format text
 python3 scripts/validate_gate_set.py /path/to/repo --profile fast
 python3 scripts/validate_gate_set.py /path/to/repo --profile deep
 ```
