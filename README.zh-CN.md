@@ -34,13 +34,13 @@
 通过稳定 tag 一键安装：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.2/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/install.sh | bash
 ```
 
 手动安装：
 
 ```bash
-git clone --branch v0.1.1 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
+git clone --branch v0.1.3 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
 
 ## 最简配置
@@ -56,7 +56,7 @@ git clone --branch v0.1.1 https://github.com/redcreen/project-assistant.git ~/.c
 可选覆盖：
 
 ```bash
-PROJECT_ASSISTANT_REF=v0.1.2 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
+PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
 ```
 
 ## 快速开始
