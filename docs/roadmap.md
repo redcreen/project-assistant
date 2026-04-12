@@ -73,7 +73,7 @@ flowchart LR
 
 | Topic | Why It Matters | Current Position |
 | --- | --- | --- |
-| business planning and program orchestration | `project-assistant` has now closed M10 strategic evaluation, M11 program orchestration, and M12 supervised long-run delivery; the current focus is rollout / friction collection, while M8/M9 remain bounded supporting backlog topics | active in roadmap and development plan |
+| business planning and program orchestration | `project-assistant` has now closed the PTL-centered M10 strategic evaluation, M11 program orchestration, and M12 supervised long-run delivery layers; the current focus is rollout / friction collection, while M8/M9 remain bounded supporting backlog topics | active in roadmap and development plan |
 
 Direction document:
 

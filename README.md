@@ -19,6 +19,7 @@
 | Strongest At | planning, retrofit, architecture supervision, progress reporting, development logs, documentation governance, and context handoff |
 | Human Still Owns | business direction, product priorities, compatibility promises, and major tradeoffs |
 | Default Working Model | human sets direction; `project-assistant` plans, executes, validates, updates state, and escalates only when judgment is required |
+| Core Standing Role | Project Technical Lead (PTL): inside an approved direction, it owns strategic judgment, program orchestration, long-run delivery supervision, and escalation timing |
 | Active Strategic Direction | strategic evaluation, program orchestration, and supervised long-run delivery are now complete; rollout and friction collection are the current mainline |
 | Current Program-Orchestration Boundary | the durable orchestration truth is now stable inside one Codex; automatic multi-desktop-Codex scheduling is still a future layer |
 
@@ -97,9 +98,9 @@ Background flows (usually automatic):
 - Retrofit existing repos to convergence
 - Report progress with global and module views
 - Capture durable implementation reasoning as development logs
-- Persist strategic evaluation in `.codex/strategy.md`, including the boundary between system proposals and human approvals
-- Persist program orchestration in `.codex/program-board.md`, including workstreams, sequencing, parallel-safe boundaries, and executor inputs; today this first stabilizes a single-Codex coordinator mode
-- Persist supervised long-run delivery in `.codex/delivery-supervision.md`, including checkpoint rhythm, automatic-continue boundaries, escalation timing, and backlog re-entry rules
+- Persist PTL strategic evaluation in `.codex/strategy.md`, including the boundary between system proposals and human approvals
+- Persist PTL program orchestration in `.codex/program-board.md`, including workstreams, sequencing, parallel-safe boundaries, and executor inputs; today this first stabilizes a single-Codex coordinator mode
+- Persist PTL supervised long-run delivery in `.codex/delivery-supervision.md`, including checkpoint rhythm, automatic-continue boundaries, escalation timing, and backlog re-entry rules
 - Normalize durable docs into a standard system
 - Emit a compact context handoff for the next thread
 
@@ -120,7 +121,7 @@ What this means:
 - `progress`, `handoff`, the control surface, and validation gates now describe the same current truth
 - representative medium and large repos now show clearer maintainer-facing first screens, not only raw slice names
 - at least one architecture-review path now auto-escalates from current-slice drift instead of depending only on manual prompts
-- the strategic-evaluation, program-orchestration, and supervised-long-run-delivery layers are now real capabilities, not only direction documents
+- the PTL strategic-evaluation, program-orchestration, and supervised-long-run-delivery layers are now real capabilities, not only direction documents
 - the current orchestration layer is a durable single-Codex coordination brain, not yet a productized multi-desktop-Codex dispatcher
 - the next practical step is rollout: use the full stack on more repos, collect friction, and only then decide whether a post-M12 milestone or M8/M9 re-entry is justified
 

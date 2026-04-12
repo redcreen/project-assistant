@@ -44,9 +44,9 @@ It answers one practical question:
 | M7 | done | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
 | M8 | deferred | locale-aware internal control-surface output | handoff + command templates + validation policy | becomes supporting backlog under M10 instead of the mainline |
 | M9 | deferred | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | becomes supporting backlog under M10 instead of the mainline |
-| M10 | done | add a strategic-evaluation layer above execution and retrofit | M7 + approved strategic direction | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs instead of ad hoc intuition |
-| M11 | done | add a program-orchestration layer across multiple slices or workers | M10 + durable program board | stabilize the durable orchestration truth inside one Codex first; if multi-executor scheduling is needed later, create it as a separate milestone |
-| M12 | done | add supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue until a real business decision point |
+| M10 | done | add a PTL-driven strategic-evaluation layer above execution and retrofit | M7 + approved strategic direction | roadmap / governance / architecture adjustments become durable, reviewable strategy outputs instead of ad hoc intuition |
+| M11 | done | add a PTL-driven program-orchestration layer across multiple slices or workers | M10 + durable program board | stabilize the durable orchestration truth inside one Codex first; if multi-executor scheduling is needed later, create it as a separate milestone |
+| M12 | done | add PTL-driven supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue until a real business decision point |
 
 ## Ordered Execution Queue
 
@@ -156,7 +156,7 @@ It answers one practical question:
 | Item | Current Value |
 | --- | --- |
 | Status | done |
-| Goal | add a strategic-evaluation layer above execution and retrofit |
+| Goal | add a PTL-driven strategic-evaluation layer above execution and retrofit |
 | Depends On | M7 + approved strategic direction |
 | Exit Criteria | roadmap / governance / architecture adjustments become explicit strategy outputs backed by durable surfaces and review rules |
 
@@ -165,7 +165,7 @@ It answers one practical question:
 | Item | Current Value |
 | --- | --- |
 | Status | done |
-| Goal | add a program-orchestration layer across multiple slices or workers |
+| Goal | add a PTL-driven program-orchestration layer across multiple slices or workers |
 | Depends On | M10 + durable program board |
 | Exit Criteria | the system can coordinate several related slices without constant human continuation prompts; the first stable form is a single-Codex orchestration truth, while multi-executor scheduling stays evidence-driven future scope |
 
@@ -174,7 +174,7 @@ It answers one practical question:
 | Item | Current Value |
 | --- | --- |
 | Status | done |
-| Goal | add supervised long-run delivery |
+| Goal | add PTL-driven supervised long-run delivery |
 | Depends On | M11 + stable escalation policy |
 | Exit Criteria | long-running delivery can continue until a real business decision point |
 
@@ -188,7 +188,7 @@ It answers one practical question:
 
 | Topic | Scope | Current Position |
 | --- | --- | --- |
-| business-planning and program-orchestration layer | `project-assistant` has completed strategic evaluation, program orchestration, and supervised long-run delivery. Rollout / friction collection is now the next durable state, while M8/M9 stay folded into supporting backlog under the same larger direction | active |
+| business-planning and program-orchestration layer | `project-assistant` has completed the PTL-centered strategic evaluation, program orchestration, and supervised long-run delivery layers. Rollout / friction collection is now the next durable state, while M8/M9 stay folded into supporting backlog under the same larger direction | active |
 
 Direction:
 

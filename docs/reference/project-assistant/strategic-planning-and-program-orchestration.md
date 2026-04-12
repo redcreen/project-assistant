@@ -12,6 +12,10 @@ This document records the approved next major direction above the current `proje
 
 This direction is now part of the official roadmap. M10 strategic evaluation, M11 program orchestration, and M12 supervised long-run delivery are complete. M8 and M9 are no longer the mainline; they remain bounded supporting backlog topics inside this strategic layer, while rollout / friction collection becomes the current durable follow-through so any post-M12 milestone is driven by real adoption evidence.
 
+The standing role across these three layers is named:
+
+- Project Technical Lead (PTL)
+
 ## Why This Layer Is Needed
 
 `project-assistant` already does a lot of the execution-side work well:
@@ -42,8 +46,8 @@ That gap shows up in several recurring situations:
 | Layer | Primary Owner | Responsibility |
 | --- | --- | --- |
 | Business Direction | human | define needs, priorities, product direction, and major tradeoffs |
-| Strategic Planning | AI strategic planner | decide what should happen next, whether special governance / architecture tracks should be inserted, whether roadmap structure should change, and whether project positioning should be elevated |
-| Program Orchestration | AI program orchestrator | manage multiple workstreams, slices, dependencies, and execution agents over time |
+| Strategic Planning | Project Technical Lead (PTL) | decide what should happen next, whether special governance / architecture tracks should be inserted, whether roadmap structure should change, and whether project positioning should be elevated |
+| Program Orchestration | Project Technical Lead (PTL) | manage multiple workstreams, slices, dependencies, and execution agents over time |
 | Delivery Execution | AI delivery workers | implement code, tests, docs, validation, and control-surface updates |
 | Governance And Recovery | existing `project-assistant` layers | keep truth, gates, progress, devlogs, docs, and handoff aligned |
 
@@ -64,6 +68,12 @@ The AI system should increasingly handle:
 - continued execution across slices
 - surfacing when a human decision is genuinely required
 
+PTL here is not a product owner and not an organization-wide CTO. It is a project-scoped technical lead role:
+
+| PTL Owns | PTL Does Not Own |
+| --- | --- |
+| strategic evaluation, program orchestration, long-run delivery supervision, escalation timing | business-direction changes, product priorities, major compatibility commitments, cost tradeoffs |
+
 ## Milestone Direction
 
 ### M10: Strategic Evaluation
@@ -71,7 +81,7 @@ The AI system should increasingly handle:
 | Item | Current Meaning |
 | --- | --- |
 | Goal | evaluate where the project should go next, whether special governance / architecture work should be inserted, and whether earlier milestones or project positioning should change |
-| Output | durable strategic judgment and reviewable strategy surfaces, not automatic business-direction edits |
+| Output | durable PTL strategic judgment and reviewable strategy surfaces, not automatic business-direction edits |
 | Human Role | review and approve or reject strategy changes |
 | Exit Criteria | strategy recommendations become explicit, reviewable, and tied to real repo evidence |
 
@@ -80,13 +90,13 @@ The AI system should increasingly handle:
 | Item | Current Meaning |
 | --- | --- |
 | Goal | coordinate multiple workstreams, slices, and execution agents instead of only one active execution line |
-| Output | a durable program board that tracks active streams, sequencing, parallelism, and orchestration checkpoints |
+| Output | a durable PTL program board that tracks active streams, sequencing, parallelism, and orchestration checkpoints |
 | Human Role | approve orchestration boundaries and escalation policy |
 | Exit Criteria | the system can keep several related slices moving without constant human prompts |
 
 | Current Boundary | Meaning |
 | --- | --- |
-| Already done now | a durable orchestration-truth layer inside one Codex: it knows active workstreams, parallel-safe boundaries, serial dependencies, and what supervisor / delivery worker / docs-and-release currently own |
+| Already done now | a durable orchestration-truth layer inside one Codex: it knows active workstreams, parallel-safe boundaries, serial dependencies, and what PTL / delivery worker / docs-and-release currently own |
 | Not done yet | a productized command that automatically spins up multiple desktop Codex sessions, dispatches work, and merges results back |
 | Future path | only create a separate multi-executor orchestration layer if rollout evidence shows that the single-Codex orchestration truth is no longer enough |
 
@@ -95,7 +105,7 @@ The AI system should increasingly handle:
 | Item | Current Meaning |
 | --- | --- |
 | Goal | let the AI delivery system keep advancing long-running work until completion or a real business decision point |
-| Output | longer-lived supervised execution runs with periodic checkpoints, automatic escalation, and durable recovery truth |
+| Output | longer-lived PTL-supervised execution runs with periodic checkpoints, automatic escalation, and durable recovery truth |
 | Human Role | intervene when direction changes or tradeoffs need approval |
 | Exit Criteria | humans mainly provide direction and decisions, not constant continuation prompts |
 

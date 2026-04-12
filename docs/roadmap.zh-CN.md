@@ -73,7 +73,7 @@ flowchart LR
 
 | 主题 | 为什么重要 | 当前位置 |
 | --- | --- | --- |
-| 业务规划与程序编排层 | `project-assistant` 已经完成 `M10` 战略评估层、`M11` 程序编排层和 `M12` 长期受监督交付层；当前重点转为 rollout / 摩擦采集，`M8 / M9` 继续作为 supporting backlog 等待被受控吸收 | 已进入 roadmap 和 development plan |
+| 业务规划与程序编排层 | `project-assistant` 已经完成以项目技术负责人（PTL）为核心的 `M10` 战略评估层、`M11` 程序编排层和 `M12` 长期受监督交付层；当前重点转为 rollout / 摩擦采集，`M8 / M9` 继续作为 supporting backlog 等待被受控吸收 | 已进入 roadmap 和 development plan |
 
 方向文档：
 

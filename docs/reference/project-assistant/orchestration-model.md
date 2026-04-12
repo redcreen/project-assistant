@@ -18,16 +18,16 @@ It answers three main questions:
 
 | Model | One-Line Meaning |
 | --- | --- |
-| Current model | one Codex acts like a coordinator that keeps several lines visible, while usually preserving a single primary write line |
+| Current model | a Project Technical Lead (PTL) inside one Codex acts like a coordinator that keeps several lines visible, while usually preserving one primary write line |
 | Future model | multiple executors or multiple desktop Codex sessions are explicitly scheduled, assigned, and merged by a higher layer |
 
 ## Current Model: Durable Single-Codex Orchestration Truth
 
 | Dimension | How It Works Today | Why It Was Designed This Way |
 | --- | --- | --- |
-| Strategic judgment | `.codex/strategy.md` records the mainline, side-track insertion suggestions, and human review boundary | solve “where should this go next?” first |
-| Program orchestration | `.codex/program-board.md` records active workstreams, priority, serial/parallel boundaries, and next checkpoints | solve “which line comes first and which stays parked?” first |
-| Long-run delivery | `.codex/delivery-supervision.md` records checkpoint rhythm, auto-continue boundaries, and escalation timing | solve “when may the system keep going and when must it stop?” first |
+| Strategic judgment | the PTL reads `.codex/strategy.md` to record the mainline, side-track insertion suggestions, and human review boundary | solve “where should this go next?” first |
+| Program orchestration | the PTL reads `.codex/program-board.md` to record active workstreams, priority, serial/parallel boundaries, and next checkpoints | solve “which line comes first and which stays parked?” first |
+| Long-run delivery | the PTL reads `.codex/delivery-supervision.md` to record checkpoint rhythm, auto-continue boundaries, and escalation timing | solve “when may the system keep going and when must it stop?” first |
 | Current execution | `.codex/plan.md` and `.codex/status.md` keep the active slice, execution line, and task board aligned | preserve one write-oriented source of truth |
 
 ## What “Parallel” Means Today
@@ -54,8 +54,8 @@ The system does not “forget B and C and only do A.” Instead:
 
 | Layer | What Happens |
 | --- | --- |
-| Strategy | decides which of these is the mainline and which are supporting lines |
-| Program orchestration | records A as active, B as checkpoint support work, and C as a validation line |
+| Strategy | the PTL decides which of these is the mainline and which are supporting lines |
+| Program orchestration | the PTL records A as active, B as checkpoint support work, and C as a validation line |
 | Execution | keeps A as the primary write line, while still routing B and C into the same checkpoint |
 | Delivery | refreshes docs, validation, status, and handoff together at the checkpoint |
 
@@ -63,7 +63,7 @@ The system does not “forget B and C and only do A.” Instead:
 
 ```mermaid
 flowchart TB
-    S["Strategy Layer\nsets mainline and supporting backlog"] --> P["Program Orchestration Layer\nprogram-board"]
+    S["PTL Strategy Layer\nsets mainline and supporting backlog"] --> P["PTL Program Orchestration Layer\nprogram-board"]
     P --> A["Primary Write Line A\ncurrent active slice"]
     P --> B["Support Line B\ndocs / explanation / small convergence"]
     P --> C["Validation Line C\ntests / gates / snapshots"]
@@ -127,7 +127,7 @@ flowchart TB
 | Question | Current Answer |
 | --- | --- |
 | Does M11 already mean “multiple Codex instances automatically work together”? | No |
-| What is M11’s real present value? | it stabilizes the durable orchestration truth for one Codex first |
+| What is M11’s real present value? | it stabilizes the PTL-driven durable orchestration truth for one Codex first |
 | Why is it already stronger than “one task at a time”? | because it can manage several lines at once, parallelize safe work, and still preserve a single primary write line |
 | Could it later grow into multi-executor scheduling? | yes, but only as a separate later layer justified by rollout evidence |
 

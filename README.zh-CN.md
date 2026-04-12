@@ -19,6 +19,7 @@
 | 当前最强能力 | 项目规划、整改收敛、架构监督、进展汇报、开发日志、文档治理、上下文交接 |
 | 人类仍然负责 | 业务方向、产品优先级、兼容性承诺和重大取舍 |
 | 默认工作模型 | 人类给方向；`project-assistant` 负责规划、执行、验证、更新状态，并只在需要判断时升级给人类 |
+| 关键常驻角色 | 项目技术负责人（PTL）：在已批准业务方向内负责战略判断、程序编排、长期交付监督和升级 |
 | 当前战略方向 | 战略评估层、程序编排层和长期受监督交付层都已完成；当前主线转入 rollout 与摩擦采集 |
 | 程序编排层当前边界 | 先把“单 Codex 内的 durable 编排真相层”做稳定；多桌面 Codex / 多执行器自动调度仍属于后续能力 |
 
@@ -98,8 +99,9 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 用全局和模块视角汇报进展
 - 把重要问题、思考路径和解决方案沉淀成开发日志
 - 把战略评估沉淀成 `.codex/strategy.md`，并区分“系统可以自动建议什么”和“必须人类审批什么”
-- 把程序编排沉淀成 `.codex/program-board.md`，并显式表达 workstreams、排序、并行边界和执行器输入；当前先面向单 Codex 总协调模式
-- 把长期受监督交付沉淀成 `.codex/delivery-supervision.md`，并显式表达 checkpoint 节奏、自动继续边界、升级时机和 backlog 回流规则
+- 把 PTL 的战略评估沉淀成 `.codex/strategy.md`，并区分“系统可以自动建议什么”和“必须人类审批什么”
+- 把 PTL 的程序编排沉淀成 `.codex/program-board.md`，并显式表达 workstreams、排序、并行边界和执行器输入；当前先面向单 Codex 总协调模式
+- 把 PTL 的长期受监督交付沉淀成 `.codex/delivery-supervision.md`，并显式表达 checkpoint 节奏、自动继续边界、升级时机和 backlog 回流规则
 - 把 durable 文档整理到统一结构
 - 为新对话生成紧凑恢复包
 
@@ -120,7 +122,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - `progress`、`handoff`、控制面和门禁现在描述的是同一套当前真相
 - 代表性的中型 / 大型仓库现在都能给出更像“维护者恢复面板”的第一屏，而不是只有 raw slice 名
 - 至少一条架构复盘路径现在已经能从当前切片里的 drift 信号自动升级出来，而不是只靠手工提醒
-- 战略评估层、程序编排层和长期受监督交付层现在都已经是可运行能力，而不只是 proposal 文档
+- 战略评估层、程序编排层和长期受监督交付层现在都已经是 PTL 可运行能力，而不只是 proposal 文档
 - 程序编排层当前是“一个 Codex 的总调度脑”，不是已经产品化成“自动拉起多个桌面 Codex 并回收结果”
 - 下一步最值得做的是 rollout：把完整模型带到更多仓库上试跑，收集摩擦点，再决定是否需要 post-M12 里程碑或让 `M8 / M9` 局部回流
 

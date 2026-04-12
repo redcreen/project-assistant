@@ -18,16 +18,16 @@
 
 | 模型 | 一句话解释 |
 | --- | --- |
-| 当前模型 | 一个 Codex 像总协调者一样，持续管理多条线，但主写入线一次通常只保持一条 |
+| 当前模型 | 一个 Codex 里的项目技术负责人（PTL）像总协调者一样，持续管理多条线，但主写入线一次通常只保持一条 |
 | 未来模型 | 多个执行器或多个桌面 Codex 被显式调度，并由更高层统一派发、回收和合并结果 |
 
 ## 当前模型：单 Codex 编排真相层
 
 | 维度 | 当前怎么做 | 为什么这样设计 |
 | --- | --- | --- |
-| 战略判断 | 用 `.codex/strategy.md` 记录主线、专项插入建议、需要人类裁决的边界 | 先解决“该往哪走” |
-| 程序编排 | 用 `.codex/program-board.md` 记录活跃 workstreams、优先级、串并行边界、下一检查点 | 先解决“先做哪条线、哪些暂时挂起” |
-| 长期交付 | 用 `.codex/delivery-supervision.md` 记录 checkpoint 节奏、自动继续边界、升级时机 | 先解决“什么时候自动继续、什么时候必须停” |
+| 战略判断 | 由 PTL 读取 `.codex/strategy.md`，记录主线、专项插入建议、需要人类裁决的边界 | 先解决“该往哪走” |
+| 程序编排 | 由 PTL 读取 `.codex/program-board.md`，记录活跃 workstreams、优先级、串并行边界、下一检查点 | 先解决“先做哪条线、哪些暂时挂起” |
+| 长期交付 | 由 PTL 读取 `.codex/delivery-supervision.md`，记录 checkpoint 节奏、自动继续边界、升级时机 | 先解决“什么时候自动继续、什么时候必须停” |
 | 当前执行 | 用 `.codex/plan.md` 和 `.codex/status.md` 固定当前 active slice、执行线和任务板 | 让当前主写入线保持单一真相 |
 
 ## 当前“并行”到底是什么意思
@@ -54,8 +54,8 @@
 
 | 层 | 当前发生什么 |
 | --- | --- |
-| 战略层 | 判断这 3 件事里谁是主线，谁只是支撑 |
-| 程序编排层 | 记录 A 为 active、B 为 checkpoint 内支撑项、C 为验证线 |
+| 战略层 | PTL 判断这 3 件事里谁是主线，谁只是支撑 |
+| 程序编排层 | PTL 记录 A 为 active、B 为 checkpoint 内支撑项、C 为验证线 |
 | 执行层 | 主写入仍以 A 为主，但在合适时点把 B、C 一起接进来 |
 | 交付层 | 到 checkpoint 时一起刷新 docs、验证、状态与 handoff |
 
@@ -63,7 +63,7 @@
 
 ```mermaid
 flowchart TB
-    S["战略层\n决定主线与 supporting backlog"] --> P["程序编排层\nprogram-board"]
+    S["PTL 战略层\n决定主线与 supporting backlog"] --> P["PTL 程序编排层\nprogram-board"]
     P --> A["主写入线 A\n当前 active slice"]
     P --> B["支持线 B\n文档 / 说明 / 小收口"]
     P --> C["验证线 C\ntests / gate / snapshot"]
@@ -127,7 +127,7 @@ flowchart TB
 | 问题 | 当前答案 |
 | --- | --- |
 | `M11` 现在是不是已经等于“多个 Codex 自动一起干活”？ | 不是 |
-| `M11` 现在最真实的价值是什么？ | 先把“单 Codex 的 durable 编排真相层”稳定下来 |
+| `M11` 现在最真实的价值是什么？ | 先把“单 Codex 中由 PTL 驱动的 durable 编排真相层”稳定下来 |
 | 现在为什么已经比“只会做一个任务”强很多？ | 因为它能同时管理多条线，并把安全动作并行、把主写入保持单一 |
 | 未来是否可能扩到多执行器调度？ | 会，但应以 rollout 证据单独立项，而不是偷偷扩充当前 `M11` 定义 |
 
