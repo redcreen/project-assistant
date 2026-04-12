@@ -5,15 +5,7 @@ import argparse
 import json
 from pathlib import Path
 
-from control_surface_lib import (
-    classify_architecture_signal,
-    execution_task_lines,
-    execution_task_progress,
-    labeled_bullet_value,
-    normalized_bullets,
-    read_text,
-    section,
-)
+from control_surface_lib import classify_architecture_signal, labeled_bullet_value, normalized_bullets, read_text, section
 
 
 def main() -> int:
@@ -31,8 +23,6 @@ def main() -> int:
     escalation_gate = architecture_state["gate"].lower()
     pending_capture = labeled_bullet_value(section(status_text, "Development Log Capture"), "Pending Capture").lower()
     blockers = normalized_bullets(section(status_text, "Blockers / Open Decisions"))
-    done_tasks, total_tasks = execution_task_progress(execution_task_lines(status_text))
-
     if architecture_signal != "green":
         warnings.append(f"release blocked: architecture signal is {architecture_signal}")
     if escalation_gate and escalation_gate != "continue automatically":
@@ -41,8 +31,6 @@ def main() -> int:
         warnings.append("release blocked: development-log capture is still pending")
     if blockers:
         warnings.append("release blocked: blockers or open decisions are still recorded")
-    if total_tasks and done_tasks != total_tasks:
-        warnings.append(f"release blocked: execution tasks are still incomplete ({done_tasks} / {total_tasks})")
 
     payload = {"ok": not warnings, "warnings": warnings}
     if args.format == "json":

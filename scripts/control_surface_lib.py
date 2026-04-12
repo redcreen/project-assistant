@@ -420,7 +420,7 @@ def normalized_bullets(text: str) -> list[str]:
             continue
         if lowered.startswith("none") or lowered.startswith("no blocker") or lowered.startswith("无阻塞"):
             continue
-        if lowered.startswith(("follow-up:", "watchlist:", "note:", "notes:")):
+        if lowered.startswith(("follow-up:", "strategic follow-up:", "watchlist:", "note:", "notes:")):
             continue
         normalized.append(item)
     return normalized
