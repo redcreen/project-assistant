@@ -10,38 +10,35 @@
 `embedded architect-assistant redesign`
 
 ## Active Slice
-`make architecture retrofit a first-class flow`
+`prepare project-assistant for broader repo adoption`
 
 ## Current Execution Line
-- Objective: 把“架构整改”做成一等能力，补齐命令、脚本、工作底稿和门禁
-- Plan Link: make architecture retrofit a first-class flow
-- Runway: 完成架构整改审计脚本、工作底稿、门禁、菜单入口和控制面收口
-- Progress: 8 / 8 tasks complete
+- Objective: 从更高层自审 `project-assistant`，把控制面真相、README 对外表述和 rollout-ready 信号收口到一致状态
+- Plan Link: prepare project-assistant for broader repo adoption
+- Runway: 收口自审发现的 stale control truth，明确“现在能直接用什么”，并把 README 调整成更适合推广到其他项目的入口
+- Progress: 5 / 5 tasks complete
 - Stop Conditions:
-  - `项目助手 架构 整改` / `project assistant architecture retrofit` 已成为正式入口
-  - `.codex/architecture-retrofit.md` 能由脚本生成并通过门禁
-  - `deep` 门禁与能力快照都能识别架构整改能力
+  - `.codex/status.md`、`.codex/plan.md`、`progress`、`handoff` 不再停留在上一条已完成 slice
+  - README 已能明确表达“什么已经稳定可用”与“何时用 retrofit / architecture retrofit”
+  - `deep`、`release`、能力快照和 progress/handoff 都反映同一套 readiness truth
 
 ## Execution Tasks
-- [x] EL-1 增加 `项目助手 架构 整改` / `project assistant architecture retrofit` 入口
-- [x] EL-2 新增 `sync_architecture_retrofit.py` 生成 `.codex/architecture-retrofit.md`
-- [x] EL-3 新增 `validate_architecture_retrofit.py`，禁止工作底稿停在模板态
-- [x] EL-4 把架构整改接入 `deep` 门禁和能力快照
-- [x] EL-5 更新 `SKILL.md`、retrofit/usage/help-menu/README/模板
-- [x] EL-6 更新控制面模板和命令速查，接入架构整改入口
-- [x] EL-7 在 skill 自己身上生成真实的架构整改工作底稿
-- [x] EL-8 写入 durable devlog 并跑通 `deep` / `release`
+- [x] EL-1 复核 control surface、README、docs 入口和门禁输出，定位真实剩余问题
+- [x] EL-2 把 `.codex/status.md` 和 `.codex/plan.md` 从旧 slice 切到 broader-repo adoption readiness
+- [x] EL-3 更新 README / README.zh-CN，明确 stable workflows 与 rollout guidance
+- [x] EL-4 写入 durable devlog，记录这次自审为什么重点收口 control truth 而不是继续加功能
+- [x] EL-5 重跑 `capability_snapshot`、`progress_snapshot`、`context_handoff`、`deep`、`release`
 
 ## Development Log Capture
 - Trigger Level: high
 - Pending Capture: no
-- Last Entry: docs/devlog/2026-04-12-make-architecture-retrofit-a-first-class-project-assistant-flow.md
+- Last Entry: docs/devlog/2026-04-12-self-review-and-broader-repo-readiness-for-project-assistant.md
 
 ## Architecture Supervision
 - Signal: `green`
-- Signal Basis: 架构整改已经有命令入口、脚本工作底稿和校验门禁，当前方向可以继续自动推进
-- Root Cause Hypothesis: 如果没有一条 architecture-first 的整改流，assistant 只会做普通整改或局部 review，难以系统性修正边界和错误层级
-- Correct Layer: architecture retrofit working note, control surface, validation gates, and command surface
+- Signal Basis: 关键 workflow 已在代表性仓库上跑通，当前主要问题是把“可用能力”和“当前真相”对齐，而不是再补结构性能力
+- Root Cause Hypothesis: 这类助手最容易在功能变多后失去 operator clarity；真正的问题不是缺功能，而是控制面和 README 没及时反映已完成的真实状态
+- Correct Layer: control truth, outward-facing README narrative, capability snapshot, and rollout guidance
 - Escalation Gate: continue automatically
 
 ## Current Escalation State
@@ -72,6 +69,11 @@
   - `.github/workflows/release-protection.yml` CI 更严格发布保护门禁
   - `validate_gate_set.py --profile release` 更严格发布保护口径
   - 人工命令面已收敛成四个主窗口：菜单 / 进展 / 架构 / 开发日志
+  - 在代表性仓库上已跑通：
+    - `项目助手 整改`
+    - `项目助手 文档整改`
+    - `项目助手 架构 整改`
+  - 当前自审已把 README、能力快照、progress、handoff、status、plan 对齐到同一 readiness truth
 - `validate_docs_system.py` 与 `sync_docs_system.py` 已落地
 - 文档规范已固化到：
   - `references/document-standards.md`
@@ -88,8 +90,8 @@
 ## In Progress
 
 - 把 `project-assistant` 从“命令驱动 skill”继续收敛成“默认自动推进的 AI 工程系统”
-- 继续把自动架构监督从控制面同步推进到更多执行触发点
-- 继续收紧人工命令面与自动开发日志边界
+- 继续观察跨项目使用时的误报、漏报和需要人工裁决的真实频率
+- 继续把 readiness / progress / handoff 做成更低摩擦的默认体验
 
 ## Blockers / Open Decisions
 
@@ -97,6 +99,6 @@
 
 ## Next 3 Actions
 
-1. 把自动架构信号继续接到更多整改与执行入口，减少“写了规则但没刷新状态”的窗口
-2. 在代表性项目上试跑 `项目助手 架构 整改`，验证 working note 和实际整改节奏是否匹配
-3. 把“现在可用能力”快照进一步做成周期性状态汇报的一部分
+1. 用这版 `project-assistant` 在下一个真实项目上执行一次完整整改，观察首轮跨项目摩擦点
+2. 收集第一批“架构整改 / 文档整改 / 普通整改”边界不清的案例，决定是否还要收紧自动升级规则
+3. 如果接下来 1-2 个项目都稳定收敛，再切下一次 release，更新对外安装 tag

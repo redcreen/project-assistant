@@ -77,6 +77,22 @@ Background flows (usually automatic):
 - Normalize durable docs into a standard system
 - Emit a compact context handoff for the next thread
 
+## Ready to Use Now
+
+Stable workflows that are already proven on representative repos:
+
+- `project assistant retrofit`
+- `project assistant docs retrofit`
+- `project assistant architecture retrofit`
+- `project assistant progress`
+- `project assistant handoff`
+
+What this means:
+
+- the skill is no longer only a planning scaffold; it has already been used to converge lightweight repos and larger doc-heavy repos
+- `progress`, `handoff`, the control surface, and validation gates now describe the same current truth
+- the next practical step is to use it on more repos and collect real friction, not to keep reshaping the core model first
+
 ## Common Workflows
 
 Default working style:
@@ -140,6 +156,9 @@ Default scope:
 - documentation retrofit
 - full Markdown-tree governance retrofit
 - validation gates
+
+Use this when the repo mainly needs convergence and cleanup.
+If the real problem is architectural drift, use `project assistant architecture retrofit` directly.
 
 ### Focus on docs only
 

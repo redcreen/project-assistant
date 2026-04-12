@@ -5,23 +5,23 @@
 `embedded architect-assistant redesign`
 
 ## Current Execution Line
-- Objective: 把“架构整改”做成一等能力，补齐命令、脚本、工作底稿和门禁
-- Plan Link: make architecture retrofit a first-class flow
-- Runway: 完成架构整改审计脚本、工作底稿、门禁、菜单入口和控制面收口
-- Progress: 8 / 8 tasks complete
+- Objective: 从更高层复核 `project-assistant` 是否已经适合对其他项目下刀，并把 control truth / README / rollout guidance 收口到一致状态
+- Plan Link: prepare project-assistant for broader repo adoption
+- Runway: 先修 control surface 的 stale truth，再补 README 的 readiness narrative，最后用 capability/progress/handoff/gates 做交叉验证
+- Progress: 5 / 5 tasks complete
 - Stop Conditions:
-  - `项目助手 架构 整改` / `project assistant architecture retrofit` 已成为正式入口
-  - `.codex/architecture-retrofit.md` 能由脚本生成并通过门禁
-  - `deep` 门禁与能力快照都能识别架构整改能力
-- Validation: `sync_architecture_retrofit.py` 在 skill 仓库上可生成可用工作底稿；`validate_architecture_retrofit.py` 通过；`deep` 通过
+  - status/plan/progress/handoff 不再停留在上一条已完成 slice
+  - README / README.zh-CN 已能直接回答“现在能用什么、何时用哪个入口”
+  - capability snapshot、`deep`、`release`、progress/handoff 都反映同一套 readiness truth
+- Validation: `capability_snapshot.py`、`progress_snapshot.py`、`context_handoff.py` 输出与控制面一致；`deep` / `release` 通过
 
 ## Architecture Supervision
 - Signal: `green`
-- Signal Basis: 架构整改已经有命令入口、脚本工作底稿和校验门禁，当前方向可继续自动推进
-- Problem Class: 普通整改和架构整改之前没有清晰分离，导致“结构散”和“方向错”容易混在一起
-- Root Cause Hypothesis: 如果没有一条 architecture-first 的整改流，assistant 只会做普通整改或局部 review，难以系统性修正边界和错误层级
-- Correct Layer: architecture retrofit working note, control surface, validation gates, and command surface
-- Rejected Shortcut: 只增加一个新命令名字，而不补工作底稿、执行策略和门禁
+- Signal Basis: 结构性能力已基本齐全，当前重点是 operator-facing truth 和推广 readiness，而不是继续扩功能
+- Problem Class: 功能增长后，控制面和 README 如果不及时同步，会让“现在做到哪、下一步做什么”重新变模糊
+- Root Cause Hypothesis: 单靠门禁通过不足以让人舒服使用；真正需要的是持续保持 outward-facing truth 与已完成能力一致
+- Correct Layer: control surface, README narrative, progress/handoff outputs, and rollout guidance
+- Rejected Shortcut: 只说“功能已经都在了”，却不收口 status/plan/README 里的过期内容
 - Escalation Gate: continue automatically
 
 ## Escalation Model
@@ -31,14 +31,11 @@
 - Require User Decision: 需要改变产品行为、兼容性边界、性能/成本取舍或用户体验方向时，必须停下来等用户裁决
 
 ## Execution Tasks
-- [x] EL-1 增加 `项目助手 架构 整改` / `project assistant architecture retrofit` 入口
-- [x] EL-2 新增 `sync_architecture_retrofit.py` 生成 `.codex/architecture-retrofit.md`
-- [x] EL-3 新增 `validate_architecture_retrofit.py`，禁止工作底稿停在模板态
-- [x] EL-4 把架构整改接入 `deep` 门禁和能力快照
-- [x] EL-5 更新 `SKILL.md`、retrofit/usage/help-menu/README/模板
-- [x] EL-6 更新控制面模板和命令速查，接入架构整改入口
-- [x] EL-7 在 skill 自己身上生成真实的架构整改工作底稿
-- [x] EL-8 写入 durable devlog 并跑通 `deep` / `release`
+- [x] EL-1 复核 control surface、README、docs 入口、能力快照和门禁输出，确认真实剩余缺口
+- [x] EL-2 把 `.codex/status.md` 和 `.codex/plan.md` 从上一条已完成 slice 切换到 broader-repo adoption readiness
+- [x] EL-3 更新 README / README.zh-CN，明确 stable workflows、代表性验证和 rollout guidance
+- [x] EL-4 写入 durable devlog，记录这次为什么优先收口 truth surfaces
+- [x] EL-5 重跑 capability/progress/handoff/`deep`/`release`，确认对外体验一致
 
 ## Development Log Capture
 - Trigger Level: high
@@ -110,3 +107,10 @@
   - Risks: 普通整改与架构整改继续混在一起；只有命令没有 working note；只有审计没有门禁
   - Validation: 架构整改工作底稿可生成且可校验；命令、模板和控制面都能识别该模式
   - Exit Condition: `项目助手 架构 整改` 已成为可执行、可验证、可恢复的一等流程
+
+- Slice: prepare project-assistant for broader repo adoption
+  - Objective: 从更高层复核 `project-assistant` 本身，把控制面、README、可用能力快照和推广姿态收口到一致状态
+  - Dependencies: representative repo validations、capability snapshot、progress/handoff outputs、README narrative
+  - Risks: gates 虽然通过，但用户仍然不知道什么已经能用、下一步是什么；README 仍像开发者视角而不够 rollout-ready
+  - Validation: status/plan/progress/handoff 对齐；README / README.zh-CN 能明确回答“现在能直接用什么、何时用哪个入口”；`deep` / `release` 继续通过
+  - Exit Condition: 这套 skill 已适合拿去处理其他真实项目，而不是还停留在“能力已经写出来但 operator truth 不够清晰”的状态
