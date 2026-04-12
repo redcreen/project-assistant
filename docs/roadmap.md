@@ -33,6 +33,14 @@ Detailed execution queue:
 | [M8](reference/project-assistant/development-plan.md#m8) | active | evaluate locale-aware internal control-surface output | handoff + command templates + validation policy | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
 | [M9](reference/project-assistant/development-plan.md#m9) | later | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
 
+## Proposed Next-Layer Milestones
+
+| Milestone | Status | Goal | Depends On | Exit Criteria |
+| --- | --- | --- | --- | --- |
+| [M10](reference/project-assistant/development-plan.md#m10) | proposed | add a strategic-evaluation layer above execution and retrofit | [M8](reference/project-assistant/development-plan.md#m8) + [M9](reference/project-assistant/development-plan.md#m9) + durable strategy proposal | the system can propose roadmap / governance / architecture adjustments without auto-changing business direction |
+| [M11](reference/project-assistant/development-plan.md#m11) | proposed | add a program-orchestration layer across multiple slices or workers | [M10](reference/project-assistant/development-plan.md#m10) + durable program board | the system can coordinate multiple related slices without constant human continuation prompts |
+| [M12](reference/project-assistant/development-plan.md#m12) | proposed | add supervised long-run delivery | [M11](reference/project-assistant/development-plan.md#m11) + stable escalation policy | long-running delivery can continue until a real business decision point instead of stopping for routine steering |
+
 ## Milestone Flow
 
 ```mermaid
@@ -61,3 +69,7 @@ flowchart LR
 | Topic | Why It Matters | When To Revisit |
 | --- | --- | --- |
 | business planning and program orchestration | evaluate whether `project-assistant` should add a higher-level planner / supervising role that can decide how the project should evolve next, when governance or architecture side-tracks should be inserted, whether earlier milestones or project positioning need to change, and how to keep humans focused on business direction instead of constant manual steering | after M8 and M9 close; discuss first, review the proposal, then turn it into a formal milestone or development-plan item |
+
+Proposal document:
+
+- [Strategic Planning And Program Orchestration Proposal](reference/project-assistant/strategic-planning-and-program-orchestration-proposal.md)

@@ -11,6 +11,24 @@
 - 需要可恢复状态、可收敛整改、可读文档的仓库
 - 需要在多轮会话里始终看清当前阶段、下一步和变化点的项目
 
+## 它现在是什么
+
+| 项目 | 当前定位 |
+| --- | --- |
+| 产品角色 | 一个面向 Codex 交付的 AI 工程操作系统 |
+| 当前最强能力 | 项目规划、整改收敛、架构监督、进展汇报、开发日志、文档治理、上下文交接 |
+| 人类仍然负责 | 业务方向、产品优先级、兼容性承诺和重大取舍 |
+| 默认工作模型 | 人类给方向；`project-assistant` 负责规划、执行、验证、更新状态，并只在需要判断时升级给人类 |
+| 还没完全补上的层 | 更高阶的战略规划 / 程序编排层，用来长期盯多个切片和多个执行器 |
+
+## 它接下来要去哪里
+
+| 时间层级 | 重点 |
+| --- | --- |
+| 当前 | 按语言优化内部控制面输出，并继续压缩恢复面体量 |
+| 下一层提案 | 战略评估、程序编排、受监督的长期自动交付 |
+| 提案入口 | [业务规划与程序编排提案](docs/reference/project-assistant/strategic-planning-and-program-orchestration-proposal.zh-CN.md) |
+
 ## 安装
 
 通过稳定 tag 一键安装：
@@ -196,6 +214,7 @@ PROJECT_ASSISTANT_REF=v0.1.1 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - [文档首页](docs/README.zh-CN.md)
 - [架构](docs/architecture.zh-CN.md)
 - [路线图](docs/roadmap.zh-CN.md)
+- [战略提案](docs/reference/project-assistant/strategic-planning-and-program-orchestration-proposal.zh-CN.md)
 - [测试计划](docs/test-plan.zh-CN.md)
 - [开发日志](docs/devlog/README.zh-CN.md)
 - [ADR 索引](docs/adr/README.zh-CN.md)

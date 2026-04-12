@@ -33,6 +33,14 @@
 | [M8](reference/project-assistant/development-plan.zh-CN.md#m8) | active | 评估按语言裁剪内部控制面的可能性 | handoff + command templates + validation policy | 中文工作流能减少冗余英文而不削弱公开文档双语 |
 | [M9](reference/project-assistant/development-plan.zh-CN.md#m9) | later | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | `项目助手 继续` 只保留最小恢复信息，不再重复 progress 内容 |
 
+## 下一层提案里程碑
+
+| 里程碑 | 状态 | 目标 | 依赖 | 退出条件 |
+| --- | --- | --- | --- | --- |
+| [M10](reference/project-assistant/development-plan.zh-CN.md#m10) | proposed | 增加位于执行层之上的战略评估层 | [M8](reference/project-assistant/development-plan.zh-CN.md#m8) + [M9](reference/project-assistant/development-plan.zh-CN.md#m9) + durable 战略提案 | 系统能提出 roadmap / 治理 / 架构调整建议，但不会越权自动改业务方向 |
+| [M11](reference/project-assistant/development-plan.zh-CN.md#m11) | proposed | 增加跨多个切片或执行器的程序编排层 | [M10](reference/project-assistant/development-plan.zh-CN.md#m10) + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
+| [M12](reference/project-assistant/development-plan.zh-CN.md#m12) | proposed | 增加受监督的长期自动交付层 | [M11](reference/project-assistant/development-plan.zh-CN.md#m11) + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点，而不是在日常调度上不断停下来 |
+
 ## 里程碑流转
 
 ```mermaid
@@ -60,3 +68,7 @@ flowchart LR
 | 主题 | 为什么重要 | 何时再讨论 |
 | --- | --- | --- |
 | 业务规划与程序编排层 | 评估 `project-assistant` 是否需要一层更高阶的规划 / 监督角色，用来判断项目后续怎么走、何时插入治理或架构专项、是否需要调整既有里程碑或项目定位，以及如何让人类更多聚焦业务方向而不是持续盯开发过程 | 等 M8 和 M9 收口后再展开；先出方案、经过 review，再决定是否转成正式里程碑或 development-plan 项目 |
+
+提案文档：
+
+- [业务规划与程序编排提案](reference/project-assistant/strategic-planning-and-program-orchestration-proposal.zh-CN.md)

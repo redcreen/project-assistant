@@ -11,6 +11,24 @@
 - Repositories that need recoverable status, convergent retrofit, and readable docs
 - Projects where current phase, next step, and change visibility must stay clear across sessions
 
+## What This Is Today
+
+| Item | Current Position |
+| --- | --- |
+| Product Role | an AI engineering delivery operating system for Codex-led work |
+| Strongest At | planning, retrofit, architecture supervision, progress reporting, development logs, documentation governance, and context handoff |
+| Human Still Owns | business direction, product priorities, compatibility promises, and major tradeoffs |
+| Default Working Model | human sets direction; `project-assistant` plans, executes, validates, updates state, and escalates only when judgment is required |
+| Not Fully Added Yet | a higher-level strategic planner / program orchestrator layer for multi-slice, long-run delivery steering |
+
+## Where It Is Going
+
+| Horizon | Focus |
+| --- | --- |
+| Current | locale-aware internal control-surface output and slimmer restore surfaces |
+| Proposed Next Layer | strategic evaluation, program orchestration, and supervised long-run delivery |
+| Proposal Entry | [Strategic Planning And Program Orchestration Proposal](docs/reference/project-assistant/strategic-planning-and-program-orchestration-proposal.md) |
+
 ## Install
 
 One-line install from a stable tag:
@@ -196,6 +214,7 @@ project assistant handoff
 - [Docs Home](docs/README.md)
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
+- [Strategic Proposal](docs/reference/project-assistant/strategic-planning-and-program-orchestration-proposal.md)
 - [Test Plan](docs/test-plan.md)
 - [Development Log](docs/devlog/README.md)
 - [ADR Index](docs/adr/README.md)

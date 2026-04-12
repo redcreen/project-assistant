@@ -44,6 +44,9 @@ It answers one practical question:
 | M7 | done | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
 | M8 | active | evaluate locale-aware internal control-surface output | handoff + command templates + validation policy | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
 | M9 | later | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
+| M10 | proposed | add a strategic-evaluation layer above execution and retrofit | M8 + M9 + durable strategy proposal | roadmap / governance / architecture adjustments become explicit proposals instead of ad hoc intuition |
+| M11 | proposed | add a program-orchestration layer across multiple slices or workers | M10 + durable program board | the system can coordinate several related slices without constant human continuation prompts |
+| M12 | proposed | add supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue until a real business decision point |
 
 ## Ordered Execution Queue
 
@@ -144,6 +147,33 @@ It answers one practical question:
 | Depends On | continue snapshot + handoff + validation policy |
 | Exit Criteria | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
 
+### M10
+
+| Item | Current Value |
+| --- | --- |
+| Status | proposed |
+| Goal | add a strategic-evaluation layer above execution and retrofit |
+| Depends On | M8 + M9 + durable strategy proposal |
+| Exit Criteria | roadmap / governance / architecture adjustments become explicit proposals instead of ad hoc intuition |
+
+### M11
+
+| Item | Current Value |
+| --- | --- |
+| Status | proposed |
+| Goal | add a program-orchestration layer across multiple slices or workers |
+| Depends On | M10 + durable program board |
+| Exit Criteria | the system can coordinate several related slices without constant human continuation prompts |
+
+### M12
+
+| Item | Current Value |
+| --- | --- |
+| Status | proposed |
+| Goal | add supervised long-run delivery |
+| Depends On | M11 + stable escalation policy |
+| Exit Criteria | long-running delivery can continue until a real business decision point |
+
 ## Current Next Step
 
 | Next Move | Why |
@@ -155,3 +185,7 @@ It answers one practical question:
 | Topic | Scope | Entry Condition |
 | --- | --- | --- |
 | business-planning and program-orchestration layer | evaluate whether `project-assistant` needs a higher-level planner / supervising role that can steer multiple Codex workstreams, decide when governance or architecture side-tracks should be inserted, detect when earlier milestones or project positioning should change, and keep humans focused on business direction while still escalating requirement changes back for review | revisit after M8 and M9 close; discuss first, review the proposal, then promote it into a formal milestone or active slice if it survives scrutiny |
+
+Proposal:
+
+- [Strategic Planning And Program Orchestration Proposal](strategic-planning-and-program-orchestration-proposal.md)

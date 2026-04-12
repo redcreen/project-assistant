@@ -44,6 +44,9 @@
 | M7 | done | 提升叙事质量与自动架构触发能力 | M6 | 整改后的手工清理更少，方向纠偏提示更少 |
 | M8 | active | 评估按语言裁剪内部控制面的可能性 | handoff + command templates + validation policy | 中文工作流能减少冗余英文而不削弱公开文档双语 |
 | M9 | later | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | `项目助手 继续` 只保留最小恢复信息，不再重复 progress 内容 |
+| M10 | proposed | 增加位于执行层之上的战略评估层 | M8 + M9 + durable 战略提案 | roadmap / 治理 / 架构调整建议成为显式提案，而不是零散直觉 |
+| M11 | proposed | 增加跨多个切片或执行器的程序编排层 | M10 + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
+| M12 | proposed | 增加受监督的长期自动交付层 | M11 + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点 |
 
 ## 顺序执行队列
 
@@ -144,6 +147,33 @@
 | 依赖 | continue snapshot + handoff + validation policy |
 | 退出条件 | `项目助手 继续` 只保留最小恢复信息，不再重复 progress 内容 |
 
+### M10
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | proposed |
+| 目标 | 增加位于执行层之上的战略评估层 |
+| 依赖 | M8 + M9 + durable 战略提案 |
+| 退出条件 | roadmap / 治理 / 架构调整建议成为显式提案，而不是零散直觉 |
+
+### M11
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | proposed |
+| 目标 | 增加跨多个切片或执行器的程序编排层 |
+| 依赖 | M10 + durable program board |
+| 退出条件 | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
+
+### M12
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | proposed |
+| 目标 | 增加受监督的长期自动交付层 |
+| 依赖 | M11 + 稳定升级策略 |
+| 退出条件 | 长期交付能持续推进到真正的业务裁决点 |
+
 ## 当前下一步
 
 | 下一步 | 为什么做 |
@@ -155,3 +185,7 @@
 | 主题 | 范围 | 进入条件 |
 | --- | --- | --- |
 | 业务规划与程序编排层 | 评估 `project-assistant` 是否需要一层更高阶的规划 / 监督角色，用来协调多个 Codex 工作流、决定何时插入治理或架构专项、识别既有里程碑或项目定位是否需要调整，并在人类主要负责业务方向时继续稳定盯住长期交付 | 等 M8 和 M9 收口后再回看；先出方案、经过 review，再决定是否提升成正式里程碑或 active slice |
+
+提案文档：
+
+- [业务规划与程序编排提案](strategic-planning-and-program-orchestration-proposal.zh-CN.md)
