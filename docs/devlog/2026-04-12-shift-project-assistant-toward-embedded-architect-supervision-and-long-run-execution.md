@@ -26,6 +26,6 @@ Updated SKILL, governance, usage, README, and control-surface files to reflect t
 
 ## Related Files
 
-- /Users/redcreen/.codex/skills/project-assistant/SKILL.md
-- /Users/redcreen/.codex/skills/project-assistant/references/governance.md
-- /Users/redcreen/.codex/skills/project-assistant/references/usage.md
+- SKILL.md
+- references/governance.md
+- references/usage.md

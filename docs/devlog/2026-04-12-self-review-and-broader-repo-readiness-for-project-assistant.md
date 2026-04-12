@@ -39,11 +39,11 @@ After the refresh:
 
 ## Validation
 
-- `python3 scripts/capability_snapshot.py /Users/redcreen/.codex/skills/project-assistant`
-- `python3 scripts/progress_snapshot.py /Users/redcreen/.codex/skills/project-assistant`
-- `python3 scripts/context_handoff.py /Users/redcreen/.codex/skills/project-assistant`
-- `python3 scripts/validate_gate_set.py /Users/redcreen/.codex/skills/project-assistant --profile deep`
-- `python3 scripts/validate_gate_set.py /Users/redcreen/.codex/skills/project-assistant --profile release`
+- `python3 scripts/capability_snapshot.py .`
+- `python3 scripts/progress_snapshot.py .`
+- `python3 scripts/context_handoff.py .`
+- `python3 scripts/validate_gate_set.py . --profile deep`
+- `python3 scripts/validate_gate_set.py . --profile release`
 
 All passed after the control truth refresh.
 

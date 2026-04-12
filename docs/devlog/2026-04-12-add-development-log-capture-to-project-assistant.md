@@ -26,6 +26,6 @@ Updated the skill docs, generated the devlog indexes, wrote this entry with the 
 
 ## Related Files
 
-- /Users/redcreen/.codex/skills/project-assistant/SKILL.md
-- /Users/redcreen/.codex/skills/project-assistant/scripts/write_development_log.py
-- /Users/redcreen/.codex/skills/project-assistant/scripts/validate_development_log.py
+- SKILL.md
+- scripts/write_development_log.py
+- scripts/validate_development_log.py

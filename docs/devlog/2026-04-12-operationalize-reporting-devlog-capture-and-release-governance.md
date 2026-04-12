@@ -25,7 +25,7 @@ sync_execution_line.py generates a valid board from the next slice in a temp rep
 
 ## Related Files
 
-- /Users/redcreen/.codex/skills/project-assistant/scripts/sync_execution_line.py
-- /Users/redcreen/.codex/skills/project-assistant/scripts/capability_snapshot.py
-- /Users/redcreen/.codex/skills/project-assistant/scripts/validate_release_readiness.py
-- /Users/redcreen/.codex/skills/project-assistant/.github/workflows/release-readiness.yml
+- scripts/sync_execution_line.py
+- scripts/capability_snapshot.py
+- scripts/validate_release_readiness.py
+- .github/workflows/release-readiness.yml

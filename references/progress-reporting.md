@@ -33,6 +33,8 @@ Use `scripts/context_handoff.py` for that when available.
 
 ## Required Output Shape
 
+Use a table-first layout for every project. Prefer tables whenever the content naturally has fields. Keep lists only for short command sets or when a table would be clearly worse.
+
 Use this layout for medium and large projects:
 
 ```md
@@ -70,6 +72,21 @@ flowchart TB
 2.
 3.
 ```
+
+For `medium` projects, prefer a maintainer-oriented view instead of pretending the repo has a large-project module map. That means:
+
+- merge "当前定位" and "当前位置" into one main table
+- explain the current slice in plain Chinese first, then keep the raw slice name as a precise label
+- add a small terminology table when the current slice uses internal terms such as `dashboard`, `triage`, `continuity`, or `watchdog`
+- prefer a `工作域视角` table over a fake module table
+- keep the AI-facing truth in `.codex/*`, but render a human-facing explanation layer on top of it
+
+For `large` projects:
+
+- keep the module view
+- still use table-first rendering for summary, current position, current long task, architecture supervision, capabilities, control abilities, and next actions
+- keep Mermaid as a secondary orientation aid, not the primary carrier of progress truth
+- add one human-language judgment row so maintainers can understand the current battlefield before reading module details
 
 For small projects, compress this into a short paragraph plus `Next 3 Actions`.
 
@@ -112,6 +129,7 @@ flowchart LR
 - prefer Chinese-first labels when the current user is interacting in Chinese
 - when possible, give clickable roadmap positions for the current phase and active slice
 - show module priority as `P0-P4`, where `P0` is the current main battlefield and `P4` is maintenance/watch mode
+- for medium projects, optimize for "future maintainer returns to the repo", not only for external readers or AI-internal terminology
 
 ## Trust Rules
 

@@ -62,6 +62,61 @@ SUBPROJECT_NAME_MAP = {
     "plugin-runtime": "插件运行时",
 }
 
+MEDIUM_SLICE_EXPLANATIONS = {
+    "operator ux snapshot depth": "给 continuity / triage 增加更短的值班快照",
+    "planning anomaly acceptance expansion": "补规划异常场景的正式验收覆盖",
+    "channel acceptance sample expansion": "补更真实的渠道样本验收覆盖",
+    "operator recovery acceptance expansion": "补运维恢复路径的正式验收覆盖",
+    "planning evidence archival convergence": "把 planning 证据收口到归档链路",
+    "runtime source-of-truth convergence": "把 runtime 双源收口到唯一 canonical source",
+    "lifecycle coordinator boundary": "把 lifecycle 责任收口到单一协调边界",
+    "post-hardening feature follow-on": "在架构加固完成后推进下一条功能增强",
+}
+
+MEDIUM_SLICE_VALUE = {
+    "operator ux snapshot depth": "值班时更快看出哪些任务卡住、哪些需要恢复。",
+    "planning anomaly acceptance expansion": "让异常场景不是只靠人工猜，而是进入正式验收。",
+    "channel acceptance sample expansion": "让渠道行为不只停留在静态矩阵，而是有可运行样本。",
+    "operator recovery acceptance expansion": "让恢复路径成为 release-facing 契约，而不是零散 helper。",
+    "planning evidence archival convergence": "让历史 planning 证据可追溯，回来看项目时不丢上下文。",
+    "runtime source-of-truth convergence": "避免维护者继续在双 runtime 树之间来回猜 canonical source。",
+    "lifecycle coordinator boundary": "把生命周期责任收口，减少后续同类修补。",
+    "post-hardening feature follow-on": "让项目从补结构切回有价值的功能增强。",
+}
+
+TERM_CATALOG = {
+    "dashboard": {
+        "label": "dashboard",
+        "meaning": "运维总览视图",
+        "when": "想先看整体状态时",
+        "current": "这是运维视图的总入口。",
+    },
+    "triage": {
+        "label": "triage",
+        "meaning": "异常分诊视图",
+        "when": "想优先看问题和处理顺序时",
+        "current": "这轮给它补了更短的快照视图。",
+    },
+    "continuity": {
+        "label": "continuity",
+        "meaning": "连续性 / 恢复视图",
+        "when": "想看哪些任务断了、卡住了、需要续跑时",
+        "current": "这轮给它补了 `--compact` 和 `--only-issues`。",
+    },
+    "watchdog": {
+        "label": "watchdog",
+        "meaning": "看门狗恢复机制",
+        "when": "想确认是否有阻塞、卡死、自动恢复提示时",
+        "current": "当前 acceptance 已覆盖它的 operator-facing 表现。",
+    },
+    "[wd]": {
+        "label": "[wd]",
+        "meaning": "runtime 接管回执",
+        "when": "想确认请求是否已进入 task-system 控制时",
+        "current": "这是主线已完成能力的一部分。",
+    },
+}
+
 EXACT_TEXT_MAP = {
     "governed execution / module-view active": "治理执行中 / 模块视角已启用",
     "stage 3: self-learning lifecycle baseline": "阶段 3：self-learning 生命周期基线",
@@ -72,10 +127,19 @@ EXACT_TEXT_MAP = {
     "none currently.": "当前无主要风险。",
     "none currently": "当前无主要风险。",
     "post-doc baseline hardening is now closed through runtime-path and registration coverage; the repo is ready to choose its next maintenance or feature slice.": "文档整改后的基线加固已通过 runtime 路径与注册路径覆盖收口；仓库已准备进入下一条维护或功能切片。",
+    "post-hardening feature work is underway; the broader release gate is still green and the latest extension slice deepened operator snapshot ux.": "后续增强正在推进；更宽的 release gate 仍保持绿色，本轮切片把 operator 短快照视图补得更深了。",
+    "deepen day-to-day operator ux by adding compact and issue-focused continuity / triage snapshots, then prove them through acceptance, docs, and broader gates": "给日常值班用的 operator 视图补更短、更聚焦问题的 continuity / triage 快照，并通过 acceptance、文档与更宽门禁把它收口。",
     "lock down plugin registration behavior so enabled/disabled, slashoverride, and command registration paths stay stable without relying on upstream host changes": "锁定插件注册行为，让启用/禁用、slashOverride 与命令注册路径保持稳定，且不依赖上游宿主改动。",
     "current execution can proceed inside the existing direction without a user-level tradeoff": "当前执行可以沿既有方向继续，不需要用户层面的额外取舍。",
     "current plugin registration boundary, config defaults, current status handler coverage": "当前插件注册边界、配置默认值与 status handler 覆盖面。",
     "low; tests may accidentally bind to incidental logger text instead of runtime behavior": "风险较低；测试可能误绑定到日志文案，而不是 runtime 行为。",
+    "add snapshot summaries and cli flags for `continuity` and `triage` without splitting runbook truth": "给 `continuity` 与 `triage` 增加 snapshot 摘要和 CLI 参数，但不分叉 runbook 真相源。",
+    "extend operator tests and acceptance so the shorter snapshot contract becomes release-facing": "扩 operator tests 与 acceptance，让较短快照 contract 进入 release-facing 验证。",
+    "refresh operator docs, devlog, and `.codex/*` so the new snapshot entrypoints are recoverable": "刷新 operator docs、devlog 与 `.codex/*`，让新的 snapshot 入口可恢复。",
+    "re-sync repo / installed runtime surfaces and rerun the broader release gate": "重新同步 repo / installed runtime 面，并重跑更宽的 release gate。",
+    "choose the next post-hardening slice from real feishu / telegram evidence capture or broader release-gate depth instead of reopening already-covered helpers.": "从真实 Feishu / Telegram 证据采集或更深的 release-gate 覆盖里选择下一条 post-hardening 切片，而不是回头重做已覆盖的 helper。",
+    "keep the new continuity / triage snapshot views aligned with stable acceptance if operator recovery wording changes again.": "如果 operator recovery 文案再变化，继续保持新的 continuity / triage 快照视图与 stable acceptance 对齐。",
+    "rerun `bash scripts/run_tests.sh` and `python3 scripts/runtime/stable_acceptance.py --json` before batching more feature-facing changes on top of this operator ux slice.": "在叠加更多面向功能的改动前，先重跑 `bash scripts/run_tests.sh` 和 `python3 scripts/runtime/stable_acceptance.py --json`。",
     "choose the next slice: user-visible feature growth vs. install/runtime hardening.": "选择下一条切片：先做用户可见功能增强，还是先做安装 / 运行时加固。",
     "if feature-first wins, define the first concrete enhancement around quota display or command ergonomics.": "如果先做功能，先明确 quota 展示或命令体验的第一条具体增强。",
     "if hardening-first wins, evaluate whether cli injection runtime patch coverage should be the next checkpoint.": "如果先做加固，评估 CLI 注入 runtime patch 覆盖是否应成为下一检查点。",
@@ -555,7 +619,9 @@ def readme_capability_sections(repo: Path) -> tuple[Path | None, list[str], list
     core = bullet_lines(
         section(text, "当前系统能做什么")
         or section(text, "核心能力")
+        or section(text, "已交付能力地图")
         or section(text, "Core Capabilities")
+        or section(text, "Shipped Capability Map")
         or section(text, "What It Can Do")
     )
     phase_section = section(text, "为什么 Self-Learning 现在就重要") or section(text, "Why Self-Learning Already Matters")
@@ -667,6 +733,503 @@ def project_display_name(repo: Path) -> str:
     return repo.name
 
 
+def medium_mainline_status_zh(repo: Path) -> str:
+    readme = read_text(repo / "README.zh-CN.md") or read_text(repo / "README.md")
+    roadmap = read_text(repo / "docs/roadmap.zh-CN.md") or read_text(repo / "docs/roadmap.md")
+    if "后续剩余工作属于扩展方向，不是主线欠账" in readme or "remaining work is extension work, not unfinished mainline debt" in readme.lower():
+        return "主线 Phase 0-6 已完成；当前在做主线全部完成后的扩展与增强。"
+    if "mainline roadmap is complete" in readme.lower() or "正式主线 roadmap 已完成" in readme:
+        return "主线已完成；当前在做后续扩展与增强。"
+    if "后续收口" in roadmap or "current extension areas" in roadmap.lower():
+        return "主线已完成；当前在做后续增强与边界收口。"
+    return "当前处于持续推进中。"
+
+
+def medium_work_area_zh(active_slice: str, execution_line: str) -> str:
+    lowered = f"{active_slice} {execution_line}".lower()
+    if any(token in lowered for token in ["operator", "dashboard", "triage", "continuity", "main_ops", "watchdog"]):
+        return "运维视图增强"
+    if any(token in lowered for token in ["planning", "acceptance", "stable_acceptance", "channel", "release gate"]):
+        return "规划与验收增强"
+    if any(token in lowered for token in ["install", "runtime_mirror", "drift", "canonical", "source-of-truth", "mirror"]):
+        return "安装与同步增强"
+    if any(token in lowered for token in ["lifecycle", "runtime", "queue", "task truth", "session"]):
+        return "运行时边界增强"
+    return "后续增强"
+
+
+def medium_slice_explanation_zh(active_slice: str, execution_line: str) -> str:
+    lowered = active_slice.lower().strip()
+    if lowered in MEDIUM_SLICE_EXPLANATIONS:
+        return MEDIUM_SLICE_EXPLANATIONS[lowered]
+    if "continuity" in execution_line.lower() or "triage" in execution_line.lower():
+        return "给 continuity / triage 增加更短的值班快照"
+    if "planning" in lowered:
+        return "补 planning 相关的正式验收或恢复覆盖"
+    if "channel" in lowered:
+        return "补渠道行为的真实样本和正式验收覆盖"
+    if "runtime" in lowered or "source-of-truth" in lowered:
+        return "收口 runtime 边界，减少后续维护时的猜测成本"
+    return pretty_text_zh(active_slice)
+
+
+def medium_direct_value_zh(active_slice: str, execution_line: str) -> str:
+    lowered = active_slice.lower().strip()
+    if lowered in MEDIUM_SLICE_VALUE:
+        return MEDIUM_SLICE_VALUE[lowered]
+    if "continuity" in execution_line.lower() or "triage" in execution_line.lower():
+        return "值班时更快看出哪些任务卡住、哪些需要恢复。"
+    if "planning" in lowered:
+        return "让 planning 边界不只靠口头约定，而是进入正式验证。"
+    if "channel" in lowered:
+        return "让渠道行为对维护者来说更可验证、更少凭感觉。"
+    if "runtime" in lowered:
+        return "减少维护者在 runtime 边界和 source-of-truth 上反复猜测。"
+    return "让下一次回来看项目时更容易接手。"
+
+
+def usage_links(repo: Path) -> dict[str, str]:
+    usage = preferred_existing_path(repo, ["docs/usage_guide.zh-CN.md", "docs/usage_guide.md"])
+    links: dict[str, str] = {}
+    if not usage:
+        return links
+    for term in ["dashboard", "triage", "continuity", "watchdog"]:
+        line = line_number_for_query(usage, [term])
+        if line:
+            links[term] = markdown_file_link(usage, "使用指南", line)
+    return links
+
+
+def relevant_terms(repo: Path, active_slice: str, execution_line: str, readme_capabilities: list[str]) -> list[dict[str, str]]:
+    corpus = " ".join([active_slice, execution_line] + readme_capabilities).lower()
+    links = usage_links(repo)
+    rows: list[dict[str, str]] = []
+    for key in ["dashboard", "triage", "continuity", "watchdog", "[wd]"]:
+        if key.lower() in corpus or key == "[wd]":
+            meta = TERM_CATALOG[key]
+            rows.append(
+                {
+                    "term": meta["label"],
+                    "meaning": meta["meaning"],
+                    "when": meta["when"],
+                    "current": meta["current"],
+                    "source": links.get(key, "暂无"),
+                }
+            )
+    return rows
+
+
+def split_medium_capabilities(repo: Path, readme_capabilities: list[str]) -> list[tuple[str, str, str, str]]:
+    readme_path = preferred_existing_path(repo, ["README.zh-CN.md", "README.md"])
+    source = markdown_file_link(readme_path, "README") if readme_path else "暂无"
+    rows: list[tuple[str, str, str, str]] = []
+    for item in readme_capabilities:
+        lowered = item.lower()
+        audience = "维护者" if any(
+            token in lowered
+            for token in ["dashboard", "triage", "continuity", "planning", "producer contract", "channel acceptance", "ops", "watchdog"]
+        ) else "普通用户"
+        rows.append((audience, pretty_text_zh(item), "已可直接使用", source))
+    return rows
+
+
+def medium_workstream_rows(repo: Path, active_slice: str) -> list[tuple[str, str, str, str, str, str]]:
+    lowered = active_slice.lower()
+    current_operator = "补 continuity / triage 短快照" if "operator" in lowered or "triage" in lowered or "continuity" in lowered else "维持稳定"
+    next_operator = "转向真实渠道证据或更深 release gate" if "operator" in lowered or "triage" in lowered or "continuity" in lowered else "按下一条切片推进"
+    return [
+        ("主线运行时", "核心 task-system 能力本体", "已完成", "P2", "维持稳定", "只做回归"),
+        ("运维视图", "给维护者 / 值班者看的观察与恢复视图", "活跃", "P0" if "operator" in lowered or "triage" in lowered or "continuity" in lowered else "P1", current_operator, next_operator),
+        ("规划与验收", "planning / acceptance / release-facing 验证", "活跃", "P1", "保持 acceptance 与当前视图同步", "扩更多真实或半真实样本"),
+        ("安装与同步", "repo runtime 与安装态 runtime 的一致性", "稳定", "P2", "维持 canonical source 规则", "只做回归"),
+    ]
+
+
+def execution_task_rows(task_lines: list[str]) -> list[tuple[str, str, str]]:
+    rows: list[tuple[str, str, str]] = []
+    for line in task_lines:
+        stripped = line.strip()
+        match = re.match(r"-\s*\[(?P<mark>[ xX])\]\s*(?P<id>EL-\d+)\s*(?P<body>.*)", stripped)
+        if match:
+            status = "已完成" if match.group("mark").lower() == "x" else "待完成"
+            rows.append((match.group("id"), status, pretty_text_zh(match.group("body").strip())))
+            continue
+        rows.append(("任务", "已记录", pretty_text_zh(display_execution_task(line))))
+    return rows
+
+
+def human_window_rows_zh() -> list[tuple[str, str]]:
+    return [
+        ("`项目助手 菜单`", "查看主入口和当前可用窗口"),
+        ("`项目助手 进展`", "查看完整项目进展面板"),
+        ("`项目助手 架构`", "单独拉出架构监督 / 根因 / 复盘入口"),
+        ("`项目助手 开发日志`", "查看或补记关键开发结论"),
+    ]
+
+
+def large_project_judgement_zh(phase_display: str, active_module: str, active_slice_display: str) -> str:
+    slice_phrase = active_slice_display
+    if slice_phrase.startswith("推进"):
+        slice_phrase = slice_phrase.removeprefix("推进").strip()
+    if "治理执行" in phase_display:
+        if active_module:
+            return f"项目已进入治理执行阶段；当前主战场是 {module_display_name_zh(active_module)}，正在推进 {slice_phrase}。"
+        return f"项目已进入治理执行阶段；当前正在推进 {slice_phrase}。"
+    if "阶段 3" in phase_display:
+        if active_module:
+            return f"{phase_display} 已进入执行；当前主战场是 {module_display_name_zh(active_module)}，正在推进 {slice_phrase}。"
+        return f"{phase_display} 已进入执行；当前正在推进 {slice_phrase}。"
+    if active_module:
+        return f"{phase_display} 已进入执行；当前主战场是 {module_display_name_zh(active_module)}，正在推进 {slice_phrase}。"
+    return f"{phase_display} 已进入执行；当前正在推进 {slice_phrase}。"
+
+
+def large_direct_value_zh(active_module: str, current_execution_line: str, active_slice_display: str) -> str:
+    mapping = {
+        "source-system": "让输入来源更稳定进入系统，而不是散落在各处。",
+        "reflection-system": "让学习输入更稳定地转成候选与后续可晋升内容。",
+        "memory-registry": "把记忆真相源收口，减少后续迁移和冲突。",
+        "projection-system": "让导出给消费者的结果更稳定、更容易被策略消费。",
+        "governance-system": "让问题更早通过治理信号暴露，而不是靠人工临时发现。",
+        "openclaw-adapter": "把 OpenClaw 侧的召回结果做得更稳定、更可控、更容易解释。",
+        "codex-adapter": "让 Codex 侧也能稳定消费同一套共享记忆根。",
+    }
+    if active_module in mapping:
+        return mapping[active_module]
+    if current_execution_line:
+        return pretty_text_zh(current_execution_line)
+    return f"让维护者更容易理解并继续推进 {active_slice_display}。"
+
+
+def render_medium_progress(
+    repo: Path,
+    project_name: str,
+    current_phase: str,
+    active_slice: str,
+    current_execution_line: str,
+    done_tasks: int,
+    total_tasks: int,
+    architecture_signal: str,
+    escalation_gate: str,
+    main_risk: str,
+    phase_link: str,
+    slice_link: str,
+    readme_capabilities: list[str],
+    next_actions_display: list[str],
+    execution_tasks: list[str],
+) -> None:
+    current_phase_display = pretty_text_zh(current_phase)
+    execution_line_display = pretty_text_zh(current_execution_line or "n/a")
+    work_area = medium_work_area_zh(active_slice, current_execution_line)
+    slice_explanation = medium_slice_explanation_zh(active_slice, current_execution_line)
+    direct_value = medium_direct_value_zh(active_slice, current_execution_line)
+    roadmap_path = preferred_existing_path(repo, ["docs/roadmap.zh-CN.md", "docs/roadmap.md"])
+    plan_path = repo / ".codex/plan.md"
+    status_path = repo / ".codex/status.md"
+    usage_path = preferred_existing_path(repo, ["docs/usage_guide.zh-CN.md", "docs/usage_guide.md"])
+    test_plan_path = preferred_existing_path(repo, ["docs/test-plan.zh-CN.md", "docs/test-plan.md"])
+
+    current_phase_link = phase_link
+    if roadmap_path:
+        current_phase_line = (
+            line_number_for_heading(roadmap_path, "当前 / 下一步 / 更后面")
+            or line_number_for_heading(roadmap_path, "Current / Next / Later")
+            or line_number_for_heading(roadmap_path, "Status")
+        )
+        if current_phase_line:
+            current_phase_link = markdown_file_link(roadmap_path, "路线图 / 当前阶段", current_phase_line)
+
+    print("# 项目进展\n")
+    print("## 一眼总览")
+    print("| 问题 | 当前答案 |")
+    print("| --- | --- |")
+    print(f"| 项目 | `{project_name}` |")
+    print(f"| 当前判断 | `{medium_mainline_status_zh(repo)}` |")
+    print(f"| 当前阶段 | `{current_phase_display}` |")
+    print(f"| 当前工作域 | `{work_area}` |")
+    print(f"| 当前切片 | `{slice_explanation}` |")
+    print(f"| 当前执行进度 | `{done_tasks} / {total_tasks}` |")
+    print(f"| 架构信号 | `{zh_signal(architecture_signal or 'n/a')}` |")
+    print(f"| 直接价值 | `{direct_value}` |")
+    print(f"| 当前主要风险 | `{pretty_text_zh(main_risk)}` |")
+
+    print("\n## 当前定位")
+    print("| 维度 | 当前状态 | 说明 | 入口 |")
+    print("| --- | --- | --- | --- |")
+    print(f"| 主线状态 | `{medium_mainline_status_zh(repo)}` | 不是补主线欠债，而是在主线完成后继续增强 | {markdown_file_link(roadmap_path, '路线图') if roadmap_path else '暂无'} |")
+    print(f"| 当前阶段 | `{current_phase_display}` | 当前主要在补增强与边界收口 | {current_phase_link if current_phase_link != 'n/a' else '暂无'} |")
+    print(f"| 当前工作域 | `{work_area}` | 当前这轮主要面向维护者 / 值班者的使用体验与验证链路 | {markdown_file_link(usage_path, '使用指南') if usage_path else '暂无'} |")
+    print(f"| 当前切片 | `{slice_explanation}` | 原始切片名：`{active_slice}` | {slice_link if slice_link != 'n/a' else markdown_file_link(plan_path, '计划') if plan_path.exists() else '暂无'} |")
+    print(f"| 当前执行线 | `{execution_line_display}` | 当前这轮已经完成，下一步转向下一条增强切片 | {markdown_file_link(status_path, '状态') if status_path.exists() else '暂无'} |")
+
+    print("\n## 当前这轮到底在做什么")
+    print("| 项目 | 当前内容 | 对维护者的直接价值 | 当前状态 |")
+    print("| --- | --- | --- | --- |")
+    rows = [
+        ("continuity --compact", "给连续性 / 恢复视图补短快照", "值班时能快速扫一眼哪些任务断了、卡了、需要续跑", "已完成"),
+        ("continuity --only-issues", "只保留真正要动作的问题", "不用读一堆正常状态，直接看异常", "已完成"),
+        ("triage --compact", "给分诊视图补短快照", "更快知道“先处理什么”", "已完成"),
+        ("acceptance 覆盖", "把这些短视图纳入 release-facing acceptance", "防止短视图只是方便，但不受正式验证保护", "已完成"),
+        ("docs / control surface", "把这轮变化写回 docs 与 `.codex`", "以后维护者回来能直接看懂，不依赖这次聊天", "已完成"),
+    ]
+    for label, current, value, state in rows:
+        print(f"| `{label}` | {current} | {value} | {state} |")
+
+    glossary_rows = relevant_terms(repo, active_slice, current_execution_line, readme_capabilities)
+    if glossary_rows:
+        print("\n## 关键术语解释")
+        print("| 术语 | 中文解释 | 什么时候看它 | 当前与它的关系 |")
+        print("| --- | --- | --- | --- |")
+        for row in glossary_rows:
+            print(f"| `{row['term']}` | {row['meaning']} | {row['when']} | {row['current']} |")
+
+    capability_rows = split_medium_capabilities(repo, readme_capabilities)
+    if capability_rows:
+        print("\n## 当前系统能做什么")
+        print("| 面向谁 | 已能做什么 | 当前状态 | 来源 |")
+        print("| --- | --- | --- | --- |")
+        for audience, capability, state, source in capability_rows[:8]:
+            print(f"| {audience} | {capability} | {state} | {source} |")
+
+    print("\n## 工作域视角")
+    print("| 工作域 | 这是干什么的 | 当前状态 | 优先级 | 当前在做什么 | 下一步 |")
+    print("| --- | --- | --- | --- | --- | --- |")
+    for domain, purpose, state, priority, current, next_step in medium_workstream_rows(repo, active_slice):
+        print(f"| {domain} | {purpose} | {state} | {priority} | {current} | {next_step} |")
+
+    print("\n## 当前长任务")
+    print("| 项目 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 长任务名称 | `{active_slice}` |")
+    print(f"| 长任务目标 | `{slice_explanation}` |")
+    print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
+    print(f"| 当前结论 | `这条长任务已经完成` |")
+    print(f"| 是否存在 blocker | `{pretty_text_zh(main_risk)}` |")
+    print("| 下一步性质 | `进入下一条 post-hardening feature slice` |")
+
+    task_rows = execution_task_rows(execution_tasks)
+    if task_rows:
+        print("\n## 当前任务板")
+        print("| 任务 ID | 状态 | 任务内容 |")
+        print("| --- | --- | --- |")
+        for task_id, state, content in task_rows:
+            print(f"| {task_id} | {state} | {content} |")
+
+    print("\n## 项目控制能力")
+    print("| 能力 | 状态 |")
+    print("| --- | --- |")
+    print("| 恢复当前状态与下一步 | 已就绪 |")
+    print("| 长任务执行线与可见任务板 | 已就绪 |")
+    print("| 默认架构监督与升级 gate | 已就绪 |")
+    print("| 文档整改与 Markdown 治理 | 已就绪 |")
+    print("| 开发日志索引与自动沉淀 | 已就绪 |")
+    print("| 公开文档中英文切换 | 已就绪 |")
+
+    print("\n## 人工窗口")
+    print("| 命令 | 用途 |")
+    print("| --- | --- |")
+    for command, purpose in human_window_rows_zh():
+        print(f"| {command} | {purpose} |")
+
+    print("\n## 接下来要做什么")
+    print("| 下一步 | 为什么做 | 对应入口 |")
+    print("| --- | --- | --- |")
+    next_rows: list[tuple[str, str, str]] = []
+    if next_actions_display:
+        action_sources = [
+            markdown_file_link(status_path, "状态") if status_path.exists() else "暂无",
+            markdown_file_link(test_plan_path, "测试计划") if test_plan_path else "暂无",
+            markdown_file_link(usage_path, "使用指南") if usage_path else "暂无",
+        ]
+        reason_defaults = [
+            "避免继续在已完成的 helper 上打转",
+            "防止短视图和正式发布验证漂移",
+            "避免带着回归风险前进",
+        ]
+        for idx, action in enumerate(next_actions_display[:3]):
+            next_rows.append((action, reason_defaults[min(idx, len(reason_defaults) - 1)], action_sources[min(idx, len(action_sources) - 1)]))
+    for action, reason, source in next_rows:
+        print(f"| {action} | {reason} | {source} |")
+    print("| 如果要看完整全局视图 | 使用更完整的项目进展输出 | `项目助手 进展` |")
+
+
+def render_large_progress(
+    repo: Path,
+    project_name: str,
+    tier: str,
+    current_phase: str,
+    active_slice: str,
+    current_execution_line: str,
+    architecture_signal: str,
+    signal_basis: str,
+    root_cause_hypothesis: str,
+    correct_layer: str,
+    escalation_gate: str,
+    escalation_reason: str,
+    execution_tasks: list[str],
+    done_tasks: int,
+    total_tasks: int,
+    capabilities: list[tuple[str, str]],
+    next_actions_display: list[str],
+    main_risk: str,
+    active_module: str,
+    phase_link: str,
+    slice_link: str,
+    roadmap_path: Path | None,
+    project_roadmap_path: Path | None,
+    readme_capabilities: list[str],
+    phase_capabilities: list[str],
+    official_modules: list[str],
+    module_summaries: list[dict[str, str]],
+    subproject_rows: list[tuple[str, str, str]],
+) -> None:
+    phase_display = pretty_text_zh(current_phase)
+    active_slice_display = pretty_text_zh(active_slice)
+    execution_line_display = pretty_text_zh(current_execution_line or "n/a")
+    judgment = large_project_judgement_zh(phase_display, active_module, active_slice_display)
+    direct_value = large_direct_value_zh(active_module, current_execution_line, active_slice_display)
+
+    print("# 项目进展\n")
+    print("## 一眼总览")
+    print("| 问题 | 当前答案 |")
+    print("| --- | --- |")
+    print(f"| 项目 | `{project_name}` |")
+    print(f"| 层级 | `{zh_tier(tier)}` |")
+    print(f"| 当前判断 | `{judgment}` |")
+    print(f"| 当前阶段 | `{phase_display}` |")
+    if active_module:
+        print(f"| 当前主战场 | `{module_display_name_zh(active_module)}` |")
+    print(f"| 当前切片 | `{active_slice_display}` |")
+    print(f"| 当前执行线 | `{execution_line_display}` |")
+    print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
+    print(f"| 架构信号 | `{zh_signal(architecture_signal or 'n/a')}` |")
+    print(f"| 直接价值 | `{direct_value}` |")
+    print(f"| 当前主要风险 | `{pretty_text_zh(main_risk)}` |")
+
+    print("\n## 当前定位")
+    print("| 项目位置 | 当前值 | 说明 | 链接 |")
+    print("| --- | --- | --- | --- |")
+    print(f"| 当前阶段 | `{phase_display}` | 当前所处的大阶段 | {phase_link if phase_link != 'n/a' else '暂无'} |")
+    print(f"| 当前切片 | `{active_slice_display}` | 当前真正推进的工作单元 | {slice_link if slice_link != 'n/a' else '暂无'} |")
+    print(f"| 当前执行线 | `{execution_line_display}` | 这一轮长任务的人话说明 | 暂无 |")
+    if active_module:
+        print(f"| 当前模块 | `{module_display_name_zh(active_module)}` | 当前主战场 | 暂无 |")
+    if roadmap_path:
+        print(f"| 总路线图 | `docs/roadmap` | 项目总阶段和 now/next/later | {markdown_file_link(roadmap_path, 'docs/roadmap')} |")
+    if project_roadmap_path:
+        print(f"| 工作流路线图 | `project roadmap` | 当前工作流与焦点位置 | {markdown_file_link(project_roadmap_path, 'project roadmap')} |")
+
+    print("\n## 全局视角")
+    print("| 区域 | 当前状态 | 当前焦点 | 退出条件 |")
+    print("| --- | --- | --- | --- |")
+    print(f"| 项目整体 | {phase_display or '暂无'} | {active_slice_display or '暂无'} | 在不丢失模块视角和治理清晰度的前提下推进当前切片 |")
+
+    print("\n## 当前长任务")
+    print("| 项目 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 长任务名称 | `{active_slice_display}` |")
+    print(f"| 长任务目标 | `{execution_line_display}` |")
+    print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
+    print(f"| 当前结论 | `当前切片已经推进到当前检查点` |")
+    print(f"| 是否存在 blocker | `{pretty_text_zh(main_risk)}` |")
+    print(f"| 下一步性质 | `{pretty_text_zh(next_actions_display[0]) if next_actions_display else '继续推进当前阶段'}` |")
+
+    if execution_tasks:
+        print("\n## 当前任务板")
+        print("| 任务 ID | 状态 | 任务内容 |")
+        print("| --- | --- | --- |")
+        for task_id, state, content in execution_task_rows(execution_tasks):
+            print(f"| {task_id} | {state} | {content} |")
+
+    print("\n## 架构监督")
+    print("| 项目 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 信号 | `{zh_signal(architecture_signal)}` |")
+    print(f"| 根因假设 | {pretty_text_zh(root_cause_hypothesis)} |")
+    print(f"| 正确落层 | {pretty_text_zh(correct_layer)} |")
+    print(f"| 信号依据 | {pretty_text_zh(signal_basis)} |")
+    print(f"| 升级门 | `{zh_gate(escalation_gate)}` |")
+    print(f"| 升级原因 | {pretty_text_zh(escalation_reason)} |")
+
+    if readme_capabilities or phase_capabilities:
+        readme_path = preferred_existing_path(repo, ["README.zh-CN.md", "README.md"])
+        readme_source = markdown_file_link(readme_path, "README") if readme_path else "暂无"
+        phase_source = readme_source
+        if readme_path:
+            phase_line = line_number_for_heading(readme_path, "为什么 Self-Learning 现在就重要") or line_number_for_heading(
+                readme_path, "Why Self-Learning Already Matters"
+            )
+            if phase_line:
+                phase_source = markdown_file_link(readme_path, "README / 当前阶段基线", phase_line)
+        print("\n## 当前系统能做什么")
+        print("| 能力 / 结论 | 当前状态 | 来源 |")
+        print("| --- | --- | --- |")
+        for item in readme_capabilities[:6]:
+            print(f"| {pretty_text_zh(item)} | 已可直接使用 | {readme_source} |")
+        for item in phase_capabilities[:4]:
+            print(f"| {pretty_text_zh(item)} | 当前阶段已落地 | {phase_source} |")
+
+    if capabilities:
+        print("\n## 项目控制能力")
+        print("| 能力 | 状态 |")
+        print("| --- | --- |")
+        for _, label in capabilities:
+            print(f"| {label} | 已就绪 |")
+
+    print("\n## 人工窗口")
+    print("| 命令 | 用途 |")
+    print("| --- | --- |")
+    for command, purpose in human_window_rows_zh():
+        print(f"| {command} | {purpose} |")
+
+    average_completion = round(
+        sum(int(summary["completion_percent"]) for summary in module_summaries) / len(module_summaries)
+    ) if module_summaries else 0
+    print("\n## 模块总览")
+    print("| 指标 | 当前值 |")
+    print("| --- | --- |")
+    print(f"| 官方模块数 | `{len(official_modules)}` |")
+    print(f"| 平均完成度 | `{average_completion}%` |")
+    print(f"| 当前投入分布 | {module_health_breakdown(module_summaries)} |")
+    print("| 优先级说明 | `P0` 当前主战场，`P1` 下一批高优先级，`P2` 持续治理，`P3` 稳定维护，`P4` 观察/维护 |")
+
+    print("\n## 模块视角")
+    print("| 模块 | 优先级 | 当前状态 | 完成度 | 已有能力 | 剩余步骤 | 下一检查点 |")
+    print("| --- | --- | --- | --- | --- | --- | --- |")
+    for module, summary in zip(official_modules, module_summaries):
+        print(
+            f"| {module_display_name_zh(module)} | {summary['priority']} | {zh_status(summary['status'])} | {summary['completion_percent']}% ({zh_band(summary['completion_band'])}) | {summary['implemented']} | {summary['remaining']} | {summary['next_checkpoint']} |"
+        )
+
+    print("\n## 模块位置图")
+    print("```mermaid")
+    print("flowchart TB")
+    print(f'    P["{project_name}"]')
+    for module, summary in zip(official_modules, module_summaries):
+        label = module_display_name_zh(module)
+        priority = summary["priority"]
+        status_label = f"{priority} / {summary['completion_percent']}%"
+        node_id = re.sub(r"[^A-Za-z0-9]+", "", module.title()) or "Module"
+        print(f'    P --> {node_id}["{label}\\n{status_label}"]')
+    print("```")
+
+    if subproject_rows:
+        print("\n## 横切工作流")
+        print("| 工作流 | 当前切片 | 下一检查点 |")
+        print("| --- | --- | --- |")
+        for name, current_slice, next_checkpoint in subproject_rows:
+            print(f"| {name} | {current_slice or '暂无'} | {next_checkpoint or '暂无'} |")
+
+    print("\n## 接下来要做什么")
+    print("| 下一步 | 为什么做 | 对应入口 |")
+    print("| --- | --- | --- |")
+    status_path = repo / ".codex/status.md"
+    for idx, item in enumerate(next_actions_display[:3]):
+        reason = "保持当前阶段继续收敛" if idx == 0 else "避免方向漂移并保持验证同步" if idx == 1 else "在继续扩展前先确认门禁与治理决策"
+        print(f"| {item} | {reason} | {markdown_file_link(status_path, '状态')} |")
+    print("| 如果要看完整全局视图 | 当前已经是完整项目进展面板 | `项目助手 进展` |")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Render a quick markdown progress snapshot from the control surface.")
     parser.add_argument("repo", type=Path, help="Repository root")
@@ -708,101 +1271,25 @@ def main() -> int:
     execution_line_display = pretty_text_zh(current_execution_line or "n/a")
     next_actions_display = numbered_actions_zh(next_actions)
 
-    print("# 项目进展\n")
-    print("## 一眼总览")
-    print(f"- 项目: `{project_name}`")
-    print(f"- 层级: `{zh_tier(tier)}`")
-    print(f"- 当前阶段: `{phase_display}`")
-    print(f"- 当前切片: `{active_slice_display}`")
-    print(f"- 当前执行线: `{execution_line_display}`")
-    print(f"- 执行进度: `{done_tasks} / {total_tasks}`")
-    print(f"- 架构信号: `{zh_signal(architecture_signal or 'n/a')}`")
-    print(f"- 升级门: `{zh_gate(escalation_gate or 'n/a')}`")
-    print(f"- 当前主要风险: {pretty_text_zh(main_risk)}")
-
-    print("\n## 当前位置")
-    print("| 项目位置 | 当前值 | 链接 |")
-    print("| --- | --- | --- |")
-    print(f"| 当前阶段 | `{phase_display}` | {pretty_text_zh(phase_link) if phase_link == 'n/a' else phase_link} |")
-    print(f"| 当前切片 | `{active_slice_display}` | {pretty_text_zh(slice_link) if slice_link == 'n/a' else slice_link} |")
-    print(f"| 当前执行线 | `{execution_line_display}` | 暂无 |")
-    if active_module:
-        print(f"| 当前模块 | `{module_display_name_zh(active_module)}` | 暂无 |")
-    if roadmap_path:
-        print(f"| 总路线图 | `docs/roadmap` | {markdown_file_link(roadmap_path, 'docs/roadmap')} |")
-    if project_roadmap_path:
-        print(f"| 工作流路线图 | `project roadmap` | {markdown_file_link(project_roadmap_path, 'project roadmap')} |")
-
-    print("\n## 全局视角")
-    print("| 区域 | 当前状态 | 当前焦点 | 退出条件 |")
-    print("| --- | --- | --- | --- |")
-    print(f"| 项目整体 | {phase_display or '暂无'} | {active_slice_display or '暂无'} | 在不丢失模块视角和治理清晰度的前提下推进当前切片 |")
-
-    if current_execution_line:
-        print("\n## 当前执行线")
-        print(f"- 目标: {execution_line_display}")
-        print(f"- 关联切片: `{active_slice_display or '暂无'}`")
-        if execution_tasks:
-            print(f"- 进度: {done_tasks} / {total_tasks}")
-            print("- 任务板:")
-            for item in execution_tasks:
-                print(f"  - {display_execution_task_zh(item)}")
-
-    if architecture_signal or escalation_gate or root_cause_hypothesis or correct_layer:
-        print("\n## 架构监督")
-        if architecture_signal:
-            print(f"- 信号: {zh_signal(architecture_signal)}")
-        if root_cause_hypothesis:
-            print(f"- 根因假设: {pretty_text_zh(root_cause_hypothesis)}")
-        if correct_layer:
-            print(f"- 正确落层: {pretty_text_zh(correct_layer)}")
-        if signal_basis:
-            print(f"- 信号依据: {pretty_text_zh(signal_basis)}")
-        if escalation_gate:
-            print(f"- 升级门: {zh_gate(escalation_gate)}")
-        if escalation_reason:
-            print(f"- 升级原因: {pretty_text_zh(escalation_reason)}")
-
-    if readme_capabilities or phase_capabilities:
-        print("\n## 当前系统能做什么")
-        readme_source = "n/a"
-        phase_source = "n/a"
-        roadmap_source = "n/a"
-        if readme_path:
-            core_line = line_number_for_heading(readme_path, "核心能力") or line_number_for_heading(readme_path, "Core Capabilities")
-            readme_source = markdown_file_link(readme_path, "README / 核心能力", core_line) if core_line else markdown_file_link(
-                readme_path, "README"
-            )
-            phase_line = line_number_for_heading(readme_path, "为什么 Self-Learning 现在就重要") or line_number_for_heading(
-                readme_path, "Why Self-Learning Already Matters"
-            )
-            if phase_line:
-                phase_source = markdown_file_link(readme_path, "README / 当前阶段基线", phase_line)
-        if roadmap_path:
-            now_line = (
-                line_number_for_heading(roadmap_path, "Now / Next / Later")
-                or line_number_for_heading(roadmap_path, "现在 / 下一步 / 后续")
-                or line_number_for_heading(roadmap_path, "当前 / 下一步 / 更后面")
-            )
-            if now_line:
-                roadmap_source = markdown_file_link(roadmap_path, "Roadmap / Now-Next-Later", now_line)
-        print("| 能力 / 结论 | 当前状态 | 来源 |")
-        print("| --- | --- | --- |")
-        for item in readme_capabilities[:6]:
-            print(f"| {pretty_text_zh(item)} | 已可直接使用 | {readme_source} |")
-        for item in phase_capabilities[:4]:
-            print(f"| {pretty_text_zh(item)} | 当前阶段已落地 | {phase_source if phase_source != 'n/a' else roadmap_source} |")
-
-    if capabilities:
-        print("\n## 项目控制能力")
-        print("| 能力 | 状态 |")
-        print("| --- | --- |")
-        for _, label in capabilities:
-            print(f"| {label} | 已就绪 |")
-
-    print("\n## 人工窗口")
-    for item in human_windows:
-        print(f"- `{item}`")
+    if tier == "medium":
+        render_medium_progress(
+            repo=repo,
+            project_name=project_name,
+            current_phase=current_phase,
+            active_slice=active_slice,
+            current_execution_line=current_execution_line,
+            done_tasks=done_tasks,
+            total_tasks=total_tasks,
+            architecture_signal=architecture_signal,
+            escalation_gate=escalation_gate,
+            main_risk=main_risk,
+            phase_link=phase_link,
+            slice_link=slice_link,
+            readme_capabilities=readme_capabilities,
+            next_actions_display=next_actions_display,
+            execution_tasks=execution_tasks,
+        )
+        return 0
 
     module_dir = repo / ".codex/modules"
     official_modules = parse_official_modules(repo)
@@ -825,52 +1312,39 @@ def main() -> int:
             summary["priority"] = module_priority(module, summary, active_module, horizon_focus)
             module_summaries.append(summary)
 
-        average_completion = round(
-            sum(int(summary["completion_percent"]) for summary in module_summaries) / len(module_summaries)
-        )
-
-        print("\n## 模块总览")
-        print("| 指标 | 当前值 |")
-        print("| --- | --- |")
-        print(f"| 官方模块数 | `{len(official_modules)}` |")
-        print(f"| 平均完成度 | `{average_completion}%` |")
-        print(f"| 当前投入分布 | {module_health_breakdown(module_summaries)} |")
-        print("| 优先级说明 | `P0` 当前主战场，`P1` 下一批高优先级，`P2` 持续治理，`P3` 稳定维护，`P4` 观察/维护 |")
-
-        print("\n## 模块视角")
-        print("| 模块 | 优先级 | 当前状态 | 完成度 | 已有能力 | 剩余步骤 | 下一检查点 |")
-        print("| --- | --- | --- | --- | --- | --- | --- |")
-        for module, summary in zip(official_modules, module_summaries):
-            print(
-                f"| {module_display_name_zh(module)} | {summary['priority']} | {zh_status(summary['status'])} | {summary['completion_percent']}% ({zh_band(summary['completion_band'])}) | {summary['implemented']} | {summary['remaining']} | {summary['next_checkpoint']} |"
-            )
-
-        print("\n## 模块位置图")
-        print("```mermaid")
-        print("flowchart TB")
-        print(f'    P["{project_name}"]')
-        for module, summary in zip(official_modules, module_summaries):
-            label = module_display_name_zh(module)
-            priority = summary["priority"]
-            status_label = f"{priority} / {summary['completion_percent']}%"
-            node_id = re.sub(r"[^A-Za-z0-9]+", "", module.title()) or "Module"
-            print(f'    P --> {node_id}["{label}\\n{status_label}"]')
-        print("```")
-
     subproject_rows = load_subproject_rows(repo)
-    if subproject_rows:
-        print("\n## 横切工作流")
-        print("| 工作流 | 当前切片 | 下一检查点 |")
-        print("| --- | --- | --- |")
-        for name, current_slice, next_checkpoint in subproject_rows:
-            print(f"| {name} | {current_slice or 'n/a'} | {next_checkpoint or 'n/a'} |")
-
-    print("\n## 接下来要做的事")
-    if next_actions_display:
-        for idx, item in enumerate(next_actions_display, start=1):
-            print(f"{idx}. {item}")
-    else:
-        print("当前未记录下一步。")
+    if tier == "large":
+        render_large_progress(
+            repo=repo,
+            project_name=project_name,
+            tier=tier,
+            current_phase=current_phase,
+            active_slice=active_slice,
+            current_execution_line=current_execution_line,
+            architecture_signal=architecture_signal,
+            signal_basis=signal_basis,
+            root_cause_hypothesis=root_cause_hypothesis,
+            correct_layer=correct_layer,
+            escalation_gate=escalation_gate,
+            escalation_reason=escalation_reason,
+            execution_tasks=execution_tasks,
+            done_tasks=done_tasks,
+            total_tasks=total_tasks,
+            capabilities=capabilities,
+            next_actions_display=next_actions_display,
+            main_risk=main_risk,
+            active_module=active_module,
+            phase_link=phase_link,
+            slice_link=slice_link,
+            roadmap_path=roadmap_path,
+            project_roadmap_path=project_roadmap_path,
+            readme_capabilities=readme_capabilities,
+            phase_capabilities=phase_capabilities,
+            official_modules=official_modules,
+            module_summaries=module_summaries,
+            subproject_rows=subproject_rows,
+        )
+        return 0
     return 0
 
 

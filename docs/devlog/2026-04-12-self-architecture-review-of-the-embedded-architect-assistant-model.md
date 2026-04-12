@@ -25,7 +25,7 @@ The skill repo passes deep validation after the new state sections, capability r
 
 ## Related Files
 
-- /Users/redcreen/.codex/skills/project-assistant/SKILL.md
-- /Users/redcreen/.codex/skills/project-assistant/scripts/sync_execution_line.py
-- /Users/redcreen/.codex/skills/project-assistant/scripts/capability_snapshot.py
-- /Users/redcreen/.codex/skills/project-assistant/scripts/validate_release_readiness.py
+- SKILL.md
+- scripts/sync_execution_line.py
+- scripts/capability_snapshot.py
+- scripts/validate_release_readiness.py

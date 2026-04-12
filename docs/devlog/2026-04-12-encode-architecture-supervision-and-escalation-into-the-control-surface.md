@@ -25,7 +25,7 @@ validate_gate_set.py --profile deep passes for the skill repo after the control-
 
 ## Related Files
 
-- /Users/redcreen/.codex/skills/project-assistant/scripts/sync_control_surface.py
-- /Users/redcreen/.codex/skills/project-assistant/scripts/control_surface_lib.py
-- /Users/redcreen/.codex/skills/project-assistant/scripts/progress_snapshot.py
-- /Users/redcreen/.codex/skills/project-assistant/scripts/context_handoff.py
+- scripts/sync_control_surface.py
+- scripts/control_surface_lib.py
+- scripts/progress_snapshot.py
+- scripts/context_handoff.py
