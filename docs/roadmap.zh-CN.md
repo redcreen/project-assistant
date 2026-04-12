@@ -26,6 +26,7 @@
 | M6 | active | 收敛成内嵌式架构师助手工作模型 | previous milestones | 规划、执行、架构监督和开发日志成为默认自动能力 |
 | M7 | next | 提升叙事质量与自动架构触发能力 | M6 | 整改后的手工清理更少，方向纠偏提示更少 |
 | M8 | later | 评估按语言裁剪内部控制面的可能性 | handoff + command templates + validation policy | 中文工作流能减少冗余英文而不削弱公开文档双语 |
+| M9 | later | 压缩 continue / resume 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | `项目助手 继续` 只保留最小恢复信息，不再重复 progress 内容 |
 
 ## 里程碑流转
 
@@ -47,3 +48,4 @@ flowchart LR
 - 长任务执行线必须停在真实检查点，不能变成不可见的后台黑箱
 - 公开文档双语质量仍然依赖内容生成，不仅是文件对和切换链接
 - 如果未来要支持精确 context 门禁，仍然需要运行时暴露对应指标
+- `继续` 快照现在仍然偏重，后续需要继续收敛成“最小恢复包”，而不是第二个迷你 dashboard

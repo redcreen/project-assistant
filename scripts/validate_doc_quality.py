@@ -17,6 +17,7 @@ TODO_LINE_RE = re.compile(r"^\s*(?:[-*]\s+|\d+\.\s+|>\s+)?TODO\b", re.IGNORECASE
 STUB_RE = re.compile(r"^>\s*TODO:\s*(translate the facts|把 .* 的事实同步翻译到这个文档)", re.IGNORECASE | re.MULTILINE)
 MERMAID_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
 LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+ABSOLUTE_LOCAL_RE = re.compile(r"(?<![A-Za-z0-9_])(?:file://)?/(?:Users|home|tmp|var|private|opt|Volumes)/[^\s)>\"]+")
 
 
 def read_text(path: Path) -> str:
@@ -37,6 +38,10 @@ def public_docs(repo: Path) -> list[Path]:
             continue
         docs.append(path)
     return docs
+
+
+def all_markdown_docs(repo: Path) -> list[Path]:
+    return sorted(repo.rglob("*.md"))
 
 
 def warn_placeholders(rel: str, text: str, warnings: list[str]) -> None:
@@ -102,6 +107,12 @@ def warn_broken_links(repo: Path, path: Path, text: str, warnings: list[str]) ->
             warnings.append(f"{rel} links to missing target: {target}")
 
 
+def warn_absolute_local_paths(rel: str, text: str, warnings: list[str]) -> None:
+    matches = sorted(set(ABSOLUTE_LOCAL_RE.findall(text)))
+    for match in matches:
+        warnings.append(f"{rel} contains a local absolute path; use repo-relative links instead: {match}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate public-doc quality beyond structural gates.")
     parser.add_argument("repo", type=Path, help="Repository root")
@@ -111,13 +122,18 @@ def main() -> int:
     repo = args.repo.resolve()
     warnings: list[str] = []
 
-    for path in public_docs(repo):
+    docs = public_docs(repo)
+    for path in docs:
         rel = path.relative_to(repo).as_posix()
         text = read_text(path)
         warn_placeholders(rel, text, warnings)
         warn_empty_tables(rel, text, warnings)
         warn_empty_mermaid(rel, text, warnings)
         warn_broken_links(repo, path, text, warnings)
+    for path in all_markdown_docs(repo):
+        rel = path.relative_to(repo).as_posix()
+        text = read_text(path)
+        warn_absolute_local_paths(rel, text, warnings)
 
     ok = not warnings
     payload = {"ok": ok, "warnings": warnings}

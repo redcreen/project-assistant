@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
 
 from control_surface_lib import (
@@ -23,8 +24,8 @@ def bullet_lines(text: str) -> list[str]:
         stripped = line.strip()
         if stripped.startswith("- "):
             items.append(stripped[2:].strip())
-        elif stripped[:2].isdigit() and ". " in stripped:
-            items.append(stripped.split(". ", 1)[1].strip())
+        elif re.match(r"^\d+\.\s+", stripped):
+            items.append(re.sub(r"^\d+\.\s+", "", stripped))
     return items
 
 

@@ -578,6 +578,83 @@ def rewrite_links(repo: Path, moves: dict[Path, Path]) -> int:
     return changed
 
 
+def relativize_repo_local_target(doc_path: Path, repo: Path, target: str) -> str | None:
+    raw = target.strip()
+    wrapped = raw.startswith("<") and raw.endswith(">")
+    inner = raw[1:-1] if wrapped else raw
+    if inner.startswith("file://"):
+        inner = inner[len("file://") :]
+    if not inner.startswith("/"):
+        return None
+    resolved = Path(inner).resolve(strict=False)
+    try:
+        rel = resolved.relative_to(repo.resolve())
+    except ValueError:
+        return None
+    rewritten = relpath(doc_path.parent, repo / rel)
+    if wrapped or " " in rewritten:
+        rewritten = f"<{rewritten}>"
+    return rewritten
+
+
+def rewrite_repo_local_links(repo: Path) -> int:
+    changed = 0
+    repo_resolved = repo.resolve()
+
+    for md in inventory_markdown(repo):
+        text = md.read_text(encoding="utf-8")
+        original = text
+
+        def link_repl(match: re.Match[str]) -> str:
+            target = match.group("target")
+            rewritten = relativize_repo_local_target(md, repo_resolved, target)
+            if not rewritten:
+                return match.group(0)
+            return f"{match.group('prefix')}{rewritten}{match.group('suffix')}"
+
+        text = LINK_RE.sub(link_repl, text)
+
+        normalized_lines: list[str] = []
+        for line in text.splitlines():
+            stripped = line.strip()
+            candidate = stripped
+            prefix = ""
+            suffix = ""
+
+            if stripped.startswith("- "):
+                prefix = line[: line.index("- ") + 2]
+                candidate = stripped[2:].strip()
+            if candidate.startswith("`") and candidate.endswith("`"):
+                suffix = "`"
+                candidate = candidate[1:-1].strip()
+                prefix = prefix + "`"
+
+            if candidate.startswith("file://"):
+                candidate = candidate[len("file://") :]
+
+            if candidate.startswith("/"):
+                resolved = Path(candidate).resolve(strict=False)
+                try:
+                    rel = resolved.relative_to(repo_resolved)
+                except ValueError:
+                    normalized_lines.append(line)
+                    continue
+                relative = relpath(md.parent, repo / rel)
+                normalized_lines.append(f"{prefix}{relative}{suffix}")
+            else:
+                normalized_lines.append(line)
+
+        text = "\n".join(normalized_lines)
+        if original.endswith("\n"):
+            text += "\n"
+
+        if text != original:
+            md.write_text(text, encoding="utf-8")
+            changed += 1
+
+    return changed
+
+
 def normalize_docs_home(repo: Path, additions: list[str], heading: str) -> bool:
     path = repo / "docs/README.md"
     if not path.exists():
@@ -769,6 +846,9 @@ def main() -> int:
     rewritten = rewrite_links(repo, moves)
     if rewritten:
         touched.append(f"rewrote-links:{rewritten}")
+    local_rewritten = rewrite_repo_local_links(repo)
+    if local_rewritten:
+        touched.append(f"rewrote-local-paths:{local_rewritten}")
     touched.extend(ensure_directory_indexes(repo / "docs/workstreams", repo, public=True))
     touched.extend(ensure_directory_indexes(repo / "docs/reference", repo, public=True))
     touched.extend(ensure_directory_indexes(repo / "docs/archive", repo, public=False))

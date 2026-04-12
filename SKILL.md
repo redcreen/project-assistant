@@ -131,6 +131,7 @@ Document ownership and templates live in:
 
 When generating `README`, `docs/README`, `architecture`, `roadmap`, `test-plan`, or ADRs, follow the document constraints in `references/document-standards.md`. Do not improvise a new structure when the standard already covers that doc type.
 When a repo requires bilingual public docs, generate switchable English/Chinese file pairs for `README` and public `docs/*` pages, and validate that the language switch exists.
+When writing markdown into a repo, use repository-relative links. Do not write local absolute filesystem paths into repo docs.
 
 ## Script-First Execution
 

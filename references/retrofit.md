@@ -316,6 +316,7 @@ Documentation retrofit should:
 - add tables where they reduce scanning cost
 - add Mermaid only where it clarifies structure or flow
 - when bilingual public docs are required, create English/Chinese file pairs with switch links and validate them
+- rewrite repo-local absolute links or path references into repository-relative links
 - bootstrap `.codex` first even when the user asks only for documentation retrofit
 - migrate legacy deep trees such as `docs/<legacy-root>/architecture|roadmaps|testing|todo` into governed locations
 - resolve the ownership of every Markdown file in the repo, not only the top-level stack

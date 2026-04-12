@@ -25,8 +25,20 @@ The goal is not to copy any one project. The goal is to generate documentation t
 3. one content type per page
 4. quick-start content must come before deep explanation
 5. diagrams must clarify structure, not decorate the page
+6. links inside repo docs must be repository-relative, not local absolute filesystem paths
 
 Do not mix tutorial, reference, architecture discussion, and roadmap status in the same page unless the page is explicitly a landing page.
+
+## Link Policy
+
+For markdown written into a repository:
+
+- use repository-relative links such as `docs/architecture.md`, `../reference/config.md`, or `./README.zh-CN.md`
+- do not write local absolute filesystem paths
+- do not write `file://...` links
+- if a doc will live on GitHub later, write it as if GitHub were the reader
+
+Absolute local paths are acceptable in live Codex chat responses for clickable local references, but they must not be written into repo docs.
 
 ## Canonical Document Stack
 

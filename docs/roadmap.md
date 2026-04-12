@@ -26,6 +26,7 @@ This roadmap describes the evolution of the `project-assistant` skill itself. It
 | M6 | active | shift to an embedded architect-assistant operating model | previous milestones | planning, execution, architecture supervision, and devlog capture are default-on behaviors |
 | M7 | next | improve narrative quality and automated architecture triggers | M6 | less manual cleanup after retrofit and fewer direction-correction prompts |
 | M8 | later | evaluate locale-aware internal control-surface output | handoff + command templates + validation policy | Chinese-only workflows can suppress redundant English without weakening public-doc bilingual support |
+| M9 | later | slim continue/resume snapshots without losing recoverability | continue snapshot + handoff + validation policy | `project assistant continue` carries only minimal restore state and does not duplicate progress content |
 
 ## Milestone Flow
 
@@ -48,3 +49,4 @@ flowchart LR
 - public-doc bilingual quality still depends on good content generation, not only file-pair checks
 - exact context-usage thresholds still require runtime support
 - locale-aware internal output should not leak into public docs or weaken bilingual release expectations
+- `continue` snapshots are useful but still heavier than ideal; they should converge toward minimal restore state rather than a second mini-dashboard

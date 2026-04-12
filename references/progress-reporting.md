@@ -36,34 +36,36 @@ Use `scripts/context_handoff.py` for that when available.
 Use this layout for medium and large projects:
 
 ```md
-## Summary
-- Overall:
-- Current phase:
-- Active slice:
-- Main risk:
+## 一眼总览
+- 当前阶段:
+- 当前切片:
+- 当前执行线:
+- 架构信号:
+- 当前主要风险:
 
-## Global View
-| Area | Status | Current focus | Exit condition |
-| --- | --- | --- | --- |
+## 当前位置
+- 阶段路线图:
+- 当前切片路线图:
 
-## Module View
-| Module | Status | Already implemented | Remaining steps | Completion signal | Next checkpoint |
-| --- | --- | --- | --- | --- | --- |
+## 当前系统能做什么
+- README 能力来源:
+- Roadmap 对应位置:
+- 已可直接使用:
 
-## Subprojects
-| Subproject | Status | Current focus | Next checkpoint |
-| --- | --- | --- | --- |
+## 全局模块进展
+| 模块 | 优先级 | 当前状态 | 完成度 | 已有能力 | 剩余步骤 | 下一检查点 |
+| --- | --- | --- | --- | --- | --- | --- |
 
-## Module Flow
+## 模块位置图
 ```mermaid
 flowchart TB
 ```
 
-## Evidence
-- Tests:
-- Evals / reports:
+## 横切工作流
+| 工作流 | 当前切片 | 下一检查点 |
+| --- | --- | --- |
 
-## Next 3 Actions
+## 接下来要做的事
 1.
 2.
 3.
@@ -107,6 +109,9 @@ flowchart LR
 - avoid repeating roadmap prose
 - convert detailed evidence into one-line conclusions
 - if confidence is low because the status docs are stale, say so in one line
+- prefer Chinese-first labels when the current user is interacting in Chinese
+- when possible, give clickable roadmap positions for the current phase and active slice
+- show module priority as `P0-P4`, where `P0` is the current main battlefield and `P4` is maintenance/watch mode
 
 ## Trust Rules
 

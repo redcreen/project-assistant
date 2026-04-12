@@ -96,6 +96,7 @@
 ## Blockers / Open Decisions
 
 - None currently.
+- Follow-up: `项目助手 继续` 当前仍偏重，继续评估如何在不丢恢复信息的前提下压缩输出体量和重复内容
 
 ## Next 3 Actions
 

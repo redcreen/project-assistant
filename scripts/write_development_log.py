@@ -82,6 +82,13 @@ def replace_section(text: str, heading: str, body: str) -> str:
     return text.rstrip() + f"\n\n## {heading}\n{body.rstrip()}\n"
 
 
+def relativize_repo_local_paths(repo: Path, text: str) -> str:
+    repo_abs = str(repo.resolve())
+    normalized = text.replace(f"{repo_abs}/", "")
+    normalized = normalized.replace(repo_abs, ".")
+    return normalized
+
+
 def refresh_status_devlog_state(repo: Path, entry_rel: str) -> None:
     status_path = repo / ".codex/status.md"
     if not status_path.exists():
@@ -100,9 +107,15 @@ def refresh_status_devlog_state(repo: Path, entry_rel: str) -> None:
 
 
 def render_entry(args: argparse.Namespace) -> str:
+    problem = relativize_repo_local_paths(args.repo_root, args.problem)
+    thinking = relativize_repo_local_paths(args.repo_root, args.thinking)
+    solution = relativize_repo_local_paths(args.repo_root, args.solution)
+    validation = relativize_repo_local_paths(args.repo_root, args.validation)
+    followup_items = [relativize_repo_local_paths(args.repo_root, item) for item in args.followup]
+    related_items = [relativize_repo_local_paths(args.repo_root, item) for item in args.related]
     if args.lang == "zh-CN":
-        followups = "\n".join(f"- {item}" for item in args.followup) if args.followup else "- 无"
-        related = "\n".join(f"- {item}" for item in args.related) if args.related else "- 无"
+        followups = "\n".join(f"- {item}" for item in followup_items) if followup_items else "- 无"
+        related = "\n".join(f"- {item}" for item in related_items) if related_items else "- 无"
         return f"""# {args.title}
 
 - 日期：{args.date}
@@ -110,19 +123,19 @@ def render_entry(args: argparse.Namespace) -> str:
 
 ## 问题
 
-{args.problem}
+{problem}
 
 ## 思考
 
-{args.thinking}
+{thinking}
 
 ## 解决方案
 
-{args.solution}
+{solution}
 
 ## 验证
 
-{args.validation}
+{validation}
 
 ## 后续
 
@@ -132,8 +145,8 @@ def render_entry(args: argparse.Namespace) -> str:
 
 {related}
 """
-    followups = "\n".join(f"- {item}" for item in args.followup) if args.followup else "- none"
-    related = "\n".join(f"- {item}" for item in args.related) if args.related else "- none"
+    followups = "\n".join(f"- {item}" for item in followup_items) if followup_items else "- none"
+    related = "\n".join(f"- {item}" for item in related_items) if related_items else "- none"
     return f"""# {args.title}
 
 - Date: {args.date}
@@ -141,19 +154,19 @@ def render_entry(args: argparse.Namespace) -> str:
 
 ## Problem
 
-{args.problem}
+{problem}
 
 ## Thinking
 
-{args.thinking}
+{thinking}
 
 ## Solution
 
-{args.solution}
+{solution}
 
 ## Validation
 
-{args.validation}
+{validation}
 
 ## Follow-Ups
 
@@ -182,6 +195,7 @@ def main() -> int:
     args = parser.parse_args()
 
     repo = args.repo.resolve()
+    args.repo_root = repo
     devlog_dir = repo / "docs/devlog"
     ensure_devlog_indexes(devlog_dir)
 
