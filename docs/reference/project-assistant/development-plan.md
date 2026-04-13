@@ -26,10 +26,10 @@ It answers:
 
 | Item | Current Value | Meaning |
 | --- | --- | --- |
-| Current Phase | `post-M16 rollout verification active` | `M16` has turned hard entry, version preflight, and structured first screens into durable capabilities; the repo is now gathering rollout evidence across real repos |
-| Active Slice | `verify-unified-front-door-rollout-on-legacy-repos` | the current line has moved from “close M16” to “prove how legacy repos and real entry paths behave” |
-| Current Execution Line | verify on more legacy repos that `continue / progress / handoff` always go through the front door, upgrade older control surfaces first, and only then emit structured panels, while isolating the remaining host-bridge evidence | the real question is now entry reliability, not whether `M15` should be promised early |
-| Validation | `project_assistant_entry.py`, `sync_resume_readiness.py`, the `entry-routing` surface, and `deep` / `release` all hold | the next evidence check is whether representative legacy repos stay on this path |
+| Current Phase | `daemon-first fast-upgrade planning ready` | the discussion has moved from “should we do a daemon?” to “in what order do we build the daemon core, host frontend, and resume bridge?” so implementation can now be user-directed by slice |
+| Active Slice | `plan-daemon-fast-upgrade-and-vscode-host-mvp` | the current line turns the fast upgrade into an explicit default build order: `daemon core -> VS Code host shell -> resume bridge -> local validation -> old-feature re-validation` |
+| Current Execution Line | write the default implementation order and first-host scope clearly enough that development can proceed slice by slice without bouncing between daemon internals, host UI, and chat integration | the real question now is “which cut should we build first, and how should each later cut attach?” |
+| Validation | `async-execution-and-latency-governance.md`, `ptl-daemon-mvp.md`, `host-resume-bridge.md`, and the control truth all align on “daemon core first, VS Code host next, resume bridge after that” | the implementation plan is now durable and can be used directly to drive build order |
 
 ## Milestone Overview
 
@@ -74,7 +74,15 @@ It answers:
 | 16 | `define-m13-m14-m15-post-m12-mainline` | completed | formalize post-M12 into `M13 / M14 / M15` and explain the practical meaning of worker handoff and re-entry | roadmap, README, development plan, strategic direction doc, and orchestration model all align |
 | 17 | `close-m13-and-m14-and-queue-m15-evidence` | completed | turn `M13 / M14` into durable PTL supervision / worker handoff control surfaces, gates, progress, and handoff | `deep` and `release` pass; control truth, README, roadmap, development plan, and snapshots all show `M13 / M14 done` |
 | 18 | `close-m16-tool-first-front-door-and-queue-rollout-verification` | completed | turn the real entry problem into one front door, one preflight, one structured-output contract, and one durable `entry-routing` surface | `project_assistant_entry.py`, `sync_resume_readiness.py`, `validate_entry_routing.py`, `deep`, and `release` all pass; representative legacy repos can upgrade first and then render panels |
-| 19 | `formalize-issue-driven-closure-loop` | supporting backlog / todo | turn the recurring request shape `current problem -> reasoning -> solution -> devlog -> architecture -> roadmap / development plan -> one long implementation run` into a default skill behavior instead of relying on repeated user reminders | when implemented, durable problems should automatically trigger this closure chain |
+| 19 | `plan-daemon-fast-upgrade-and-vscode-host-mvp` | current mainline | turn the fast upgrade into an explicit build order and make the VS Code extension frontend the default first host | roadmap, development plan, status, plan, and the host-bridge note all read back the same build order |
+| 20 | `build-ptl-daemon-runtime-core` | next | build the daemon runtime, queue/event contract, runtime store, and minimum CLI control surface | the daemon can start / stop / expose queue state and emit host-consumable events |
+| 21 | `build-vscode-host-shell-and-live-status` | next | build the VS Code host shell with at least a Tree View, Status Bar item, Output channel, and daemon connectivity | users can already see live state, the active slice, and recent events inside VS Code |
+| 22 | `wire-manual-and-one-click-continue` | next | turn `resume-ready` into host-visible continue actions, starting with `manual continue` and optionally adding conservative `one-click continue` | stopped work can resume through the host without relying on chat-box injection |
+| 23 | `validate-daemon-host-mvp-on-local-workspaces` | next | validate daemon + VS Code host MVP state, recovery, and stability on representative local workspaces | local-workspace validation shows the host MVP is stable enough to carry the next phase |
+| 24 | `validate-legacy-feature-set-on-daemon-host-baseline` | next | re-validate older feature families one by one on the daemon-host baseline instead of waiting for a giant migration | older capabilities keep passing on the new baseline without regressing the coding-speed goal |
+| 25 | `resume-post-m16-rollout-on-daemon-host-baseline` | next | resume post-M16 rollout verification only after the daemon-host baseline and older feature families are trusted | representative legacy repos still upgrade first, render structured panels, and no longer feel dominated by avoidable synchronous work |
+| 26 | `formalize-issue-driven-closure-loop` | supporting backlog / todo | turn the recurring request shape `current problem -> reasoning -> solution -> devlog -> architecture -> roadmap / development plan -> one long implementation run` into a default skill behavior instead of relying on repeated user reminders | when implemented, durable problems should automatically trigger this closure chain |
+| 27 | `formalize-control-truth-sync-determinism` | supporting backlog / todo | turn `.codex/status.md`, `.codex/plan.md`, the strategy / program-board / delivery / PTL / handoff surfaces, and the `continue / progress / handoff` outputs into one deterministic refresh transaction so users stop seeing partially updated or locally stale truth during `project assistant continue` | when implemented, legacy-repo upgrade, surface refresh, structured first screen, and durable truth should align within one checkpoint |
 
 ## Milestone Details
 
@@ -146,15 +154,22 @@ It answers:
 
 | Next Move | Why |
 | --- | --- |
-| Continue from `close-m16-tool-first-front-door-and-queue-rollout-verification` onward | `M16` is now complete; the next work is to prove the front door on more legacy repos and keep `M15` evidence-gated |
+| Start with `build-ptl-daemon-runtime-core` | the daemon core is the shared base for the host shell, resume bridge, and live status; without it, host work will float |
+| Then move into `build-vscode-host-shell-and-live-status` | the user wants to see that the page is moving and code is changing, so the first host frontend should not wait behind later chat integration ideas |
+| Then run `wire-manual-and-one-click-continue` | the resume action is the key value of the host bridge and should land after daemon core and live status already exist |
+| Run `validate-daemon-host-mvp-on-local-workspaces` before wider re-validation | prove the MVP chain on real local workspaces before asking older feature families to stand on it |
+| Then run `validate-legacy-feature-set-on-daemon-host-baseline` | the strategy is explicitly “make the experience lighter first, then re-validate older capabilities in order” instead of performing one giant migration |
 | Reserve `formalize-issue-driven-closure-loop` | this request shape is now recurring often enough that it should become a first-class default behavior in the skill |
+| Reserve `formalize-control-truth-sync-determinism` | `project assistant continue` can still feel like `.codex` truth refreshed in pieces; that lag should become an explicit determinism milestone instead of a recurring surprise |
 
 ## Strategic Direction
 
 | Topic | Scope | Current Position |
 | --- | --- | --- |
+| daemon-first async execution, host resume bridge, and latency governance | the product goal is now immediate coding-speed recovery: land the daemon core, the VS Code host frontend, and the resume bridge first, then re-validate the older feature set on that new baseline | active |
 | business planning, orchestration, and hard-entry routing | `project-assistant` has closed the PTL-centered `M10 / M11 / M12 / M13 / M14` layers and added `M16` so `continue / progress / handoff` now share a canonical front door; `M15` remains evidence-gated later, and M8/M9 stay bounded supporting backlog | active |
 
 Direction document:
 
 - [Strategic Planning And Program Orchestration](strategic-planning-and-program-orchestration.md)
+- [Host Resume Bridge And VS Code Extension Feasibility](host-resume-bridge.md)

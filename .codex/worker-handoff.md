@@ -1,9 +1,9 @@
 # Worker Handoff
 
 ## Current Handoff Direction
-- Direction: `tool-first front door closed; rollout verification queued`
-- Status: `done`
-- Why Now: 把真实入口问题收口成统一前门、版本 preflight、结构化第一屏、CLI 前门和 durable `entry-routing` 控制面，并继续验证旧项目会先升级再继续
+- Direction: `daemon-first async execution design active`
+- Status: `active`
+- Why Now: 把目标架构正式切成 `daemon-first PTL scheduler`，并先定义一个 write-safe 的快升级版：优先把写代码速度拉起来，再在 daemon 基线上逐项验证旧功能
 
 ## Worker Handoff Contract
 

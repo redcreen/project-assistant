@@ -170,6 +170,10 @@ Prefer the bundled scripts when present:
   中文：写入一条带问题、思考、解决方案和验证的开发日志
 - `scripts/validate_development_log.py`
   中文：校验开发日志索引和条目结构是否完整
+- `scripts/bootstrap_entry.py`
+  中文：`启动` 的事务化快路径：一次完成 control-surface、durable docs 和 fast gate
+- `scripts/retrofit_entry.py`
+  中文：`整改 / 文档整改` 的事务化快路径：一次完成 control-surface、docs、markdown governance 和 fast gate
 - `scripts/continue_entry.py`
   中文：`继续` 的唯一结构化入口，强制先做 preflight 再输出表格化 continue 面板
 - `scripts/progress_entry.py`
@@ -177,7 +181,7 @@ Prefer the bundled scripts when present:
 - `scripts/handoff_entry.py`
   中文：`交接` 的唯一结构化入口，强制输出可复制的交接面板
 - `scripts/project_assistant_entry.py`
-  中文：`继续 / 进展 / 交接 / 继续前升级` 的统一前门，把 mode 路由到唯一后端链路
+  中文：`启动 / 整改 / 文档整改 / 继续 / 进展 / 交接 / 继续前升级` 的统一前门，把 mode 路由到唯一后端链路
 - `scripts/sync_resume_readiness.py`
   中文：在 `继续` / `恢复` 前按 `.codex/control-surface.json` 版本自动判断是否需要升级，并执行最小安全补齐
 - `scripts/sync_entry_routing.py`
@@ -208,7 +212,9 @@ Use scripts first for structure, convergence, and reporting. Use model judgment 
 - decide whether architecture / roadmap / test-plan are needed
 - identify the first execution slice
 
-If `scripts/sync_control_surface.py` exists, run it before filling content.
+If `scripts/project_assistant_entry.py` exists, prefer `python3 scripts/project_assistant_entry.py bootstrap <repo>` as the canonical bootstrap fast path.
+Otherwise, if `scripts/bootstrap_entry.py` exists, run it first.
+Otherwise, if `scripts/sync_control_surface.py` exists, run it before filling content.
 
 ### 规划 / Plan
 
@@ -291,7 +297,7 @@ Stop only when:
 - if the repo changed during `继续`, emit the continue panel first and add later narrative under a separate `本轮动作` block
 
 If `scripts/continue_entry.py` exists, run it first and use its output as the first user-visible block.
-If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `continue / progress / handoff / resume-readiness`.
+If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `bootstrap / retrofit / continue / progress / handoff / resume-readiness`.
 Otherwise, if `scripts/sync_resume_readiness.py` exists, run it first.
 Otherwise, if `scripts/continue_snapshot.py` exists, run it first.
 
@@ -300,7 +306,7 @@ Otherwise, if `scripts/continue_snapshot.py` exists, run it first.
 Use [references/progress-reporting.md](references/progress-reporting.md).
 
 If `scripts/progress_entry.py` exists, run it first and use its output as the first user-visible block.
-If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `continue / progress / handoff / resume-readiness`.
+If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `bootstrap / retrofit / continue / progress / handoff / resume-readiness`.
 Otherwise, if `scripts/progress_snapshot.py` exists, run it first.
 
 For `medium` and `large` projects, progress output should be a compact dashboard, not free-form prose. For large projects, include module view and Mermaid when it improves orientation.
@@ -342,6 +348,8 @@ That includes:
 - reducing root-doc clutter
 - creating missing bilingual public-doc counterparts when the repo requires bilingual public docs
 - fixing links after moves
+
+If `scripts/project_assistant_entry.py` exists, prefer `python3 scripts/project_assistant_entry.py retrofit <repo>` for `整改`, and `python3 scripts/project_assistant_entry.py docs-retrofit <repo>` for `文档整改 / 文档整理`, so the structural pass is collapsed into one tool call.
 
 If scripts exist:
 
@@ -445,7 +453,7 @@ When asked to compress context or prepare a new thread:
 - prefer a structured handoff panel over prose
 
 If `scripts/handoff_entry.py` exists, run it first and use its output as the first user-visible block.
-If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `continue / progress / handoff / resume-readiness`.
+If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `bootstrap / retrofit / continue / progress / handoff / resume-readiness`.
 Otherwise, prefer `scripts/context_handoff.py`.
 
 You may proactively suggest `项目助手 压缩上下文` at natural phase boundaries or when the user is losing orientation, but do not spam it.

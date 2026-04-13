@@ -9,7 +9,16 @@ import subprocess
 import sys
 from pathlib import Path
 
-from control_surface_lib import ensure_roadmap_stage_links, load_doc_governance_config, match_glob, slugify
+from control_surface_lib import (
+    CONTROL_SURFACE_COMPONENT_PATHS,
+    control_surface_required_files,
+    control_surface_version_state,
+    ensure_roadmap_stage_links,
+    load_doc_governance_config,
+    match_glob,
+    parse_tier,
+    slugify,
+)
 IGNORED_DIRS = {".git", "node_modules", ".obsidian", "__pycache__"}
 DURABLE_TOKENS = ("architecture", "roadmap", "policy", "strategy", "blueprint", "design", "workstream")
 ARCHIVE_TOKENS = ("todo", "journal", "candidate", "scope", "note", "notes", "scratch", "investigation", "smoke-test", "testsuite")
@@ -255,6 +264,15 @@ def is_skill_repo(repo: Path) -> bool:
 
 
 def bootstrap_control_surface(repo: Path) -> None:
+    tier = parse_tier(repo)
+    version_state = control_surface_version_state(repo, tier=tier)
+    missing_required_files = any(not (repo / rel).exists() for rel in control_surface_required_files(tier))
+    missing_required_surfaces = any(
+        not (repo / CONTROL_SURFACE_COMPONENT_PATHS[component]).exists()
+        for component in version_state["requiredSurfaceVersions"]
+    )
+    if not version_state["needsConfigUpgrade"] and not missing_required_files and not missing_required_surfaces:
+        return
     script = Path(__file__).with_name("sync_control_surface.py")
     result = subprocess.run(
         [sys.executable, str(script), str(repo)],

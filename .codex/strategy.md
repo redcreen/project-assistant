@@ -1,9 +1,9 @@
 # Strategy
 
 ## Current Strategic Direction
-- Direction: `close-m16-tool-first-front-door-and-queue-rollout-verification`
+- Direction: `design-daemon-first-ptl-scheduler-mvp`
 - Status: `active`
-- Why Now: repo 层统一前门已经收口；当前需要继续采集跨 repo rollout 证据，并明确把剩余问题归类为宿主 / 插件桥接问题还是 repo 层问题。
+- Why Now: 把目标架构正式切成 `daemon-first PTL scheduler`，并先定义一个 write-safe 的快升级版：优先把写代码速度拉起来，再在 daemon 基线上逐项验证旧功能
 
 ## What This Layer Owns
 

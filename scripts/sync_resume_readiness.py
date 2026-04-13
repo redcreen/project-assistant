@@ -203,13 +203,13 @@ def ensure_resume_ready(repo: Path, check_only: bool = False) -> ResumeReadiness
     )
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Check whether a repo needs an automatic control-surface generation upgrade before continue/resume, and run the minimum safe sync path when needed."
     )
     parser.add_argument("repo", type=Path, help="Repository root")
     parser.add_argument("--check", action="store_true", help="Inspect only; do not run syncs")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     result = ensure_resume_ready(args.repo.resolve(), check_only=args.check)
 

@@ -9,6 +9,7 @@ from pathlib import Path
 
 from control_surface_lib import (
     completion_band,
+    CONTROL_SURFACE_COMPONENT_PATHS,
     completion_percent,
     parse_official_modules,
     parse_tier,
@@ -272,7 +273,7 @@ COMMANDS_TEMPLATE = """# Commands
 - Human users usually only need the four primary windows above.
 - The other flows should run mostly in the background unless the user explicitly overrides them.
 - Use the language that matches the user, and accept natural-language variations when the intent is clear.
-- Canonical CLI front door: `project-assistant continue|progress|handoff <repo>` or `python3 scripts/project_assistant_entry.py <mode> <repo>`.
+- Canonical CLI front door: `project-assistant bootstrap|retrofit|docs-retrofit|continue|progress|handoff <repo>` or `python3 scripts/project_assistant_entry.py <mode> <repo>`.
 """
 
 
@@ -526,6 +527,10 @@ def main() -> int:
     subprocess.run([sys.executable, str(sync_ptl_script), str(repo)], check=True)
     sync_handoff_script = Path(__file__).resolve().parent / "sync_worker_handoff.py"
     subprocess.run([sys.executable, str(sync_handoff_script), str(repo)], check=True)
+    entry_routing_path = repo / CONTROL_SURFACE_COMPONENT_PATHS["entryRouting"]
+    if tier in {"medium", "large"} or entry_routing_path.exists():
+        sync_entry_routing_script = Path(__file__).resolve().parent / "sync_entry_routing.py"
+        subprocess.run([sys.executable, str(sync_entry_routing_script), str(repo)], check=True)
 
     print(f"tier: {tier}")
     print(f"official modules: {', '.join(official_modules) or '(none)'}")

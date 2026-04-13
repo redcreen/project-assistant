@@ -86,3 +86,30 @@ The origin of `project-assistant` is not “make AI write more code.”
 It is:
 
 **clarify goals, approach, architecture, roadmap, tests, and the development plan first, then let AI deliver inside durable repo truth and gates.**
+
+## What This Method Is Actually Trying To Remove
+
+This method is not trying to remove human judgment around requirements, direction, or major tradeoffs.
+
+It is trying to remove repetitive process burden such as:
+
+- turning goals into the first structured project-doc set
+- keeping roadmap, test cases, development plan, and status surfaces minimally aligned
+- restoring context, progress, and validation entry points across sessions
+- making doc expectations, gates, and recovery truth part of the default workflow
+
+So the real product stance should be:
+
+`let humans focus on requirements, direction, boundaries, and tradeoffs, while AI and tooling absorb more of the process detail and process control burden.`
+
+## Why Templated And Pre-Generated Docs Are Aligned With The Origin
+
+If the goal is more professional and more disciplined project delivery, the doc layer should not need to grow from zero every time.
+
+A better pattern is:
+
+- use templated and pre-generated document scaffolds to establish durable truth quickly
+- spend human attention on the parts that actually require judgment: goals, boundaries, approach deltas, staging tradeoffs, and acceptance
+- treat templates as an accelerator into higher-quality discussion and delivery, not as the final artifact
+
+In other words, templating is not there to add process weight. It is there to remove process friction.

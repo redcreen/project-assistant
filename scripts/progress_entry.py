@@ -25,10 +25,10 @@ def render(script: Path, repo: Path) -> str:
     return result.stdout.strip()
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Render the canonical project-assistant progress entry panel.")
     parser.add_argument("repo", type=Path, help="Repository root")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     repo = args.repo.resolve()
     scripts_dir = Path(__file__).resolve().parent

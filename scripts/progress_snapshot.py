@@ -131,6 +131,15 @@ TERM_CATALOG = {
     },
 }
 
+STEADY_STATE_TOKENS = (
+    "steady state",
+    "steady-state maintenance",
+    "stable after closing milestone",
+    "后基线已稳定",
+    "回到稳定维护状态",
+    "等待新的命名 roadmap 候选",
+)
+
 EXACT_TEXT_MAP = {
     "stage closeout / stage 5 complete": "收口阶段 / Stage 5 已完成",
     "hold-post-stage5-roadmap-state-aligned": "保持 post-Stage-5 路线图状态对齐",
@@ -208,6 +217,7 @@ EXACT_TEXT_MAP = {
     "keep `bash scripts/run_tests.sh` and `python3 scripts/runtime/release_gate.py --json` green on every runtime or plugin change.": "每次改动 runtime 或 plugin 时，都保持 `bash scripts/run_tests.sh` 和 `python3 scripts/runtime/release_gate.py --json` 为绿色。",
     "rerun planning evidence capture when a future change touches planning/runtime contracts or release-facing acceptance coverage materially.": "当后续改动实质影响 planning/runtime 契约或 release-facing acceptance 覆盖时，重新采集 planning 证据。",
     "name a new roadmap candidate before starting broader planning, steering, or operator extension work.": "在启动更宽的 planning、steering 或 operator 扩展工作前，先命名新的 roadmap 候选。",
+    "release-facing validation fails, evidence requirements materially change, or new capability work needs a named roadmap candidate": "只有 release-facing 验证退红、证据要求发生实质变化，或确实出现新的命名 roadmap 候选时，才重开主线。",
     "choose the next slice: user-visible feature growth vs. install/runtime hardening.": "选择下一条切片：先做用户可见功能增强，还是先做安装 / 运行时加固。",
     "if feature-first wins, define the first concrete enhancement around quota display or command ergonomics.": "如果先做功能，先明确 quota 展示或命令体验的第一条具体增强。",
     "if hardening-first wins, evaluate whether cli injection runtime patch coverage should be the next checkpoint.": "如果先做加固，评估 CLI 注入 runtime patch 覆盖是否应成为下一检查点。",
@@ -859,7 +869,19 @@ def is_skill_repo(repo: Path) -> bool:
     return (repo / "SKILL.md").exists()
 
 
-def medium_mainline_status_zh(repo: Path) -> str:
+def is_medium_steady_state(current_phase: str, active_slice: str, execution_line: str) -> bool:
+    lowered = " ".join([current_phase, active_slice, execution_line]).lower()
+    return any(token in lowered for token in STEADY_STATE_TOKENS)
+
+
+def medium_mainline_status_zh(
+    repo: Path,
+    current_phase: str = "",
+    active_slice: str = "",
+    execution_line: str = "",
+) -> str:
+    if is_medium_steady_state(current_phase, active_slice, execution_line):
+        return "当前主线里程碑已收口；现在处于稳定维护，只在出现新的命名 roadmap 候选或实质性验证变化时才重开新主线。"
     readme = read_text(repo / "README.zh-CN.md") or read_text(repo / "README.md")
     roadmap = read_text(repo / "docs/roadmap.zh-CN.md") or read_text(repo / "docs/roadmap.md")
     if is_skill_repo(repo):
@@ -889,6 +911,8 @@ def medium_mainline_status_zh(repo: Path) -> str:
 
 
 def medium_work_area_zh(active_slice: str, execution_line: str) -> str:
+    if is_medium_steady_state("", active_slice, execution_line):
+        return "稳定维护 / 新候选观察"
     lowered = f"{active_slice} {execution_line}".lower()
     if any(token in lowered for token in ["supervised long-run delivery", "delivery-supervision", "checkpoint rhythm", "长期受监督交付", "close-m12", "rollout"]):
         return "长期受监督交付层"
@@ -912,6 +936,8 @@ def medium_work_area_zh(active_slice: str, execution_line: str) -> str:
 
 
 def medium_slice_explanation_zh(active_slice: str, execution_line: str) -> str:
+    if is_medium_steady_state("", active_slice, execution_line):
+        return "保持加固后基线稳定；在出现新的命名 roadmap 候选之前，不提前重开下一条主线。"
     lowered = active_slice.lower().strip()
     if "delivery-supervision" in lowered or "supervised long-run" in lowered or "close-m12-and-open-rollout" in lowered:
         return "把 checkpoint 节奏、自动继续边界、升级时机和执行器监督循环收口成 durable delivery-supervision，并把项目切到 rollout / 摩擦采集阶段"
@@ -933,6 +959,8 @@ def medium_slice_explanation_zh(active_slice: str, execution_line: str) -> str:
 
 
 def medium_direct_value_zh(active_slice: str, execution_line: str) -> str:
+    if is_medium_steady_state("", active_slice, execution_line):
+        return "让维护者先确认已发布基线持续为绿，不把观察型维护误读成还有一条正在开发的大任务。"
     lowered = active_slice.lower().strip()
     if "delivery-supervision" in lowered or "supervised long-run" in lowered or "close-m12-and-open-rollout" in lowered:
         return "让系统明确知道什么时候可以自动继续、什么时候该提醒、什么时候必须停下来等人类裁决，并把这套节奏沉淀成 durable 交付真相。"
@@ -964,6 +992,48 @@ def task_direct_value_zh(task_text: str, active_slice: str) -> str:
     if any(token in lowered for token in ["implement", "sync", "refresh", "expand", "compact", "issues"]):
         return "把当前切片的核心增量真正落地成可接手的结果。"
     return "让当前切片更容易被维护者看懂并继续推进。"
+
+
+def maintenance_task_type_zh(text: str) -> str:
+    lowered = text.lower()
+    if "name a new roadmap candidate" in lowered or "命名新的 roadmap 候选" in text:
+        return "开新主线前置"
+    if "rerun" in lowered or "重新采集" in text or "when" in lowered or "当后续改动" in text:
+        return "条件触发"
+    return "观察任务"
+
+
+def maintenance_task_status_zh(text: str) -> str:
+    lowered = text.lower()
+    if "name a new roadmap candidate" in lowered or "命名新的 roadmap 候选" in text:
+        return "待触发"
+    if "rerun" in lowered or "重新采集" in text or "when" in lowered or "当后续改动" in text:
+        return "按需触发"
+    return "持续执行"
+
+
+def maintenance_task_value_zh(text: str) -> str:
+    lowered = text.lower()
+    if "name a new roadmap candidate" in lowered or "命名新的 roadmap 候选" in text:
+        return "避免在没有命名下一条主线之前，仓库又回到边做边想的状态。"
+    if "rerun" in lowered or "重新采集" in text or "planning evidence" in lowered:
+        return "让 release-facing 证据在真正变化时再刷新，不把稳态维护做成无意义重复劳动。"
+    return "保持已发布 runtime、文档和 release-facing 基线持续为绿。"
+
+
+def maintenance_task_rows(actions: list[str]) -> list[tuple[str, str, str, str, str]]:
+    rows: list[tuple[str, str, str, str, str]] = []
+    for idx, action in enumerate(actions[:3], start=1):
+        rows.append(
+            (
+                f"MAINT-{idx}",
+                maintenance_task_type_zh(action),
+                maintenance_task_status_zh(action),
+                pretty_text_zh(action),
+                maintenance_task_value_zh(action),
+            )
+        )
+    return rows
 
 
 def usage_links(repo: Path) -> dict[str, str]:
@@ -1012,6 +1082,13 @@ def split_medium_capabilities(repo: Path, readme_capabilities: list[str]) -> lis
 
 
 def medium_workstream_rows(repo: Path, active_slice: str, execution_line: str) -> list[tuple[str, str, str, str, str, str]]:
+    if is_medium_steady_state("", active_slice, execution_line):
+        return [
+            ("主线运行时", "核心 task-system 能力本体", "已完成", "P2", "维持已发布基线", "只做回归"),
+            ("稳定维护", "保持 runtime、文档和 release-facing 证据持续为绿", "活跃", "P0", "执行 watch-mode 维护任务", "只有命名新 roadmap 候选时才重开主线"),
+            ("规划与验收", "planning / acceptance / release-facing 验证", "活跃", "P1", "按需刷新证据，不做空转验证", "当契约实质变化时再补采样本"),
+            ("下一候选评估", "判断何时值得打开下一条命名切片", "活跃", "P1", "观察是否出现真实 roadmap candidate", "有明确信号后再升级为主线"),
+        ]
     lowered = active_slice.lower()
     if is_skill_repo(repo):
         current_narrative = "收口第一屏叙事，让维护者更容易恢复" if any(token in lowered for token in ["narrative", "progress", "handoff", "continue"]) else "维持当前恢复面板"
@@ -1036,7 +1113,18 @@ def task_kind_zh(kind: str) -> str:
     return {"mainline": "主线", "parallel": "并行"}.get(kind, "主线")
 
 
-def medium_current_work_rows(active_slice: str, execution_tasks: list[str]) -> list[tuple[str, str, str, str, str]]:
+def medium_current_work_rows(
+    active_slice: str,
+    execution_tasks: list[str],
+    next_actions_display: list[str],
+    current_phase: str,
+    execution_line: str,
+) -> list[tuple[str, str, str, str, str]]:
+    if is_medium_steady_state(current_phase, active_slice, execution_line) and next_actions_display:
+        return [
+            (content, value, status, task_id, task_type)
+            for task_id, task_type, status, content, value in maintenance_task_rows(next_actions_display)
+        ]
     rows: list[tuple[str, str, str, str, str]] = []
     for task_id, task_type, state, content in execution_task_rows(execution_tasks)[:5]:
         rows.append((content, task_direct_value_zh(content, active_slice), state, task_id, task_type))
@@ -1052,6 +1140,24 @@ def medium_current_work_rows(active_slice: str, execution_tasks: list[str]) -> l
             "主线",
         )
     ]
+
+
+def render_medium_supervision_summary(
+    automatic_review_trigger: str,
+    escalation_gate: str,
+    escalation_reason: str,
+    stop_conditions: str,
+) -> None:
+    print("\n## 监督与接续")
+    print("| 维度 | 当前值 |")
+    print("| --- | --- |")
+    print("| 当前监督模式 | 稳态维护 / watch-mode |")
+    print("| PTL 当前职责 | 保持已发布基线为绿、判断是否出现新的 roadmap 候选、并在 worker 停下时从 durable 真相继续接手。 |")
+    print("| 自动继续条件 | 当前仍在既定方向内，验证保持绿色，且没有出现新的命名主线候选。 |")
+    print(f"| 当前提醒原因 | {pretty_text_zh(automatic_review_trigger)} |")
+    print(f"| 当前 Gate | `{zh_gate(escalation_gate or 'n/a')}` |")
+    print(f"| 当前 Gate 解释 | {pretty_text_zh(escalation_reason)} |")
+    print(f"| 什么时候重开主线 | {pretty_text_zh(stop_conditions) if stop_conditions else '当出现新的命名 roadmap 候选或实质性验证变化时。'} |")
 
 
 def execution_task_rows(task_lines: list[str]) -> list[tuple[str, str, str, str]]:
@@ -1323,6 +1429,7 @@ def render_medium_progress(
 ) -> None:
     current_phase_display = pretty_text_zh(current_phase)
     execution_line_display = pretty_text_zh(current_execution_line or "n/a")
+    steady_state = is_medium_steady_state(current_phase, active_slice, current_execution_line)
     work_area = medium_work_area_zh(active_slice, current_execution_line)
     slice_explanation = medium_slice_explanation_zh(active_slice, current_execution_line)
     direct_value = medium_direct_value_zh(active_slice, current_execution_line)
@@ -1330,6 +1437,9 @@ def render_medium_progress(
     execution_line_note = "当前这轮已经完成，下一步转向下一条增强切片" if line_complete else "当前这轮正在推进，下面的任务板就是本轮收口内容"
     taskboard_conclusion = "这条长任务已经完成" if line_complete else "这条长任务正在推进"
     next_step_nature = "进入下一条 post-hardening feature slice" if line_complete else "继续当前增强切片并收口任务板"
+    position_note = "当前主要在补增强与边界收口"
+    work_area_note = "当前这轮主要面向维护者 / 值班者的使用体验与验证链路"
+    stop_conditions_display = ""
     if is_skill_repo(repo):
         lowered_phase = current_phase.lower()
         if "ptl supervision" in lowered_phase or "worker handoff" in lowered_phase or "m15" in lowered_phase:
@@ -1347,8 +1457,17 @@ def render_medium_progress(
     roadmap_path = preferred_existing_path(repo, ["docs/roadmap.zh-CN.md", "docs/roadmap.md"])
     plan_path = repo / ".codex/plan.md"
     status_path = repo / ".codex/status.md"
+    status_text = read_text(status_path)
     usage_path = preferred_existing_path(repo, ["docs/usage_guide.zh-CN.md", "docs/usage_guide.md"])
     test_plan_path = preferred_existing_path(repo, ["docs/test-plan.zh-CN.md", "docs/test-plan.md"])
+    stop_conditions_display = labeled_bullet_value(section(status_text, "Current Execution Line"), "Stop Conditions")
+
+    if steady_state:
+        execution_line_note = "当前没有新的主写入长任务；先把已发布 runtime、文档与 release-facing 基线保持稳定。"
+        taskboard_conclusion = "上一轮里程碑已完成；当前处于观察型稳定维护"
+        next_step_nature = "继续稳态维护；只有出现新的命名 roadmap 候选或实质性验证变化时才重开主线"
+        position_note = "当前不在补旧债，也不在开新里程碑；先维持已发布基线并观察何时值得命名下一条主线。"
+        work_area_note = "当前主要做 watch-mode 维护、验证保绿和新候选观察。"
 
     current_phase_link = phase_link
     if roadmap_path:
@@ -1366,7 +1485,7 @@ def render_medium_progress(
     print("| 问题 | 当前答案 |")
     print("| --- | --- |")
     print(f"| 项目 | `{project_name}` |")
-    print(f"| 当前判断 | {medium_mainline_status_zh(repo)} |")
+    print(f"| 当前判断 | {medium_mainline_status_zh(repo, current_phase, active_slice, current_execution_line)} |")
     print(f"| 当前阶段 | {current_phase_display} |")
     print(f"| 当前工作域 | {work_area} |")
     print(f"| 当前切片 | {slice_explanation} |")
@@ -1378,16 +1497,22 @@ def render_medium_progress(
     print("\n## 当前定位")
     print("| 维度 | 当前状态 | 说明 | 入口 |")
     print("| --- | --- | --- | --- |")
-    print(f"| 主线状态 | {medium_mainline_status_zh(repo)} | 不是补主线欠债，而是在主线完成后继续增强 | {markdown_file_link(roadmap_path, '路线图') if roadmap_path else '暂无'} |")
-    print(f"| 当前阶段 | {current_phase_display} | 当前主要在补增强与边界收口 | {current_phase_link if current_phase_link != 'n/a' else '暂无'} |")
-    print(f"| 当前工作域 | {work_area} | 当前这轮主要面向维护者 / 值班者的使用体验与验证链路 | {markdown_file_link(usage_path, '使用指南') if usage_path else '暂无'} |")
+    print(f"| 主线状态 | {medium_mainline_status_zh(repo, current_phase, active_slice, current_execution_line)} | {position_note} | {markdown_file_link(roadmap_path, '路线图') if roadmap_path else '暂无'} |")
+    print(f"| 当前阶段 | {current_phase_display} | {position_note} | {current_phase_link if current_phase_link != 'n/a' else '暂无'} |")
+    print(f"| 当前工作域 | {work_area} | {work_area_note} | {markdown_file_link(usage_path, '使用指南') if usage_path else '暂无'} |")
     print(f"| 当前切片 | {slice_explanation} | 原始切片名：`{active_slice}` | {slice_link if slice_link != 'n/a' else markdown_file_link(plan_path, '计划') if plan_path.exists() else '暂无'} |")
     print(f"| 当前执行线 | {execution_line_display} | {execution_line_note} | {markdown_file_link(status_path, '状态') if status_path.exists() else '暂无'} |")
 
     print("\n## 当前这轮到底在做什么")
     print("| 当前工作 | 类型 | 对维护者的直接价值 | 当前状态 | 对应任务 |")
     print("| --- | --- | --- | --- | --- |")
-    for current, value, state, task_id, task_type in medium_current_work_rows(active_slice, execution_tasks):
+    for current, value, state, task_id, task_type in medium_current_work_rows(
+        active_slice,
+        execution_tasks,
+        next_actions_display,
+        current_phase,
+        current_execution_line,
+    ):
         print(f"| {current} | {task_type} | {value} | {state} | `{task_id}` |")
 
     print("\n## 架构监督")
@@ -1401,11 +1526,19 @@ def render_medium_progress(
     print(f"| 升级 Gate | `{zh_gate(escalation_gate or 'n/a')}` |")
     print(f"| 升级原因 | {pretty_text_zh(escalation_reason)} |")
 
-    render_strategy_view(repo)
-    render_program_view(repo)
-    render_delivery_view(repo)
-    render_ptl_view(repo)
-    render_handoff_view(repo)
+    if steady_state:
+        render_medium_supervision_summary(
+            automatic_review_trigger,
+            escalation_gate,
+            escalation_reason,
+            stop_conditions_display,
+        )
+    else:
+        render_strategy_view(repo)
+        render_program_view(repo)
+        render_delivery_view(repo)
+        render_ptl_view(repo)
+        render_handoff_view(repo)
 
     glossary_rows = relevant_terms(repo, active_slice, current_execution_line, readme_capabilities)
     if glossary_rows:
@@ -1432,14 +1565,16 @@ def render_medium_progress(
     print("\n## 当前长任务")
     print("| 项目 | 当前值 |")
     print("| --- | --- |")
-    print(f"| 长任务名称 | `{active_slice}` |")
-    print(f"| 长任务目标 | {slice_explanation} |")
-    print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
+    print(f"| 长任务名称 | `{active_slice}` |" if not steady_state else "| 长任务名称 | `当前没有新的主写入长任务` |")
+    print(f"| 长任务目标 | {slice_explanation} |" if not steady_state else "| 长任务目标 | 保持已发布 runtime、文档与 release-facing 基线稳定；在真正出现新的命名 roadmap 候选前，不提前打开下一条主线。 |")
+    print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |" if not steady_state else f"| 执行进度 | `上一轮 {done_tasks} / {total_tasks} 已完成` |")
     print(f"| 当前结论 | {taskboard_conclusion} |")
     print(f"| 是否存在 blocker | {pretty_text_zh(main_risk)} |")
     print(f"| 下一步性质 | {next_step_nature} |")
 
     task_rows = execution_task_rows(execution_tasks)
+    if steady_state and next_actions_display:
+        task_rows = [(task_id, task_type, state, content) for task_id, task_type, state, content, _ in maintenance_task_rows(next_actions_display)]
     if task_rows:
         print("\n## 当前任务板")
         print("| 任务 ID | 类型 | 状态 | 任务内容 |")

@@ -14,9 +14,9 @@
 
 | 时间层级 | 重点 | 退出信号 |
 | --- | --- | --- |
-| 当前 | 在更多 repo 上 rollout 已完成的 `M16 统一硬入口与工具前门`，验证 task / 新 session / 旧代际仓库都会先走 preflight，再输出结构化 continue / progress / handoff 面板 | 代表性旧仓库不再绕过前门；维护者看到的是同一条统一入口行为 |
-| 下一步 | 继续 post-M16 证据采集，并只在 cross-repo 证据证明单 Codex PTL 模式已经成为瓶颈时，才启动 `M15 选择性多执行器调度` | 拿到不相交写入边界、结果回收口和冲突门禁的真实证据 |
-| 更后面 | 如果证据不足，就继续保持单 Codex PTL 模式，把 `M15` 留在 later 层，同时把 `M16` 作为固定入口契约维持稳定 | 不因为“听起来更强”就提前引入多执行器复杂度 |
+| 当前 | 收口首版快升级版的默认开发顺序：`daemon core -> VS Code host shell -> resume bridge -> local workspace validation`，让你可以直接按 roadmap / plan 点名开工 | 首版宿主、实现顺序、resume 能力级别和本地验证边界已经清楚到可以逐刀实现 |
+| 下一步 | 按顺序实现 daemon core、VS Code 宿主前端、continue 恢复桥，并在代表性本地工作区上完成 MVP 验证 | 用户已能在 VS Code 中看到 live 状态、通过宿主接住 continue，并确认写代码体验明显变轻 |
+| 更后面 | 在 daemon-host 基线上逐项回归旧功能家族，恢复 post-M16 rollout verification，再视证据决定是否扩到 chat surfaces、web/remote 宿主或更激进的 auto-resume | 不把 daemon 核心、宿主桥接、旧功能回归和更远的聊天集成混成一个 release |
 
 ## 里程碑
 
@@ -74,20 +74,26 @@ flowchart LR
 - `M15` 只面向安全并行任务；如果多个任务会改同一批文件、同一控制面或同一抽象边界，就不应进入多执行器层
 - `M16` 的重点不是再加一个 CLI，而是让 `continue / progress / handoff` 的真实入口不再依赖模型自己“记得先跑脚本”
 - `M16` 必须继续明确边界：repo 现在拥有统一前门和 script backend，但不应谎称桌面宿主已经完全硬绑定
+- 宿主恢复桥首版已默认选定 VS Code 扩展前端；不应把“往内置聊天框里自动写继续”当成主架构
 
 ## 行为型 Backlog
 
 | 主题 | 为什么要做 | 当前定位 |
 | --- | --- | --- |
+| daemon-first 异步执行、宿主恢复桥与时延治理 | 用户已经明确表示：如果 skill 继续这么慢，使用意愿会直接掉到卸载。当前主线不仅要做 daemon-first 运行时，还要补上宿主恢复桥和 live 状态展示，首版默认以 VS Code 扩展宿主前端为实现目标。 | active / current mainline |
 | 问题驱动收口环 | 这类请求会反复出现：先把当前问题、解决思路和方案写进 devlog，再把关键结论同步到 architecture、roadmap、development plan，然后直接进入一口气长任务实现。未来这不应再依赖用户逐条提醒。 | supporting backlog / todo |
+| 控制面真相同步确定性 | 当用户执行 `项目助手 继续` 时，`.codex/status.md`、`.codex/plan.md`、`strategy / program-board / delivery / PTL / handoff` 以及 `continue / progress / handoff` 输出之间不应再出现刷新顺序不一致、局部落后或“看起来没同步”的滞后感。 | supporting backlog / todo |
+| VS Code chat surfaces 作为增强入口 | VS Code 扩展可以后续再接 `@project-assistant` participant、slash commands 或 tools，但不应阻塞首版宿主前端和恢复桥。 | later / supporting backlog |
 
 ## 战略方向
 
 | 主题 | 为什么重要 | 当前位置 |
 | --- | --- | --- |
+| daemon-first 异步执行、宿主恢复桥与时延治理 | 当前用户反馈已经升级到产品留存级别：需要的不只是后台优先规则，而是 daemon 运行时、宿主恢复桥和 live UI 一起把“写代码被过程控制拖慢”这个问题打掉。 | active in roadmap and development plan |
 | 业务规划与程序编排层 | `project-assistant` 已完成以项目技术负责人（PTL）为核心的 `M10 / M11 / M12 / M13 / M14`，并新增 `M16` 把 `continue / progress / handoff` 收成统一硬入口；`M15` 继续保持为证据驱动的 later 层，`M8 / M9` 仍作为 bounded supporting backlog | active in roadmap and development plan |
 | 问题驱动收口环 | 当 durable 问题被识别后，skill 未来应自动触发“日志 -> 架构 -> 路线图 / 开发计划 -> 长任务实现”的闭环，而不是依赖用户重复下指令 | supporting backlog / todo |
 
 方向文档：
 
 - [业务规划与程序编排方向](reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md)
+- [宿主恢复桥与 VS Code 扩展可行性](reference/project-assistant/host-resume-bridge.zh-CN.md)

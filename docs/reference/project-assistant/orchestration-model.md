@@ -19,7 +19,7 @@ It answers three main questions:
 | Question | Current Answer |
 | --- | --- |
 | Can real `continue / progress / handoff` consistency rely on natural-language routing alone? | No; they must pass through one canonical front door first |
-| What is the current front door? | `project_assistant_entry.py` / `bin/project-assistant` plus `continue_entry.py` / `progress_entry.py` / `handoff_entry.py` |
+| What is the current front door? | `project_assistant_entry.py` / `bin/project-assistant` plus `bootstrap_entry.py` / `retrofit_entry.py` / `continue_entry.py` / `progress_entry.py` / `handoff_entry.py` |
 | Why is this layer still necessary? | Snapshot scripts alone are not enough; if the real entry path can bypass preflight, maintainers still see drifting prose |
 | Does this already equal desktop-host hard binding? | Not yet; the repo now owns the front door and script backend, but the desktop-host bridge remains a later problem |
 

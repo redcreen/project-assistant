@@ -8,7 +8,7 @@
 
 当前这层架构还要额外解决一个真实问题：
 
-`只把 continue / progress / handoff 做成脚本还不够；如果真实入口还能绕过这些脚本，用户仍会看到错误代际、自由 prose 和漂移的恢复行为。`
+`只把 continue / progress / handoff 做成脚本还不够；如果真实入口还能绕过这些脚本，用户仍会看到错误代际、自由 prose 和漂移的恢复行为。而如果空白项目初始化或整改还需要宿主手工串很多脚本，时延问题也不会真正消失。`
 
 ## 系统上下文
 
@@ -19,7 +19,9 @@ flowchart TB
     U["用户意图"] --> S["SKILL.md\n软路由"]
     S --> F["统一前门\nproject_assistant_entry.py / project-assistant CLI"]
     F --> P["版本 preflight\nsync_resume_readiness.py"]
+    F --> T["事务化快路径\nbootstrap/retrofit"]
     P --> E["mode entry\ncontinue/progress/handoff"]
+    T --> R["bootstrap / retrofit backends"]
     E --> R["snapshot / handoff backends"]
     R --> T["目标仓库 durable 真相\n.codex/* + docs/*"]
 ```
@@ -28,9 +30,10 @@ flowchart TB
 
 | 层 | 当前职责 |
 | --- | --- |
-| `SKILL.md` | 继续负责理解自然语言意图，但不再独自承载 `继续 / 进展 / 交接` 的正确性保证 |
+| `SKILL.md` | 继续负责理解自然语言意图，但不再独自承载 `启动 / 整改 / 继续 / 进展 / 交接` 的正确性保证 |
 | `统一前门` | 成为真正的命令入口：解析模式、仓库路径、子命令别名，并把请求路由到唯一后端 |
 | `版本 preflight` | 在读取旧控制面前，先决定仓库是不是需要自动升级到当前控制面代际 |
+| `事务化快路径` | 把 bootstrap / retrofit 的结构同步收成一次工具调用，减少宿主串脚本的等待 |
 | `mode entry` | 负责结构化第一屏，不再允许先掉回自由 prose |
 | `snapshot / handoff backends` | 继续负责真实业务逻辑：读取 `.codex/*`、汇总状态、输出面板 |
 
@@ -53,7 +56,7 @@ flowchart TB
 - 入口先统一
 - 版本先检查
 - 第一屏先结构化
-- 真正的继续 / 进展 / 交接逻辑仍留在脚本后端
+- 真正的启动 / 整改 / 继续 / 进展 / 交接逻辑仍留在脚本后端
 
 ## 模块清单
 
@@ -62,6 +65,7 @@ flowchart TB
 | `SKILL.md` | 主行为协议与自然语言软路由 | user intent, references, scripts |
 | `references/` | durable 规则、模板、标准 | SKILL, maintainers |
 | `scripts/project_assistant_entry.py` | 统一工具前门 | mode, repo path, canonical backend routing |
+| `scripts/bootstrap_entry.py` / `retrofit_entry.py` | 事务化快路径 | bootstrap / retrofit 在一次调用内完成结构收敛 |
 | `scripts/sync_resume_readiness.py` | 版本 preflight 与最小安全升级 | `.codex/control-surface.json`, sync scripts |
 | `scripts/continue_entry.py` / `progress_entry.py` / `handoff_entry.py` | 结构化第一屏入口 | continue/progress/handoff structured panels |
 | `scripts/*snapshot*.py` / `context_handoff.py` | 真实状态读取与面板渲染 | target repo `.codex/*` + docs |
@@ -83,7 +87,7 @@ flowchart LR
     F --> G["本轮动作 / checkpoint 更新"]
 ```
 
-同样的结构也适用于 `进展` 和 `交接`。
+同一条前门现在也负责 `启动` 和 `整改`，只是这两个 mode 会路由到事务化快路径，而不是恢复式面板。
 
 ## 接口与契约
 
@@ -94,7 +98,7 @@ flowchart LR
 | 统一入口 | `project_assistant_entry.py` 是 canonical front door |
 | CLI 入口 | `bin/project-assistant` 调用同一条后端 |
 | 自然语言入口 | 必须路由到统一前门，而不是直接自由回答 |
-| 允许的 mode | `continue`、`progress`、`handoff`、`resume-readiness` |
+| 允许的 mode | `bootstrap`、`retrofit`、`docs-retrofit`、`continue`、`progress`、`handoff`、`resume-readiness` |
 | 仓库路径 | 默认取当前工作目录，也允许显式传 repo path |
 
 ### preflight 契约
@@ -104,6 +108,8 @@ flowchart LR
 | `continue` | 先升级控制面版本，再恢复当前执行线 |
 | `progress` | 先升级控制面版本，再出完整看板 |
 | `handoff` | 先升级控制面版本，再出交接包 |
+| `bootstrap` | 直接进入 control-surface + docs + `fast` gate 的事务化快路径 |
+| `retrofit` / `docs-retrofit` | 直接进入 control-surface + docs + markdown governance + `fast` gate 的事务化快路径 |
 
 ### 结构化输出契约
 
@@ -140,11 +146,12 @@ flowchart LR
 
 - repo 现在已经有**唯一前门**
 - 宿主未来如果要做更硬的工具注入，也必须继续复用这条前门
-- 不能让插件或宿主再复制一套新的 `continue / progress / handoff` 逻辑
+- 不能让插件或宿主再复制一套新的 `bootstrap / retrofit / continue / progress / handoff` 逻辑
 
 ## 运维关注点
 
 - `继续 / 进展 / 交接` 不能再先自由发挥，再去解释为什么没升级控制面
+- `启动 / 整改` 也不应再依赖宿主手工拼一条平行脚本链
 - 控制面版本升级必须像 PTL / handoff 一样可观察、可校验、可门禁
 - 结构化第一屏必须优先服务维护者和回归接手者，而不是只服务模型自己
 - 如果将来扩到真正的插件或宿主硬接入，仍应保持 `tool front door + script backend` 这一分层

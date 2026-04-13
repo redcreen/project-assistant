@@ -19,7 +19,7 @@
 | 问题 | 当前答案 |
 | --- | --- |
 | 真实 `继续 / 进展 / 交接` 能不能直接靠自然语言保证一致？ | 不能；必须先经过统一前门 |
-| 当前统一前门是什么？ | `project_assistant_entry.py` / `bin/project-assistant` + `continue_entry.py` / `progress_entry.py` / `handoff_entry.py` |
+| 当前统一前门是什么？ | `project_assistant_entry.py` / `bin/project-assistant` + `bootstrap_entry.py` / `retrofit_entry.py` / `continue_entry.py` / `progress_entry.py` / `handoff_entry.py` |
 | 为什么还需要这层？ | 只做 snapshot 脚本不够；真实入口如果能绕过 preflight，维护者仍会看到漂移 prose |
 | 这是不是已经等于宿主级硬绑定？ | 还不是；repo 现在拥有统一前门和 script backend，但桌面宿主桥接仍是后续问题 |
 

@@ -8,7 +8,7 @@
 
 This layer now also has to solve a real entry problem:
 
-`it is not enough to have continue / progress / handoff scripts if the real entry path can still bypass them and fall back to free-form prose.`
+`it is not enough to have continue / progress / handoff scripts if the real entry path can still bypass them, and it is not enough to have retrofit sync scripts if every bootstrap or retrofit still depends on a hand-stitched orchestration chain.`
 
 ## System Context
 
@@ -19,7 +19,9 @@ flowchart TB
     U["User Intent"] --> S["SKILL.md\nsoft routing"]
     S --> F["Unified Front Door\nproject_assistant_entry.py / project-assistant CLI"]
     F --> P["Version Preflight\nsync_resume_readiness.py"]
+    F --> T["Transaction Fast Path\nbootstrap/retrofit"]
     P --> E["Mode Entry\ncontinue/progress/handoff"]
+    T --> R["Bootstrap / Retrofit Backends"]
     E --> R["Snapshot / Handoff Backends"]
     R --> T["Target Repo Durable Truth\n.codex/* + docs/*"]
 ```
@@ -28,9 +30,10 @@ The key change is:
 
 | Layer | Current Responsibility |
 | --- | --- |
-| `SKILL.md` | still interprets natural-language intent, but no longer carries correctness for `continue / progress / handoff` on its own |
+| `SKILL.md` | still interprets natural-language intent, but no longer carries correctness for bootstrap / retrofit / continue / progress / handoff on its own |
 | unified front door | becomes the canonical command entry: parse mode, repo path, and subcommand aliases |
 | version preflight | decides whether the repo must be upgraded before reading the current truth |
+| transaction fast path | collapses bootstrap / retrofit structure work into one tool call |
 | mode entry | guarantees a structured first screen instead of free-form prose |
 | snapshot / handoff backends | keep the real business logic in reusable scripts |
 
@@ -53,7 +56,7 @@ which means:
 - unify entry first
 - run preflight first
 - emit the structured first screen first
-- keep real continue / progress / handoff logic in the script backend
+- keep real bootstrap / retrofit / continue / progress / handoff logic in the script backend
 
 ## Module Inventory
 
@@ -62,6 +65,7 @@ which means:
 | `SKILL.md` | primary behavior contract and soft natural-language routing | user intent, references, scripts |
 | `references/` | durable rules, templates, and standards | SKILL, maintainers |
 | `scripts/project_assistant_entry.py` | canonical tool-shaped front door | mode, repo path, canonical backend routing |
+| `scripts/bootstrap_entry.py` / `retrofit_entry.py` | transaction fast paths | bootstrap / retrofit structure convergence in one call |
 | `scripts/sync_resume_readiness.py` | version preflight and minimum-safe control-surface upgrade | `.codex/control-surface.json`, sync scripts |
 | `scripts/continue_entry.py` / `progress_entry.py` / `handoff_entry.py` | structured first-screen entries | continue / progress / handoff panels |
 | `scripts/*snapshot*.py` / `context_handoff.py` | real state reading and panel rendering | target repo `.codex/*` + docs |
@@ -83,7 +87,7 @@ flowchart LR
     F --> G["This-round actions / checkpoint updates"]
 ```
 
-The same pattern applies to `progress` and `handoff`.
+The same front door also handles `bootstrap` and `retrofit`, but those modes route to a transaction fast path instead of a resume-style panel.
 
 ## Interfaces and Contracts
 
@@ -94,7 +98,7 @@ The same pattern applies to `progress` and `handoff`.
 | canonical entry | `project_assistant_entry.py` is the canonical front door |
 | CLI entry | `bin/project-assistant` must call the same backend |
 | natural-language entry | must route through the unified front door, not answer directly first |
-| allowed modes | `continue`, `progress`, `handoff`, `resume-readiness` |
+| allowed modes | `bootstrap`, `retrofit`, `docs-retrofit`, `continue`, `progress`, `handoff`, `resume-readiness` |
 | repo path | defaults to current working directory, but supports an explicit repo path |
 
 ### Preflight Contract
@@ -104,6 +108,8 @@ The same pattern applies to `progress` and `handoff`.
 | `continue` | run `sync_resume_readiness.py` first, then continue the active line |
 | `progress` | run `sync_resume_readiness.py` first, then render the full dashboard |
 | `handoff` | run `sync_resume_readiness.py` first, then build the resume pack |
+| `bootstrap` | run the transaction fast path for control surface, docs, and `fast` validation |
+| `retrofit` / `docs-retrofit` | run the transaction fast path for control surface, docs, markdown governance, and `fast` validation |
 
 ### Structured Output Contract
 
@@ -134,17 +140,19 @@ This boundary must stay explicit:
 | --- | --- | --- |
 | tool-shaped front door | `project_assistant_entry.py` + CLI wrapper | a desktop-host hard command injection |
 | version preflight | independently testable and runnable in the repo | host-enforced mandatory invocation of the front door |
+| transaction fast path | independently testable bootstrap / retrofit entry scripts | host-side automatic decision of when to prefer fast vs deep retrofit closure |
 | structured first screens | stable script outputs | a host guarantee that every natural-language continue/progress/handoff call is hard-bound |
 
 In other words:
 
 - the repo now has **one canonical front door**
 - any future host or plugin integration must keep calling that front door
-- host-side bridges must not fork a second copy of continue / progress / handoff logic
+- host-side bridges must not fork a second copy of bootstrap / retrofit / continue / progress / handoff logic
 
 ## Operational Concerns
 
 - `continue / progress / handoff` must not emit free-form prose before preflight and the structured panel
+- `bootstrap / retrofit` should not require the host to stitch together a second orchestration chain beside the canonical front door
 - control-surface version upgrades must be observable, gateable, and durable like PTL / handoff layers
 - the first screen must serve maintainers and returning operators, not only the model
 - if the system later grows into a real host/plugin bridge, it should preserve `tool front door + script backend`

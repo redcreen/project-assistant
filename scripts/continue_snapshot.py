@@ -24,7 +24,13 @@ from control_surface_lib import (
     read_text,
     section,
 )
-from progress_snapshot import pretty_text_zh
+from progress_snapshot import (
+    is_medium_steady_state,
+    maintenance_task_rows,
+    medium_mainline_status_zh,
+    medium_work_area_zh,
+    pretty_text_zh,
+)
 from sync_resume_readiness import ResumeReadinessResult, ensure_resume_ready
 
 
@@ -160,6 +166,7 @@ def main() -> int:
     current_phase = first_line(section(status_text, "Current Phase")) or "n/a"
     active_slice = first_line(section(status_text, "Active Slice")) or "n/a"
     current_execution_line = labeled_bullet_value(section(status_text, "Current Execution Line"), "Objective") or active_slice
+    stop_conditions = labeled_bullet_value(section(status_text, "Current Execution Line"), "Stop Conditions")
     architecture_state = classify_architecture_signal(repo)
     strategy_state = parse_strategy_surface(repo)
     program_state = parse_program_board(repo)
@@ -169,9 +176,11 @@ def main() -> int:
     execution_tasks = execution_task_lines(status_text)
     done_tasks, total_tasks = execution_task_progress(execution_tasks)
     next_actions = bullet_lines(section(status_text, "Next 3 Actions"))
+    steady_state = tier == "medium" and is_medium_steady_state(current_phase, active_slice, current_execution_line)
     next_work = pending_execution_items(execution_tasks)
     if not next_work:
         next_work = next_actions[:3]
+    maintenance_rows = maintenance_task_rows(next_actions) if steady_state and next_actions else []
 
     print("# 项目助手继续\n")
     print_upgrade_notice(readiness)
@@ -179,30 +188,40 @@ def main() -> int:
     print("| 项目 | 当前值 |")
     print("| --- | --- |")
     print(f"| 层级 | `{zh_tier(tier)}` |")
+    print(f"| 当前判断 | {medium_mainline_status_zh(repo, current_phase, active_slice, current_execution_line) if tier == 'medium' else humanize_text(current_phase)} |")
     print(f"| 当前阶段 | {humanize_text(current_phase)} |")
-    print(f"| 当前切片 | {humanize_text(active_slice)} |")
-    print(f"| 当前执行线 | {humanize_text(current_execution_line)} |")
-    print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
+    if steady_state:
+        print(f"| 当前工作域 | {medium_work_area_zh(active_slice, current_execution_line)} |")
+        print("| 当前切片 | 稳态维护：上一轮里程碑已完成，当前没有新的主写入长任务。 |")
+        print(f"| 当前执行线 | {humanize_text(current_execution_line)} |")
+        print(f"| 当前结论 | 上一轮里程碑 `{done_tasks} / {total_tasks}` 已完成；现在先保持已发布基线稳定。 |")
+        print(f"| 什么时候重开主线 | {humanize_text(stop_conditions) if stop_conditions else '出现新的命名 roadmap 候选或实质性验证变化时。'} |")
+    else:
+        print(f"| 当前切片 | {humanize_text(active_slice)} |")
+        print(f"| 当前执行线 | {humanize_text(current_execution_line)} |")
+        print(f"| 执行进度 | `{done_tasks} / {total_tasks}` |")
     print(f"| 架构信号 | `{zh_signal(architecture_state['signal'])}` |")
     print(f"| 自动触发 | {humanize_text(architecture_state['automatic_review_trigger'])} |")
     print(f"| 升级 Gate | `{zh_gate(architecture_state['gate'])}` |")
-    if strategy_state["exists"]:
+    if steady_state:
+        print("| 当前监督方式 | PTL 持续巡检基线是否保绿；worker 停下时从 durable 真相接续；只有出现新的 roadmap 候选时才重开主线。 |")
+    elif strategy_state["exists"]:
         print(f"| 战略方向 | {humanize_text(strategy_state['direction'])} |")
         print(f"| 战略状态 | `{zh_strategy_status(strategy_state['status'])}` |")
         print(f"| 下一战略检查 | {humanize_text(strategy_state['next_checks'][0]) if strategy_state['next_checks'] else '暂无'} |")
-    if program_state["exists"]:
+    if not steady_state and program_state["exists"]:
         print(f"| 程序编排方向 | {humanize_text(program_state['direction'])} |")
         print(f"| 程序编排状态 | `{zh_program_status(program_state['status'])}` |")
         print(f"| 下一程序检查 | {humanize_text(program_state['next_checks'][0]) if program_state['next_checks'] else '暂无'} |")
-    if delivery_state["exists"]:
+    if not steady_state and delivery_state["exists"]:
         print(f"| 长期交付方向 | {humanize_text(delivery_state['direction'])} |")
         print(f"| 长期交付状态 | `{zh_delivery_status(delivery_state['status'])}` |")
         print(f"| 下一长期交付检查 | {humanize_text(delivery_state['next_checks'][0]) if delivery_state['next_checks'] else '暂无'} |")
-    if ptl_state["exists"]:
+    if not steady_state and ptl_state["exists"]:
         print(f"| PTL 监督方向 | {humanize_text(ptl_state['direction'])} |")
         print(f"| PTL 监督状态 | `{zh_ptl_status(ptl_state['status'])}` |")
         print(f"| 下一 PTL 检查 | {humanize_text(ptl_state['next_checks'][0]) if ptl_state['next_checks'] else '暂无'} |")
-    if handoff_state["exists"]:
+    if not steady_state and handoff_state["exists"]:
         print(f"| worker 接续方向 | {humanize_text(handoff_state['direction'])} |")
         print(f"| worker 接续状态 | `{zh_handoff_status(handoff_state['status'])}` |")
         print(f"| 下一 handoff 检查 | {humanize_text(handoff_state['next_checks'][0]) if handoff_state['next_checks'] else '暂无'} |")
@@ -212,7 +231,10 @@ def main() -> int:
     print("\n## 接下来先做什么")
     print("| 顺序 | 当前要做的事 |")
     print("| --- | --- |")
-    if next_work:
+    if maintenance_rows:
+        for idx, (_, _, _, content, _) in enumerate(maintenance_rows, start=1):
+            print(f"| {idx} | {humanize_text(content)} |")
+    elif next_work:
         for idx, item in enumerate(next_work, start=1):
             print(f"| {idx} | {humanize_text(item)} |")
     else:
@@ -221,7 +243,10 @@ def main() -> int:
     print("\n## 当前任务板")
     print("| 任务 | 类型 | 状态 |")
     print("| --- | --- | --- |")
-    if execution_tasks:
+    if maintenance_rows:
+        for _, task_type, state, content, _ in maintenance_rows:
+            print(f"| {humanize_text(content)} | {task_type} | {state} |")
+    elif execution_tasks:
         for item in execution_tasks:
             lowered = item.lower()
             state = "已完成" if "[x]" in lowered else "待完成"

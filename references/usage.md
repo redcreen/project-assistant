@@ -49,10 +49,15 @@ Gate commands:
 - `python3 scripts/validate_gate_set.py /path/to/repo --profile fast`
 - `python3 scripts/validate_gate_set.py /path/to/repo --profile deep`
 - `python3 scripts/validate_gate_set.py /path/to/repo --profile release`
+- `python3 scripts/project_assistant_entry.py bootstrap /path/to/repo`
+- `python3 scripts/project_assistant_entry.py retrofit /path/to/repo`
+- `python3 scripts/project_assistant_entry.py docs-retrofit /path/to/repo`
 - `python3 scripts/project_assistant_entry.py continue /path/to/repo`
 - `python3 scripts/project_assistant_entry.py progress /path/to/repo`
 - `python3 scripts/project_assistant_entry.py handoff /path/to/repo`
 - `python3 scripts/project_assistant_entry.py resume-readiness /path/to/repo`
+- `python3 scripts/bootstrap_entry.py /path/to/repo`
+- `python3 scripts/retrofit_entry.py /path/to/repo`
 - `python3 scripts/continue_entry.py /path/to/repo`
 - `python3 scripts/progress_entry.py /path/to/repo`
 - `python3 scripts/handoff_entry.py /path/to/repo`
@@ -158,7 +163,7 @@ English usage notes:
 默认语义：
 
 - `继续` 直接表示“恢复当前状态并继续当前执行线”
-- `继续 / 进展 / 交接` 应共享同一条统一前门；CLI 形态是 `project_assistant_entry.py` 或 `bin/project-assistant`
+- `启动 / 整改 / 文档整改 / 继续 / 进展 / 交接` 应共享同一条统一前门；CLI 形态是 `project_assistant_entry.py` 或 `bin/project-assistant`
 - `继续` 不要求用户自己判断项目是不是旧代际；系统应先自动读取 `.codex/control-surface.json`，检查当前控制面版本是否落后
 - 如果控制面版本过旧，或缺少当前要求的 surface 版本，`继续` 应先自动补齐最小安全升级，再进入真正的恢复与继续
 - `继续` 默认先给一个简版进展快照，而不是完整 dashboard
@@ -222,6 +227,12 @@ English usage notes:
 - `用 $project-assistant 先做架构整改，生成架构整改工作底稿，再按它来切执行线。`
 - `用 $project-assistant 整改这个仓库，并通过脚本校验后再结束。`
 - `Use $project-assistant to align this repo to the operating model and apply the minimum safe changes.`
+
+默认语义：
+
+- `整改 / 文档整改` 的结构同步应优先走统一前门的 transaction fast path，而不是由 assistant 或宿主手工串 `sync_control_surface.py`、`sync_docs_system.py`、`sync_markdown_governance.py`
+- `整改` 的前门默认先跑 `fast` 结构门禁，优先把 control-surface、docs 和 Markdown governance 收成一次事务
+- 如果这轮要把整改声明为完成，仍应补跑 `python3 scripts/validate_gate_set.py /path/to/repo --profile deep`
 
 ## Release | 发布
 

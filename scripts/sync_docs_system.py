@@ -8,7 +8,17 @@ import subprocess
 import sys
 from pathlib import Path
 
-from control_surface_lib import ensure_roadmap_stage_links, parse_tier, read_text, relative_markdown_target, slugify, unwrap_markdown_label
+from control_surface_lib import (
+    CONTROL_SURFACE_COMPONENT_PATHS,
+    control_surface_required_files,
+    control_surface_version_state,
+    ensure_roadmap_stage_links,
+    parse_tier,
+    read_text,
+    relative_markdown_target,
+    slugify,
+    unwrap_markdown_label,
+)
 
 
 README_TEMPLATE = """# {project_name}
@@ -862,6 +872,15 @@ def docs_home_templates(tier: str) -> tuple[str, str]:
 
 
 def bootstrap_control_surface(repo: Path) -> None:
+    tier = parse_tier(repo)
+    version_state = control_surface_version_state(repo, tier=tier)
+    missing_required_files = any(not (repo / rel).exists() for rel in control_surface_required_files(tier))
+    missing_required_surfaces = any(
+        not (repo / CONTROL_SURFACE_COMPONENT_PATHS[component]).exists()
+        for component in version_state["requiredSurfaceVersions"]
+    )
+    if not version_state["needsConfigUpgrade"] and not missing_required_files and not missing_required_surfaces:
+        return
     script = Path(__file__).with_name("sync_control_surface.py")
     result = subprocess.run(
         [sys.executable, str(script), str(repo)],

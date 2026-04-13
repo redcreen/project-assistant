@@ -17,7 +17,9 @@
 
 | 用例 | 前置条件 | 操作 | 预期结果 |
 | --- | --- | --- | --- |
+| 统一启动前门 | 空白仓库且有 git 根目录 | 运行 `project_assistant_entry.py bootstrap` | 通过一次工具调用完成 control surface、docs 和 fast gate |
 | 控制面整改 | 目标仓库缺 `.codex/*` | 运行整改流程 | 必需控制文件存在且通过校验 |
+| 统一整改前门 | 仓库带 legacy docs 或 Markdown 杂乱结构 | 运行 `project_assistant_entry.py retrofit` | 通过一次工具调用完成 control surface、docs、Markdown governance 和 fast gate |
 | 大项目进展 | 目标仓库有模块层 | 运行进展流程 | 输出包含全局视角、模块视角和 Mermaid |
 | 长任务执行线 | 目标、约束和 active slice 已明确 | 运行执行或恢复流程 | 助手会推进一段有检查点的长任务，而不是反复等待“继续” |
 | 上下文交接 | 长会话仓库有 active slice | 运行交接流程 | 生成可复制恢复包 |
@@ -36,6 +38,7 @@
 - `scripts/validate_doc_quality.py`
 - `scripts/validate_control_surface_quality.py`
 - `scripts/validate_development_log.py`
+- `scripts/benchmark_latency.py`
 
 ## 手工检查
 
@@ -43,6 +46,7 @@
 - 确认中英文公开文档可以互相切换
 - 确认图示是在帮助理解，而不是重复文本
 - 确认执行与恢复语义是“有检查点的长任务”，而不是微小步进循环
+- 确认启动与整改可以从同一条 CLI 前门触发，而不是依赖手工串脚本
 - 确认开发日志保留了关键推理链路，而不是重复 status
 
 ## 测试数据与夹具

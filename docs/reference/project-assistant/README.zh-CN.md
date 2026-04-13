@@ -12,3 +12,4 @@
 - [project-origin-and-working-method.zh-CN.md](project-origin-and-working-method.zh-CN.md)：`project-assistant` 的项目起点，以及默认工作方法为什么长成现在这样
 - [strategic-planning-and-program-orchestration.zh-CN.md](strategic-planning-and-program-orchestration.zh-CN.md)：已经确认的战略方向，覆盖战略评估、程序编排和长期受监督交付
 - [orchestration-model.zh-CN.md](orchestration-model.zh-CN.md)：解释当前单 Codex 编排模型与未来多执行器调度层的区别
+- [host-resume-bridge.zh-CN.md](host-resume-bridge.zh-CN.md)：解释 daemon 之上还缺的宿主恢复桥，以及 VS Code 扩展是否适合作第一宿主

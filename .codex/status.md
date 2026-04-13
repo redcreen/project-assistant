@@ -3,53 +3,63 @@
 ## Delivery Tier
 
 - Tier: `medium`
-- Last reviewed: `2026-04-12`
+- Last reviewed: `2026-04-13`
 
 ## Current Phase
 
-`post-M16 rollout verification active`
+`daemon-first fast-upgrade planning ready`
 
 ## Active Slice
-`verify-unified-front-door-rollout-on-legacy-repos`
+`plan-daemon-fast-upgrade-and-vscode-host-mvp`
 
 ## Current Execution Line
-- Objective: 在代表性旧代际仓库上继续验证统一前门：`continue / progress / handoff` 会先升级到当前控制面代际，再输出结构化第一屏，并把剩余摩擦明确区分为 repo 层问题还是宿主桥接问题
-- Plan Link: verify-unified-front-door-rollout-on-legacy-repos
-- Runway: one checkpoint covering legacy-repo rollout evidence, host-bridge gap isolation, and next-step routing
-- Progress: 4 / 6 tasks complete
+- Objective: 把首版快升级版正式拆成可执行顺序：先做 daemon core，再做 VS Code host shell、resume bridge、本地工作区验证，然后再在新基线上逐项回归旧功能
+- Plan Link: plan-daemon-fast-upgrade-and-vscode-host-mvp
+- Runway: one checkpoint covering implementation order, first host choice, resume capability level, and local-workspace validation boundary
+- Progress: 4 / 4 tasks complete
 - Stop Conditions:
   - blocker requires human direction
   - validation fails and changes the direction
-  - business, compatibility, or cost decision requires user judgment
+  - first implementation slice, first host boundary, or resume level needs user judgment
 
 ## Execution Tasks
-- [x] EL-1 confirm the rollout objective for `verify-unified-front-door-rollout-on-legacy-repos`: 证明旧代际仓库会先升级再输出结构化第一屏
-- [x] EL-2 verify dependencies and affected boundaries: `project_assistant_entry.py`、`sync_resume_readiness.py`、`continue / progress / handoff` entry、README、architecture、roadmap、development plan、`.codex/entry-routing.md`
-- [x] EL-3 confirm architecture signal, host-bridge boundary, and correct layer still hold
-- [x] EL-4 validate representative medium / large legacy repos through the unified front door
-- [ ] EL-5 isolate the remaining host-bridge gap and decide the next concrete bridge step
-- [ ] EL-6 keep rollout evidence and next-step routing aligned across control truth and docs
+- [x] EL-1 record the latency problem, user pain, and hard requirements in a durable markdown note
+- [x] EL-2 promote the issue into a named initiative with a dedicated design note and control-truth entry
+- [x] EL-3 discuss options with the user and choose `daemon-first, write-safe, async-by-default` as the target architecture
+- [x] EL-4 define the first fast-upgrade implementation order: `daemon core -> VS Code host shell -> resume bridge -> local workspace validation -> old-feature re-validation`
 
 ## Development Log Capture
 - Trigger Level: high
 - Pending Capture: no
-- Last Entry: docs/devlog/2026-04-12-close-m16-tool-first-front-door-and-entry-routing.md
+- Last Entry: docs/devlog/2026-04-13-daemon-first.md
 
 ## Architecture Supervision
 - Signal: `yellow`
-- Signal Basis: repo 层统一前门已收口，但真实桌面 task / 新 session 仍可能绕过这条前门，所以当前还需要保持 rollout / bridge 摩擦可见
-- Root Cause Hypothesis: 当前剩余问题已经从 repo 脚本能力转成宿主 / 工具桥接问题；继续用 repo 内文案修补已经不能单独解决桌面真实入口绕过前门的问题
-- Correct Layer: `.codex/entry-routing.md`、architecture、rollout evidence、宿主 / 插件桥接设计，而不是继续只改 snapshot 文案
-- Automatic Review Trigger: 当真实 task / 新 session 再次绕过统一前门时自动触发
+- Signal Basis: 用户已经明确要求先看 roadmap / plan 再按切片下实现指令。当前方向已经从“抽象讨论 daemon 是否值得做”收口到“围绕 daemon core + VS Code host MVP 的明确实现顺序”。同时，`host resume bridge` 已确认应以 VS Code 扩展宿主前端为首选，而不是去赌聊天框注入。
+- Root Cause Hypothesis: 当前最伤体验的不是单点脚本时延，而是缺少常驻调度层和宿主恢复桥，导致支撑任务、恢复动作和 live 状态展示都还和主写入线耦合在一起。
+- Correct Layer: daemon runtime、queue/event schema、foreground gate、VS Code host shell、resume bridge、live status surfaces，以及之后的本地工作区验证与旧功能回归。
+- Automatic Review Trigger: 当首版宿主选择、resume 能力级别、daemon/host 边界或旧功能回归顺序发生变化时自动触发
 - Escalation Gate: raise but continue
 
 ## Current Escalation State
-- Current Gate: raise but continue
-- Reason: repo 层统一前门已完成，但真实桌面桥接仍需继续采证和隔离问题
-- Next Review Trigger: review again when blockers change, the active slice rolls forward, or release-facing work begins
+- Current Gate: require user decision
+- Reason: 规划已收口到可开发切片；下一步应由用户点名先开哪一刀，而不是默认同时展开 daemon core、宿主前端和恢复桥
+- Next Review Trigger: review again when the user selects the first implementation slice or changes the default build order
 
 ## Done
 
+- bootstrap / retrofit latency 快修已完成一轮：
+  - `sync_docs_system.py` 与 `sync_markdown_governance.py` 不再无条件重复 bootstrap control surface
+  - `sync_control_surface.py` 现在会一次性补齐 `entry-routing`
+  - `project_assistant_entry.py` 已覆盖 `bootstrap / retrofit / docs-retrofit`，并把这几条入口收成统一前门
+  - `scripts/benchmark_latency.py` 现在能同时量 baseline 与 front-door path，并显示宿主调用轮次
+- daemon-first 方向已确认：
+  - `docs/reference/project-assistant/async-execution-and-latency-governance*.md` 已改成 daemon-first 主方案
+  - `docs/reference/project-assistant/ptl-daemon-mvp*.md` 已定义快升级版边界
+  - 当前策略已明确为：先发一版让编码速度快起来，再在 daemon 基线上逐项验证旧功能
+- host resume bridge 方向已确认：
+  - `docs/reference/project-assistant/host-resume-bridge*.md` 已把 `daemon -> host -> Codex -> UI` 的边界、恢复能力分级和 VS Code 扩展可行性写清楚
+  - 当前推荐路径已明确为：先做 VS Code 扩展宿主前端，不把“往聊天框里自动写继续”当主架构
 - M6 `embedded architect-assistant operating model` 已关闭：
   - 规划、执行、架构监督和开发日志都已成为默认自动能力
   - 代表性整改流 `整改 / 文档整改 / 架构整改` 已在真实仓库上跑通
@@ -95,18 +105,22 @@
 
 ## In Progress
 
-- post-M16 rollout verification 已激活：当前主线是在更多旧代际仓库上验证统一前门是否总是先升级再输出结构化面板
-- supporting backlog 再吸收判断仍在后续：`M8 / M9` 何时回主线，继续以跨 repo 证据为准
+- daemon-first 快升级规划已收口：当前已把首版实现顺序拆成 `daemon core -> VS Code host shell -> resume bridge -> local validation -> old-feature re-validation`
+- post-M16 rollout verification 暂时继续停在下一条恢复线：等异步治理方向确认后再恢复 host-bridge 证据采集
 
 ## Blockers / Open Decisions
 
 - None currently.
+- Follow-up: `build-ptl-daemon-runtime-core` 是否只先收 CLI + socket + queue store，还是连第一批 worker 也一起带上
+- Follow-up: `build-vscode-host-shell-and-live-status` 首版是否只收 Tree View + Status Bar + Output channel，还是连 Webview dashboard 一起带上
+- Follow-up: `wire-manual-and-one-click-continue` 首版是否默认只收 `manual continue`，还是把保守的 `one-click continue` 也一起收进第一批
 - Follow-up: 自动压缩上下文仍是后续专题，目标是在不丢 durable 恢复信息的前提下，分层压缩 `continue / progress / handoff` 的输出体量与重复内容
 - Follow-up: 只有当 post-M16 证据证明单 Codex PTL 模式已经成为瓶颈时，才考虑打开 M15
 - Follow-up: 把“当前问题 -> 解决思路 -> 方案 -> devlog -> architecture -> roadmap / development plan -> 一口气长任务实现”固化成默认行为；当 durable 问题被识别后，`project-assistant` 不应再依赖用户逐条提醒这套收口顺序
+- Follow-up: 控制面真相同步确定性仍需专题收口；当用户执行 `项目助手 继续` 时，`status / plan / strategy / program-board / delivery / PTL / handoff / progress / continue` 之间不应再出现刷新先后不一致或“部分已更新、部分仍落后”的滞后感
 
 ## Next 3 Actions
 
-1. 把真实桌面 task / 新 session 仍可能绕过统一前门的行为正式收成 host-bridge evidence
-2. 基于 rollout 证据设计下一步宿主 / 插件桥接方案，而不是继续只改 repo 文案
-3. 继续把 `M8 / M9` 保持在 supporting backlog，并只在真正需要时再评估 `M15`
+1. `build-ptl-daemon-runtime-core`
+2. `build-vscode-host-shell-and-live-status`
+3. `wire-manual-and-one-click-continue`

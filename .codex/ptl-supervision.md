@@ -1,9 +1,9 @@
 # PTL Supervision
 
 ## Current PTL Direction
-- Direction: `tool-first front door closed; rollout verification queued`
+- Direction: `daemon-first async execution design active`
 - Status: `active`
-- Why Now: repo 层统一前门已经收口；当前 PTL 仍要继续盯真实入口是否还会绕过前门，并把剩余问题升级成 bridge evidence，而不是继续让 worker 独自消化。
+- Why Now: 把目标架构正式切成 `daemon-first PTL scheduler`，并先定义一个 write-safe 的快升级版：优先把写代码速度拉起来，再在 daemon 基线上逐项验证旧功能
 
 ## PTL Supervision Contract
 

@@ -30,4 +30,4 @@
 - Human users usually only need the four primary windows above.
 - The other flows should run mostly in the background unless the user explicitly overrides them.
 - Use the language that matches the user, and accept natural-language variations when the intent is clear.
-- Canonical CLI front door: `project-assistant continue|progress|handoff <repo>` or `python3 scripts/project_assistant_entry.py <mode> <repo>`.
+- Canonical CLI front door: `project-assistant bootstrap|retrofit|docs-retrofit|continue|progress|handoff <repo>` or `python3 scripts/project_assistant_entry.py <mode> <repo>`.

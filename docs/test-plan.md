@@ -17,7 +17,9 @@ Primary risks:
 
 | Case | Setup | Action | Expected Result |
 | --- | --- | --- | --- |
+| Unified bootstrap front door | blank repo with a git root | run `project_assistant_entry.py bootstrap` | control surface, docs, and fast gate complete through one tool call |
 | Control surface retrofit | target repo missing `.codex/*` | run retrofit flow | required control files exist and validate |
+| Unified retrofit front door | repo has legacy docs / markdown clutter | run `project_assistant_entry.py retrofit` | control surface, docs, markdown governance, and fast gate complete through one tool call |
 | Large-project progress | target repo has module layer | run progress flow | output contains global view, module view, and Mermaid |
 | Autonomous execution line | goal and active slice are clear | run execute or resume flow | assistant continues a meaningful checkpoint-sized run instead of stopping for repeated continue prompts |
 | Context handoff | long-running repo with active slice | run handoff flow | compact resume pack with copy-paste commands |
@@ -36,6 +38,7 @@ Primary risks:
 - `scripts/validate_doc_quality.py`
 - `scripts/validate_control_surface_quality.py`
 - `scripts/validate_development_log.py`
+- `scripts/benchmark_latency.py`
 
 ## Manual Checks
 
@@ -43,6 +46,7 @@ Primary risks:
 - verify Chinese and English public docs point to each other correctly
 - verify diagrams clarify structure instead of repeating text
 - verify execute and resume semantics imply a meaningful autonomous run, not a micro-step loop
+- verify bootstrap and retrofit can be triggered from one canonical CLI front door instead of a hand-stitched shell sequence
 - verify development-log entries preserve the reasoning path without drifting into status prose
 
 ## Test Data and Fixtures

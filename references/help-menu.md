@@ -32,7 +32,7 @@ Chinese menu:
 - 架构（architecture）：进入架构监督与复盘子命令
 - 开发日志（devlog）：记录重要问题、思考和解决方案
 - 菜单（menu）：查看入口与当前人工窗口
-- 统一前门（tool-first front door）：`继续 / 进展 / 交接` 先走同一条前门，再输出结构化面板
+- 统一前门（tool-first front door）：`启动 / 整改 / 文档整改 / 继续 / 进展 / 交接` 先走同一条前门，再输出事务化结果或结构化面板
 
 后台流程（通常自动运行，不必频繁手工调用）：
 - 启动（bootstrap）
@@ -88,7 +88,7 @@ Default working style:
 - Project Assistant should usually plan, supervise, execute, validate, and return at checkpoints on its own
 - it should keep architecture signal and escalation gate visible instead of hiding higher-level judgment inside free-form notes
 - progress and handoff should also show what is usable now, not only what is still in progress
-- `continue / progress / handoff` should share one front door and a structured first screen instead of falling back to free-form prose
+- `bootstrap / retrofit / continue / progress / handoff` should share one front door and a structured first screen instead of falling back to free-form orchestration or prose
 
 Examples:
 - project assistant start this project
