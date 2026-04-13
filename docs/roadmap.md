@@ -43,6 +43,11 @@ Detailed execution queue:
 | [M14](reference/project-assistant/development-plan.md#m14) | done | add worker handoff and re-entry so unfinished work can be resumed, reassigned, or re-queued instead of dying with the worker | [M13](reference/project-assistant/development-plan.md#m13) + durable handoff / supervision truth | after a checkpoint, timeout, failure, or handoff, the remaining work still has a durable path forward |
 | [M15](reference/project-assistant/development-plan.md#m15) | later | add selective multi-executor scheduling only for safe parallel work | [M14](reference/project-assistant/development-plan.md#m14) + disjoint write scopes + conflict control | true parallel execution is only allowed when write boundaries, merge paths, and conflict gates are explicit |
 | [M16](reference/project-assistant/development-plan.md#m16) | done | add a tool-first front door and hard-entry bridge so `continue / progress / handoff` must pass through one router, version preflight, and structured first-screen contract | [M14](reference/project-assistant/development-plan.md#m14) + versioned control surface + entry scripts | legacy repos auto-upgrade before resume, and the first screen no longer falls back to free-form prose |
+| [M17](reference/project-assistant/development-plan.md#m17) | active | build the PTL daemon runtime core and the write-safe fast-upgrade baseline | [M16](reference/project-assistant/development-plan.md#m16) + daemon-first architecture + runtime contract | the daemon runtime, queue/event contract, runtime store, and minimum CLI control surface are usable |
+| [M18](reference/project-assistant/development-plan.md#m18) | next | build the VS Code host shell and live-status surfaces | [M17](reference/project-assistant/development-plan.md#m17) + daemon event contract | users can see queue state, status, the active slice, and recent events in VS Code |
+| [M19](reference/project-assistant/development-plan.md#m19) | next | build the host continue-resume bridge so `resume-ready` becomes a host action | [M18](reference/project-assistant/development-plan.md#m18) + Codex runner / command contract | `manual continue` works and conservative `one-click continue` can be added without relying on chat-box injection |
+| [M20](reference/project-assistant/development-plan.md#m20) | next | validate the daemon-host baseline on local workspaces and re-validate older feature families on top of it | [M19](reference/project-assistant/development-plan.md#m19) + representative local workspaces | the daemon-host baseline is stable and older capabilities keep passing on the new baseline |
+| [M21](reference/project-assistant/development-plan.md#m21) | next | resume post-M16 rollout verification on top of the daemon-host baseline | [M20](reference/project-assistant/development-plan.md#m20) | representative legacy repos still upgrade first, render structured panels, and are no longer dominated by avoidable synchronous work |
 
 ## Milestone Flow
 
@@ -60,7 +65,12 @@ flowchart LR
     M12 --> M13["M13 PTL Supervision Loop"]
     M13 --> M14["M14 Worker Handoff And Re-entry"]
     M14 --> M16["M16 Tool-First Front Door"]
-    M16 --> M15["M15 Selective Multi-Executor Scheduling"]
+    M16 --> M17["M17 Daemon Runtime Core"]
+    M17 --> M18["M18 VS Code Host Shell"]
+    M18 --> M19["M19 Host Resume Bridge"]
+    M19 --> M20["M20 Daemon-Host Validation + Legacy Revalidation"]
+    M20 --> M21["M21 Resume Post-M16 Rollout"]
+    M21 --> M15["M15 Selective Multi-Executor Scheduling"]
 ```
 
 ## Risks and Dependencies

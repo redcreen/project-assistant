@@ -7,14 +7,14 @@
 
 ## Current Phase
 
-`daemon-first fast-upgrade planning ready`
+`M17-M21 daemon-host mainline planning ready`
 
 ## Active Slice
-`plan-daemon-fast-upgrade-and-vscode-host-mvp`
+`define-m17-through-m21-daemon-host-mainline`
 
 ## Current Execution Line
-- Objective: 把首版快升级版正式拆成可执行顺序：先做 daemon core，再做 VS Code host shell、resume bridge、本地工作区验证，然后再在新基线上逐项回归旧功能
-- Plan Link: plan-daemon-fast-upgrade-and-vscode-host-mvp
+- Objective: 把首版快升级版正式抬成 `M17-M21` 里程碑主线：`M17 daemon core -> M18 VS Code host -> M19 resume bridge -> M20 validation -> M21 rollout resume`
+- Plan Link: define-m17-through-m21-daemon-host-mainline
 - Runway: one checkpoint covering implementation order, first host choice, resume capability level, and local-workspace validation boundary
 - Progress: 4 / 4 tasks complete
 - Stop Conditions:
@@ -26,7 +26,7 @@
 - [x] EL-1 record the latency problem, user pain, and hard requirements in a durable markdown note
 - [x] EL-2 promote the issue into a named initiative with a dedicated design note and control-truth entry
 - [x] EL-3 discuss options with the user and choose `daemon-first, write-safe, async-by-default` as the target architecture
-- [x] EL-4 define the first fast-upgrade implementation order: `daemon core -> VS Code host shell -> resume bridge -> local workspace validation -> old-feature re-validation`
+- [x] EL-4 define the `M17-M21` milestone order for the daemon-host mainline and sync it into roadmap / plan
 
 ## Development Log Capture
 - Trigger Level: high
@@ -111,9 +111,9 @@
 ## Blockers / Open Decisions
 
 - None currently.
-- Follow-up: `build-ptl-daemon-runtime-core` 是否只先收 CLI + socket + queue store，还是连第一批 worker 也一起带上
-- Follow-up: `build-vscode-host-shell-and-live-status` 首版是否只收 Tree View + Status Bar + Output channel，还是连 Webview dashboard 一起带上
-- Follow-up: `wire-manual-and-one-click-continue` 首版是否默认只收 `manual continue`，还是把保守的 `one-click continue` 也一起收进第一批
+- Follow-up: `M17 / build-ptl-daemon-runtime-core` 是否只先收 CLI + socket + queue store，还是连第一批 worker 也一起带上
+- Follow-up: `M18 / build-vscode-host-shell-and-live-status` 首版是否只收 Tree View + Status Bar + Output channel，还是连 Webview dashboard 一起带上
+- Follow-up: `M19 / wire-manual-and-one-click-continue` 首版是否默认只收 `manual continue`，还是把保守的 `one-click continue` 也一起收进第一批
 - Follow-up: 自动压缩上下文仍是后续专题，目标是在不丢 durable 恢复信息的前提下，分层压缩 `continue / progress / handoff` 的输出体量与重复内容
 - Follow-up: 只有当 post-M16 证据证明单 Codex PTL 模式已经成为瓶颈时，才考虑打开 M15
 - Follow-up: 把“当前问题 -> 解决思路 -> 方案 -> devlog -> architecture -> roadmap / development plan -> 一口气长任务实现”固化成默认行为；当 durable 问题被识别后，`project-assistant` 不应再依赖用户逐条提醒这套收口顺序
@@ -121,6 +121,6 @@
 
 ## Next 3 Actions
 
-1. `build-ptl-daemon-runtime-core`
-2. `build-vscode-host-shell-and-live-status`
-3. `wire-manual-and-one-click-continue`
+1. `M17 / build-ptl-daemon-runtime-core`
+2. `M18 / build-vscode-host-shell-and-live-status`
+3. `M19 / wire-manual-and-one-click-continue`

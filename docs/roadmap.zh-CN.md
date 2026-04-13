@@ -43,6 +43,11 @@
 | [M14](reference/project-assistant/development-plan.zh-CN.md#m14) | done | 增加 worker 接续与回流，让未完成工作可以被 PTL 恢复、转交、回队列，而不是在 worker 停下时一起丢掉 | [M13](reference/project-assistant/development-plan.zh-CN.md#m13) + durable handoff / supervision truth | worker 在 checkpoint、超时、失败或交接后，剩余工作仍能继续推进或被明确升级 |
 | [M15](reference/project-assistant/development-plan.zh-CN.md#m15) | later | 增加选择性多执行器调度，只对安全并行任务开放 | [M14](reference/project-assistant/development-plan.zh-CN.md#m14) + 不相交写入边界 + 冲突控制 | 只有 write scope 清楚、回收口明确、冲突门禁成立时，才允许真正多执行器并行 |
 | [M16](reference/project-assistant/development-plan.zh-CN.md#m16) | done | 增加统一硬入口与工具前门，让 `继续 / 进展 / 交接` 必须先走同一条前门、版本 preflight 和结构化输出 | [M14](reference/project-assistant/development-plan.zh-CN.md#m14) + 版本化控制面 + entry scripts | 旧项目会先自动升级到当前控制面代际，且 `continue / progress / handoff` 的第一屏不再绕回自由 prose |
+| [M17](reference/project-assistant/development-plan.zh-CN.md#m17) | active | 建立 PTL daemon runtime core 与 write-safe 快升级基线 | [M16](reference/project-assistant/development-plan.zh-CN.md#m16) + daemon-first 架构 + runtime contract | daemon runtime、queue/event contract、runtime store 与最小 CLI 控制面可用 |
+| [M18](reference/project-assistant/development-plan.zh-CN.md#m18) | next | 建立 VS Code 宿主前端壳与 live status 面 | [M17](reference/project-assistant/development-plan.zh-CN.md#m17) + daemon 事件契约 | 用户已能在 VS Code 中看到队列、状态、当前切片与最近事件 |
+| [M19](reference/project-assistant/development-plan.zh-CN.md#m19) | next | 建立宿主 continue 恢复桥，把 `resume-ready` 接成宿主动作 | [M18](reference/project-assistant/development-plan.zh-CN.md#m18) + Codex runner / 命令契约 | `manual continue` 可用，并在范围允许时补上保守的 `one-click continue`；不依赖聊天框注入 |
+| [M20](reference/project-assistant/development-plan.zh-CN.md#m20) | next | 在 daemon-host 基线上完成本地工作区验证与旧功能逐项回归 | [M19](reference/project-assistant/development-plan.zh-CN.md#m19) + 代表性本地 workspace | daemon-host 基线稳定，且旧能力在新基线上持续重新通过 |
+| [M21](reference/project-assistant/development-plan.zh-CN.md#m21) | next | 在 daemon-host 基线上恢复 post-M16 rollout verification | [M20](reference/project-assistant/development-plan.zh-CN.md#m20) | 代表性旧代际仓库继续先升级再输出结构化面板，且体验不再被可避免的同步工作主导 |
 
 ## 里程碑流转
 
@@ -60,7 +65,12 @@ flowchart LR
     M12 --> M13["M13 PTL 监督环"]
     M13 --> M14["M14 worker 接续与回流"]
     M14 --> M16["M16 统一硬入口与工具前门"]
-    M16 --> M15["M15 选择性多执行器调度"]
+    M16 --> M17["M17 daemon runtime core"]
+    M17 --> M18["M18 VS Code 宿主壳"]
+    M18 --> M19["M19 host resume bridge"]
+    M19 --> M20["M20 daemon-host 验证 + 旧功能回归"]
+    M20 --> M21["M21 恢复 post-M16 rollout"]
+    M21 --> M15["M15 选择性多执行器调度"]
 ```
 
 ## 风险与依赖

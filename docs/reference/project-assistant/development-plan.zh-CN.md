@@ -26,8 +26,8 @@
 
 | 项目 | 当前值 | 说明 |
 | --- | --- | --- |
-| 当前阶段 | `daemon-first fast-upgrade planning ready` | 当前讨论已从“是否要 daemon”推进到“按什么顺序实现 daemon core、宿主前端和恢复桥”，目的是让你可以直接按文档点名开发 |
-| 当前切片 | `plan-daemon-fast-upgrade-and-vscode-host-mvp` | 当前这轮把首版默认开发顺序正式固定为 `daemon core -> VS Code host shell -> resume bridge -> local validation -> old-feature re-validation` |
+| 当前阶段 | `M17-M21 daemon-host mainline planning ready` | 当前讨论已从“是否要 daemon”推进到“按什么顺序实现 M17-M21”，目的是让你可以直接按文档点名开发 |
+| 当前切片 | `define-m17-through-m21-daemon-host-mainline` | 当前这轮把首版默认开发顺序正式固定为 `M17 daemon core -> M18 VS Code host -> M19 resume bridge -> M20 validation -> M21 rollout resume` |
 | 当前执行线 | 先把默认实现顺序和首版宿主范围写清楚，让开发能按切片推进，而不是在 daemon、host UI 和聊天集成之间反复跳转 | 当前真正要回答的是“第一刀先砍哪里，后面每一刀按什么顺序接上” |
 | 当前验证 | `docs/reference/project-assistant/async-execution-and-latency-governance.md`、`ptl-daemon-mvp.md`、`host-resume-bridge.md` 与控制面都一致表达“先 daemon core，再 VS Code 宿主，再恢复桥” | 当前实现规划已经 durable 化，可直接作为开发排序依据 |
 
@@ -51,6 +51,11 @@
 | M14 | done | 增加 worker 接续与回流 | M13 + durable handoff / supervision truth | `worker 停了，项目不能跟着停` 成为 durable 能力 |
 | M15 | later | 增加选择性多执行器调度 | M14 + 不相交写入边界 + 冲突控制 | 只有安全并行任务才进入多执行器；高耦合任务继续保持单主写入线 |
 | M16 | done | 增加统一硬入口与工具前门 | M14 + 版本化控制面 + entry scripts | 旧项目会先自动升级到当前控制面代际，且 `continue / progress / handoff` 第一屏不再绕回自由 prose |
+| M17 | active | 建立 PTL daemon runtime core 与 write-safe 快升级基线 | M16 + daemon-first 架构 + runtime contract | daemon runtime、queue/event contract、runtime store 与最小 CLI 控制面可用 |
+| M18 | next | 建立 VS Code 宿主前端壳与 live status 面 | M17 + daemon 事件契约 | 用户已能在 VS Code 中看到队列、状态、当前切片与最近事件 |
+| M19 | next | 建立宿主 continue 恢复桥，把 `resume-ready` 接成宿主动作 | M18 + Codex runner / 命令契约 | `manual continue` 可用，并在范围允许时补上保守的 `one-click continue`；不依赖聊天框注入 |
+| M20 | next | 在 daemon-host 基线上完成本地工作区验证与旧功能逐项回归 | M19 + 代表性本地 workspace | daemon-host 基线稳定，且旧能力在新基线上持续重新通过 |
+| M21 | next | 在 daemon-host 基线上恢复 post-M16 rollout verification | M20 | 代表性旧代际仓库继续先升级再输出结构化面板，且体验不再被可避免的同步工作主导 |
 
 ## 顺序执行队列
 
@@ -74,13 +79,13 @@
 | 16 | `define-m13-m14-m15-post-m12-mainline` | 已完成 | 把 post-M12 正式写成 `M13 / M14 / M15`，并明确 `worker 接续与回流` 的人话定义 | roadmap、README、development plan、战略文档与编排模型都对齐 |
 | 17 | `close-m13-and-m14-and-queue-m15-evidence` | 已完成 | 把 `M13 / M14` 真正收口成 PTL supervision / worker handoff 的 durable 控制面、门禁、进展与交接 | `deep` 与 `release` 通过；控制面、README、roadmap、development plan 与进展输出都显示 `M13 / M14 done` |
 | 18 | `close-m16-tool-first-front-door-and-queue-rollout-verification` | 已完成 | 把真实入口问题收口成统一前门、版本 preflight、结构化第一屏、CLI 前门与 durable `entry-routing` 控制面 | `project_assistant_entry.py`、`sync_resume_readiness.py`、`validate_entry_routing.py`、`deep` 与 `release` 通过；代表性旧仓库可先升级再输出面板 |
-| 19 | `plan-daemon-fast-upgrade-and-vscode-host-mvp` | 当前主线 | 把首版快升级版正式拆成可按顺序实现的切片，并明确首个宿主默认是 VS Code 扩展前端 | roadmap、development plan、status、plan 和宿主桥文档能读出同一套默认开发顺序 |
-| 20 | `build-ptl-daemon-runtime-core` | next | 建立 daemon runtime、queue/event contract、runtime store 和最小 CLI 控制面 | daemon 可启动 / 停止 / 展示队列状态，并产出宿主可消费的事件 |
-| 21 | `build-vscode-host-shell-and-live-status` | next | 建立 VS Code 宿主前端壳，至少收 Tree View、Status Bar、Output channel 和 daemon 连接 | 用户已能在 VS Code 里看到 live 状态、当前切片和最近事件 |
-| 22 | `wire-manual-and-one-click-continue` | next | 把 `resume-ready` 接成宿主可见的 continue 动作，先收 `manual continue`，再视范围补保守的 `one-click continue` | 停下来的 worker 能通过宿主恢复继续，不要求聊天框注入 |
-| 23 | `validate-daemon-host-mvp-on-local-workspaces` | next | 在代表性本地 workspace 上验证 daemon + VS Code host MVP 的状态、恢复和稳定性 | 本地工作区验证证明宿主 MVP 足够稳定，可以作为下一阶段基线 |
-| 24 | `validate-legacy-feature-set-on-daemon-host-baseline` | next | 在 daemon-host 基线上按家族逐项回归旧功能，而不是等一个超大迁移一次性完成 | 旧能力在新基线上持续重新通过，不反噬“先提速、先减负”的主目标 |
-| 25 | `resume-post-m16-rollout-on-daemon-host-baseline` | next | 在 daemon-host 基线和旧功能回归稳定后，再恢复 post-M16 rollout verification | 代表性旧仓库继续先升级再输出结构化面板，且体验不再被可避免的同步工作主导 |
+| 19 | `define-m17-through-m21-daemon-host-mainline` | 当前主线 | 把首版快升级版正式拆成 `M17-M21` 里程碑主线，并明确首个宿主默认是 VS Code 扩展前端 | roadmap、development plan、status、plan 和宿主桥文档能读出同一套里程碑顺序 |
+| 20 | `M17 / build-ptl-daemon-runtime-core` | next | 建立 daemon runtime、queue/event contract、runtime store 和最小 CLI 控制面 | daemon 可启动 / 停止 / 展示队列状态，并产出宿主可消费的事件 |
+| 21 | `M18 / build-vscode-host-shell-and-live-status` | next | 建立 VS Code 宿主前端壳，至少收 Tree View、Status Bar、Output channel 和 daemon 连接 | 用户已能在 VS Code 里看到 live 状态、当前切片和最近事件 |
+| 22 | `M19 / wire-manual-and-one-click-continue` | next | 把 `resume-ready` 接成宿主可见的 continue 动作，先收 `manual continue`，再视范围补保守的 `one-click continue` | 停下来的 worker 能通过宿主恢复继续，不要求聊天框注入 |
+| 23 | `M20 / validate-daemon-host-mvp-on-local-workspaces` | next | 在代表性本地 workspace 上验证 daemon + VS Code host MVP 的状态、恢复和稳定性 | 本地工作区验证证明宿主 MVP 足够稳定，可以作为下一阶段基线 |
+| 24 | `M20 / validate-legacy-feature-set-on-daemon-host-baseline` | next | 在 daemon-host 基线上按家族逐项回归旧功能，而不是等一个超大迁移一次性完成 | 旧能力在新基线上持续重新通过，不反噬“先提速、先减负”的主目标 |
+| 25 | `M21 / resume-post-m16-rollout-on-daemon-host-baseline` | next | 在 daemon-host 基线和旧功能回归稳定后，再恢复 post-M16 rollout verification | 代表性旧仓库继续先升级再输出结构化面板，且体验不再被可避免的同步工作主导 |
 | 26 | `formalize-issue-driven-closure-loop` | supporting backlog / todo | 把“当前问题 -> 解决思路 -> 方案 -> devlog -> architecture -> roadmap / development plan -> 一口气长任务实现”固化成默认行为，而不是依赖用户逐条提醒 | 后续实现时，能够在 durable 问题被识别后自动触发这条收口链路 |
 | 27 | `formalize-control-truth-sync-determinism` | supporting backlog / todo | 把 `.codex/status.md`、`.codex/plan.md`、`strategy / program-board / delivery / PTL / handoff` 以及 `continue / progress / handoff` 的刷新顺序收口成一次确定性的同步事务，避免用户执行 `项目助手 继续` 时看到“部分已更新、部分落后”的滞后感 | 后续实现时，旧项目升级、控制面刷新、结构化第一屏和持久真相能在同一轮 checkpoint 里稳定对齐 |
 
@@ -149,6 +154,51 @@
 | 目标 | 增加统一硬入口与工具前门 |
 | 依赖 | M14 + 版本化控制面 + entry scripts |
 | 退出条件 | `continue / progress / handoff` 共享同一条前门、先跑同一条 preflight、先输出结构化第一屏；repo 还额外拥有 durable `entry-routing` contract 与 CLI 前门 |
+
+### M17
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | active |
+| 目标 | 建立 PTL daemon runtime core 与 write-safe 快升级基线 |
+| 依赖 | M16 + daemon-first 架构 + runtime contract |
+| 退出条件 | daemon runtime、queue/event contract、runtime store 与最小 CLI 控制面可用 |
+
+### M18
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | next |
+| 目标 | 建立 VS Code 宿主前端壳与 live status 面 |
+| 依赖 | M17 + daemon 事件契约 |
+| 退出条件 | 用户已能在 VS Code 中看到队列、状态、当前切片与最近事件 |
+
+### M19
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | next |
+| 目标 | 建立宿主 continue 恢复桥，把 `resume-ready` 接成宿主动作 |
+| 依赖 | M18 + Codex runner / 命令契约 |
+| 退出条件 | `manual continue` 可用，并在范围允许时补上保守的 `one-click continue`；不依赖聊天框注入 |
+
+### M20
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | next |
+| 目标 | 在 daemon-host 基线上完成本地工作区验证与旧功能逐项回归 |
+| 依赖 | M19 + 代表性本地 workspace |
+| 退出条件 | daemon-host 基线稳定，且旧能力在新基线上持续重新通过 |
+
+### M21
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | next |
+| 目标 | 在 daemon-host 基线上恢复 post-M16 rollout verification |
+| 依赖 | M20 |
+| 退出条件 | 代表性旧代际仓库继续先升级再输出结构化面板，且体验不再被可避免的同步工作主导 |
 
 ## 当前下一步
 
