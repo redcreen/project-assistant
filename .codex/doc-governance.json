@@ -80,6 +80,14 @@
     {
       "glob": "agents/**/*.md",
       "role": "internal"
+    },
+    {
+      "glob": "integrations/*.md",
+      "role": "internal"
+    },
+    {
+      "glob": "integrations/**/*.md",
+      "role": "internal"
     }
   ],
   "questionOwners": {

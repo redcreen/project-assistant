@@ -44,11 +44,13 @@ English simple commands:
 - `project assistant handoff`
 - `project assistant release patch`
 
-Gate commands:
+Canonical front-door commands:
 
-- `python3 scripts/validate_gate_set.py /path/to/repo --profile fast`
-- `python3 scripts/validate_gate_set.py /path/to/repo --profile deep`
-- `python3 scripts/validate_gate_set.py /path/to/repo --profile release`
+- `bin/project-assistant continue /path/to/repo`
+- `bin/project-assistant progress /path/to/repo`
+- `bin/project-assistant handoff /path/to/repo`
+- `bin/project-assistant daemon status /path/to/repo`
+- `bin/project-assistant queue /path/to/repo`
 - `python3 scripts/project_assistant_entry.py bootstrap /path/to/repo`
 - `python3 scripts/project_assistant_entry.py retrofit /path/to/repo`
 - `python3 scripts/project_assistant_entry.py docs-retrofit /path/to/repo`
@@ -56,11 +58,29 @@ Gate commands:
 - `python3 scripts/project_assistant_entry.py progress /path/to/repo`
 - `python3 scripts/project_assistant_entry.py handoff /path/to/repo`
 - `python3 scripts/project_assistant_entry.py resume-readiness /path/to/repo`
+- `python3 scripts/project_assistant_entry.py daemon status /path/to/repo`
+- `python3 scripts/project_assistant_entry.py queue /path/to/repo`
+
+Backend/debug commands:
+
 - `python3 scripts/bootstrap_entry.py /path/to/repo`
 - `python3 scripts/retrofit_entry.py /path/to/repo`
 - `python3 scripts/continue_entry.py /path/to/repo`
 - `python3 scripts/progress_entry.py /path/to/repo`
 - `python3 scripts/handoff_entry.py /path/to/repo`
+- `python3 scripts/sync_resume_readiness.py /path/to/repo`
+- `python3 scripts/validate_daemon_runtime.py /path/to/repo --format text`
+- `python3 scripts/validate_vscode_host_extension.py /path/to/repo --format text`
+- `python3 scripts/validate_daemon_host_mvp.py /path/to/repo --format text`
+- `python3 scripts/validate_daemon_legacy_rollout.py /path/to/repo --format text`
+
+Validation and gate commands:
+
+- `python3 scripts/validate_gate_set.py /path/to/repo --profile fast`
+- `python3 scripts/validate_gate_set.py /path/to/repo --profile deep`
+- `python3 scripts/validate_gate_set.py /path/to/repo --profile release`
+- `python3 scripts/validate_entry_routing.py /path/to/repo --format text`
+- `python3 scripts/validate_dogfooding_evidence.py /path/to/repo --format text`
 - `python3 scripts/validate_control_surface_quality.py /path/to/repo --format text`
 - `python3 scripts/validate_development_log.py /path/to/repo --format text`
 - `python3 scripts/validate_architecture_retrofit.py /path/to/repo --format text`
@@ -68,7 +88,6 @@ Gate commands:
 - `python3 scripts/sync_execution_line.py /path/to/repo --slice "slice name" --force`
 - `python3 scripts/sync_architecture_supervision.py /path/to/repo`
 - `python3 scripts/sync_architecture_retrofit.py /path/to/repo`
-- `python3 scripts/sync_resume_readiness.py /path/to/repo`
 
 ## Start or Bootstrap | 启动
 
@@ -164,6 +183,7 @@ English usage notes:
 
 - `继续` 直接表示“恢复当前状态并继续当前执行线”
 - `启动 / 整改 / 文档整改 / 继续 / 进展 / 交接` 应共享同一条统一前门；CLI 形态是 `project_assistant_entry.py` 或 `bin/project-assistant`
+- daemon-host baseline 现在就是默认快路径：如果不是在做后端调试或脚本验证，先走统一前门，不要先直连 backend entry scripts
 - `继续` 不要求用户自己判断项目是不是旧代际；系统应先自动读取 `.codex/control-surface.json`，检查当前控制面版本是否落后
 - 如果控制面版本过旧，或缺少当前要求的 surface 版本，`继续` 应先自动补齐最小安全升级，再进入真正的恢复与继续
 - `继续` 默认先给一个简版进展快照，而不是完整 dashboard
@@ -178,6 +198,7 @@ English usage notes:
 - 如果在继续前触发了自动补齐，应先用一句短话告诉用户“我正在检查 / 补齐哪些控制面”，不要长时间沉默
 - 如果 `继续` 过程中实际改动了仓库，应在 continue 面板后另起一个 `本轮动作` 区块，不要把面板替换成 prose 摘要
 - 如果未来出现宿主或插件级硬接入，也必须继续调用同一条前门，而不是复制另一套 continue/progress/handoff 逻辑
+- `daemon / queue` 也应继续通过同一条统一前门暴露 runtime 状态，而不是让宿主或 CLI 直接猜测 runtime store 文件
 
 ## Ask for Progress | 查看进展
 
@@ -231,8 +252,25 @@ English usage notes:
 默认语义：
 
 - `整改 / 文档整改` 的结构同步应优先走统一前门的 transaction fast path，而不是由 assistant 或宿主手工串 `sync_control_surface.py`、`sync_docs_system.py`、`sync_markdown_governance.py`
+- backend entry scripts 继续保留给验证、调试与内部复用，但不应再被文档写成默认维护者路径
 - `整改` 的前门默认先跑 `fast` 结构门禁，优先把 control-surface、docs 和 Markdown governance 收成一次事务
 - 如果这轮要把整改声明为完成，仍应补跑 `python3 scripts/validate_gate_set.py /path/to/repo --profile deep`
+
+## Daemon And Queue | 守护进程与任务队列
+
+- `project-assistant daemon start /path/to/repo`
+- `project-assistant daemon status /path/to/repo`
+- `project-assistant daemon stop /path/to/repo`
+- `project-assistant queue /path/to/repo`
+- `python3 scripts/daemon_entry.py enqueue validate-fast /path/to/repo`
+
+默认语义：
+
+- `daemon` 和 `queue` 继续复用统一前门与同一套 runtime contract，不应再维护平行 CLI
+- daemon-host baseline 现在默认从 `project_assistant_entry.py` / `bin/project-assistant` 进入；`daemon_entry.py` 主要保留给后端验证与调试
+- daemon 负责低风险支撑任务、queue / events 和 foreground lease；不在后台自动写业务代码
+- `daemon status` 现在除了 phase / slice / gate / resume-ready，还应作为“当前检查点 / 下一动作”的观察入口
+- 如果宿主或扩展要展示 live 状态，应读取同一套 daemon contract，而不是直接读 runtime store 文件
 
 ## Release | 发布
 

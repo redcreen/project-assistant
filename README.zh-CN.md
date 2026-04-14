@@ -21,7 +21,7 @@
 | 默认工作模型 | 人类给方向；`project-assistant` 负责规划、执行、验证、更新状态，并只在需要判断时升级给人类 |
 | 关键常驻角色 | 项目技术负责人（PTL）：在已批准业务方向内负责战略判断、程序编排、长期交付监督和升级 |
 | 项目起点 | [项目起点与工作方法](docs/reference/project-assistant/project-origin-and-working-method.zh-CN.md)：原始问题是“先目标、再方案、再架构、再 roadmap / test case / development plan、再让 AI 按 plan 交付，会不会更稳” |
-| 当前战略方向 | `M10 / M11 / M12 / M13 / M14` 已完成；`M16 统一硬入口与工具前门` 也已完成，当前进入 post-M16 rollout 验证，用真实 repo 证据判断 `M15 选择性多执行器调度` 是否真的需要 |
+| 当前战略方向 | `M10 / M11 / M12 / M13 / M14 / M16` 已完成，`M17-M21 daemon-host baseline` 也已完成；当前进入 post-M21 稳定化与 dogfooding，用真实使用证据决定 release 包装和更远的宿主扩展 |
 | 程序编排层当前边界 | 先把“单 Codex 内的 durable 编排真相层”和“worker 停下后项目不断线”做稳定；多桌面 Codex / 多执行器自动调度仍属于后续能力 |
 | `M14` 人话解释 | `worker 停了，项目不能跟着停` |
 | `M16` 人话解释 | `继续 / 进展 / 交接` 先走同一条前门，旧项目先升级，再输出结构化第一屏 |
@@ -31,9 +31,9 @@
 
 | 时间层级 | 重点 |
 | --- | --- |
-| 当前 | 在更多 repo 上 rollout 已完成的 `M16 统一硬入口与工具前门`，确认 task / 新 session / 旧代际仓库都会先走 preflight，再输出结构化 continue / progress / handoff 第一屏 |
-| 下一步 | 根据 cross-repo 证据判断是否真的需要 `M15 选择性多执行器调度`，而不是因为“脚本已经有了”就提前承诺宿主级多执行器 |
-| 更后面 | 只有当证据显示单 Codex PTL 模式已经成为瓶颈，且不相交写入边界成立时，才引入真正多执行器 |
+| 当前 | 稳住刚完成的 daemon-host baseline：让 daemon runtime、queue、VS Code host、continue bridge、legacy rollout、文档和门禁继续保持在同一条默认快路径上 |
+| 下一步 | 给 daemon-host baseline 补齐更清楚的 operator docs、release 叙事和更广范围 dogfooding 证据，再决定是否需要更强宿主表面 |
+| 更后面 | 只有当证据显示 daemon-host baseline 已稳定、单 Codex PTL 模式仍成瓶颈，且不相交写入边界成立时，才重新讨论 `M15` 或更激进的宿主自动化 |
 | 战略入口 | [业务规划与程序编排方向](docs/reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md) |
 | 方法起点 | [项目起点与工作方法](docs/reference/project-assistant/project-origin-and-working-method.zh-CN.md) |
 
@@ -50,6 +50,8 @@ curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/i
 ```bash
 git clone --branch v0.1.3 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
+
+说明：当前稳定 tag 仍停在 `v0.1.3`；`M17-M21 daemon-host baseline` 已在仓库主线落地，正式 release 包装是下一条收口线。
 
 ## 最简配置
 
@@ -88,6 +90,16 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - `项目助手 整改`
 - `项目助手 文档整改`
 - `项目助手 压缩上下文`
+- `project-assistant daemon start`
+- `project-assistant queue`
+
+### 默认操作快路径
+
+daemon-host baseline 现在就是日常真实工作的默认快路径。
+
+- 先走统一前门：`bin/project-assistant` 或 `python3 scripts/project_assistant_entry.py`
+- 维护者最常用的是：`continue`、`progress`、`handoff`、`daemon status`、`queue`
+- `bootstrap_entry.py`、`retrofit_entry.py`、`continue_entry.py`、`progress_entry.py`、`handoff_entry.py` 继续保留给后端复用、验证和调试，但不再是宿主或维护者的默认入口
 
 ## 核心能力
 
@@ -100,6 +112,8 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 把 `progress / continue / handoff` 做成更像给维护者看的第一屏，而不是只剩 raw status dump
 - 让 `继续` 自动判断旧项目是否需要最小控制面升级，而不是把这个判断甩给用户
 - 让 `继续 / 进展 / 交接` 共用一个统一前门，不再依赖模型先“记得调用正确脚本”
+- 提供本地 daemon runtime、queue / events 控制面和单主写入线 lease，尽量把支撑任务移出前台写代码路径
+- 提供 VS Code 宿主壳、live status 和 continue bridge，让“页面在动、任务在推进”成为真实体验，而不是只停在设计稿
 - 当当前切片出现 ownership、boundary 或 repeated-fix drift 时，自动把架构复盘升上来
 - 用一个简短的 `Usable Now` 快照告诉你现在已经能直接用什么
 - 把现有仓库整改到收敛状态
@@ -132,8 +146,9 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 - 至少一条架构复盘路径现在已经能从当前切片里的 drift 信号自动升级出来，而不是只靠手工提醒
 - 战略评估层、程序编排层、长期受监督交付层、PTL 监督环和 worker 接续层现在都已经是 PTL 可运行能力，而不只是 proposal 文档
 - `M16` 已把 `continue / progress / handoff` 收成统一前门、版本 preflight 与结构化第一屏契约；桌面宿主级硬绑定仍是后续桥接问题
+- `M17-M21` 已把 daemon runtime、VS Code host、continue bridge、本地验证与 legacy rollout 恢复收成同一条 daemon-host baseline
 - 程序编排层当前是“一个 Codex 的总调度脑”，不是已经产品化成“自动拉起多个桌面 Codex 并回收结果”
-- `M13 / M14 / M16` 已经关闭；下一步只在证据足够时才考虑是否打开 `M15 选择性多执行器调度`
+- `M13 / M14 / M16 / M17 / M18 / M19 / M20 / M21` 已经关闭；下一步只在证据足够时才考虑是否打开 `M15 选择性多执行器调度`
 
 ## 常见工作流
 
@@ -270,6 +285,13 @@ project-assistant/
 
 ### 关键脚本
 
+- `scripts/project_assistant_entry.py`
+- `scripts/sync_entry_routing.py`
+- `scripts/validate_entry_routing.py`
+- `scripts/sync_dogfooding_evidence.py`
+- `scripts/validate_dogfooding_evidence.py`
+- `scripts/daemon_entry.py`
+- `scripts/daemon_runtime.py`
 - `scripts/sync_control_surface.py`
 - `scripts/validate_control_surface.py`
 - `scripts/sync_docs_system.py`
@@ -287,6 +309,10 @@ project-assistant/
 - `scripts/write_development_log.py`
 - `scripts/validate_development_log.py`
 - `scripts/validate_architecture_retrofit.py`
+- `scripts/validate_daemon_runtime.py`
+- `scripts/validate_vscode_host_extension.py`
+- `scripts/validate_daemon_host_mvp.py`
+- `scripts/validate_daemon_legacy_rollout.py`
 - `scripts/capability_snapshot.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
@@ -298,11 +324,17 @@ project-assistant/
 python3 scripts/validate_control_surface.py /path/to/repo --format text
 python3 scripts/validate_docs_system.py /path/to/repo --format text
 python3 scripts/validate_public_docs_i18n.py /path/to/repo --format text
+python3 scripts/validate_entry_routing.py /path/to/repo --format text
+python3 scripts/validate_dogfooding_evidence.py /path/to/repo --format text
 python3 scripts/validate_markdown_governance.py /path/to/repo --format text
 python3 scripts/validate_doc_quality.py /path/to/repo --format text
 python3 scripts/validate_control_surface_quality.py /path/to/repo --format text
 python3 scripts/validate_development_log.py /path/to/repo --format text
 python3 scripts/validate_architecture_retrofit.py /path/to/repo --format text
+python3 scripts/validate_daemon_runtime.py /path/to/repo --format text
+python3 scripts/validate_vscode_host_extension.py /path/to/repo --format text
+python3 scripts/validate_daemon_host_mvp.py /path/to/repo --format text
+python3 scripts/validate_daemon_legacy_rollout.py /path/to/repo --format text
 python3 scripts/validate_gate_set.py /path/to/repo --profile fast
 python3 scripts/validate_gate_set.py /path/to/repo --profile deep
 python3 scripts/validate_gate_set.py /path/to/repo --profile release

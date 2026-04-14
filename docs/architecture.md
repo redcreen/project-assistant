@@ -6,13 +6,15 @@
 
 `project-assistant` is not only a collection of prompts. It aims to turn Codex into a lightweight project operating system with durable control surfaces, convergent retrofit, maintainer-facing reporting, and reliable recovery / handoff flows.
 
-This layer now also has to solve a real entry problem:
+This layer now also has to solve two real problems:
 
-`it is not enough to have continue / progress / handoff scripts if the real entry path can still bypass them, and it is not enough to have retrofit sync scripts if every bootstrap or retrofit still depends on a hand-stitched orchestration chain.`
+`it is not enough to have continue / progress / handoff scripts if the real entry path can still bypass them.`
+
+`and it is not enough to have bootstrap / retrofit / validation scripts if foreground coding still gets interrupted by synchronous support work every time the repo needs structure, progress, or recovery help.`
 
 ## System Context
 
-The current system has two front-door layers instead of only “intent -> skill -> scripts”.
+The current system now has three layers instead of only “intent -> skill -> scripts”.
 
 ```mermaid
 flowchart TB
@@ -20,9 +22,12 @@ flowchart TB
     S --> F["Unified Front Door\nproject_assistant_entry.py / project-assistant CLI"]
     F --> P["Version Preflight\nsync_resume_readiness.py"]
     F --> T["Transaction Fast Path\nbootstrap/retrofit"]
+    F --> D["daemon / queue runtime control"]
+    D --> Q["Local PTL daemon\nqueue/events/foreground lease"]
     P --> E["Mode Entry\ncontinue/progress/handoff"]
     T --> R["Bootstrap / Retrofit Backends"]
     E --> R["Snapshot / Handoff Backends"]
+    Q --> R
     R --> T["Target Repo Durable Truth\n.codex/* + docs/*"]
 ```
 
@@ -30,12 +35,18 @@ The key change is:
 
 | Layer | Current Responsibility |
 | --- | --- |
-| `SKILL.md` | still interprets natural-language intent, but no longer carries correctness for bootstrap / retrofit / continue / progress / handoff on its own |
+| `SKILL.md` | still interprets natural-language intent, but no longer carries correctness for bootstrap / retrofit / continue / progress / handoff / daemon / queue on its own |
 | unified front door | becomes the canonical command entry: parse mode, repo path, and subcommand aliases |
 | version preflight | decides whether the repo must be upgraded before reading the current truth |
 | transaction fast path | collapses bootstrap / retrofit structure work into one tool call |
+| runtime control | brings daemon lifecycle, queue inspection, and foreground-write leases into the same entry layer |
 | mode entry | guarantees a structured first screen instead of free-form prose |
 | snapshot / handoff backends | keep the real business logic in reusable scripts |
+| local daemon | owns background queueing, event flow, low-risk support work, and host-visible state instead of taking over business-code writes |
+
+Operational default:
+
+`for real operator work, the daemon-host baseline now starts at the unified front door; direct backend entry scripts remain reusable internals for tests, composition, and debugging.`
 
 ## Why the Unified Front Door Exists
 
@@ -47,16 +58,18 @@ The real problem was not “missing scripts.” It was:
 | `continue / progress / handoff` had no single canonical front door | the model could improvise a prose summary before any structured panel |
 | there was no durable entry-layer contract | upgrades depended on ad hoc judgment instead of gates |
 
-So this round chooses:
+So this round now chooses:
 
-`tool-first front door + script backend`
+`tool-first front door + local daemon runtime + script backend`
 
 which means:
 
 - unify entry first
 - run preflight first
+- unify runtime control as well
 - emit the structured first screen first
 - keep real bootstrap / retrofit / continue / progress / handoff logic in the script backend
+- move queueable low-risk support work behind a local daemon instead of blocking the foreground coding lane
 
 ## Module Inventory
 
@@ -67,7 +80,9 @@ which means:
 | `scripts/project_assistant_entry.py` | canonical tool-shaped front door | mode, repo path, canonical backend routing |
 | `scripts/bootstrap_entry.py` / `retrofit_entry.py` | transaction fast paths | bootstrap / retrofit structure convergence in one call |
 | `scripts/sync_resume_readiness.py` | version preflight and minimum-safe control-surface upgrade | `.codex/control-surface.json`, sync scripts |
+| `scripts/daemon_entry.py` / `scripts/daemon_runtime.py` | daemon lifecycle, queue/events, foreground lease | local runtime control, host integration |
 | `scripts/continue_entry.py` / `progress_entry.py` / `handoff_entry.py` | structured first-screen entries | continue / progress / handoff panels |
+| `integrations/vscode-host/` | first host frontend shell and live-status surfaces | VS Code Tree View, Status Bar, Output, continue bridge |
 | `scripts/*snapshot*.py` / `context_handoff.py` | real state reading and panel rendering | target repo `.codex/*` + docs |
 | `.codex/entry-routing.md` | durable entry contract, front-door layers, and host bridge boundary | maintainers, validators |
 | `.codex/strategy.md` / `.codex/program-board.md` / `.codex/delivery-supervision.md` | PTL strategic, orchestration, and long-run delivery truth | PTL, maintainers |
@@ -98,7 +113,8 @@ The same front door also handles `bootstrap` and `retrofit`, but those modes rou
 | canonical entry | `project_assistant_entry.py` is the canonical front door |
 | CLI entry | `bin/project-assistant` must call the same backend |
 | natural-language entry | must route through the unified front door, not answer directly first |
-| allowed modes | `bootstrap`, `retrofit`, `docs-retrofit`, `continue`, `progress`, `handoff`, `resume-readiness` |
+| operator default | maintainers, hosts, and automation should start with the front door; backend entry scripts are not the default path |
+| allowed modes | `bootstrap`, `retrofit`, `docs-retrofit`, `continue`, `progress`, `handoff`, `resume-readiness`, `daemon`, `queue` |
 | repo path | defaults to current working directory, but supports an explicit repo path |
 
 ### Preflight Contract
@@ -110,6 +126,8 @@ The same front door also handles `bootstrap` and `retrofit`, but those modes rou
 | `handoff` | run `sync_resume_readiness.py` first, then build the resume pack |
 | `bootstrap` | run the transaction fast path for control surface, docs, and `fast` validation |
 | `retrofit` / `docs-retrofit` | run the transaction fast path for control surface, docs, markdown governance, and `fast` validation |
+| `daemon` | ensure the local runtime first, then render structured daemon status |
+| `queue` | connect to the same runtime, then render structured queue / task state |
 
 ### Structured Output Contract
 
@@ -131,6 +149,7 @@ The same front door also handles `bootstrap` and `retrofit`, but those modes rou
 | `.codex/ptl-supervision.md` | stores PTL supervision loop truth |
 | `.codex/worker-handoff.md` | stores worker handoff and re-entry truth |
 | `.codex/plan.md` / `.codex/status.md` | store the active slice, execution line, task board, and risks |
+| `~/.codex/daemon/<repo-id>/` | stores the daemon runtime store, queue, events, task logs, and foreground lease |
 
 ## Host / Tool Bridge Boundary
 
@@ -140,12 +159,14 @@ This boundary must stay explicit:
 | --- | --- | --- |
 | tool-shaped front door | `project_assistant_entry.py` + CLI wrapper | a desktop-host hard command injection |
 | version preflight | independently testable and runnable in the repo | host-enforced mandatory invocation of the front door |
+| daemon runtime control | independently testable and runnable in the repo | hosts bypassing the front door to mutate runtime files directly |
 | transaction fast path | independently testable bootstrap / retrofit entry scripts | host-side automatic decision of when to prefer fast vs deep retrofit closure |
 | structured first screens | stable script outputs | a host guarantee that every natural-language continue/progress/handoff call is hard-bound |
 
 In other words:
 
 - the repo now has **one canonical front door**
+- the repo now has **daemon-aware runtime control behind that same front door**
 - any future host or plugin integration must keep calling that front door
 - host-side bridges must not fork a second copy of bootstrap / retrofit / continue / progress / handoff logic
 

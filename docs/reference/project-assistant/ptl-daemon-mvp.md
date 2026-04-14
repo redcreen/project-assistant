@@ -10,6 +10,10 @@ It is intentionally narrower than the full daemon vision:
 
 `ship a version that makes coding faster first, then validate the existing feature set on top of that new baseline.`
 
+Current status:
+
+`M17-M21` have now materialized this MVP as the current daemon-host baseline. The next mainline is hardening, dogfooding, and release packaging, not reopening the “should we do a daemon?” question.
+
 ## Product Goal
 
 The MVP should solve one immediate user problem:

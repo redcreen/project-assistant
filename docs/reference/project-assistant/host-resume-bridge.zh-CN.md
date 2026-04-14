@@ -13,6 +13,16 @@
 - 当 daemon 发现当前 Codex 停了，但项目还能继续时，谁来唤起下一个执行动作？
 - 如果第一宿主选型是 VS Code 扩展，它到底能不能承接这种恢复与动态展示体验？
 
+当前状态：
+
+`M17-M21` 已经把这条宿主恢复桥以 VS Code 宿主壳 + continue bridge 的形式落成首版 baseline；接下来的主线是稳定化和 dogfooding，而不是回到“宿主能不能做”的抽象讨论。
+
+当前实现边界也已经比较明确：
+
+- 在 VS Code 里打开当前 workspace 的精确 Codex 会话，已经是 host baseline 的一部分
+- 新线程 auto-resume 已经可以通过公开的 `chatgpt.implementTodo` bridge 自动提交
+- 精确会话 auto-submit 目前仍是实验性的本机 macOS bridge，因为公开的 Codex API 还没有稳定提供“向这个已有会话直接发一条 prompt”
+
 ## 什么叫宿主
 
 这里的 `宿主` 不是仓库，也不是 daemon。
@@ -79,6 +89,11 @@ repo 今天还不拥有的是：
 - daemon 检测 `resume-ready`
 - 宿主按策略自动拉起下一次执行
 - 前端持续显示 live 状态、ETA、文件变化和最近 patch
+
+这里最后一步，今天实际上已经拆成两条具体桥：
+
+- exact-session auto-resume 依赖和 `Resume Last Codex Session` 同一条 exact-session auto-submit bridge
+- fresh-thread auto-resume 可以直接走公开的新线程 bridge，不依赖 exact-session 注入能力
 
 首版建议先做到 Level 1 或保守的 Level 2，不把 Level 3 当首发门槛。
 

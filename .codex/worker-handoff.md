@@ -1,9 +1,9 @@
 # Worker Handoff
 
 ## Current Handoff Direction
-- Direction: `daemon-first async execution design active`
+- Direction: `post-M21 daemon-host baseline active`
 - Status: `active`
-- Why Now: 把目标架构正式切成 `daemon-first PTL scheduler`，并先定义一个 write-safe 的快升级版：优先把写代码速度拉起来，再在 daemon 基线上逐项验证旧功能
+- Why Now: keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins
 
 ## Worker Handoff Contract
 
@@ -62,6 +62,6 @@
 | 显著成本 / 时间变化 | 必须升级给人类 |
 
 ## Next Handoff Checks
-1. 在真实 repo 里验证 worker 停下后的接续、回流和升级是否都能靠 durable 真相完成。
-2. 继续观察 cross-repo rollout 中有哪些 handoff 场景反复出现，再决定是否真的需要 M15。
+1. 在更多本地 workspace 上验证 worker 停下后的接续、回流和升级都能靠 daemon-host baseline 的 durable 真相完成。
+2. 继续观察 runtime / host / adoption 里哪些 handoff 场景会反复出现，再决定是否真的需要更强宿主表面或 `M15`。
 3. 只在 disjoint write scope 和结果回收口都明确时，才允许把 handoff 扩成多执行器调度。

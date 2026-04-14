@@ -13,6 +13,16 @@ It answers two questions:
 - when the daemon sees that the current Codex run stopped but work may continue, who wakes up the next execution action?
 - if the first host target is a VS Code extension, can it realistically carry that recovery and live-status experience?
 
+Current status:
+
+`M17-M21` have now materialized this bridge as a first baseline through the VS Code host shell plus continue bridge. The next mainline is hardening and dogfooding, not reopening the abstract “can a host do this?” discussion.
+
+Current implementation boundary:
+
+- opening the exact saved Codex session inside VS Code is now part of the host baseline
+- fresh-thread auto-resume can already auto-submit through the public `chatgpt.implementTodo` bridge
+- exact-session auto-submit is currently an experimental local macOS bridge, because no stable public Codex API exists yet for “send this prompt into that existing session”
+
 ## What "Host" Means
 
 The `host` is not the repo and not the daemon.
@@ -79,6 +89,11 @@ Do not treat “programmatically type continue into a chat input” as the main 
 - the daemon detects `resume-ready`
 - the host starts the next execution according to policy
 - the frontend keeps showing live status, ETA, file changes, and recent patches
+
+Today that last step splits into two concrete bridges:
+
+- exact-session auto-resume depends on the same exact-session auto-submit bridge used by `Resume Last Codex Session`
+- fresh-thread auto-resume can use the public new-thread bridge and does not depend on exact-session message injection
 
 The first version should aim for Level 1 or a conservative Level 2, not treat Level 3 as a launch requirement.
 

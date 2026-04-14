@@ -10,7 +10,7 @@ This document records the approved next major direction above the current `proje
 - program orchestration
 - supervised long-run delivery
 
-This direction is now part of the official roadmap. M10 strategic evaluation, M11 program orchestration, M12 supervised long-run delivery, `M13 PTL supervision loop`, `M14 worker handoff and re-entry`, and `M16 tool-first front door and hard-entry bridge` are complete. The repo is now in post-M16 rollout verification to determine whether `M15 selective multi-executor scheduling` is actually needed; M8 and M9 continue as bounded supporting backlog topics under this direction.
+This direction is now part of the official roadmap. M10 strategic evaluation, M11 program orchestration, M12 supervised long-run delivery, `M13 PTL supervision loop`, `M14 worker handoff and re-entry`, `M16 tool-first front door and hard-entry bridge`, and the `M17-M21 daemon-host baseline` are complete. The repo is now in post-M21 hardening and dogfooding to decide release packaging, host-expansion boundaries, and whether `M15 selective multi-executor scheduling` should ever return to the mainline; M8 and M9 continue as bounded supporting backlog topics under this direction.
 
 The standing role across these three layers is named:
 
@@ -159,6 +159,7 @@ The direction is approved, but its authority remains bounded:
 6. M15 remains evidence-gated: if tasks do not have disjoint write scopes, or cross-repo rollout has not shown the single-Codex PTL model to be the bottleneck, they should not enter the multi-executor layer.
 7. M16 has now turned `continue / progress / handoff` into one front door, one version-preflight path, one structured first-screen contract, and one durable `entry-routing` surface; desktop-host hard binding remains a later bridge problem and should not be claimed early.
 8. The “issue-driven closure loop” is now a recurring request pattern; later work should decide how to promote it into a default behavior instead of relying on repeated user reminders to “write the log, update architecture, sync roadmap / plan, then implement”.
+9. `M17-M21` have now turned the daemon runtime, VS Code host shell, continue bridge, local validation, and legacy-rollout recovery into one daemon-host baseline; later work should not regress back to a design-only state with no working runtime.
 
 ## Formal Post-M12 Mainline
 

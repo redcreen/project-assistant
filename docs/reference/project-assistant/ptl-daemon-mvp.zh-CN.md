@@ -10,6 +10,10 @@
 
 `先发一版真正能让写代码变快的版本，再在新基线上逐项验证现有功能。`
 
+当前状态：
+
+`M17-M21` 已把这份 MVP 落成当前 daemon-host baseline；后续主线主要是稳定化、dogfooding 和 release 包装，而不是重新回到“要不要做 daemon”的讨论。
+
 ## 产品目标
 
 MVP 要先解决一个最直接的问题：
@@ -126,6 +130,8 @@ flowchart TB
 
 - macOS / Linux: Unix domain socket
 - Windows: named pipe 等价物
+
+其中 `project-assistant daemon status` 不应只显示 runtime 是否在跑；它也应该是宿主和操作员读取“当前检查点 / 下一动作”的标准入口。
 
 推荐的 repo 级 socket 例子：
 

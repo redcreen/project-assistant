@@ -1,0 +1,6 @@
+{
+  "projectAssistant.experimentalExactSessionAutoSubmit": true,
+  "projectAssistant.autoResumeOnReady": true,
+  "projectAssistant.autoResumeStrategy": "exact-session",
+  "projectAssistant.autoResumeFallbackToNewThread": true
+}

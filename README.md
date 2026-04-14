@@ -21,7 +21,7 @@
 | Default Working Model | human sets direction; `project-assistant` plans, executes, validates, updates state, and escalates only when judgment is required |
 | Core Standing Role | Project Technical Lead (PTL): inside an approved direction, it owns strategic judgment, program orchestration, long-run delivery supervision, and escalation timing |
 | Project Origin | [Project Origin And Working Method](docs/reference/project-assistant/project-origin-and-working-method.md): the original question was whether it is more stable to clarify goals, approach, architecture, roadmap, test cases, and a development plan before AI delivery starts |
-| Active Strategic Direction | `M10 / M11 / M12 / M13 / M14` are complete; `M16 tool-first front door and hard-entry bridge` is also complete, and the repo is now in post-M16 rollout verification to decide whether `M15 selective multi-executor scheduling` is actually needed |
+| Active Strategic Direction | `M10 / M11 / M12 / M13 / M14 / M16` are complete, and the `M17-M21 daemon-host baseline` is also complete; the repo is now in post-M21 hardening and dogfooding to decide release packaging and any farther host expansion |
 | Current Program-Orchestration Boundary | stabilize the durable single-Codex orchestration truth and keep the project alive after a worker stops; automatic multi-desktop-Codex scheduling remains a future layer |
 | Plain-Language Meaning Of `M14` | `when a worker stops, the project should not stop with it` |
 | Plain-Language Meaning Of `M16` | `continue / progress / handoff` share one front door, upgrade old repos first, and only then render the first structured screen |
@@ -31,9 +31,9 @@
 
 | Horizon | Focus |
 | --- | --- |
-| Current | roll out the completed `M16 tool-first front door and hard-entry bridge` on more repos, and prove that task / new-session / legacy-repo entry paths all run preflight before structured continue / progress / handoff output |
-| Next | decide from cross-repo evidence whether `M15 selective multi-executor scheduling` is actually needed, instead of promising host-level hard binding too early |
-| Later | only introduce real multi-executor dispatch when evidence shows the single-Codex PTL model is the bottleneck and disjoint write scopes are explicit |
+| Current | harden the newly shipped daemon-host baseline so the daemon runtime, queue, VS Code host, continue bridge, legacy rollout, docs, and gates stay aligned on one default fast path |
+| Next | add clearer operator docs, release framing, and broader dogfooding evidence for the daemon-host baseline before deciding whether stronger host surfaces are warranted |
+| Later | only reopen `M15` or introduce more aggressive host automation when the daemon-host baseline is stable, the single-Codex PTL model is still the bottleneck, and disjoint write scopes are explicit |
 | Strategy Entry | [Strategic Planning And Program Orchestration Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md) |
 | Method Origin | [Project Origin And Working Method](docs/reference/project-assistant/project-origin-and-working-method.md) |
 
@@ -50,6 +50,8 @@ Manual install:
 ```bash
 git clone --branch v0.1.3 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
+
+Note: the current stable tag is still `v0.1.3`; the `M17-M21 daemon-host baseline` now lives on the repository mainline, and formal release packaging is the next closure step.
 
 ## Minimal Configuration
 
@@ -88,6 +90,16 @@ Background flows (usually automatic):
 - `project assistant retrofit`
 - `project assistant docs retrofit`
 - `project assistant handoff`
+- `project-assistant daemon start`
+- `project-assistant queue`
+
+### Default Operator Fast Path
+
+The daemon-host baseline is now the default fast path for real work.
+
+- Start with the canonical front door: `bin/project-assistant` or `python3 scripts/project_assistant_entry.py`
+- Typical operator commands: `continue`, `progress`, `handoff`, `daemon status`, and `queue`
+- Treat `bootstrap_entry.py`, `retrofit_entry.py`, `continue_entry.py`, `progress_entry.py`, and `handoff_entry.py` as backend/debug entry points, not the first thing hosts or maintainers should call
 
 ## Core Capabilities
 
@@ -100,6 +112,8 @@ Background flows (usually automatic):
 - Render `progress / continue / handoff` as maintainer-facing first screens instead of AI-only status dumps
 - Make `continue` auto-detect when a repo's control-surface version is stale, and run the minimum safe upgrade instead of pushing that judgment onto the user
 - Route `continue / progress / handoff` through one canonical front door instead of depending on the model to remember which script to call first
+- Provide a local daemon runtime, queue / events control surface, and a protected foreground write lease so support work moves off the foreground coding lane
+- Provide a VS Code host shell, live status, and a continue bridge so “the page is moving and the task is advancing” is a real operator experience instead of only a design note
 - Promote architecture review automatically when the current slice shows ownership, boundary, or repeated-fix drift
 - Surface a short `Usable Now` snapshot so you can see what is already ready to use
 - Retrofit existing repos to convergence
@@ -131,8 +145,9 @@ What this means:
 - at least one architecture-review path now auto-escalates from current-slice drift instead of depending only on manual prompts
 - the PTL strategic-evaluation, program-orchestration, supervised-long-run-delivery, PTL-supervision, and worker-handoff layers are now real capabilities, not only direction documents
 - `M16` now closes the unified front door, version preflight, and structured first-screen contract; desktop-host hard binding remains a later bridge problem
+- `M17-M21` now close the daemon runtime, VS Code host shell, continue bridge, local validation, and legacy-rollout recovery into one daemon-host baseline
 - the current orchestration layer is a durable single-Codex coordination brain, not yet a productized multi-desktop-Codex dispatcher
-- `M13 / M14 / M16` are now closed; `M15` remains a later evidence-gated layer instead of an active promise
+- `M13 / M14 / M16 / M17 / M18 / M19 / M20 / M21` are now closed; `M15` remains a later evidence-gated layer instead of an active promise
 
 ## Common Workflows
 
@@ -269,6 +284,13 @@ project-assistant/
 
 ### Key Scripts
 
+- `scripts/project_assistant_entry.py`
+- `scripts/sync_entry_routing.py`
+- `scripts/validate_entry_routing.py`
+- `scripts/sync_dogfooding_evidence.py`
+- `scripts/validate_dogfooding_evidence.py`
+- `scripts/daemon_entry.py`
+- `scripts/daemon_runtime.py`
 - `scripts/sync_control_surface.py`
 - `scripts/validate_control_surface.py`
 - `scripts/sync_docs_system.py`
@@ -286,6 +308,10 @@ project-assistant/
 - `scripts/write_development_log.py`
 - `scripts/validate_development_log.py`
 - `scripts/validate_architecture_retrofit.py`
+- `scripts/validate_daemon_runtime.py`
+- `scripts/validate_vscode_host_extension.py`
+- `scripts/validate_daemon_host_mvp.py`
+- `scripts/validate_daemon_legacy_rollout.py`
 - `scripts/capability_snapshot.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
@@ -297,11 +323,17 @@ project-assistant/
 python3 scripts/validate_control_surface.py /path/to/repo --format text
 python3 scripts/validate_docs_system.py /path/to/repo --format text
 python3 scripts/validate_public_docs_i18n.py /path/to/repo --format text
+python3 scripts/validate_entry_routing.py /path/to/repo --format text
+python3 scripts/validate_dogfooding_evidence.py /path/to/repo --format text
 python3 scripts/validate_markdown_governance.py /path/to/repo --format text
 python3 scripts/validate_doc_quality.py /path/to/repo --format text
 python3 scripts/validate_control_surface_quality.py /path/to/repo --format text
 python3 scripts/validate_development_log.py /path/to/repo --format text
 python3 scripts/validate_architecture_retrofit.py /path/to/repo --format text
+python3 scripts/validate_daemon_runtime.py /path/to/repo --format text
+python3 scripts/validate_vscode_host_extension.py /path/to/repo --format text
+python3 scripts/validate_daemon_host_mvp.py /path/to/repo --format text
+python3 scripts/validate_daemon_legacy_rollout.py /path/to/repo --format text
 python3 scripts/validate_gate_set.py /path/to/repo --profile fast
 python3 scripts/validate_gate_set.py /path/to/repo --profile deep
 python3 scripts/validate_gate_set.py /path/to/repo --profile release

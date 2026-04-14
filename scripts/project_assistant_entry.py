@@ -16,6 +16,8 @@ MODE_ALIASES = {
     "progress": {"progress", "进展"},
     "handoff": {"handoff", "交接", "压缩上下文"},
     "resume-readiness": {"resume-readiness", "readiness", "继续前升级", "升级检查"},
+    "daemon": {"daemon", "守护进程"},
+    "queue": {"queue", "任务队列"},
 }
 
 BACKEND_SCRIPTS = {
@@ -26,6 +28,8 @@ BACKEND_SCRIPTS = {
     "progress": "progress_entry.py",
     "handoff": "handoff_entry.py",
     "resume-readiness": "sync_resume_readiness.py",
+    "daemon": "daemon_entry.py",
+    "queue": "daemon_entry.py",
 }
 
 
@@ -42,6 +46,20 @@ DEFAULT_BACKEND_ARGS = {
 }
 
 
+COMPOSITE_MODE_ALIASES = {
+    ("docs", "retrofit"): "docs-retrofit",
+    ("resume", "readiness"): "resume-readiness",
+}
+
+
+def normalize_argv(raw_argv: list[str]) -> list[str]:
+    if len(raw_argv) >= 2:
+        pair = (raw_argv[0].strip().lower(), raw_argv[1].strip().lower())
+        if pair in COMPOSITE_MODE_ALIASES:
+            return [COMPOSITE_MODE_ALIASES[pair], *raw_argv[2:]]
+    return raw_argv
+
+
 def run_backend(script_path: Path, repo: Path, extra_args: list[str]) -> int:
     module = importlib.import_module(script_path.stem)
     backend_main = getattr(module, "main", None)
@@ -52,8 +70,24 @@ def run_backend(script_path: Path, repo: Path, extra_args: list[str]) -> int:
 
 
 def main() -> int:
+    raw_argv = normalize_argv(sys.argv[1:])
+    if raw_argv and raw_argv[0].strip().lower() in {"daemon", "守护进程"}:
+        module = importlib.import_module("daemon_entry")
+        return int(module.main(raw_argv[1:]) or 0)
+    if raw_argv and raw_argv[0].strip().lower() in {"queue", "任务队列"}:
+        module = importlib.import_module("daemon_entry")
+        return int(module.main(["queue", *raw_argv[1:]]) or 0)
+
     parser = argparse.ArgumentParser(
-        description="Canonical project-assistant front door. Route bootstrap/retrofit/continue/progress/handoff through one hard entry."
+        description=(
+            "Canonical daemon-host front door for project-assistant. "
+            "Route bootstrap/retrofit/continue/progress/handoff and daemon control through one entry."
+        ),
+        epilog=(
+            "Examples: project-assistant continue . | project-assistant daemon status . | "
+            "project-assistant queue . | python3 scripts/project_assistant_entry.py docs-retrofit /path/to/repo. "
+            "Direct backend scripts remain available for validation/debug, but operators and hosts should enter here first."
+        ),
     )
     parser.add_argument("mode", help="Mode: bootstrap, retrofit, docs-retrofit, continue, progress, handoff, or resume-readiness")
     parser.add_argument("repo", nargs="?", default=".", help="Repository root; defaults to the current working directory")

@@ -1,9 +1,9 @@
 # PTL Supervision
 
 ## Current PTL Direction
-- Direction: `daemon-first async execution design active`
+- Direction: `post-M21 daemon-host baseline active`
 - Status: `active`
-- Why Now: 把目标架构正式切成 `daemon-first PTL scheduler`，并先定义一个 write-safe 的快升级版：优先把写代码速度拉起来，再在 daemon 基线上逐项验证旧功能
+- Why Now: keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins
 
 ## PTL Supervision Contract
 
@@ -47,10 +47,10 @@
 | 监督输入完整 | green | strategy / program-board / delivery-supervision / entry-routing / plan / status 都存在 |
 | 继续边界清楚 | green | 何时继续 / 提醒 / 升级已有 durable 规则 |
 | worker 停下后的接管入口 | green | M14 已经把 handoff / re-entry contract 收口成 durable 真相 |
-| 真实前门是否统一 | yellow | 需要继续在更多旧代际仓库上验证真实 task / 新 session 仍会先走统一前门 |
+| daemon-host 基线是否统一 | green | daemon / queue 已进入统一前门，legacy rollout 也已在 daemon-host 基线上恢复并通过验证 |
 | 业务裁决越权防护 | green | 一旦跨到产品方向或兼容性承诺，PTL 只升级不代替决策 |
 
 ## Next PTL Checks
-1. 在真实 repo 上继续验证 PTL 监督判断不仅会在 worker 停下后接住项目，也会先把入口收拢到统一前门。
-2. 继续观察真实 task / 新 session 是否还会绕过前门；如果会，先区分 repo 层问题和宿主桥接问题。
-3. 继续收集跨 repo 证据，判断何时才值得打开 M15 多执行器层。
+1. 在更多本地 workspace 上继续验证 PTL 监督判断会沿着 daemon-host baseline 推进，而不是退回同步串脚本路径。
+2. 继续观察 runtime / host / operator docs 是否还暴露需要回写到监督契约的摩擦。
+3. 继续收集 adoption 证据，判断何时才值得打开更强宿主表面或 `M15` 多执行器层。

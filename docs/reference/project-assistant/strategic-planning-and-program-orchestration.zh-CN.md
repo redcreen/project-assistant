@@ -10,7 +10,7 @@
 - 程序编排
 - 受监督的长期自动交付
 
-这个方向现在已经进入正式路线图。`M10` 战略评估层、`M11` 程序编排层、`M12` 受监督的长期自动交付层、`M13 PTL 监督环`、`M14 worker 接续与回流` 和 `M16 统一硬入口与工具前门` 都已经完成；当前进入 post-M16 rollout 验证，用真实 repo 证据判断 `M15 选择性多执行器调度` 是否真的需要；`M8 / M9` 继续作为这条方向下的 supporting backlog。
+这个方向现在已经进入正式路线图。`M10` 战略评估层、`M11` 程序编排层、`M12` 受监督的长期自动交付层、`M13 PTL 监督环`、`M14 worker 接续与回流`、`M16 统一硬入口与工具前门` 以及 `M17-M21 daemon-host baseline` 都已经完成；当前进入 post-M21 稳定化与 dogfooding，用真实使用证据决定 release 包装、宿主扩张边界，以及 `M15 选择性多执行器调度` 是否真的有必要重新回主线；`M8 / M9` 继续作为这条方向下的 supporting backlog。
 
 这里默认把负责这三层长期推进与升级判断的角色统一叫作：
 
@@ -159,6 +159,7 @@ PTL 在这里的角色不是产品 owner，也不是组织级 CTO。它更像一
 6. `M15` 仍是受证据约束的后续层：如果任务没有不相交写入边界，或跨 repo rollout 没证明单 Codex PTL 模式已成瓶颈，就不应进入多执行器调度。
 7. `M16` 已把 `continue / progress / handoff` 收成统一前门、版本 preflight、结构化第一屏和 durable `entry-routing` contract；桌面宿主级强绑定仍是后续桥接问题，不应被提前宣称成已完成。
 8. “问题驱动收口环”已经是稳定出现的请求模式，后续应评估把它升级成默认行为，而不是继续依赖用户逐条提醒“写日志、写架构、改 roadmap / plan、然后实现”。
+9. `M17-M21` 已把 daemon runtime、VS Code 宿主壳、continue bridge、本地验证和 legacy rollout 恢复收成同一条 daemon-host baseline；后续不应再退回“只有设计稿，没有 working runtime”的状态。
 
 ## Post-M12 正式主线
 

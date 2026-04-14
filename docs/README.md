@@ -9,6 +9,9 @@
 - Roadmap: [roadmap.md](roadmap.md)
 - Project origin: [reference/project-assistant/project-origin-and-working-method.md](reference/project-assistant/project-origin-and-working-method.md)
 - Strategic direction: [reference/project-assistant/strategic-planning-and-program-orchestration.md](reference/project-assistant/strategic-planning-and-program-orchestration.md)
+- Daemon MVP: [reference/project-assistant/ptl-daemon-mvp.md](reference/project-assistant/ptl-daemon-mvp.md)
+- Host resume bridge: [reference/project-assistant/host-resume-bridge.md](reference/project-assistant/host-resume-bridge.md)
+- Canonical commands and operator usage: [../references/usage.md](../references/usage.md)
 - Orchestration model: [reference/project-assistant/orchestration-model.md](reference/project-assistant/orchestration-model.md)
 - Testing: [test-plan.md](test-plan.md)
 - Development log: [devlog/README.md](devlog/README.md)
@@ -24,6 +27,9 @@
 | See what is next | [roadmap.md](roadmap.md) |
 | Understand the question this skill originally grew from | [reference/project-assistant/project-origin-and-working-method.md](reference/project-assistant/project-origin-and-working-method.md) |
 | See the approved strategic layer beyond the current roadmap | [reference/project-assistant/strategic-planning-and-program-orchestration.md](reference/project-assistant/strategic-planning-and-program-orchestration.md) |
+| Understand the daemon-host baseline boundary | [reference/project-assistant/ptl-daemon-mvp.md](reference/project-assistant/ptl-daemon-mvp.md) |
+| Understand the host resume bridge and VS Code positioning | [reference/project-assistant/host-resume-bridge.md](reference/project-assistant/host-resume-bridge.md) |
+| Use the daemon-host default fast path and canonical commands | [../references/usage.md](../references/usage.md) |
 | Understand the current single-Codex orchestration model vs a future multi-executor layer | [reference/project-assistant/orchestration-model.md](reference/project-assistant/orchestration-model.md) |
 | Verify correctness | [test-plan.md](test-plan.md) |
 | Reconstruct a non-obvious implementation path | [devlog/README.md](devlog/README.md) |

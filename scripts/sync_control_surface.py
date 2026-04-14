@@ -531,6 +531,8 @@ def main() -> int:
     if tier in {"medium", "large"} or entry_routing_path.exists():
         sync_entry_routing_script = Path(__file__).resolve().parent / "sync_entry_routing.py"
         subprocess.run([sys.executable, str(sync_entry_routing_script), str(repo)], check=True)
+    sync_dogfooding_evidence_script = Path(__file__).resolve().parent / "sync_dogfooding_evidence.py"
+    subprocess.run([sys.executable, str(sync_dogfooding_evidence_script), str(repo)], check=True)
 
     print(f"tier: {tier}")
     print(f"official modules: {', '.join(official_modules) or '(none)'}")

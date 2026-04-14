@@ -1,0 +1,281 @@
+{
+  "name": "project-assistant-host",
+  "displayName": "Project Assistant Host",
+  "description": "VS Code host frontend for the project-assistant PTL daemon runtime.",
+  "version": "0.0.1",
+  "publisher": "redcreen",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:projectAssistantQueue",
+    "onCommand:projectAssistant.startDaemon",
+    "onCommand:projectAssistant.stopDaemon",
+    "onCommand:projectAssistant.refresh",
+    "onCommand:projectAssistant.reloadWindow",
+    "onCommand:projectAssistant.startAutoCoding",
+    "onCommand:projectAssistant.stopAutoCoding",
+    "onCommand:projectAssistant.openStatusDoc",
+    "onCommand:projectAssistant.openPlanDoc",
+    "onCommand:projectAssistant.openNextActionSource",
+    "onCommand:projectAssistant.manualContinue",
+    "onCommand:projectAssistant.oneClickContinue",
+    "onCommand:projectAssistant.showProgress",
+    "onCommand:projectAssistant.showHandoff",
+    "onCommand:projectAssistant.resumeCodex",
+    "onCommand:projectAssistant.autoResumeCodex",
+    "onCommand:projectAssistant.openRecentCodexSession",
+    "onCommand:projectAssistant.openProgressInTerminal",
+    "onCommand:projectAssistant.openHandoffInTerminal",
+    "onCommand:projectAssistant.openRetrofitInTerminal",
+    "onCommand:projectAssistant.copyStopInstruction"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "projectAssistant.startDaemon",
+        "title": "Project Assistant: Start Background Service",
+        "icon": "$(play-circle)"
+      },
+      {
+        "command": "projectAssistant.stopDaemon",
+        "title": "Project Assistant: Stop Background Service",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "projectAssistant.refresh",
+        "title": "Project Assistant: Refresh Workspace Status",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "projectAssistant.reloadWindow",
+        "title": "Project Assistant: Reload Window",
+        "icon": "$(debug-restart)"
+      },
+      {
+        "command": "projectAssistant.startAutoCoding",
+        "title": "Project Assistant: Start Auto Coding",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "projectAssistant.stopAutoCoding",
+        "title": "Project Assistant: Stop Auto Coding",
+        "icon": "$(primitive-square)"
+      },
+      {
+        "command": "projectAssistant.openStatusDoc",
+        "title": "Project Assistant: Open Live Status",
+        "icon": "$(book)"
+      },
+      {
+        "command": "projectAssistant.openPlanDoc",
+        "title": "Project Assistant: Open Live Plan",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "projectAssistant.openNextActionSource",
+        "title": "Project Assistant: Open Next Action Source",
+        "icon": "$(preview)"
+      },
+      {
+        "command": "projectAssistant.manualContinue",
+        "title": "Project Assistant: Open Continue View",
+        "icon": "$(book)"
+      },
+      {
+        "command": "projectAssistant.oneClickContinue",
+        "title": "Project Assistant: Queue Continue Snapshot",
+        "icon": "$(history)"
+      },
+      {
+        "command": "projectAssistant.showProgress",
+        "title": "Project Assistant: Queue Progress Snapshot",
+        "icon": "$(pulse)"
+      },
+      {
+        "command": "projectAssistant.showHandoff",
+        "title": "Project Assistant: Queue Handoff Snapshot",
+        "icon": "$(archive)"
+      },
+      {
+        "command": "projectAssistant.resumeCodex",
+        "title": "Project Assistant: Resume Last Codex Session",
+        "icon": "$(run)"
+      },
+      {
+        "command": "projectAssistant.autoResumeCodex",
+        "title": "Project Assistant: Start New Auto Resume Thread",
+        "icon": "$(send)"
+      },
+      {
+        "command": "projectAssistant.openRecentCodexSession",
+        "title": "Project Assistant: Open Recent Codex Session",
+        "icon": "$(preview)"
+      },
+      {
+        "command": "projectAssistant.configureCliPath",
+        "title": "Project Assistant: Configure CLI Path",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "projectAssistant.showOutput",
+        "title": "Project Assistant: Show Host Output",
+        "icon": "$(output)"
+      },
+      {
+        "command": "projectAssistant.openTaskLog",
+        "title": "Project Assistant: Open Task Log",
+        "icon": "$(file-text)"
+      },
+      {
+        "command": "projectAssistant.openProgressInTerminal",
+        "title": "Project Assistant: Open Progress View",
+        "icon": "$(book)"
+      },
+      {
+        "command": "projectAssistant.openHandoffInTerminal",
+        "title": "Project Assistant: Open Handoff View",
+        "icon": "$(book)"
+      },
+      {
+        "command": "projectAssistant.openRetrofitInTerminal",
+        "title": "Project Assistant: Open Retrofit View",
+        "icon": "$(book)"
+      },
+      {
+        "command": "projectAssistant.copyStopInstruction",
+        "title": "Project Assistant: Copy Stop Instruction",
+        "icon": "$(clippy)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "projectAssistant",
+          "title": "Project Assistant",
+          "icon": "media/project-assistant.svg"
+        }
+      ]
+    },
+    "views": {
+      "projectAssistant": [
+        {
+          "id": "projectAssistantQueue",
+          "name": "Workspace Control"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Project Assistant Host",
+      "properties": {
+        "projectAssistant.cliPath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional absolute path to the project-assistant CLI wrapper. Leave empty to auto-discover a workspace, skill, or PATH installation."
+        },
+        "projectAssistant.codexPath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional absolute path to the Codex CLI used by Resume Last Codex Session."
+        },
+        "projectAssistant.resumeCommand": {
+          "type": "string",
+          "default": "",
+          "description": "Optional custom command for resuming Codex work. Supports ${workspace}, ${prompt}, ${codex}, ${session_id}, and ${thread_name} placeholders."
+        },
+        "projectAssistant.resumePrompt": {
+          "type": "string",
+          "default": "项目助手 继续",
+          "description": "Prompt placeholder used only when projectAssistant.resumeCommand is set."
+        },
+        "projectAssistant.experimentalExactSessionAutoSubmit": {
+          "type": "boolean",
+          "default": false,
+          "description": "Experimental macOS-only bridge: after opening the exact saved Codex session, try to paste and send the generated resume prompt into that session automatically."
+        },
+        "projectAssistant.autoResumeOnReady": {
+          "type": "boolean",
+          "default": false,
+          "description": "When daemon events indicate that this workspace is resume-ready after background work finishes, automatically launch the configured resume action."
+        },
+        "projectAssistant.autoResumeStrategy": {
+          "type": "string",
+          "enum": [
+            "exact-session",
+            "new-thread"
+          ],
+          "default": "exact-session",
+          "description": "Auto-resume policy. exact-session prefers reopening the matching saved Codex session; new-thread always starts a fresh Codex auto-resume thread."
+        },
+        "projectAssistant.autoResumeFallbackToNewThread": {
+          "type": "boolean",
+          "default": true,
+          "description": "When auto-resume prefers exact-session but exact-session auto-send is unavailable, automatically fall back to starting a fresh Codex auto-resume thread."
+        },
+        "projectAssistant.autoResumeDelayMs": {
+          "type": "number",
+          "default": 1200,
+          "minimum": 0,
+          "description": "Delay before the host tries to paste and send the generated resume prompt into an opened Codex session."
+        },
+        "projectAssistant.autoResumeCooldownMs": {
+          "type": "number",
+          "default": 15000,
+          "minimum": 0,
+          "description": "Minimum time between daemon-triggered automatic resume attempts for the same workspace."
+        },
+        "projectAssistant.autoStartDaemon": {
+          "type": "boolean",
+          "default": false,
+          "description": "Start the PTL daemon automatically when the extension activates on a local workspace."
+        },
+        "projectAssistant.pollIntervalMs": {
+          "type": "number",
+          "default": 2000,
+          "minimum": 500,
+          "description": "Polling interval for daemon status and event refresh."
+        }
+      }
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "projectAssistant.refresh",
+          "when": "view == projectAssistantQueue",
+          "group": "navigation"
+        },
+        {
+          "command": "projectAssistant.startDaemon",
+          "when": "view == projectAssistantQueue && !projectAssistant.daemonConnected",
+          "group": "navigation@1"
+        },
+        {
+          "command": "projectAssistant.stopDaemon",
+          "when": "view == projectAssistantQueue && projectAssistant.daemonConnected",
+          "group": "navigation@2"
+        },
+        {
+          "command": "projectAssistant.startAutoCoding",
+          "when": "view == projectAssistantQueue && projectAssistant.daemonConnected && !projectAssistant.autoCodingActive",
+          "group": "navigation@3"
+        },
+        {
+          "command": "projectAssistant.stopAutoCoding",
+          "when": "view == projectAssistantQueue && projectAssistant.daemonConnected && projectAssistant.autoCodingActive",
+          "group": "navigation@4"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "projectAssistant.openTaskLog",
+          "when": "view == projectAssistantQueue && viewItem == projectAssistantTask",
+          "group": "inline"
+        }
+      ]
+    }
+  }
+}

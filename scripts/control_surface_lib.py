@@ -185,6 +185,24 @@ ENTRY_ROUTING_REQUIRED_SECTIONS = [
     "Next Entry Checks",
 ]
 
+DOGFOODING_EVIDENCE_EXPECTATION_KEYWORDS = (
+    "dogfooding evidence",
+    "broader dogfooding",
+    "adoption evidence",
+    ".codex/dogfooding-evidence.md",
+    "host expansion evidence",
+    "m15 evidence",
+)
+
+DOGFOODING_EVIDENCE_REQUIRED_SECTIONS = [
+    "Current Evidence Direction",
+    "Evidence Collection Contract",
+    "Evidence Snapshot",
+    "Evidence Gaps",
+    "Evidence-Gated Decisions",
+    "Next Evidence Checks",
+]
+
 CONTROL_SURFACE_MANAGED_BY = "project-assistant"
 CONTROL_SURFACE_VERSION = 3
 CONTROL_SURFACE_COMPONENT_VERSIONS: dict[str, int] = {
@@ -1068,6 +1086,65 @@ def parse_entry_routing(repo: Path) -> dict[str, Any]:
     }
 
 
+def dogfooding_evidence_expected(repo: Path) -> bool:
+    surface_path = repo / ".codex/dogfooding-evidence.md"
+    if surface_path.exists():
+        return True
+    corpus_parts = [
+        read_text(repo / ".codex/plan.md"),
+        read_text(repo / ".codex/status.md"),
+        read_text(repo / ".codex/strategy.md"),
+        read_text(repo / ".codex/program-board.md"),
+        read_text(repo / ".codex/delivery-supervision.md"),
+        read_text(repo / ".codex/ptl-supervision.md"),
+        read_text(repo / ".codex/worker-handoff.md"),
+        read_text(repo / "README.md"),
+        read_text(repo / "README.zh-CN.md"),
+        read_text(repo / "docs/roadmap.md"),
+        read_text(repo / "docs/roadmap.zh-CN.md"),
+    ]
+    docs_root = repo / "docs/reference"
+    if docs_root.exists():
+        for path in docs_root.rglob("*.md"):
+            corpus_parts.append(read_text(path))
+    lowered = "\n".join(part for part in corpus_parts if part).lower()
+    return any(keyword in lowered for keyword in DOGFOODING_EVIDENCE_EXPECTATION_KEYWORDS)
+
+
+def parse_dogfooding_evidence(repo: Path) -> dict[str, Any]:
+    path = repo / ".codex/dogfooding-evidence.md"
+    text = read_text(path)
+    if not text:
+        return {
+            "path": path,
+            "exists": False,
+            "expected": dogfooding_evidence_expected(repo),
+            "direction": "n/a",
+            "status": "n/a",
+            "why_now": "n/a",
+            "contract": [],
+            "snapshot_rows": [],
+            "gap_rows": [],
+            "decision_rows": [],
+            "next_checks": [],
+        }
+
+    direction_block = section(text, "Current Evidence Direction")
+    return {
+        "path": path,
+        "exists": True,
+        "expected": True,
+        "direction": labeled_bullet_value(direction_block, "Direction") or "n/a",
+        "status": labeled_bullet_value(direction_block, "Status") or "n/a",
+        "why_now": labeled_bullet_value(direction_block, "Why Now") or first_line(direction_block) or "n/a",
+        "contract": normalized_bullets(section(text, "Evidence Collection Contract")),
+        "snapshot_rows": parse_markdown_table(section(text, "Evidence Snapshot")),
+        "gap_rows": parse_markdown_table(section(text, "Evidence Gaps")),
+        "decision_rows": parse_markdown_table(section(text, "Evidence-Gated Decisions")),
+        "next_checks": normalized_bullets(section(text, "Next Evidence Checks")),
+    }
+
+
 def detect_automatic_architecture_review_trigger(context: str) -> tuple[str, str]:
     lowered = context.lower()
     for keywords, trigger, next_review in ARCHITECTURE_REVIEW_TRIGGER_GROUPS:
@@ -1218,6 +1295,8 @@ def repo_capabilities(repo: Path) -> list[tuple[str, str]]:
         capabilities.append(("worker-handoff", "worker 接续与回流 contract"))
     if (repo / ".codex/entry-routing.md").exists():
         capabilities.append(("entry-routing", "统一工具前门、版本 preflight 与结构化入口 contract"))
+    if (repo / ".codex/dogfooding-evidence.md").exists():
+        capabilities.append(("dogfooding-evidence", "dogfooding 采证与 evidence-gated 决策面"))
     if (repo / ".codex/module-dashboard.md").exists():
         capabilities.append(("module-progress", "模块视角进展面板"))
     if (repo / "README.zh-CN.md").exists() and (repo / "docs/README.zh-CN.md").exists():
@@ -1330,6 +1409,8 @@ def validate_repo(repo: Path) -> ValidationResult:
         required.append(".codex/worker-handoff.md")
     if entry_routing_expected(repo):
         required.append(".codex/entry-routing.md")
+    if dogfooding_evidence_expected(repo):
+        required.append(".codex/dogfooding-evidence.md")
     if tier == "large":
         required.append(".codex/module-dashboard.md")
 

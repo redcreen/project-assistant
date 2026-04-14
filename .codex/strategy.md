@@ -1,9 +1,9 @@
 # Strategy
 
 ## Current Strategic Direction
-- Direction: `design-daemon-first-ptl-scheduler-mvp`
+- Direction: `stabilize-daemon-host-baseline-for-dogfooding`
 - Status: `active`
-- Why Now: 把目标架构正式切成 `daemon-first PTL scheduler`，并先定义一个 write-safe 的快升级版：优先把写代码速度拉起来，再在 daemon 基线上逐项验证旧功能
+- Why Now: keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins
 
 ## What This Layer Owns
 
@@ -37,8 +37,8 @@
   - strategic carryover decisions for M8 / M9
 
 ## Next Strategic Checks
-1. 在 rollout / dogfooding 过程中继续要求战略判断引用 durable repo 证据，而不是只凭聊天感受。
-2. 当 cross-repo adoption 里仍出现“真实入口绕过前门”的案例时，先区分是 repo 层问题还是宿主桥接问题。
+1. 在 daemon-host baseline 的 dogfooding 过程中继续要求战略判断引用 durable repo 证据，而不是只凭聊天感受。
+2. 当 adoption 里仍出现 runtime / host / operator docs 摩擦时，先区分是 repo 层问题、宿主桥接问题还是 baseline 包装问题。
 3. 继续确认 `M8 / M9` 是否保持在 supporting backlog，以及 `M15` 是否仍应保持 evidence-gated later。
 
 ## Strategy Evidence Contract

@@ -8,7 +8,9 @@ This directory records durable implementation narratives: what went wrong, what 
 
 ## Entries
 
+- [Broaden daemon-host dogfooding evidence before any new host surface](2026-04-14-broaden-daemon-host-dogfooding-evidence.md)
 - [记录系统性时延问题与异步执行硬约束](2026-04-13-entry.md)
+- [落成 M17-M21 daemon-host baseline 并收口控制真相](2026-04-13-daemon-host-baseline-m17-through-m21.md)
 - [把异步执行专项切到 daemon-first 快升级版](2026-04-13-daemon-first.md)
 - [Collapse redundant bootstrap passes and establish latency benchmarks](2026-04-13-collapse-redundant-bootstrap-passes-and-establish-latency-benchmarks.md)
 - [Shift project assistant toward embedded architect supervision and long-run execution](2026-04-12-shift-project-assistant-toward-embedded-architect-supervision-and-long-run-execution.md)

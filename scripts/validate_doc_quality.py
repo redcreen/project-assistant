@@ -39,11 +39,6 @@ def public_docs(repo: Path) -> list[Path]:
         docs.append(path)
     return docs
 
-
-def all_markdown_docs(repo: Path) -> list[Path]:
-    return sorted(repo.rglob("*.md"))
-
-
 def warn_placeholders(rel: str, text: str, warnings: list[str]) -> None:
     for snippet in PLACEHOLDER_SNIPPETS:
         if snippet in text:
@@ -130,7 +125,7 @@ def main() -> int:
         warn_empty_tables(rel, text, warnings)
         warn_empty_mermaid(rel, text, warnings)
         warn_broken_links(repo, path, text, warnings)
-    for path in all_markdown_docs(repo):
+    for path in docs:
         rel = path.relative_to(repo).as_posix()
         text = read_text(path)
         warn_absolute_local_paths(rel, text, warnings)
