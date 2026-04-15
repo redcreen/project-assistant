@@ -92,7 +92,8 @@ If `projectAssistant.cliPath` is empty, the extension tries these locations in o
 - `projectAssistant.resumePrompt`: prompt placeholder used only by custom resume commands
 - `projectAssistant.experimentalExactSessionAutoSubmit`: enable the experimental macOS bridge that tries to auto-send the generated resume prompt into the exact reopened Codex session
 - `projectAssistant.autoResumeOnReady`: low-level compatibility flag kept for older setups; user-facing control should go through the `Auto Coding` switch
-- `projectAssistant.autoResumeStrategy`: choose `exact-session` or `new-thread` for Auto Coding resume attempts
+- `projectAssistant.autoResumeStrategy`: choose `new-thread` or `exact-session` for Auto Coding resume attempts; `new-thread` is the safer default because it keeps automatic resumes isolated per workspace
 - `projectAssistant.autoResumeFallbackToNewThread`: when exact-session auto-send is unavailable, allow Auto Coding to fall back to a fresh Codex thread
+- `projectAssistant.experimentalAutoResumeIntoExactSession`: extra safety override for daemon-driven auto-resume; keep this off unless you explicitly accept the risk of automatic exact-session targeting
 - `projectAssistant.autoResumeDelayMs`: delay before the host pastes and sends the generated prompt into an opened Codex session
 - `projectAssistant.autoResumeCooldownMs`: minimum interval between daemon-triggered automatic resume attempts

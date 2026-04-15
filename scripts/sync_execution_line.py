@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import argparse
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 from control_surface_lib import classify_architecture_signal, labeled_bullet_value, latest_devlog_entry, read_text, section
@@ -279,6 +281,7 @@ def main() -> int:
 
     plan_path.write_text(plan_text, encoding="utf-8")
     status_path.write_text(status_text, encoding="utf-8")
+    subprocess.run([sys.executable, str(Path(__file__).with_name("sync_plan_docs.py")), str(repo)], check=True)
     state = classify_architecture_signal(repo)
     plan_text = replace_section(plan_text, "Architecture Supervision", plan_architecture_body(state))
     status_text = replace_section(status_text, "Architecture Supervision", status_architecture_body(state))

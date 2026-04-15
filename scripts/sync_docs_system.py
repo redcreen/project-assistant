@@ -549,6 +549,17 @@ def section_body(text: str, headings: list[str]) -> str:
     return match.group(1).strip() if match else ""
 
 
+def replace_section(text: str, headings: list[str], body: str) -> str:
+    pattern = "|".join(re.escape(heading) for heading in headings)
+    match = re.search(rf"(?ms)^(## (?:{pattern})\n)(.*?)(?=^## |\Z)", text)
+    rendered = body.rstrip()
+    if match:
+        start, end = match.span()
+        return text[:start] + match.group(1) + rendered + "\n\n" + text[end:]
+    heading = headings[0]
+    return text.rstrip() + f"\n\n## {heading}\n{rendered}\n"
+
+
 def parse_roadmap_milestones(text: str, chinese: bool) -> list[dict[str, str]]:
     body = section_body(text, ["Milestones"] if not chinese else ["里程碑"])
     rows: list[dict[str, str]] = []
@@ -602,6 +613,18 @@ def parse_current_execution_fields(plan_text: str) -> dict[str, str]:
         elif stripped.startswith("- Stop Conditions:"):
             fields["stop_conditions"] = stripped.split(":", 1)[1].strip().strip("`")
     return fields
+
+
+def parse_open_execution_tasks(plan_text: str) -> list[str]:
+    body = section_body(plan_text, ["Execution Tasks"])
+    if not body:
+        return []
+    tasks: list[str] = []
+    for line in body.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- [ ] "):
+            tasks.append(stripped[6:].strip().strip("`"))
+    return tasks
 
 
 def parse_slices(plan_text: str) -> list[dict[str, str]]:
@@ -687,6 +710,50 @@ def render_slice_queue(slices: list[dict[str, str]], current_plan_link: str, cur
     return "\n".join(lines)
 
 
+def roadmap_focus_rows(slices: list[dict[str, str]], execution: dict[str, str], chinese: bool) -> list[tuple[str, str, str]]:
+    current_focus = execution["objective"]
+    current_exit = execution["stop_conditions"] if execution["stop_conditions"] not in {"", "n/a"} else execution["validation"]
+    current_index = next((idx for idx, item in enumerate(slices) if item.get("name") == execution["plan_link"]), None)
+
+    next_slice = slices[current_index + 1] if current_index is not None and current_index + 1 < len(slices) else None
+    later_slice = slices[current_index + 2] if current_index is not None and current_index + 2 < len(slices) else None
+
+    if chinese:
+        next_focus = next_slice.get("objective", next_slice.get("name", "暂无")) if next_slice else "暂无"
+        next_exit = next_slice.get("exit_condition", next_slice.get("validation", "暂无")) if next_slice else "暂无"
+        later_focus = later_slice.get("objective", later_slice.get("name", "暂无")) if later_slice else "暂无"
+        later_exit = later_slice.get("exit_condition", later_slice.get("validation", "暂无")) if later_slice else "暂无"
+        return [
+            ("当前", current_focus, current_exit),
+            ("下一步", next_focus, next_exit),
+            ("更后面", later_focus, later_exit),
+        ]
+
+    next_focus = next_slice.get("objective", next_slice.get("name", "n/a")) if next_slice else "n/a"
+    next_exit = next_slice.get("exit_condition", next_slice.get("validation", "n/a")) if next_slice else "n/a"
+    later_focus = later_slice.get("objective", later_slice.get("name", "n/a")) if later_slice else "n/a"
+    later_exit = later_slice.get("exit_condition", later_slice.get("validation", "n/a")) if later_slice else "n/a"
+    return [
+        ("Current", current_focus, current_exit),
+        ("Next", next_focus, next_exit),
+        ("Later", later_focus, later_exit),
+    ]
+
+
+def render_roadmap_focus_section(plan_text: str, chinese: bool) -> str:
+    execution = parse_current_execution_fields(plan_text)
+    slices = parse_slices(plan_text)
+    rows = roadmap_focus_rows(slices, execution, chinese)
+    if chinese:
+        header = "| 时间层级 | 重点 | 退出信号 |\n| --- | --- | --- |"
+    else:
+        header = "| Horizon | Focus | Exit Signal |\n| --- | --- | --- |"
+    lines = [header]
+    for horizon, focus, exit_signal in rows:
+        lines.append(f"| {horizon} | {focus} | {exit_signal} |")
+    return "\n".join(lines)
+
+
 def render_development_plan(repo: Path, chinese: bool) -> str:
     slug = project_doc_slug(repo)
     docs_dir = repo / "docs"
@@ -699,6 +766,7 @@ def render_development_plan(repo: Path, chinese: bool) -> str:
     milestones = parse_roadmap_milestones(roadmap_text, chinese=chinese)
     current_phase = parse_current_phase(plan_text)
     execution = parse_current_execution_fields(plan_text)
+    open_execution_tasks = parse_open_execution_tasks(plan_text)
     slices = parse_slices(plan_text)
     title = f"# {project_name(repo)} Development Plan" if not chinese else f"# {project_name(repo)} 开发计划"
     switch = "[English](development-plan.md) | [中文](development-plan.zh-CN.md)"
@@ -729,6 +797,12 @@ def render_development_plan(repo: Path, chinese: bool) -> str:
             f"| Validation | {execution['validation']} | How this line proves itself before moving on |"
         )
     if chinese:
+        next_move = open_execution_tasks[0] if open_execution_tasks else f"继续从 `{execution['plan_link']}` 之后恢复"
+        next_move_reason = (
+            "当前 `.codex/plan.md` 里的第一条未完成 execution task；公开 plan 也必须对齐到这个恢复点。"
+            if open_execution_tasks
+            else "当前执行线已经把真实恢复点固定在 `.codex/plan.md` 里。"
+        )
         return (
             f"{title}\n\n{switch}\n\n"
             "## 目的\n\n"
@@ -751,8 +825,14 @@ def render_development_plan(repo: Path, chinese: bool) -> str:
             f"{render_milestone_details(milestones, chinese=True) if milestones else '当前还没有从 roadmap 里解析出可下钻的里程碑。'}\n\n"
             "## 当前下一步\n\n"
             "| 下一步 | 为什么做 |\n| --- | --- |\n"
-            f"| 继续从 `{execution['plan_link']}` 之后恢复 | 当前执行线已经把真实恢复点固定在 `.codex/plan.md` 里 |"
+            f"| {next_move} | {next_move_reason} |"
         )
+    next_move = open_execution_tasks[0] if open_execution_tasks else f"Continue from `{execution['plan_link']}` onward"
+    next_move_reason = (
+        "This is the first unchecked execution task in `.codex/plan.md`, so the public plan stays aligned with the live resume point."
+        if open_execution_tasks
+        else "The live execution line already fixes the real resume point in `.codex/plan.md`."
+    )
     return (
         f"{title}\n\n{switch}\n\n"
         "## Purpose\n\n"
@@ -775,8 +855,43 @@ def render_development_plan(repo: Path, chinese: bool) -> str:
         f"{render_milestone_details(milestones, chinese=False) if milestones else 'No milestone drill-down could be derived from the roadmap yet.'}\n\n"
         "## Current Next Step\n\n"
         "| Next Move | Why |\n| --- | --- |\n"
-        f"| Continue from `{execution['plan_link']}` onward | The live execution line already fixes the real resume point in `.codex/plan.md` |"
+        f"| {next_move} | {next_move_reason} |"
     )
+
+
+def sync_public_plan_surfaces(repo: Path) -> list[str]:
+    touched: list[str] = []
+    docs_dir = repo / "docs"
+    reference_dir = docs_dir / "reference" / project_doc_slug(repo)
+    development_plan = reference_dir / "development-plan.md"
+    development_plan_zh = reference_dir / "development-plan.zh-CN.md"
+    roadmap = docs_dir / "roadmap.md"
+    roadmap_zh = docs_dir / "roadmap.zh-CN.md"
+    plan_text = read_text(repo / ".codex/plan.md")
+
+    if development_plan.exists():
+        rendered = render_development_plan(repo, chinese=False).rstrip() + "\n"
+        if read_text(development_plan).rstrip() != rendered.rstrip():
+            development_plan.write_text(rendered, encoding="utf-8")
+            touched.append(str(development_plan.relative_to(repo)))
+    if development_plan_zh.exists():
+        rendered = render_development_plan(repo, chinese=True).rstrip() + "\n"
+        if read_text(development_plan_zh).rstrip() != rendered.rstrip():
+            development_plan_zh.write_text(rendered, encoding="utf-8")
+            touched.append(str(development_plan_zh.relative_to(repo)))
+
+    if roadmap.exists() and plan_text:
+        updated = replace_section(read_text(roadmap), ["Current / Next / Later", "Now / Next / Later"], render_roadmap_focus_section(plan_text, chinese=False))
+        if updated.rstrip() != read_text(roadmap).rstrip():
+            roadmap.write_text(updated.rstrip() + "\n", encoding="utf-8")
+            touched.append(str(roadmap.relative_to(repo)))
+    if roadmap_zh.exists() and plan_text:
+        updated = replace_section(read_text(roadmap_zh), ["当前 / 下一步 / 更后面"], render_roadmap_focus_section(plan_text, chinese=True))
+        if updated.rstrip() != read_text(roadmap_zh).rstrip():
+            roadmap_zh.write_text(updated.rstrip() + "\n", encoding="utf-8")
+            touched.append(str(roadmap_zh.relative_to(repo)))
+
+    return touched
 
 
 def ensure_table_row_in_section(path: Path, heading: str, row: str) -> bool:
@@ -1062,6 +1177,10 @@ def main() -> int:
     for en_path, zh_path, en_template, zh_template in optional_public_pairs:
         if en_path.exists() or zh_path.exists():
             ensure_bilingual_pair(en_path, zh_path, en_template, zh_template, created, touched, repo)
+
+    for rel in sync_public_plan_surfaces(repo):
+        if rel not in created and rel not in touched:
+            touched.append(rel)
 
     release_doc = first_existing(repo, ["RELEASE.md", "release.md"])
     if release_doc:

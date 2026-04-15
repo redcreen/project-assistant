@@ -31,6 +31,7 @@
 | --- | --- | --- |
 | broader real-workspace coverage | two real local repos are better than fixtures, but still do not prove repeated day-to-day adoption across repo shapes, durations, and operators | keep adding real local repo captures before release packaging or host expansion moves |
 | repeated host friction classification | one-off host annoyances should not automatically turn into new UI work or a larger extension scope | only repeated friction across multiple workspaces should promote a host-surface follow-up |
+| automatic exact-session resume targeting | daemon-driven auto-resume into an existing VS Code Codex session can spill across projects if the host bridge guesses wrong or the active session focus drifts | keep automatic resume on fresh-thread isolation by default; leave exact-session auto-resume behind an extra experimental safety override |
 | single foreground writer enforcement | the daemon already has a foreground lease, but the VS Code host does not yet enforce hard single-writer ownership | keep this as evidence-gated backlog until real adoption shows frequent write collisions |
 
 ## Evidence-Gated Decisions

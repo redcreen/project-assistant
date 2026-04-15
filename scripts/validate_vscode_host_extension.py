@@ -45,6 +45,7 @@ def validate(repo: Path) -> dict[str, object]:
     commands = {item["command"] for item in payload["contributes"]["commands"]}
     views = payload["contributes"]["views"]["projectAssistant"]
     activation_events = set(payload.get("activationEvents", []))
+    config = payload["contributes"].get("configuration", {}).get("properties", {})
 
     missing_commands = sorted(REQUIRED_COMMANDS - commands)
     assert not missing_commands, f"missing commands: {', '.join(missing_commands)}"
@@ -53,6 +54,8 @@ def validate(repo: Path) -> dict[str, object]:
     assert icon_path.exists(), "icon missing"
     assert any(view["id"] == "projectAssistantQueue" for view in views), "projectAssistantQueue view missing"
     assert "onView:projectAssistantQueue" in activation_events, "queue activation event missing"
+    assert config.get("projectAssistant.autoResumeStrategy", {}).get("default") == "new-thread", "auto-resume strategy should default to new-thread"
+    assert "projectAssistant.experimentalAutoResumeIntoExactSession" in config, "missing exact-session auto-resume safety override"
     subprocess.run(["node", "--check", str(extension_js)], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     return {

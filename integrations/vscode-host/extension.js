@@ -519,7 +519,7 @@ class ProjectAssistantProvider {
   }
 
   getAutoResumeStrategy() {
-    const value = String(vscode.workspace.getConfiguration().get("projectAssistant.autoResumeStrategy", "exact-session") || "exact-session").trim();
+    const value = String(vscode.workspace.getConfiguration().get("projectAssistant.autoResumeStrategy", "new-thread") || "new-thread").trim();
     return value === "new-thread" ? "new-thread" : "exact-session";
   }
 
@@ -533,6 +533,10 @@ class ProjectAssistantProvider {
 
   shouldAutoResumeFallbackToNewThread() {
     return Boolean(vscode.workspace.getConfiguration().get("projectAssistant.autoResumeFallbackToNewThread", true));
+  }
+
+  isAutomaticExactSessionResumeEnabled() {
+    return Boolean(vscode.workspace.getConfiguration().get("projectAssistant.experimentalAutoResumeIntoExactSession", false));
   }
 
   getAutoResumeCooldownMs() {
@@ -551,6 +555,10 @@ class ProjectAssistantProvider {
       && this.isMacOS()
       && this.isExactSessionAutoSubmitEnabled(),
     );
+  }
+
+  canAutoResumeIntoExactSession() {
+    return Boolean(this.canAutoSubmitIntoExactSession() && this.isAutomaticExactSessionResumeEnabled());
   }
 
   getResumeAutomationSummary() {
@@ -597,24 +605,31 @@ class ProjectAssistantProvider {
         tooltip: "When daemon events indicate that this workspace is ready to continue, Project Assistant will start a fresh Codex thread and auto-submit the generated resume request.",
       };
     }
-    if (this.canAutoSubmitIntoExactSession()) {
+    if (this.canAutoResumeIntoExactSession()) {
       return {
         description: "On · exact session strategy",
         icon: "sync",
         tooltip: "When daemon events indicate that this workspace is ready to continue, Project Assistant will open the exact saved Codex session and try to auto-send the generated resume prompt there.",
       };
     }
+    if (this.getAutoResumeStrategy() === "exact-session" && this.canAutoSubmitIntoExactSession()) {
+      return {
+        description: "On · exact session blocked by safety guard",
+        icon: "warning",
+        tooltip: "Manual exact-session resume is still available, but daemon-driven auto-resume will not paste into an existing session unless the extra experimental exact-session auto-resume setting is enabled.",
+      };
+    }
     if (this.shouldAutoResumeFallbackToNewThread()) {
       return {
         description: "On · exact session with new-thread fallback",
         icon: "sync",
-        tooltip: "Auto-resume prefers the exact saved Codex session. If exact-session auto-send is unavailable, the host will fall back to a fresh Codex auto-resume thread.",
+        tooltip: "Auto-resume prefers exact-session in config, but the safety guard keeps daemon-driven resume on a fresh Codex thread unless explicit exact-session auto-resume is enabled.",
       };
     }
     return {
       description: "On · waiting for exact-session auto-send support",
       icon: "warning",
-      tooltip: "Auto-resume monitoring is enabled, but exact-session auto-send is not available in the current environment. The host will log the trigger and wait for a supported bridge.",
+      tooltip: "Auto-resume monitoring is enabled, but exact-session auto-resume is not currently allowed in this environment. The host will log the trigger and wait unless a safer path is configured.",
     };
   }
 
@@ -1527,6 +1542,7 @@ class ProjectAssistantProvider {
   }
 
   async prepareCodexResumePack() {
+    await this.refresh();
     const continuePath = await this.renderProjectAssistantModeToFile("continue", "continue.md");
     const progressPath = await this.renderProjectAssistantModeToFile("progress", "progress.md");
     const handoffPath = await this.renderProjectAssistantModeToFile("handoff", "handoff.md");
@@ -2011,23 +2027,25 @@ class ProjectAssistantProvider {
         );
         return;
       }
-      const result = await this.resumeCodexInternal({
-        tryAutoSubmit: this.canAutoSubmitIntoExactSession(),
-        triggerSource: "manual auto coding start",
-        silentSuccess: true,
-      });
-      if (result && result.autoSubmitted) {
-        this.recordAutoResumeOutcome({
-          status: "succeeded",
-          label: `Auto Coding started -> ${continuity.nextAction}`,
-          triggerId: this.lastEventId,
-          triggerType: "manual-auto-coding-start",
-          mode: result.mode,
+      if (this.canAutoResumeIntoExactSession()) {
+        const result = await this.resumeCodexInternal({
+          tryAutoSubmit: true,
+          triggerSource: "manual auto coding start",
+          silentSuccess: true,
         });
-        vscode.window.showInformationMessage(
-          `Project Assistant: Auto Coding 已开启，并已开始按 ${continuity.nextAction} 自动推进。`,
-        );
-        return;
+        if (result && result.autoSubmitted) {
+          this.recordAutoResumeOutcome({
+            status: "succeeded",
+            label: `Auto Coding started -> ${continuity.nextAction}`,
+            triggerId: this.lastEventId,
+            triggerType: "manual-auto-coding-start",
+            mode: result.mode,
+          });
+          vscode.window.showInformationMessage(
+            `Project Assistant: Auto Coding 已开启，并已开始按 ${continuity.nextAction} 自动推进。`,
+          );
+          return;
+        }
       }
       if (this.shouldAutoResumeFallbackToNewThread()) {
         const fallback = await this.autoResumeCodexInternal({
@@ -2147,7 +2165,7 @@ class ProjectAssistantProvider {
         );
         return;
       }
-      if (this.canAutoSubmitIntoExactSession()) {
+      if (this.canAutoResumeIntoExactSession()) {
         const result = await this.resumeCodexInternal({
           tryAutoSubmit: true,
           triggerSource: `daemon event ${triggerId}`,

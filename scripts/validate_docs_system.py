@@ -24,6 +24,47 @@ def first_existing(repo: Path, names: list[str]) -> Path | None:
     return None
 
 
+def parse_open_execution_tasks(plan_text: str) -> list[str]:
+    tasks: list[str] = []
+    in_execution_tasks = False
+    for raw_line in plan_text.splitlines():
+        if raw_line.startswith("## "):
+            in_execution_tasks = raw_line.strip() == "## Execution Tasks"
+            continue
+        if in_execution_tasks and raw_line.strip().startswith("- [ ] "):
+            tasks.append(raw_line.strip()[6:].strip().strip("`"))
+    return tasks
+
+
+def parse_current_execution_fields(plan_text: str) -> dict[str, str]:
+    fields = {"objective": "n/a", "plan_link": "n/a"}
+    in_current_execution = False
+    for raw_line in plan_text.splitlines():
+        if raw_line.startswith("## "):
+            in_current_execution = raw_line.strip() == "## Current Execution Line"
+            continue
+        if not in_current_execution:
+            continue
+        stripped = raw_line.strip()
+        if stripped.startswith("- Objective:"):
+            fields["objective"] = stripped.split(":", 1)[1].strip().strip("`")
+        elif stripped.startswith("- Plan Link:"):
+            fields["plan_link"] = stripped.split(":", 1)[1].strip().strip("`")
+    return fields
+
+
+def parse_slices(plan_text: str) -> list[str]:
+    names: list[str] = []
+    in_slices = False
+    for raw_line in plan_text.splitlines():
+        if raw_line.startswith("## "):
+            in_slices = raw_line.strip() == "## Slices"
+            continue
+        if in_slices and raw_line.strip().startswith("- Slice:"):
+            names.append(raw_line.strip().split(":", 1)[1].strip().strip("`"))
+    return names
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate the durable docs system against project-assistant rules.")
     parser.add_argument("repo", type=Path, help="Repository root")
@@ -58,6 +99,12 @@ def main() -> int:
 
     docs_home = read_text(repo / "docs/README.md")
     docs_home_zh = read_text(repo / "docs/README.zh-CN.md")
+    live_plan_text = read_text(repo / ".codex/plan.md")
+    live_open_tasks = parse_open_execution_tasks(live_plan_text)
+    live_execution = parse_current_execution_fields(live_plan_text)
+    live_slices = parse_slices(live_plan_text)
+    current_slice_index = next((idx for idx, name in enumerate(live_slices) if name == live_execution["plan_link"]), None)
+    next_slice = live_slices[current_slice_index + 1] if current_slice_index is not None and current_slice_index + 1 < len(live_slices) else ""
     if tier in {"medium", "large"}:
         development_plan = find_best_development_plan(repo, chinese=False)
         development_plan_zh = find_best_development_plan(repo, chinese=True)
@@ -115,6 +162,8 @@ def main() -> int:
             ]
             if not has_all(development_plan_text, required_plan_sections):
                 warnings.append(f"{development_plan.relative_to(repo).as_posix()} missing standard development-plan sections")
+            if live_open_tasks and live_open_tasks[0] not in development_plan_text:
+                warnings.append(f"{development_plan.relative_to(repo).as_posix()} should surface the first open execution task from .codex/plan.md")
         if development_plan_zh:
             development_plan_zh_text = read_text(development_plan_zh)
             required_plan_sections_zh = [
@@ -126,6 +175,8 @@ def main() -> int:
             ]
             if not has_all(development_plan_zh_text, required_plan_sections_zh):
                 warnings.append(f"{development_plan_zh.relative_to(repo).as_posix()} missing standard development-plan sections")
+            if live_open_tasks and live_open_tasks[0] not in development_plan_zh_text:
+                warnings.append(f"{development_plan_zh.relative_to(repo).as_posix()} should surface the first open execution task from .codex/plan.md")
         roadmap_generic = read_text(repo / "docs/roadmap.md")
         if roadmap_generic and development_plan:
             rel = relative_markdown_target((repo / "docs"), development_plan)
@@ -134,6 +185,10 @@ def main() -> int:
             normalized = normalized_roadmap_stage_links(repo, repo / "docs/roadmap.md", roadmap_generic)
             if normalized != roadmap_generic:
                 warnings.append("docs/roadmap.md should link roadmap milestones to the matching development-plan headings")
+            if live_execution["objective"] != "n/a" and live_execution["objective"] not in roadmap_generic:
+                warnings.append("docs/roadmap.md should surface the current execution objective from .codex/plan.md")
+            if next_slice and next_slice not in roadmap_generic:
+                warnings.append("docs/roadmap.md should surface the next queued slice from .codex/plan.md")
         roadmap_generic_zh = read_text(repo / "docs/roadmap.zh-CN.md")
         if roadmap_generic_zh and development_plan_zh:
             rel_zh = relative_markdown_target((repo / "docs"), development_plan_zh)
@@ -142,6 +197,10 @@ def main() -> int:
             normalized_zh = normalized_roadmap_stage_links(repo, repo / "docs/roadmap.zh-CN.md", roadmap_generic_zh)
             if normalized_zh != roadmap_generic_zh:
                 warnings.append("docs/roadmap.zh-CN.md should link roadmap milestones to the matching development-plan headings")
+            if live_execution["objective"] != "n/a" and live_execution["objective"] not in roadmap_generic_zh:
+                warnings.append("docs/roadmap.zh-CN.md should surface the current execution objective from .codex/plan.md")
+            if next_slice and next_slice not in roadmap_generic_zh:
+                warnings.append("docs/roadmap.zh-CN.md should surface the next queued slice from .codex/plan.md")
 
     if tier == "large":
         architecture = read_text(repo / "docs/architecture.md")

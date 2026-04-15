@@ -208,13 +208,18 @@
             "exact-session",
             "new-thread"
           ],
-          "default": "exact-session",
-          "description": "Auto-resume policy. exact-session prefers reopening the matching saved Codex session; new-thread always starts a fresh Codex auto-resume thread."
+          "default": "new-thread",
+          "description": "Auto-resume policy. new-thread is the safer default because it isolates each automatic continuation in a fresh Codex thread; exact-session requires extra safety gating."
         },
         "projectAssistant.autoResumeFallbackToNewThread": {
           "type": "boolean",
           "default": true,
           "description": "When auto-resume prefers exact-session but exact-session auto-send is unavailable, automatically fall back to starting a fresh Codex auto-resume thread."
+        },
+        "projectAssistant.experimentalAutoResumeIntoExactSession": {
+          "type": "boolean",
+          "default": false,
+          "description": "Experimental safety override. Allow daemon-driven Auto Coding to paste into an existing exact Codex session instead of always isolating automatic resumes in a fresh thread."
         },
         "projectAssistant.autoResumeDelayMs": {
           "type": "number",

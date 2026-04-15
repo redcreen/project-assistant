@@ -11,12 +11,11 @@
 - [project-assistant/development-plan.zh-CN.md](reference/project-assistant/development-plan.zh-CN.md)
 
 ## 当前 / 下一步 / 更后面
-
 | 时间层级 | 重点 | 退出信号 |
 | --- | --- | --- |
-| 当前 | 稳住刚完成的 daemon-host baseline，把它变成真实可用的默认快路径：runtime、queue、VS Code host、continue bridge、legacy rollout 与文档/门禁都保持一致 | broader dogfooding 不再暴露高频 runtime/host 回归，daemon-host baseline 可被默认采用 |
-| 下一步 | 决定 daemon-host baseline 的 release 叙事、安装入口和更广的 dogfooding 范围，同时继续收集宿主恢复桥证据 | operator docs、release-facing docs 和 install path 对齐，且更广泛 workspace 仍能稳定通过 |
-| 更后面 | 只在证据充分时才扩大宿主表面、评估 web / remote 宿主，或重新讨论 `M15 选择性多执行器调度` | 不把 baseline 稳定化、宿主扩张和多执行器讨论混成一个 release |
+| 当前 | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py` 已通过，M17-M21 baseline 已具备可持续回归的自动化入口 |
+| 下一步 | package-daemon-host-baseline-for-release | 暂无 |
+| 更后面 | future-host-expansion-and-m15-evidence | 暂无 |
 
 ## 里程碑
 

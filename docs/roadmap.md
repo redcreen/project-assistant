@@ -11,12 +11,11 @@ For the detailed execution queue, see:
 - [project-assistant/development-plan.md](reference/project-assistant/development-plan.md)
 
 ## Current / Next / Later
-
 | Horizon | Focus | Exit Signal |
 | --- | --- | --- |
-| Current | stabilize the newly shipped daemon-host baseline so it becomes a real default fast path: runtime, queue, VS Code host, continue bridge, legacy rollout, docs, and gates stay aligned | broader dogfooding no longer exposes frequent runtime/host regressions and the daemon-host baseline can be adopted by default |
-| Next | decide the release narrative, install entry, and broader dogfooding scope for the daemon-host baseline while continuing to collect host-resume evidence | operator docs, release-facing docs, and install path align, and broader workspaces still pass consistently |
-| Later | only expand host surfaces, assess web/remote hosts, or reopen `M15 selective multi-executor scheduling` when evidence is strong enough | do not mix baseline hardening, host expansion, and multi-executor discussion into one release |
+| Current | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py` 已通过，M17-M21 baseline 已具备可持续回归的自动化入口 |
+| Next | package-daemon-host-baseline-for-release | n/a |
+| Later | future-host-expansion-and-m15-evidence | n/a |
 
 ## Milestones
 

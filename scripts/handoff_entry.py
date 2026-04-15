@@ -32,6 +32,7 @@ def main(argv: list[str] | None = None) -> int:
 
     repo = args.repo.resolve()
     scripts_dir = Path(__file__).resolve().parent
+    subprocess.run([sys.executable, str(scripts_dir / "sync_plan_docs.py"), str(repo)], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     output = render(scripts_dir / "context_handoff.py", repo)
     missing = [heading for heading in REQUIRED_HEADINGS if heading not in output]
     if missing:
