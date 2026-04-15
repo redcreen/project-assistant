@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document is the durable maintainer-facing execution plan that sits below `docs/roadmap.md` and above `.codex/plan.md`.
+This document is the durable maintainer-facing execution plan that sits below `docs/roadmap.md` and above the AI control surfaces.
 
 It answers one practical question:
 
@@ -18,18 +18,39 @@ It answers one practical question:
 
 ## How To Use This Plan
 
-1. Read the roadmap first to understand milestone order.
-2. Read `Current Position` and `Ordered Execution Queue` here to know where to resume.
-3. Drop into `.codex/plan.md` only when you need the live control-surface detail.
+1. Read the roadmap first to understand overall progress and the next stage.
+2. Read `Overall Progress`, `Execution Task Progress`, and `Ordered Execution Queue` here to know where to resume.
+3. Only drop into the internal control docs when you are maintaining the automation itself.
+
+## Overall Progress
+
+| Item | Current Value |
+| --- | --- |
+| Overall Progress | 3 / 4 execution tasks complete |
+| Current Phase | `post-M21 daemon-host baseline active` |
+| Active Slice | `stabilize-daemon-host-baseline-for-dogfooding` |
+| Current Objective | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins |
+| Active Slice Exit Signal | daemon-host baseline 可被更广泛使用，且没有高频 runtime/host 回归 |
+| Clear Next Move | EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice |
+| Next Candidate Slice | `package-daemon-host-baseline-for-release` |
 
 ## Current Position
 
 | Item | Current Value | Meaning |
 | --- | --- | --- |
-| Current Phase | `post-M21 daemon-host baseline active` | Current maintainer-facing phase from `.codex/plan.md` |
+| Current Phase | `post-M21 daemon-host baseline active` | Current maintainer-facing phase |
 | Active Slice | `stabilize-daemon-host-baseline-for-dogfooding` | The slice tied to the current execution line |
 | Current Execution Line | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | What the repo is trying to finish now |
-| Validation | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py` 已通过，M17-M21 baseline 已具备可持续回归的自动化入口 | How this line proves itself before moving on |
+| Validation | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py` 已通过，M17-M21 baseline 已具备可持续回归的自动化入口 | The checks that must stay true before moving on |
+
+## Execution Task Progress
+
+| Order | Task | Status |
+| --- | --- | --- |
+| 1 | EL-1 harden daemon runtime edges exposed by concurrent startup, shutdown, or status polling in real workspaces | done |
+| 2 | EL-2 keep README / architecture / usage / test plan / entry routing aligned with daemon-host as the new default fast path | done |
+| 3 | EL-3 collect broader dogfooding evidence before opening the next host surface or any M15 discussion | done |
+| 4 | EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice | next |
 
 ## Milestone Overview
 
@@ -61,16 +82,16 @@ It answers one practical question:
 
 | Order | Slice | Status | Objective | Validation |
 | --- | --- | --- | --- | --- |
-| 1 | `close-m17-through-m21-daemon-host-baseline` | earlier slice | n/a | n/a |
-| 2 | `stabilize-daemon-host-baseline-for-dogfooding` | current | n/a | n/a |
-| 3 | `package-daemon-host-baseline-for-release` | next / queued | n/a | n/a |
-| 4 | `future-host-expansion-and-m15-evidence` | next / queued | n/a | n/a |
-| 5 | `M17 / build-ptl-daemon-runtime-core` | next / queued | n/a | n/a |
-| 6 | `M18 / build-vscode-host-shell-and-live-status` | next / queued | n/a | n/a |
-| 7 | `M19 / wire-manual-and-one-click-continue` | next / queued | n/a | n/a |
-| 8 | `M20 / validate-daemon-host-mvp-on-local-workspaces` | next / queued | n/a | n/a |
-| 9 | `M20 / validate-legacy-feature-set-on-daemon-host-baseline` | next / queued | n/a | n/a |
-| 10 | `M21 / resume-post-m16-rollout-on-daemon-host-baseline` | next / queued | n/a | n/a |
+| 1 | `close-m17-through-m21-daemon-host-baseline` | earlier slice | 把 daemon runtime、VS Code host shell、continue bridge、本地验证、旧功能回归和 post-M16 rollout 恢复一口气收口成可用 baseline | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py |
+| 2 | `stabilize-daemon-host-baseline-for-dogfooding` | current | 把刚完成的 daemon-host baseline 稳定成默认快路径，并为更广泛 dogfooding 准备好 operator docs 与采证入口 | validate_gate_set.py --profile deep`、runtime/host smoke、broader workspace dogfooding |
+| 3 | `package-daemon-host-baseline-for-release` | next / queued | 决定 daemon-host baseline 的 release 叙事、安装说明和版本落点 | release-facing docs、gate outputs 和 install path 对齐 |
+| 4 | `future-host-expansion-and-m15-evidence` | next / queued | 只在 daemon-host baseline 已稳定、dogfooding 证据充分后，再判断是否扩大到更强宿主表面或重新讨论 `M15 | real adoption evidence + clear write-scope boundaries |
+| 5 | `M17 / build-ptl-daemon-runtime-core` | next / queued | 建立 daemon runtime、runtime store、queue/event contract，以及最小的 `start/status/stop/queue` 控制面 | validate_daemon_runtime.py |
+| 6 | `M18 / build-vscode-host-shell-and-live-status` | next / queued | 建立 VS Code 宿主前端壳，至少包含 Tree View、Status Bar、Output channel，以及与 daemon 的连接 | validate_vscode_host_extension.py |
+| 7 | `M19 / wire-manual-and-one-click-continue` | next / queued | 把 `resume-ready` 事件接成 `manual continue`，并补上保守的 `one-click continue | validate_vscode_host_extension.py` + host continue smoke |
+| 8 | `M20 / validate-daemon-host-mvp-on-local-workspaces` | next / queued | 在代表性的本地 workspace 上验证 daemon + VS Code host MVP 的状态展示、恢复路径和稳定性 | validate_daemon_host_mvp.py |
+| 9 | `M20 / validate-legacy-feature-set-on-daemon-host-baseline` | next / queued | 在 daemon-host 基线上按家族逐项回归旧功能，而不是等所有能力都迁完再统一验收 | validate_daemon_host_mvp.py` + `validate_gate_set.py --profile deep |
+| 10 | `M21 / resume-post-m16-rollout-on-daemon-host-baseline` | next / queued | 在 daemon-host 基线稳定后，恢复 post-M16 rollout verification，并重新评估 host-bridge 证据 | validate_daemon_legacy_rollout.py |
 
 ## Milestone Details
 
@@ -267,4 +288,4 @@ It answers one practical question:
 
 | Next Move | Why |
 | --- | --- |
-| EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice | This is the first unchecked execution task in `.codex/plan.md`, so the public plan stays aligned with the live resume point. |
+| EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice | This is the first unchecked execution task, so both the roadmap and this plan stay aligned to the same resume point. |

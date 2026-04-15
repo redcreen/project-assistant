@@ -10,12 +10,25 @@
 
 - [project-assistant/development-plan.zh-CN.md](reference/project-assistant/development-plan.zh-CN.md)
 
+## 总体进展
+| 项目 | 当前值 |
+| --- | --- |
+| 总体进度 | 3 / 4 execution tasks 完成 |
+| 当前阶段 | `post-M21 daemon-host baseline active` |
+| 当前切片 | `stabilize-daemon-host-baseline-for-dogfooding` |
+| 当前目标 | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins |
+| 当前切片退出条件 | daemon-host baseline 可被更广泛使用，且没有高频 runtime/host 回归 |
+| 明确下一步动作 | EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice |
+| 下一候选切片 | `package-daemon-host-baseline-for-release` |
+
+查看详细执行计划：[project-assistant/development-plan.zh-CN.md](reference/project-assistant/development-plan.zh-CN.md)
+
 ## 当前 / 下一步 / 更后面
 | 时间层级 | 重点 | 退出信号 |
 | --- | --- | --- |
-| 当前 | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py` 已通过，M17-M21 baseline 已具备可持续回归的自动化入口 |
-| 下一步 | package-daemon-host-baseline-for-release | 暂无 |
-| 更后面 | future-host-expansion-and-m15-evidence | 暂无 |
+| 当前 | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | daemon-host baseline 可被更广泛使用，且没有高频 runtime/host 回归 |
+| 下一步 | 决定 daemon-host baseline 的 release 叙事、安装说明和版本落点 | 用户可以通过明确版本入口获取 daemon-host baseline，而不是只依赖当前仓库 mainline |
+| 更后面 | 只在 daemon-host baseline 已稳定、dogfooding 证据充分后，再判断是否扩大到更强宿主表面或重新讨论 `M15 | 有足够证据支持下一条更大的主线，而不是靠猜测扩范围 |
 
 ## 里程碑
 

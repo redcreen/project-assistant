@@ -4,6 +4,7 @@
 
 ## 从这里开始
 
+- 人类查看计划入口：[路线图](roadmap.zh-CN.md) 和 [开发计划](reference/project-assistant/development-plan.zh-CN.md)
 - 快速了解项目：[README](../README.zh-CN.md)
 - 架构：[architecture.zh-CN.md](architecture.zh-CN.md)
 - 路线图：[roadmap.zh-CN.md](roadmap.zh-CN.md)
@@ -21,6 +22,7 @@
 
 | 目标 | 阅读这里 |
 | --- | --- |
+| 查看总体进展、分项进展和明确下一步动作 | 先看 [路线图](roadmap.zh-CN.md)，再看 [开发计划](reference/project-assistant/development-plan.zh-CN.md) |
 | 快速试用项目 | [README](../README.zh-CN.md) |
 | 理解系统结构 | [architecture.zh-CN.md](architecture.zh-CN.md) |
 | 规划一次架构优先的整改 | [../references/architecture-retrofit.md](../references/architecture-retrofit.md) |

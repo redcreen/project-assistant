@@ -156,6 +156,8 @@ def main() -> int:
             required_plan_sections = [
                 "## Purpose",
                 "## How To Use This Plan",
+                "## Overall Progress",
+                "## Execution Task Progress",
                 "## Current Position",
                 "## Milestone Overview",
                 "## Ordered Execution Queue",
@@ -169,6 +171,8 @@ def main() -> int:
             required_plan_sections_zh = [
                 "## 目的",
                 "## 怎么使用这份计划",
+                "## 总体进展",
+                "## 执行任务进度",
                 "## 当前位置",
                 "## 阶段总览",
                 "## 顺序执行队列",
@@ -179,6 +183,8 @@ def main() -> int:
                 warnings.append(f"{development_plan_zh.relative_to(repo).as_posix()} should surface the first open execution task from .codex/plan.md")
         roadmap_generic = read_text(repo / "docs/roadmap.md")
         if roadmap_generic and development_plan:
+            if "## Overall Progress" not in roadmap_generic:
+                warnings.append("docs/roadmap.md should expose an Overall Progress section")
             rel = relative_markdown_target((repo / "docs"), development_plan)
             if rel not in roadmap_generic:
                 warnings.append("docs/roadmap.md should point readers to the detailed development-plan")
@@ -191,6 +197,8 @@ def main() -> int:
                 warnings.append("docs/roadmap.md should surface the next queued slice from .codex/plan.md")
         roadmap_generic_zh = read_text(repo / "docs/roadmap.zh-CN.md")
         if roadmap_generic_zh and development_plan_zh:
+            if "## 总体进展" not in roadmap_generic_zh:
+                warnings.append("docs/roadmap.zh-CN.md should expose a 总体进展 section")
             rel_zh = relative_markdown_target((repo / "docs"), development_plan_zh)
             if rel_zh not in roadmap_generic_zh:
                 warnings.append("docs/roadmap.zh-CN.md should point readers to the detailed development-plan")

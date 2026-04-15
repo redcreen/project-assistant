@@ -4,6 +4,7 @@
 
 ## Start Here
 
+- Human planning entry: [Roadmap](roadmap.md) and [Development Plan](reference/project-assistant/development-plan.md)
 - Getting started: [README](../README.md)
 - Architecture: [architecture.md](architecture.md)
 - Roadmap: [roadmap.md](roadmap.md)
@@ -21,6 +22,7 @@
 
 | Goal | Read This |
 | --- | --- |
+| Check overall progress, sub-item progress, and the next action | [Roadmap](roadmap.md) then [Development Plan](reference/project-assistant/development-plan.md) |
 | Try the project quickly | [README](../README.md) |
 | Understand the system | [architecture.md](architecture.md) |
 | Plan an architecture-first repo correction | [../references/architecture-retrofit.md](../references/architecture-retrofit.md) |

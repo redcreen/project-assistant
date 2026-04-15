@@ -560,6 +560,26 @@ def replace_section(text: str, headings: list[str], body: str) -> str:
     return text.rstrip() + f"\n\n## {heading}\n{rendered}\n"
 
 
+def ensure_section_before(text: str, heading: str, body: str, before_headings: list[str]) -> str:
+    rendered = f"## {heading}\n{body.rstrip()}\n\n"
+    existing = re.search(rf"(?ms)^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", text)
+    if existing:
+        updated = text[: existing.start()] + text[existing.end():]
+    else:
+        updated = text
+    insert_at = len(updated)
+    for candidate in before_headings:
+        marker = f"## {candidate}"
+        pos = updated.find(marker)
+        if pos != -1:
+            insert_at = min(insert_at, pos)
+    if insert_at == len(updated):
+        return updated.rstrip() + "\n\n" + rendered.rstrip() + "\n"
+    prefix = updated[:insert_at].rstrip() + "\n\n"
+    suffix = updated[insert_at:].lstrip()
+    return prefix + rendered + suffix
+
+
 def parse_roadmap_milestones(text: str, chinese: bool) -> list[dict[str, str]]:
     body = section_body(text, ["Milestones"] if not chinese else ["里程碑"])
     rows: list[dict[str, str]] = []
@@ -627,6 +647,20 @@ def parse_open_execution_tasks(plan_text: str) -> list[str]:
     return tasks
 
 
+def parse_execution_tasks(plan_text: str) -> list[dict[str, str]]:
+    body = section_body(plan_text, ["Execution Tasks"])
+    if not body:
+        return []
+    tasks: list[dict[str, str]] = []
+    for line in body.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- [x] "):
+            tasks.append({"status": "done", "label": stripped[6:].strip().strip("`")})
+        elif stripped.startswith("- [ ] "):
+            tasks.append({"status": "open", "label": stripped[6:].strip().strip("`")})
+    return tasks
+
+
 def parse_slices(plan_text: str) -> list[dict[str, str]]:
     body = section_body(plan_text, ["Slices"])
     if not body:
@@ -643,7 +677,8 @@ def parse_slices(plan_text: str) -> list[dict[str, str]]:
             if ":" not in stripped:
                 continue
             key, value = stripped.split(":", 1)
-            item[key.lower().replace(" ", "_").replace("-", "_")] = value.strip().strip("`")
+            normalized_key = key.lstrip("- ").strip().lower().replace(" ", "_").replace("-", "_")
+            item[normalized_key] = value.strip().strip("`")
         slices.append(item)
     return slices
 
@@ -652,8 +687,14 @@ def render_milestone_overview_table(rows: list[dict[str, str]], chinese: bool) -
     header = "| 阶段 | 状态 | 目标 | 依赖 | 退出条件 |\n| --- | --- | --- | --- | --- |" if chinese else "| Milestone | Status | Goal | Depends On | Exit Criteria |\n| --- | --- | --- | --- | --- |"
     lines = [header]
     for row in rows:
-        lines.append(f"| {row['label']} | {row['status']} | {row['goal']} | {row['depends']} | {row['exit']} |")
+        lines.append(
+            f"| {escape_table_cell(row['label'])} | {escape_table_cell(row['status'])} | {escape_table_cell(row['goal'])} | {escape_table_cell(row['depends'])} | {escape_table_cell(row['exit'])} |"
+        )
     return "\n".join(lines)
+
+
+def escape_table_cell(value: str) -> str:
+    return value.replace("|", "\\|").replace("\n", " ")
 
 
 def render_milestone_details(rows: list[dict[str, str]], chinese: bool) -> str:
@@ -705,15 +746,86 @@ def render_slice_queue(slices: list[dict[str, str]], current_plan_link: str, cur
         else:
             status = "next / queued" if not chinese else "下一步 / 已排队"
         lines.append(
-            f"| {index} | `{item.get('name', 'n/a')}` | {status} | {item.get('objective', 'n/a')} | {item.get('validation', 'n/a')} |"
+            f"| {index} | `{escape_table_cell(item.get('name', 'n/a'))}` | {escape_table_cell(status)} | {escape_table_cell(item.get('objective', 'n/a'))} | {escape_table_cell(item.get('validation', 'n/a'))} |"
         )
     return "\n".join(lines)
 
 
+def human_progress_counts(progress: str) -> tuple[str, str]:
+    match = re.match(r"(\d+)\s*/\s*(\d+)", progress)
+    if not match:
+        return ("n/a", "n/a")
+    return match.group(1), match.group(2)
+
+
+def active_slice(slices: list[dict[str, str]], plan_link: str) -> dict[str, str] | None:
+    return next((item for item in slices if item.get("name") == plan_link), None)
+
+
+def render_execution_task_board(tasks: list[dict[str, str]], chinese: bool) -> str:
+    if chinese:
+        lines = ["| 顺序 | 任务 | 状态 |", "| --- | --- | --- |"]
+        status_map = {"done": "已完成", "open": "下一步"}
+    else:
+        lines = ["| Order | Task | Status |", "| --- | --- | --- |"]
+        status_map = {"done": "done", "open": "next"}
+    for index, task in enumerate(tasks, start=1):
+        lines.append(
+            f"| {index} | {escape_table_cell(task['label'])} | {escape_table_cell(status_map.get(task['status'], task['status']))} |"
+        )
+    return "\n".join(lines)
+
+
+def render_public_progress_snapshot(
+    current_phase: str,
+    execution: dict[str, str],
+    tasks: list[dict[str, str]],
+    slices: list[dict[str, str]],
+    chinese: bool,
+) -> str:
+    done_count, total_count = human_progress_counts(execution["progress"])
+    next_task = next((task["label"] for task in tasks if task["status"] == "open"), "")
+    current_slice = active_slice(slices, execution["plan_link"]) or {}
+    current_index = next((idx for idx, item in enumerate(slices) if item.get("name") == execution["plan_link"]), None)
+    next_slice = slices[current_index + 1] if current_index is not None and current_index + 1 < len(slices) else None
+    if chinese:
+        return "\n".join(
+            [
+                "| 项目 | 当前值 |",
+                "| --- | --- |",
+                f"| 总体进度 | {escape_table_cell(f'{done_count} / {total_count} execution tasks 完成')} |",
+                f"| 当前阶段 | {escape_table_cell(current_phase)} |",
+                f"| 当前切片 | `{escape_table_cell(execution['plan_link'])}` |",
+                f"| 当前目标 | {escape_table_cell(execution['objective'])} |",
+                f"| 当前切片退出条件 | {escape_table_cell(current_slice.get('exit_condition', execution['validation']))} |",
+                f"| 明确下一步动作 | {escape_table_cell(next_task if next_task else '当前 execution tasks 已完成，转向下一切片')} |",
+                f"| 下一候选切片 | `{escape_table_cell(next_slice.get('name', 'n/a'))}` |" if next_slice else "| 下一候选切片 | n/a |",
+            ]
+        )
+    return "\n".join(
+        [
+            "| Item | Current Value |",
+            "| --- | --- |",
+            f"| Overall Progress | {escape_table_cell(f'{done_count} / {total_count} execution tasks complete')} |",
+            f"| Current Phase | {escape_table_cell(current_phase)} |",
+            f"| Active Slice | `{escape_table_cell(execution['plan_link'])}` |",
+            f"| Current Objective | {escape_table_cell(execution['objective'])} |",
+            f"| Active Slice Exit Signal | {escape_table_cell(current_slice.get('exit_condition', execution['validation']))} |",
+            f"| Clear Next Move | {escape_table_cell(next_task if next_task else 'Current execution tasks are complete; move to the next slice')} |",
+            f"| Next Candidate Slice | `{escape_table_cell(next_slice.get('name', 'n/a'))}` |" if next_slice else "| Next Candidate Slice | n/a |",
+        ]
+    )
+
+
 def roadmap_focus_rows(slices: list[dict[str, str]], execution: dict[str, str], chinese: bool) -> list[tuple[str, str, str]]:
     current_focus = execution["objective"]
-    current_exit = execution["stop_conditions"] if execution["stop_conditions"] not in {"", "n/a"} else execution["validation"]
     current_index = next((idx for idx, item in enumerate(slices) if item.get("name") == execution["plan_link"]), None)
+    current_slice = slices[current_index] if current_index is not None else None
+    current_exit = (
+        current_slice.get("exit_condition", execution["validation"])
+        if current_slice
+        else (execution["stop_conditions"] if execution["stop_conditions"] not in {"", "n/a"} else execution["validation"])
+    )
 
     next_slice = slices[current_index + 1] if current_index is not None and current_index + 1 < len(slices) else None
     later_slice = slices[current_index + 2] if current_index is not None and current_index + 2 < len(slices) else None
@@ -750,73 +862,77 @@ def render_roadmap_focus_section(plan_text: str, chinese: bool) -> str:
         header = "| Horizon | Focus | Exit Signal |\n| --- | --- | --- |"
     lines = [header]
     for horizon, focus, exit_signal in rows:
-        lines.append(f"| {horizon} | {focus} | {exit_signal} |")
+        lines.append(f"| {escape_table_cell(horizon)} | {escape_table_cell(focus)} | {escape_table_cell(exit_signal)} |")
     return "\n".join(lines)
 
 
+def render_roadmap_progress_section(plan_text: str, chinese: bool) -> str:
+    current_phase = parse_current_phase(plan_text)
+    execution = parse_current_execution_fields(plan_text)
+    tasks = parse_execution_tasks(plan_text)
+    slices = parse_slices(plan_text)
+    snapshot = render_public_progress_snapshot(current_phase, execution, tasks, slices, chinese)
+    if chinese:
+        return snapshot + "\n\n查看详细执行计划：[project-assistant/development-plan.zh-CN.md](reference/project-assistant/development-plan.zh-CN.md)"
+    return snapshot + "\n\nSee the detailed execution plan: [project-assistant/development-plan.md](reference/project-assistant/development-plan.md)"
+
+
 def render_development_plan(repo: Path, chinese: bool) -> str:
-    slug = project_doc_slug(repo)
     docs_dir = repo / "docs"
-    plan_path = repo / ".codex/plan.md"
-    roadmap_path = docs_dir / ("roadmap.zh-CN.md" if chinese else "roadmap.md")
+    plan_text = read_text(repo / ".codex/plan.md")
+    roadmap_text = read_text(docs_dir / ("roadmap.zh-CN.md" if chinese else "roadmap.md"))
     architecture_path = docs_dir / ("architecture.zh-CN.md" if chinese else "architecture.md")
     test_plan_path = docs_dir / ("test-plan.zh-CN.md" if chinese else "test-plan.md")
-    plan_text = read_text(plan_path)
-    roadmap_text = read_text(roadmap_path)
     milestones = parse_roadmap_milestones(roadmap_text, chinese=chinese)
     current_phase = parse_current_phase(plan_text)
     execution = parse_current_execution_fields(plan_text)
     open_execution_tasks = parse_open_execution_tasks(plan_text)
+    execution_tasks = parse_execution_tasks(plan_text)
     slices = parse_slices(plan_text)
+    progress_snapshot = render_public_progress_snapshot(current_phase, execution, execution_tasks, slices, chinese)
+
     title = f"# {project_name(repo)} Development Plan" if not chinese else f"# {project_name(repo)} 开发计划"
     switch = "[English](development-plan.md) | [中文](development-plan.zh-CN.md)"
-    if chinese:
-        related_lines = ["- [../../roadmap.zh-CN.md](../../roadmap.zh-CN.md)"]
-    else:
-        related_lines = ["- [../../roadmap.md](../../roadmap.md)"]
+    related_lines = ["- [../../roadmap.zh-CN.md](../../roadmap.zh-CN.md)"] if chinese else ["- [../../roadmap.md](../../roadmap.md)"]
     if architecture_path.exists():
-        target = "../../architecture.md" if not chinese else "../../architecture.zh-CN.md"
+        target = "../../architecture.zh-CN.md" if chinese else "../../architecture.md"
         related_lines.append(f"- [{target}]({target})")
     if test_plan_path.exists():
-        target = "../../test-plan.md" if not chinese else "../../test-plan.zh-CN.md"
+        target = "../../test-plan.zh-CN.md" if chinese else "../../test-plan.md"
         related_lines.append(f"- [{target}]({target})")
+
     if chinese:
         current_position = (
             "| 项目 | 当前值 | 说明 |\n| --- | --- | --- |\n"
-            f"| 当前阶段 | {current_phase} | 来自 `.codex/plan.md` 的当前维护阶段 |\n"
+            f"| 当前阶段 | {current_phase} | 当前维护阶段 |\n"
             f"| 当前切片 | `{execution['plan_link']}` | 当前执行线绑定的切片 |\n"
-            f"| 当前执行线 | {execution['objective']} | 当前这轮真正要收口的工作 |\n"
-            f"| 当前验证 | {execution['validation']} | 继续前如何证明这条线已收口 |"
+            f"| 当前执行线 | {execution['objective']} | 当前真正要收口的工作 |\n"
+            f"| 当前验证 | {execution['validation']} | 这条线继续前需要保持为真的验证入口 |"
         )
-    else:
-        current_position = (
-            "| Item | Current Value | Meaning |\n| --- | --- | --- |\n"
-            f"| Current Phase | {current_phase} | Current maintainer-facing phase from `.codex/plan.md` |\n"
-            f"| Active Slice | `{execution['plan_link']}` | The slice tied to the current execution line |\n"
-            f"| Current Execution Line | {execution['objective']} | What the repo is trying to finish now |\n"
-            f"| Validation | {execution['validation']} | How this line proves itself before moving on |"
-        )
-    if chinese:
-        next_move = open_execution_tasks[0] if open_execution_tasks else f"继续从 `{execution['plan_link']}` 之后恢复"
+        next_move = open_execution_tasks[0] if open_execution_tasks else "当前 execution tasks 已完成，转向下一切片或 release 决策"
         next_move_reason = (
-            "当前 `.codex/plan.md` 里的第一条未完成 execution task；公开 plan 也必须对齐到这个恢复点。"
+            "这是当前第一条未完成 execution task；roadmap 与 development plan 都应把人带到同一个恢复点。"
             if open_execution_tasks
-            else "当前执行线已经把真实恢复点固定在 `.codex/plan.md` 里。"
+            else "当前 execution tasks 已完成，下一步应进入下一切片或下一轮 release 判断。"
         )
         return (
             f"{title}\n\n{switch}\n\n"
             "## 目的\n\n"
-            "这份文档是给维护者看的 durable 详细执行计划，位置在 `docs/roadmap` 之下、`.codex/plan.md` 之上。\n\n"
+            "这份文档是给维护者看的 durable 详细执行计划，位置在 `docs/roadmap` 之下、AI 控制面之上。\n\n"
             "它回答的不是“今天聊天里说了什么”，而是：\n\n"
             "`接下来先做什么、从哪里恢复、每个里程碑下面到底落什么细节。`\n\n"
             "## 相关文档\n\n"
             + "\n".join(related_lines)
             + "\n\n## 怎么使用这份计划\n\n"
-            "1. 先看 roadmap，理解整体路线和当前里程碑。\n"
-            "2. 再看这里的“当前位置”和“顺序执行队列”，理解今天该从哪里恢复。\n"
-            "3. 需要具体约束时，再回到 `.codex/plan.md` 看实时执行控制面。\n\n"
+            "1. 先看 roadmap，理解总体进展与下一阶段。\n"
+            "2. 再看这里的“总体进展”“执行任务进度”和“顺序执行队列”，理解今天该从哪里恢复。\n"
+            "3. 只有在维护自动化本身时，才需要继续下钻到内部控制文档。\n\n"
+            "## 总体进展\n\n"
+            f"{progress_snapshot}\n\n"
             "## 当前位置\n\n"
             f"{current_position}\n\n"
+            "## 执行任务进度\n\n"
+            f"{render_execution_task_board(execution_tasks, chinese=True) if execution_tasks else '| 顺序 | 任务 | 状态 |\\n| --- | --- | --- |'}\n\n"
             "## 阶段总览\n\n"
             f"{render_milestone_overview_table(milestones, chinese=True) if milestones else '| 阶段 | 状态 | 目标 | 依赖 | 退出条件 |\\n| --- | --- | --- | --- | --- |'}\n\n"
             "## 顺序执行队列\n\n"
@@ -827,26 +943,38 @@ def render_development_plan(repo: Path, chinese: bool) -> str:
             "| 下一步 | 为什么做 |\n| --- | --- |\n"
             f"| {next_move} | {next_move_reason} |"
         )
-    next_move = open_execution_tasks[0] if open_execution_tasks else f"Continue from `{execution['plan_link']}` onward"
+
+    current_position = (
+        "| Item | Current Value | Meaning |\n| --- | --- | --- |\n"
+        f"| Current Phase | {current_phase} | Current maintainer-facing phase |\n"
+        f"| Active Slice | `{execution['plan_link']}` | The slice tied to the current execution line |\n"
+        f"| Current Execution Line | {execution['objective']} | What the repo is trying to finish now |\n"
+        f"| Validation | {execution['validation']} | The checks that must stay true before moving on |"
+    )
+    next_move = open_execution_tasks[0] if open_execution_tasks else "Current execution tasks are complete; move to the next slice or release decision"
     next_move_reason = (
-        "This is the first unchecked execution task in `.codex/plan.md`, so the public plan stays aligned with the live resume point."
+        "This is the first unchecked execution task, so both the roadmap and this plan stay aligned to the same resume point."
         if open_execution_tasks
-        else "The live execution line already fixes the real resume point in `.codex/plan.md`."
+        else "The current execution tasks are complete, so the next move is to enter the next slice or release decision."
     )
     return (
         f"{title}\n\n{switch}\n\n"
         "## Purpose\n\n"
-        "This document is the durable maintainer-facing execution plan that sits below `docs/roadmap.md` and above `.codex/plan.md`.\n\n"
+        "This document is the durable maintainer-facing execution plan that sits below `docs/roadmap.md` and above the AI control surfaces.\n\n"
         "It answers one practical question:\n\n"
         "`what should happen next, where should maintainers resume, and what detail sits underneath each roadmap milestone?`\n\n"
         "## Related Documents\n\n"
         + "\n".join(related_lines)
         + "\n\n## How To Use This Plan\n\n"
-        "1. Read the roadmap first to understand milestone order.\n"
-        "2. Read `Current Position` and `Ordered Execution Queue` here to know where to resume.\n"
-        "3. Drop into `.codex/plan.md` only when you need the live control-surface detail.\n\n"
+        "1. Read the roadmap first to understand overall progress and the next stage.\n"
+        "2. Read `Overall Progress`, `Execution Task Progress`, and `Ordered Execution Queue` here to know where to resume.\n"
+        "3. Only drop into the internal control docs when you are maintaining the automation itself.\n\n"
+        "## Overall Progress\n\n"
+        f"{progress_snapshot}\n\n"
         "## Current Position\n\n"
         f"{current_position}\n\n"
+        "## Execution Task Progress\n\n"
+        f"{render_execution_task_board(execution_tasks, chinese=False) if execution_tasks else '| Order | Task | Status |\\n| --- | --- | --- |'}\n\n"
         "## Milestone Overview\n\n"
         f"{render_milestone_overview_table(milestones, chinese=False) if milestones else '| Milestone | Status | Goal | Depends On | Exit Criteria |\\n| --- | --- | --- | --- | --- |'}\n\n"
         "## Ordered Execution Queue\n\n"
@@ -881,15 +1009,41 @@ def sync_public_plan_surfaces(repo: Path) -> list[str]:
             touched.append(str(development_plan_zh.relative_to(repo)))
 
     if roadmap.exists() and plan_text:
-        updated = replace_section(read_text(roadmap), ["Current / Next / Later", "Now / Next / Later"], render_roadmap_focus_section(plan_text, chinese=False))
-        if updated.rstrip() != read_text(roadmap).rstrip():
+        roadmap_text = read_text(roadmap)
+        updated = ensure_section_before(
+            roadmap_text,
+            "Overall Progress",
+            render_roadmap_progress_section(plan_text, chinese=False),
+            ["Current / Next / Later", "Now / Next / Later"],
+        )
+        if updated.rstrip() != roadmap_text.rstrip():
             roadmap.write_text(updated.rstrip() + "\n", encoding="utf-8")
             touched.append(str(roadmap.relative_to(repo)))
+        roadmap_text = read_text(roadmap)
+        updated = replace_section(roadmap_text, ["Current / Next / Later", "Now / Next / Later"], render_roadmap_focus_section(plan_text, chinese=False))
+        if updated.rstrip() != roadmap_text.rstrip():
+            roadmap.write_text(updated.rstrip() + "\n", encoding="utf-8")
+            rel = str(roadmap.relative_to(repo))
+            if rel not in touched:
+                touched.append(rel)
     if roadmap_zh.exists() and plan_text:
-        updated = replace_section(read_text(roadmap_zh), ["当前 / 下一步 / 更后面"], render_roadmap_focus_section(plan_text, chinese=True))
-        if updated.rstrip() != read_text(roadmap_zh).rstrip():
+        roadmap_zh_text = read_text(roadmap_zh)
+        updated = ensure_section_before(
+            roadmap_zh_text,
+            "总体进展",
+            render_roadmap_progress_section(plan_text, chinese=True),
+            ["当前 / 下一步 / 更后面"],
+        )
+        if updated.rstrip() != roadmap_zh_text.rstrip():
             roadmap_zh.write_text(updated.rstrip() + "\n", encoding="utf-8")
             touched.append(str(roadmap_zh.relative_to(repo)))
+        roadmap_zh_text = read_text(roadmap_zh)
+        updated = replace_section(roadmap_zh_text, ["当前 / 下一步 / 更后面"], render_roadmap_focus_section(plan_text, chinese=True))
+        if updated.rstrip() != roadmap_zh_text.rstrip():
+            roadmap_zh.write_text(updated.rstrip() + "\n", encoding="utf-8")
+            rel = str(roadmap_zh.relative_to(repo))
+            if rel not in touched:
+                touched.append(rel)
 
     return touched
 

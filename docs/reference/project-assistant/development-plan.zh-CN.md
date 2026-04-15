@@ -4,7 +4,7 @@
 
 ## 目的
 
-这份文档是给维护者看的 durable 详细执行计划，位置在 `docs/roadmap` 之下、`.codex/plan.md` 之上。
+这份文档是给维护者看的 durable 详细执行计划，位置在 `docs/roadmap` 之下、AI 控制面之上。
 
 它回答的不是“今天聊天里说了什么”，而是：
 
@@ -18,18 +18,39 @@
 
 ## 怎么使用这份计划
 
-1. 先看 roadmap，理解整体路线和当前里程碑。
-2. 再看这里的“当前位置”和“顺序执行队列”，理解今天该从哪里恢复。
-3. 需要具体约束时，再回到 `.codex/plan.md` 看实时执行控制面。
+1. 先看 roadmap，理解总体进展与下一阶段。
+2. 再看这里的“总体进展”“执行任务进度”和“顺序执行队列”，理解今天该从哪里恢复。
+3. 只有在维护自动化本身时，才需要继续下钻到内部控制文档。
+
+## 总体进展
+
+| 项目 | 当前值 |
+| --- | --- |
+| 总体进度 | 3 / 4 execution tasks 完成 |
+| 当前阶段 | `post-M21 daemon-host baseline active` |
+| 当前切片 | `stabilize-daemon-host-baseline-for-dogfooding` |
+| 当前目标 | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins |
+| 当前切片退出条件 | daemon-host baseline 可被更广泛使用，且没有高频 runtime/host 回归 |
+| 明确下一步动作 | EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice |
+| 下一候选切片 | `package-daemon-host-baseline-for-release` |
 
 ## 当前位置
 
 | 项目 | 当前值 | 说明 |
 | --- | --- | --- |
-| 当前阶段 | `post-M21 daemon-host baseline active` | 来自 `.codex/plan.md` 的当前维护阶段 |
+| 当前阶段 | `post-M21 daemon-host baseline active` | 当前维护阶段 |
 | 当前切片 | `stabilize-daemon-host-baseline-for-dogfooding` | 当前执行线绑定的切片 |
-| 当前执行线 | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | 当前这轮真正要收口的工作 |
-| 当前验证 | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py` 已通过，M17-M21 baseline 已具备可持续回归的自动化入口 | 继续前如何证明这条线已收口 |
+| 当前执行线 | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | 当前真正要收口的工作 |
+| 当前验证 | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py` 已通过，M17-M21 baseline 已具备可持续回归的自动化入口 | 这条线继续前需要保持为真的验证入口 |
+
+## 执行任务进度
+
+| 顺序 | 任务 | 状态 |
+| --- | --- | --- |
+| 1 | EL-1 harden daemon runtime edges exposed by concurrent startup, shutdown, or status polling in real workspaces | 已完成 |
+| 2 | EL-2 keep README / architecture / usage / test plan / entry routing aligned with daemon-host as the new default fast path | 已完成 |
+| 3 | EL-3 collect broader dogfooding evidence before opening the next host surface or any M15 discussion | 已完成 |
+| 4 | EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice | 下一步 |
 
 ## 阶段总览
 
@@ -61,16 +82,16 @@
 
 | 顺序 | 切片 | 当前状态 | 目标 | 验证 |
 | --- | --- | --- | --- | --- |
-| 1 | `close-m17-through-m21-daemon-host-baseline` | 较早切片 | n/a | n/a |
-| 2 | `stabilize-daemon-host-baseline-for-dogfooding` | 当前 | n/a | n/a |
-| 3 | `package-daemon-host-baseline-for-release` | 下一步 / 已排队 | n/a | n/a |
-| 4 | `future-host-expansion-and-m15-evidence` | 下一步 / 已排队 | n/a | n/a |
-| 5 | `M17 / build-ptl-daemon-runtime-core` | 下一步 / 已排队 | n/a | n/a |
-| 6 | `M18 / build-vscode-host-shell-and-live-status` | 下一步 / 已排队 | n/a | n/a |
-| 7 | `M19 / wire-manual-and-one-click-continue` | 下一步 / 已排队 | n/a | n/a |
-| 8 | `M20 / validate-daemon-host-mvp-on-local-workspaces` | 下一步 / 已排队 | n/a | n/a |
-| 9 | `M20 / validate-legacy-feature-set-on-daemon-host-baseline` | 下一步 / 已排队 | n/a | n/a |
-| 10 | `M21 / resume-post-m16-rollout-on-daemon-host-baseline` | 下一步 / 已排队 | n/a | n/a |
+| 1 | `close-m17-through-m21-daemon-host-baseline` | 较早切片 | 把 daemon runtime、VS Code host shell、continue bridge、本地验证、旧功能回归和 post-M16 rollout 恢复一口气收口成可用 baseline | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py |
+| 2 | `stabilize-daemon-host-baseline-for-dogfooding` | 当前 | 把刚完成的 daemon-host baseline 稳定成默认快路径，并为更广泛 dogfooding 准备好 operator docs 与采证入口 | validate_gate_set.py --profile deep`、runtime/host smoke、broader workspace dogfooding |
+| 3 | `package-daemon-host-baseline-for-release` | 下一步 / 已排队 | 决定 daemon-host baseline 的 release 叙事、安装说明和版本落点 | release-facing docs、gate outputs 和 install path 对齐 |
+| 4 | `future-host-expansion-and-m15-evidence` | 下一步 / 已排队 | 只在 daemon-host baseline 已稳定、dogfooding 证据充分后，再判断是否扩大到更强宿主表面或重新讨论 `M15 | real adoption evidence + clear write-scope boundaries |
+| 5 | `M17 / build-ptl-daemon-runtime-core` | 下一步 / 已排队 | 建立 daemon runtime、runtime store、queue/event contract，以及最小的 `start/status/stop/queue` 控制面 | validate_daemon_runtime.py |
+| 6 | `M18 / build-vscode-host-shell-and-live-status` | 下一步 / 已排队 | 建立 VS Code 宿主前端壳，至少包含 Tree View、Status Bar、Output channel，以及与 daemon 的连接 | validate_vscode_host_extension.py |
+| 7 | `M19 / wire-manual-and-one-click-continue` | 下一步 / 已排队 | 把 `resume-ready` 事件接成 `manual continue`，并补上保守的 `one-click continue | validate_vscode_host_extension.py` + host continue smoke |
+| 8 | `M20 / validate-daemon-host-mvp-on-local-workspaces` | 下一步 / 已排队 | 在代表性的本地 workspace 上验证 daemon + VS Code host MVP 的状态展示、恢复路径和稳定性 | validate_daemon_host_mvp.py |
+| 9 | `M20 / validate-legacy-feature-set-on-daemon-host-baseline` | 下一步 / 已排队 | 在 daemon-host 基线上按家族逐项回归旧功能，而不是等所有能力都迁完再统一验收 | validate_daemon_host_mvp.py` + `validate_gate_set.py --profile deep |
+| 10 | `M21 / resume-post-m16-rollout-on-daemon-host-baseline` | 下一步 / 已排队 | 在 daemon-host 基线稳定后，恢复 post-M16 rollout verification，并重新评估 host-bridge 证据 | validate_daemon_legacy_rollout.py |
 
 ## 里程碑细节
 
@@ -267,4 +288,4 @@
 
 | 下一步 | 为什么做 |
 | --- | --- |
-| EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice | 当前 `.codex/plan.md` 里的第一条未完成 execution task；公开 plan 也必须对齐到这个恢复点。 |
+| EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice | 这是当前第一条未完成 execution task；roadmap 与 development plan 都应把人带到同一个恢复点。 |

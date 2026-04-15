@@ -10,12 +10,25 @@ For the detailed execution queue, see:
 
 - [project-assistant/development-plan.md](reference/project-assistant/development-plan.md)
 
+## Overall Progress
+| Item | Current Value |
+| --- | --- |
+| Overall Progress | 3 / 4 execution tasks complete |
+| Current Phase | `post-M21 daemon-host baseline active` |
+| Active Slice | `stabilize-daemon-host-baseline-for-dogfooding` |
+| Current Objective | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins |
+| Active Slice Exit Signal | daemon-host baseline 可被更广泛使用，且没有高频 runtime/host 回归 |
+| Clear Next Move | EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice |
+| Next Candidate Slice | `package-daemon-host-baseline-for-release` |
+
+See the detailed execution plan: [project-assistant/development-plan.md](reference/project-assistant/development-plan.md)
+
 ## Current / Next / Later
 | Horizon | Focus | Exit Signal |
 | --- | --- | --- |
-| Current | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py` 已通过，M17-M21 baseline 已具备可持续回归的自动化入口 |
-| Next | package-daemon-host-baseline-for-release | n/a |
-| Later | future-host-expansion-and-m15-evidence | n/a |
+| Current | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | daemon-host baseline 可被更广泛使用，且没有高频 runtime/host 回归 |
+| Next | 决定 daemon-host baseline 的 release 叙事、安装说明和版本落点 | 用户可以通过明确版本入口获取 daemon-host baseline，而不是只依赖当前仓库 mainline |
+| Later | 只在 daemon-host baseline 已稳定、dogfooding 证据充分后，再判断是否扩大到更强宿主表面或重新讨论 `M15 | 有足够证据支持下一条更大的主线，而不是靠猜测扩范围 |
 
 ## Milestones
 
