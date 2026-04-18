@@ -381,6 +381,10 @@ flowchart LR
 | Milestone | Status | Goal | Depends On | Exit Criteria |
 | --- | --- | --- | --- | --- |
 
+Roadmap rule:
+- each row owns one clear theme-level goal; do not split the same work across multiple top-level rows
+- `done` means that row is actually complete, not partially moved elsewhere
+
 ## Milestone Flow
 
 ```mermaid

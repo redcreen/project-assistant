@@ -186,6 +186,13 @@ ROADMAP_TEMPLATE = """# Roadmap
 | Next | | |
 | Later | | |
 
+## Milestone Rules
+
+- one milestone = one clear theme-level goal
+- `done` means the milestone is actually complete
+- do not split the same work theme across multiple top-level milestones
+- put sub-steps in the development plan, not in overlapping roadmap rows
+
 ## Milestones
 | Milestone | Status | Goal | Depends On | Exit Criteria |
 | --- | --- | --- | --- | --- |
@@ -212,6 +219,13 @@ ROADMAP_ZH_TEMPLATE = """# 路线图
 | 当前 | | |
 | 下一步 | | |
 | 更后面 | | |
+
+## 里程碑规则
+
+- 一个里程碑只对应一个清晰的主题目标
+- 标成 `done` / `已完成` 就表示这一项真的已经完整完成
+- 不要把同一条工作主题拆到多个顶层里程碑里
+- 细分步骤放进 development plan，不要塞进彼此重叠的 roadmap 顶层行
 
 ## 里程碑
 | 里程碑 | 状态 | 目标 | 依赖 | 退出条件 |
@@ -877,6 +891,26 @@ def render_roadmap_progress_section(plan_text: str, chinese: bool) -> str:
     return snapshot + "\n\nSee the detailed execution plan: [project-assistant/development-plan.md](reference/project-assistant/development-plan.md)"
 
 
+def render_roadmap_integrity_section(chinese: bool) -> str:
+    if chinese:
+        return "\n".join(
+            [
+                "- 一个里程碑只对应一个清晰的主题目标",
+                "- 标成 `done` / `已完成` 就表示这一项真的已经完整完成",
+                "- 不要把同一条工作主题拆到多个顶层里程碑里",
+                "- 细分步骤放进 development plan，不要塞进彼此重叠的 roadmap 顶层行",
+            ]
+        )
+    return "\n".join(
+        [
+            "- one milestone = one clear theme-level goal",
+            "- `done` means the milestone is actually complete",
+            "- do not split the same work theme across multiple top-level milestones",
+            "- put sub-steps in the development plan, not in overlapping roadmap rows",
+        ]
+    )
+
+
 def render_development_plan(repo: Path, chinese: bool) -> str:
     docs_dir = repo / "docs"
     plan_text = read_text(repo / ".codex/plan.md")
@@ -1020,6 +1054,18 @@ def sync_public_plan_surfaces(repo: Path) -> list[str]:
             roadmap.write_text(updated.rstrip() + "\n", encoding="utf-8")
             touched.append(str(roadmap.relative_to(repo)))
         roadmap_text = read_text(roadmap)
+        updated = ensure_section_before(
+            roadmap_text,
+            "Milestone Rules",
+            render_roadmap_integrity_section(chinese=False),
+            ["Milestones"],
+        )
+        if updated.rstrip() != roadmap_text.rstrip():
+            roadmap.write_text(updated.rstrip() + "\n", encoding="utf-8")
+            rel = str(roadmap.relative_to(repo))
+            if rel not in touched:
+                touched.append(rel)
+        roadmap_text = read_text(roadmap)
         updated = replace_section(roadmap_text, ["Current / Next / Later", "Now / Next / Later"], render_roadmap_focus_section(plan_text, chinese=False))
         if updated.rstrip() != roadmap_text.rstrip():
             roadmap.write_text(updated.rstrip() + "\n", encoding="utf-8")
@@ -1037,6 +1083,18 @@ def sync_public_plan_surfaces(repo: Path) -> list[str]:
         if updated.rstrip() != roadmap_zh_text.rstrip():
             roadmap_zh.write_text(updated.rstrip() + "\n", encoding="utf-8")
             touched.append(str(roadmap_zh.relative_to(repo)))
+        roadmap_zh_text = read_text(roadmap_zh)
+        updated = ensure_section_before(
+            roadmap_zh_text,
+            "里程碑规则",
+            render_roadmap_integrity_section(chinese=True),
+            ["里程碑"],
+        )
+        if updated.rstrip() != roadmap_zh_text.rstrip():
+            roadmap_zh.write_text(updated.rstrip() + "\n", encoding="utf-8")
+            rel = str(roadmap_zh.relative_to(repo))
+            if rel not in touched:
+                touched.append(rel)
         roadmap_zh_text = read_text(roadmap_zh)
         updated = replace_section(roadmap_zh_text, ["当前 / 下一步 / 更后面"], render_roadmap_focus_section(plan_text, chinese=True))
         if updated.rstrip() != roadmap_zh_text.rstrip():

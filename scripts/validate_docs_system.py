@@ -65,6 +65,42 @@ def parse_slices(plan_text: str) -> list[str]:
     return names
 
 
+def parse_roadmap_milestone_rows(text: str, chinese: bool) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    target_heading = "## 里程碑" if chinese else "## Milestones"
+    in_section = False
+    for raw_line in text.splitlines():
+        if raw_line.startswith("## "):
+            in_section = raw_line.strip() == target_heading
+            continue
+        if not in_section:
+            continue
+        stripped = raw_line.strip()
+        if not stripped.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        if len(cells) < 5:
+            continue
+        if cells[0] in {"Milestone", "里程碑", "---"}:
+            continue
+        rows.append(
+            {
+                "label": cells[0],
+                "status": cells[1].lower(),
+                "goal": cells[2],
+                "depends": cells[3],
+                "exit": cells[4],
+            }
+        )
+    return rows
+
+
+def normalized_goal_key(goal: str) -> str:
+    lowered = goal.lower().strip()
+    lowered = lowered.replace("`", "")
+    return " ".join(lowered.split())
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate the durable docs system against project-assistant rules.")
     parser.add_argument("repo", type=Path, help="Repository root")
@@ -183,11 +219,22 @@ def main() -> int:
                 warnings.append(f"{development_plan_zh.relative_to(repo).as_posix()} should surface the first open execution task from .codex/plan.md")
         roadmap_generic = read_text(repo / "docs/roadmap.md")
         if roadmap_generic and development_plan:
+            milestone_rows = parse_roadmap_milestone_rows(roadmap_generic, chinese=False)
+            goal_to_labels: dict[str, list[str]] = {}
+            for row in milestone_rows:
+                goal_key = normalized_goal_key(row["goal"])
+                if goal_key:
+                    goal_to_labels.setdefault(goal_key, []).append(row["label"])
+            duplicate_goals = {goal: labels for goal, labels in goal_to_labels.items() if len(labels) > 1}
             if "## Overall Progress" not in roadmap_generic:
                 warnings.append("docs/roadmap.md should expose an Overall Progress section")
+            if "## Milestone Rules" not in roadmap_generic:
+                warnings.append("docs/roadmap.md should expose a Milestone Rules section")
             rel = relative_markdown_target((repo / "docs"), development_plan)
             if rel not in roadmap_generic:
                 warnings.append("docs/roadmap.md should point readers to the detailed development-plan")
+            if duplicate_goals:
+                warnings.append("docs/roadmap.md should keep milestone goals unique instead of repeating the same top-level theme across rows")
             normalized = normalized_roadmap_stage_links(repo, repo / "docs/roadmap.md", roadmap_generic)
             if normalized != roadmap_generic:
                 warnings.append("docs/roadmap.md should link roadmap milestones to the matching development-plan headings")
@@ -197,11 +244,22 @@ def main() -> int:
                 warnings.append("docs/roadmap.md should surface the next queued slice from .codex/plan.md")
         roadmap_generic_zh = read_text(repo / "docs/roadmap.zh-CN.md")
         if roadmap_generic_zh and development_plan_zh:
+            milestone_rows_zh = parse_roadmap_milestone_rows(roadmap_generic_zh, chinese=True)
+            goal_to_labels_zh: dict[str, list[str]] = {}
+            for row in milestone_rows_zh:
+                goal_key = normalized_goal_key(row["goal"])
+                if goal_key:
+                    goal_to_labels_zh.setdefault(goal_key, []).append(row["label"])
+            duplicate_goals_zh = {goal: labels for goal, labels in goal_to_labels_zh.items() if len(labels) > 1}
             if "## 总体进展" not in roadmap_generic_zh:
                 warnings.append("docs/roadmap.zh-CN.md should expose a 总体进展 section")
+            if "## 里程碑规则" not in roadmap_generic_zh:
+                warnings.append("docs/roadmap.zh-CN.md should expose a 里程碑规则 section")
             rel_zh = relative_markdown_target((repo / "docs"), development_plan_zh)
             if rel_zh not in roadmap_generic_zh:
                 warnings.append("docs/roadmap.zh-CN.md should point readers to the detailed development-plan")
+            if duplicate_goals_zh:
+                warnings.append("docs/roadmap.zh-CN.md should keep milestone goals unique instead of repeating the same top-level theme across rows")
             normalized_zh = normalized_roadmap_stage_links(repo, repo / "docs/roadmap.zh-CN.md", roadmap_generic_zh)
             if normalized_zh != roadmap_generic_zh:
                 warnings.append("docs/roadmap.zh-CN.md should link roadmap milestones to the matching development-plan headings")

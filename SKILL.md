@@ -136,6 +136,14 @@ For `medium` and `large` repos, documentation retrofit should also establish a d
 When a repo requires bilingual public docs, generate switchable English/Chinese file pairs for `README` and public `docs/*` pages, and validate that the language switch exists.
 When writing markdown into a repo, use repository-relative links. Do not write local absolute filesystem paths into repo docs.
 
+Roadmap integrity rules:
+
+- each roadmap milestone or stage must represent one clear goal, not a mixed bucket
+- marking a roadmap item `done` / `complete` means that item is actually closed, not "partly done but continued elsewhere"
+- do not spread one work item across multiple top-level roadmap milestones or stages; if a line continues, keep it as one milestone until it is truly complete
+- if a large theme has multiple sub-steps, keep the roadmap milestone at the theme level and move the sub-steps into the development plan or execution task board instead of splitting the same theme across multiple roadmap buckets
+- roadmap items should be readable by humans without needing `.codex/*` to understand whether the item is complete, still active, or deferred
+
 ## Script-First Execution
 
 Prefer the bundled scripts when present:
@@ -224,6 +232,7 @@ Otherwise, if `scripts/sync_control_surface.py` exists, run it before filling co
 - define the current execution line: a meaningful autonomous run that should continue until a checkpoint, blocker, or decision gate
 - define the execution task board under that line so the user can see done/total progress at a glance
 - define the architecture-supervision state for that line: signal, root-cause hypothesis, correct layer, rejected shortcut, and escalation gate
+- keep roadmap milestones stable and non-overlapping: one milestone = one clear theme with one real completion boundary
 
 Prefer a single execution plan unless the project truly needs both a roadmap and a development plan.
 

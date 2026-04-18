@@ -30,6 +30,12 @@ See the detailed execution plan: [project-assistant/development-plan.md](referen
 | Next | 决定 daemon-host baseline 的 release 叙事、安装说明和版本落点 | 用户可以通过明确版本入口获取 daemon-host baseline，而不是只依赖当前仓库 mainline |
 | Later | 只在 daemon-host baseline 已稳定、dogfooding 证据充分后，再判断是否扩大到更强宿主表面或重新讨论 `M15 | 有足够证据支持下一条更大的主线，而不是靠猜测扩范围 |
 
+## Milestone Rules
+- one milestone = one clear theme-level goal
+- `done` means the milestone is actually complete
+- do not split the same work theme across multiple top-level milestones
+- put sub-steps in the development plan, not in overlapping roadmap rows
+
 ## Milestones
 
 | Milestone | Status | Goal | Depends On | Exit Criteria |

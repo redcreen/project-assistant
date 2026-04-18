@@ -155,8 +155,19 @@ Audience:
 Primary job:
 
 - show milestone order, status, exit criteria, and what each milestone unlocks
+- keep the milestone layer human-readable and non-overlapping
 
 Roadmap is not the same as current status.
+
+Roadmap integrity rules:
+
+- one roadmap milestone or stage = one clear theme or completion boundary
+- the `Goal` column should describe a concrete theme-level objective, not a mixed bag of unrelated cleanup
+- a roadmap item marked `done` / `complete` must be actually complete at roadmap level; do not mark it complete if core parts were merely moved into another top-level roadmap item
+- do not split the same work theme across multiple top-level roadmap items just because it spanned time; keep it in one milestone until that milestone is genuinely closed
+- if a theme needs many sub-steps, keep the roadmap milestone broad but singular, then place the detailed decomposition in `development-plan.md` or the execution task board
+- if two roadmap rows would have nearly the same goal, merge or rename them until a human can tell exactly why they are different
+- roadmap rows should answer "what theme is this" and "what makes it complete" without requiring readers to inspect `.codex/*`
 
 If `roadmap.md` lists `Stage` milestones and the repo also has a development plan, the stage labels should link to the matching development-plan headings with repository-relative links.
 
@@ -311,6 +322,12 @@ Use this order:
 3. milestone table
 4. dependencies and risks
 5. change log only if needed
+
+When filling the milestone table:
+
+- keep milestone names unique and stable
+- keep each `Goal` sentence specific enough that it cannot also describe another top-level milestone
+- do not use the roadmap to track micro-steps, repeated reopenings, or cross-milestone leftovers
 
 ### test-plan.md
 
