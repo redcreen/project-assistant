@@ -52,6 +52,29 @@ class WorkspaceDocBrowser {
     return folder ? folder.uri.fsPath : null;
   }
 
+  getPreferredStartUrl(baseUrl, workspaceRoot) {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || !editor.document || editor.document.uri.scheme !== "file") {
+      return baseUrl;
+    }
+    const activePath = editor.document.uri.fsPath;
+    const relativePath = path.relative(workspaceRoot, activePath);
+    if (!relativePath || relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+      return baseUrl;
+    }
+    if (!/\.md$/i.test(activePath)) {
+      return baseUrl;
+    }
+    const normalizedRelativePath = normalizeSlashes(relativePath);
+    if (markdownPathNeedsRawView(normalizedRelativePath)) {
+      const preferredUrl = new URL(baseUrl);
+      preferredUrl.searchParams.set("view", normalizedRelativePath);
+      return preferredUrl.toString();
+    }
+    const href = markdownPathToHref(normalizedRelativePath);
+    return new URL(href, baseUrl).toString();
+  }
+
   updateStatusBar() {
     const workspaceRoot = this.getWorkspaceRoot();
     if (!workspaceRoot) {
@@ -81,8 +104,9 @@ class WorkspaceDocBrowser {
     const rawServerBase = `http://127.0.0.1:${rawPort}`;
     const { configPath, siteDir } = ensureMkDocsConfig(workspaceRoot, { rawServerBase });
     const url = `http://127.0.0.1:${port}/`;
+    const preferredUrl = this.getPreferredStartUrl(url, workspaceRoot);
     const shell = process.env.SHELL || "/bin/zsh";
-    const command = `mkdocs serve -f ${shellQuote(configPath)} -a 127.0.0.1:${port} --open`;
+    const command = `mkdocs serve -f ${shellQuote(configPath)} -a 127.0.0.1:${port}`;
     const rawServerScript = buildRawFileServerScript(workspaceRoot, rawPort);
     const rawProcess = cp.spawn(process.execPath, ["-e", rawServerScript], {
       cwd: workspaceRoot,
@@ -95,12 +119,22 @@ class WorkspaceDocBrowser {
       stdio: ["ignore", "pipe", "pipe"],
     });
 
-    const session = { workspaceRoot, url, process: child, rawProcess, rawServerBase, configPath, siteDir };
+    const session = { workspaceRoot, url, preferredUrl, process: child, rawProcess, rawServerBase, configPath, siteDir };
     this.session = session;
     this.updateStatusBar();
     this.output.appendLine(`[start] ${workspaceRoot}`);
     this.output.appendLine(`[cmd] ${command}`);
+    this.output.appendLine(`[open] ${preferredUrl}`);
     this.output.appendLine(`[raw] ${rawServerBase}`);
+
+    waitForPortReady(port).then(() => {
+      if (this.session === session) {
+        return vscode.env.openExternal(vscode.Uri.parse(preferredUrl));
+      }
+      return null;
+    }).catch((error) => {
+      this.output.appendLine(`[open-error] ${String(error)}`);
+    });
 
     child.stdout.on("data", (chunk) => {
       this.output.append(chunk.toString());
@@ -445,6 +479,16 @@ function markdownPathToHref(relativePath) {
   return normalized.replace(/\.md$/i, ".html");
 }
 
+function markdownPathNeedsRawView(relativePath) {
+  const normalized = normalizeSlashes(String(relativePath || ""));
+  if (!normalized) {
+    return false;
+  }
+  return normalized
+    .split("/")
+    .some((segment) => segment.startsWith(".") && segment !== ".github");
+}
+
 function buildRepoTree(workspaceRoot, relativeDir, rawServerBase = "") {
   const absoluteDir = path.join(workspaceRoot, relativeDir);
   const entries = fs.readdirSync(absoluteDir, { withFileTypes: true })
@@ -469,14 +513,15 @@ function buildRepoTree(workspaceRoot, relativeDir, rawServerBase = "") {
       continue;
     }
     const markdown = isMarkdownFile(entry.name, absolutePath);
+    const markdownUsesRawView = markdown && markdownPathNeedsRawView(relativePath);
     items.push({
       title: entry.name,
       kind: markdown ? "markdown" : "file",
       href: markdown
-        ? markdownPathToHref(relativePath)
+        ? (markdownUsesRawView ? `?view=${encodeURIComponent(relativePath)}` : markdownPathToHref(relativePath))
         : `${String(rawServerBase || "").replace(/\/$/, "")}/${encodePathSegments(relativePath)}`,
       sourcePath: relativePath,
-      viewPath: markdown ? "" : relativePath,
+      viewPath: markdownUsesRawView || !markdown ? relativePath : "",
     });
   }
 
@@ -1301,6 +1346,31 @@ function findFreePort() {
         }
       });
     });
+  });
+}
+
+function waitForPortReady(port, attempts = 40, delayMs = 150) {
+  return new Promise((resolve, reject) => {
+    let remaining = attempts;
+
+    const tryConnect = () => {
+      const socket = net.createConnection({ port, host: "127.0.0.1" });
+      socket.once("connect", () => {
+        socket.destroy();
+        resolve();
+      });
+      socket.once("error", () => {
+        socket.destroy();
+        remaining -= 1;
+        if (remaining <= 0) {
+          reject(new Error(`Timed out waiting for local docs server on port ${port}`));
+        } else {
+          setTimeout(tryConnect, delayMs);
+        }
+      });
+    };
+
+    tryConnect();
   });
 }
 
