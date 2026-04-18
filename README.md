@@ -2,91 +2,100 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-> A Codex skill for project planning, retrofit, progress reporting, development logging, documentation governance, and context handoff.  
-> It combines best practices from architects, tech leads, reviewers, QA owners, and technical writers to help Codex produce code and project systems that are cleaner, more elegant, more maintainable, and easier to evolve.
+> A Codex skill for running real repository work with less drift and less repeated context loading.  
+> It helps keep planning, execution, progress, docs, and handoff aligned so a repo can stay operable across long sessions and thread switches.
 
-## Who This Is For
+## What You Can Use It For
 
-- Teams or solo developers who want Codex to drive delivery with a stable operating rhythm
-- Repositories that need recoverable status, convergent retrofit, and readable docs
-- Projects where current phase, next step, and change visibility must stay clear across sessions
+- take over an existing repo without losing the current truth
+- let Codex keep plan, status, progress, docs, and handoff aligned while work moves
+- retrofit messy repos until docs, control surfaces, and validation agree again
+- keep long-running work recoverable across sessions instead of restarting from scratch
+- use lightweight VS Code operator surfaces when you want live status and browser-based doc reading
 
-## What This Is Today
+## Best Fit
 
-| Item | Current Position |
-| --- | --- |
-| Product Role | an AI engineering delivery operating system for Codex-led work |
-| Strongest At | planning, retrofit, architecture supervision, progress reporting, development logs, documentation governance, and context handoff |
-| Human Still Owns | business direction, product priorities, compatibility promises, and major tradeoffs |
-| Default Working Model | human sets direction; `project-assistant` plans, executes, validates, updates state, and escalates only when judgment is required |
-| Core Standing Role | Project Technical Lead (PTL): inside an approved direction, it owns strategic judgment, program orchestration, long-run delivery supervision, and escalation timing |
-| Project Origin | [Project Origin And Working Method](docs/reference/project-assistant/project-origin-and-working-method.md): the original question was whether it is more stable to clarify goals, approach, architecture, roadmap, test cases, and a development plan before AI delivery starts |
-| Active Strategic Direction | `M10 / M11 / M12 / M13 / M14 / M16` are complete, and the `M17-M21 daemon-host baseline` is also complete; the repo is now in post-M21 hardening and dogfooding to decide release packaging and any farther host expansion |
-| Current Program-Orchestration Boundary | stabilize the durable single-Codex orchestration truth and keep the project alive after a worker stops; automatic multi-desktop-Codex scheduling remains a future layer |
-| Plain-Language Meaning Of `M14` | `when a worker stops, the project should not stop with it` |
-| Plain-Language Meaning Of `M16` | `continue / progress / handoff` share one front door, upgrade old repos first, and only then render the first structured screen |
-| Automatic `continue` Behavior | first read `.codex/control-surface.json`; if the control-surface version is old or missing required surface versions, apply the minimum safe upgrade before resuming through one canonical front door |
+- you use Codex repeatedly on the same repo
+- you want the assistant to plan, implement, validate, and update repo state by default
+- you need recoverable progress across sessions, not one-off prompt output
+- you care about durable docs, checkpoints, and handoff quality
 
-## Where It Is Going
-
-| Horizon | Focus |
-| --- | --- |
-| Current | harden the newly shipped daemon-host baseline so the daemon runtime, queue, VS Code host, continue bridge, legacy rollout, docs, and gates stay aligned on one default fast path |
-| Next | add clearer operator docs, release framing, and broader dogfooding evidence for the daemon-host baseline before deciding whether stronger host surfaces are warranted |
-| Later | only reopen `M15` or introduce more aggressive host automation when the daemon-host baseline is stable, the single-Codex PTL model is still the bottleneck, and disjoint write scopes are explicit |
-| Strategy Entry | [Strategic Planning And Program Orchestration Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md) |
-| Method Origin | [Project Origin And Working Method](docs/reference/project-assistant/project-origin-and-working-method.md) |
+If you only need a tiny one-file helper or a throwaway prompt, this skill is probably heavier than you need.
 
 ## Install
 
-One-line install from a stable tag:
+Safe tagged install:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/install.sh | bash
 ```
 
-Manual install:
+Manual install from the stable tag:
 
 ```bash
 git clone --branch v0.1.3 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
 
-Note: the current stable tag is still `v0.1.3`; the `M17-M21 daemon-host baseline` now lives on the repository mainline, and formal release packaging is the next closure step.
+If you want the newest VS Code and daemon-host tooling, install from the repository mainline instead of the old stable tag.
 
 ## Minimal Configuration
 
 No extra configuration is required.
 
-Simplest path:
+## Quick Start
+
+Recommended first steps:
 
 1. install to `~/.codex/skills/project-assistant`
-2. start a new Codex session
-3. run `project assistant menu`
+2. open the repo you want to work on
+3. if the repo is new, run `project assistant start this project`
+4. if the repo already has state, run `project assistant continue`
+5. use `project assistant progress` whenever you want the current picture
+6. use `project assistant handoff` before switching threads
 
-Optional overrides:
+Optional install overrides:
 
 ```bash
 PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
 ```
 
+## Commands You Will Actually Use
+
+- `project assistant`: open the main menu
+- `project assistant start this project`: bootstrap or take over a repo
+- `project assistant continue`: resume the current execution line
+- `project assistant progress`: get a progress snapshot
+- `project assistant retrofit`: converge the whole repo
+- `project assistant docs retrofit`: clean up docs only
+- `project assistant architecture retrofit`: fix boundary and abstraction drift first
+- `project assistant devlog`: persist one conclusion worth keeping
+- `project assistant handoff`: build the next-thread handoff pack
+
+If you use the host or daemon workflow, the most common background commands are:
+
+- `project-assistant daemon start`
+- `project-assistant queue`
+
 ## VS Code Status Bar Tools
 
-If you use VS Code as the daily operator surface, there are now two companion extensions that make the workflow much lighter:
+If VS Code is your daily operator surface, there are two companion extensions that make this much easier:
 
 - `Project Assistant Host` in [integrations/vscode-host](integrations/vscode-host/README.md): activity-bar workspace control plus a status-bar summary for daemon state and resume readiness
 - `Workspace Doc Browser` in [integrations/workspace-doc-browser](integrations/workspace-doc-browser/README.md) and [中文说明](integrations/workspace-doc-browser/README.zh-CN.md): a `Browse Docs` status-bar button for GitHub-like local browser preview, plus a `Codex Context Meter` on the right side of the status bar
 
-Local-source install:
+One-line install from the stable tag:
 
 ```bash
-mkdir -p ~/.vscode/extensions/redcreen.project-assistant-host-0.0.1
-cp -R integrations/vscode-host/. ~/.vscode/extensions/redcreen.project-assistant-host-0.0.1/
-
-mkdir -p ~/.vscode/extensions/redcreen.workspace-doc-browser-0.0.1
-cp -R integrations/workspace-doc-browser/. ~/.vscode/extensions/redcreen.workspace-doc-browser-0.0.1/
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/install-vscode-tools.sh | bash
 ```
 
-Then open VS Code and run:
+Install from the current checkout:
+
+```bash
+bash install-vscode-tools.sh
+```
+
+Then in VS Code run:
 
 ```text
 Developer: Restart Extension Host
@@ -95,69 +104,22 @@ Developer: Restart Extension Host
 Notes:
 
 - `Workspace Doc Browser` requires `mkdocs` on your local `PATH`
-- the two extensions are local operator add-ons; they are not packaged as a Marketplace release yet
-- after updating either extension from source, copy again and restart the extension host
+- both extensions are local operator add-ons and are not packaged as a Marketplace release yet
+- if you only want one extension, run `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash` or replace it with `workspace-doc-browser`
+- after updating either extension from source, rerun `bash install-vscode-tools.sh` and restart the extension host
 
-## Quick Start
+## What It Does For You
 
-Use one simple entry:
+- creates and maintains `.codex` control surfaces
+- keeps `continue / progress / handoff` aligned with the same current truth
+- updates plan, status, and development-log surfaces as work moves
+- promotes architecture review automatically when drift shows up
+- can run a local daemon, queue, and VS Code host when you want a live operator workflow
+- stops mainly at checkpoints, blockers, or decisions that need human judgment
 
-- `project assistant`
+## Current Reality
 
-Primary human windows:
-
-- `project assistant menu`
-- `project assistant progress`
-- `project assistant architecture`
-- `project assistant devlog`
-
-Background flows (usually automatic):
-
-- `project assistant start this project`
-- `project assistant continue`
-- `project assistant architecture retrofit`
-- `project assistant retrofit`
-- `project assistant docs retrofit`
-- `project assistant handoff`
-- `project-assistant daemon start`
-- `project-assistant queue`
-
-### Default Operator Fast Path
-
-The daemon-host baseline is now the default fast path for real work.
-
-- Start with the canonical front door: `bin/project-assistant` or `python3 scripts/project_assistant_entry.py`
-- Typical operator commands: `continue`, `progress`, `handoff`, `daemon status`, and `queue`
-- Treat `bootstrap_entry.py`, `retrofit_entry.py`, `continue_entry.py`, `progress_entry.py`, and `handoff_entry.py` as backend/debug entry points, not the first thing hosts or maintainers should call
-
-## Core Capabilities
-
-- Create and maintain `.codex` control surfaces
-- Maintain `.codex/doc-governance.json` as the Markdown-governance contract
-- Plan work in verifiable slices
-- Turn the active slice into a checkpoint-based long execution line instead of waiting for repeated "continue" prompts
-- Show that execution line as a visible task board with done/total progress and a `Plan Link` back to the active slice
-- Keep a compact architecture-supervision state and escalation gate beside the execution line
-- Render `progress / continue / handoff` as maintainer-facing first screens instead of AI-only status dumps
-- Make `continue` auto-detect when a repo's control-surface version is stale, and run the minimum safe upgrade instead of pushing that judgment onto the user
-- Route `continue / progress / handoff` through one canonical front door instead of depending on the model to remember which script to call first
-- Provide a local daemon runtime, queue / events control surface, and a protected foreground write lease so support work moves off the foreground coding lane
-- Provide a VS Code host shell, live status, and a continue bridge so “the page is moving and the task is advancing” is a real operator experience instead of only a design note
-- Promote architecture review automatically when the current slice shows ownership, boundary, or repeated-fix drift
-- Surface a short `Usable Now` snapshot so you can see what is already ready to use
-- Retrofit existing repos to convergence
-- Report progress with global and module views
-- Capture durable implementation reasoning as development logs
-- Persist PTL strategic evaluation in `.codex/strategy.md`, including the boundary between system proposals and human approvals
-- Persist PTL program orchestration in `.codex/program-board.md`, including workstreams, sequencing, parallel-safe boundaries, and executor inputs; today this first stabilizes a single-Codex coordinator mode
-- Persist PTL supervised long-run delivery in `.codex/delivery-supervision.md`, including checkpoint rhythm, automatic-continue boundaries, escalation timing, and backlog re-entry rules
-- Turn PTL supervision and worker handoff into `.codex/ptl-supervision.md` and `.codex/worker-handoff.md`, while keeping multi-executor entry conditions evidence-gated for later
-- Normalize durable docs into a standard system
-- Emit a compact context handoff for the next thread
-
-## Ready to Use Now
-
-Stable workflows that are already proven on representative repos:
+Already proven on representative repos:
 
 - `project assistant retrofit`
 - `project assistant docs retrofit`
@@ -165,120 +127,11 @@ Stable workflows that are already proven on representative repos:
 - `project assistant progress`
 - `project assistant handoff`
 
-What this means:
+Current boundary:
 
-- planning, execution, architecture supervision, and development-log capture are now default-on behaviors in the main operating model
-- the skill is no longer only a planning scaffold; it has already been used to converge lightweight repos and larger doc-heavy repos
-- `progress`, `handoff`, the control surface, and validation gates now describe the same current truth
-- representative medium and large repos now show clearer maintainer-facing first screens, not only raw slice names
-- at least one architecture-review path now auto-escalates from current-slice drift instead of depending only on manual prompts
-- the PTL strategic-evaluation, program-orchestration, supervised-long-run-delivery, PTL-supervision, and worker-handoff layers are now real capabilities, not only direction documents
-- `M16` now closes the unified front door, version preflight, and structured first-screen contract; desktop-host hard binding remains a later bridge problem
-- `M17-M21` now close the daemon runtime, VS Code host shell, continue bridge, local validation, and legacy-rollout recovery into one daemon-host baseline
-- the current orchestration layer is a durable single-Codex coordination brain, not yet a productized multi-desktop-Codex dispatcher
-- `M13 / M14 / M16 / M17 / M18 / M19 / M20 / M21` are now closed; `M15` remains a later evidence-gated layer instead of an active promise
-
-## Common Workflows
-
-Default working style:
-
-- you mainly provide business direction, priorities, and hard constraints
-- `project-assistant` should usually plan, supervise, implement, validate, refresh status, and capture devlogs on its own
-- it should only stop at checkpoints, blockers, or decisions that require user judgment
-- its long-run execution should stay visible through an execution-task board, not disappear into free-form status prose
-- during long retrofit or execution runs, it should also keep you oriented with short progress notes that say what is happening now, what just changed, and what checkpoint remains
-- the architecture layer should keep showing whether the assistant can continue automatically, should raise-but-continue, or must stop for user judgment
-- progress and handoff should also tell you which capabilities are already usable now
-- `continue` should default to a compact progress snapshot; use `project assistant progress` when you want the full dashboard
-
-### Start or take over a project
-
-```text
-project assistant start this project
-```
-
-### Report current progress
-
-```text
-project assistant progress
-```
-
-### Continue the current execution line
-
-```text
-project assistant continue
-```
-
-Default behavior:
-
-- automatically detect whether the repo is still on an older control-surface generation
-- read `.codex/control-surface.json` first and compare the stored control-surface version plus surface versions against the current schema
-- if the control-surface version is stale or required surface versions are missing, apply the minimum safe upgrade first
-- emit the structured continue panel first, then append any "this round changed" note; do not start with a long prose summary
-- only then resume and continue the active execution line
-- if the run is long, keep the user oriented with short visible progress notes instead of going silent
-
-### Review the current direction at the architecture level
-
-```text
-project assistant architecture
-```
-
-Most common:
-
-- `project assistant architecture review`
-
-When to use it:
-
-- before changing code, if you want a higher-level check on the direction
-- when the implementation is drifting toward hardcoded shortcuts
-- when you want to test the abstraction boundary before adding more code
-
-### Retrofit architecture, not only docs or control surface
-
-```text
-project assistant architecture retrofit
-```
-
-Use it when the repo needs an architecture-first correction:
-
-- the real problem is boundary drift, not only missing docs
-- duplicate architecture docs or wrong-layer fixes keep accumulating
-- repeated fixes suggest the source of truth or module boundaries are wrong
-
-### Retrofit the whole repo
-
-```text
-project assistant retrofit
-```
-
-Default scope:
-
-- control-surface retrofit
-- documentation retrofit
-- full Markdown-tree governance retrofit
-- validation gates
-
-Use this when the repo mainly needs convergence and cleanup.
-If the real problem is architectural drift, use `project assistant architecture retrofit` directly.
-
-### Focus on docs only
-
-```text
-project assistant docs retrofit
-```
-
-### Record a durable implementation note
-
-```text
-project assistant devlog
-```
-
-### Prepare a new thread
-
-```text
-project assistant handoff
-```
+- this is optimized for one durable Codex-led execution line, not general multi-agent orchestration
+- the deeper roadmap, milestone, and strategy details live in the docs, not in this README
+- if you want the engineering rationale behind the current direction, start from the documentation map below
 
 ## Documentation Map
 
@@ -303,6 +156,7 @@ project-assistant/
 ├── SKILL.md
 ├── VERSION
 ├── install.sh
+├── install-vscode-tools.sh
 ├── README.md
 ├── README.zh-CN.md
 ├── docs/

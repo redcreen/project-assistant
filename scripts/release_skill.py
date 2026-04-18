@@ -10,8 +10,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILE = ROOT / "VERSION"
-README_FILES = [ROOT / "README.md", ROOT / "README.zh-CN.md"]
+README_FILES = [
+    ROOT / "README.md",
+    ROOT / "README.zh-CN.md",
+    ROOT / "integrations" / "vscode-host" / "README.md",
+    ROOT / "integrations" / "workspace-doc-browser" / "README.md",
+    ROOT / "integrations" / "workspace-doc-browser" / "README.zh-CN.md",
+]
 INSTALL_FILE = ROOT / "install.sh"
+VSCODE_INSTALL_FILE = ROOT / "install-vscode-tools.sh"
 GATE_SCRIPT = ROOT / "scripts" / "validate_gate_set.py"
 
 
@@ -47,11 +54,17 @@ def update_install_refs(version: str) -> None:
     tag = f"v{version}"
     VERSION_FILE.write_text(version + "\n", encoding="utf-8")
     replace_text(INSTALL_FILE, r'PROJECT_ASSISTANT_REF:-v[0-9]+\.[0-9]+\.[0-9]+', f"PROJECT_ASSISTANT_REF:-{tag}")
+    replace_text(VSCODE_INSTALL_FILE, r'PROJECT_ASSISTANT_REF:-v[0-9]+\.[0-9]+\.[0-9]+', f"PROJECT_ASSISTANT_REF:-{tag}")
     for path in README_FILES:
         replace_text(
             path,
             r"https://raw\.githubusercontent\.com/redcreen/project-assistant/v[0-9]+\.[0-9]+\.[0-9]+/install\.sh",
             f"https://raw.githubusercontent.com/redcreen/project-assistant/{tag}/install.sh",
+        )
+        replace_text(
+            path,
+            r"https://raw\.githubusercontent\.com/redcreen/project-assistant/v[0-9]+\.[0-9]+\.[0-9]+/install-vscode-tools\.sh",
+            f"https://raw.githubusercontent.com/redcreen/project-assistant/{tag}/install-vscode-tools.sh",
         )
         replace_text(
             path,
@@ -97,7 +110,18 @@ def main() -> int:
 
     update_install_refs(next_version)
 
-    run("git", "add", "VERSION", "install.sh", "README.md", "README.zh-CN.md")
+    run(
+        "git",
+        "add",
+        "VERSION",
+        "install.sh",
+        "install-vscode-tools.sh",
+        "README.md",
+        "README.zh-CN.md",
+        "integrations/vscode-host/README.md",
+        "integrations/workspace-doc-browser/README.md",
+        "integrations/workspace-doc-browser/README.zh-CN.md",
+    )
     run("git", "commit", "-m", f"chore: release {tag}")
     run("git", "tag", tag)
 

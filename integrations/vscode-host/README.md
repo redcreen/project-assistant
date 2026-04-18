@@ -2,6 +2,26 @@
 
 This extension is the first host frontend for the `project-assistant` PTL daemon runtime.
 
+## Install
+
+One-line install from the stable tag:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash
+```
+
+Install from the current checkout:
+
+```bash
+PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash install-vscode-tools.sh
+```
+
+Then in VS Code run:
+
+```text
+Developer: Restart Extension Host
+```
+
 ## Quick Start
 
 1. Open a local workspace.

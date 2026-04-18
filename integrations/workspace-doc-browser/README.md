@@ -12,7 +12,21 @@ This VS Code companion extension adds two lightweight status-bar tools for local
 - VS Code 1.100 or newer
 - `mkdocs` available on your local `PATH`
 
-## Install From Local Source
+## Install
+
+One-line install from the stable tag:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=workspace-doc-browser bash
+```
+
+Install from the current checkout:
+
+```bash
+PROJECT_ASSISTANT_VSCODE_COMPONENTS=workspace-doc-browser bash install-vscode-tools.sh
+```
+
+Manual local-source fallback:
 
 ```bash
 mkdir -p ~/.vscode/extensions/redcreen.workspace-doc-browser-0.0.1

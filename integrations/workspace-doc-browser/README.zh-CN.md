@@ -12,7 +12,21 @@
 - VS Code 1.100 或更新版本
 - 本机 `PATH` 里可直接执行 `mkdocs`
 
-## 从本地源码安装
+## 安装
+
+稳定 tag 一键安装：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=workspace-doc-browser bash
+```
+
+从当前源码目录安装：
+
+```bash
+PROJECT_ASSISTANT_VSCODE_COMPONENTS=workspace-doc-browser bash install-vscode-tools.sh
+```
+
+本地源码手动安装备用方式：
 
 ```bash
 mkdir -p ~/.vscode/extensions/redcreen.workspace-doc-browser-0.0.1
