@@ -27,13 +27,13 @@ If you only need a tiny one-file helper or a throwaway prompt, this skill is pro
 Safe tagged install:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.4/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.5/install.sh | bash
 ```
 
 Manual install from the stable tag:
 
 ```bash
-git clone --branch v0.1.4 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
+git clone --branch v0.1.5 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
 
 If you want the newest VS Code and daemon-host tooling, install from the repository mainline instead of the old stable tag.
@@ -56,7 +56,7 @@ Recommended first steps:
 Optional install overrides:
 
 ```bash
-PROJECT_ASSISTANT_REF=v0.1.4 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
+PROJECT_ASSISTANT_REF=v0.1.5 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
 ```
 
 ## Commands You Will Actually Use
@@ -86,7 +86,7 @@ If VS Code is your daily operator surface, there are two companion extensions th
 One-line install from the stable tag:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.4/install-vscode-tools.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.5/install-vscode-tools.sh | bash
 ```
 
 Install from the current checkout:
@@ -105,7 +105,7 @@ Notes:
 
 - `Workspace Doc Browser` requires `mkdocs` on your local `PATH`
 - both extensions are local operator add-ons and are not packaged as a Marketplace release yet
-- if you only want one extension, run `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.4/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash` or replace it with `workspace-doc-browser`
+- if you only want one extension, run `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.5/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash` or replace it with `workspace-doc-browser`
 - after updating either extension from source, rerun `bash install-vscode-tools.sh` and restart the extension host
 
 ## What It Does For You
