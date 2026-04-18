@@ -16,7 +16,7 @@
 稳定 tag 一键安装：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.6/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=workspace-doc-browser bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.7/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=workspace-doc-browser bash
 ```
 
 从当前源码目录安装：
