@@ -27,13 +27,13 @@
 稳定 tag 一键安装：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.4/install.sh | bash
 ```
 
 从稳定 tag 手动安装：
 
 ```bash
-git clone --branch v0.1.3 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
+git clone --branch v0.1.4 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
 
 如果你想直接用最新的 VS Code / daemon-host 工具链，建议直接安装仓库主线，而不是旧的稳定 tag。
@@ -56,7 +56,7 @@ git clone --branch v0.1.3 https://github.com/redcreen/project-assistant.git ~/.c
 可选安装覆盖：
 
 ```bash
-PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
+PROJECT_ASSISTANT_REF=v0.1.4 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
 ```
 
 ## 你实际会用到的命令
@@ -86,7 +86,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 稳定 tag 一键安装：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/install-vscode-tools.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.4/install-vscode-tools.sh | bash
 ```
 
 从当前源码目录安装：
@@ -105,7 +105,7 @@ Developer: Restart Extension Host
 
 - `Workspace Doc Browser` 依赖本机 `PATH` 里可用的 `mkdocs`
 - 这两套扩展目前还是本地 operator 工具，还没有打成 Marketplace release
-- 如果你只想装其中一个扩展，可以执行 `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`，或把它替换成 `workspace-doc-browser`
+- 如果你只想装其中一个扩展，可以执行 `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.4/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`，或把它替换成 `workspace-doc-browser`
 - 如果你更新了源码，重新执行一次 `bash install-vscode-tools.sh` 并重启 `Extension Host` 即可
 
 ## 它会替你做什么

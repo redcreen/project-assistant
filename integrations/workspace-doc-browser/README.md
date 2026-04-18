@@ -17,7 +17,7 @@ This VS Code companion extension adds two lightweight status-bar tools for local
 One-line install from the stable tag:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.3/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=workspace-doc-browser bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.4/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=workspace-doc-browser bash
 ```
 
 Install from the current checkout:
