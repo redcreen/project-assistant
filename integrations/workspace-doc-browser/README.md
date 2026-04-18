@@ -1,5 +1,7 @@
 # Workspace Doc Browser
 
+[English](README.md) | [中文](README.zh-CN.md)
+
 This VS Code companion extension adds two lightweight status-bar tools for local operator workflows:
 
 - `Browse Docs`: open the current workspace in a local browser preview that is optimized for Markdown-heavy repos and cross-file browsing

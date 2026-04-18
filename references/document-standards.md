@@ -166,6 +166,7 @@ Roadmap integrity rules:
 - a roadmap item marked `done` / `complete` must be actually complete at roadmap level; do not mark it complete if core parts were merely moved into another top-level roadmap item
 - do not split the same work theme across multiple top-level roadmap items just because it spanned time; keep it in one milestone until that milestone is genuinely closed
 - if a theme needs many sub-steps, keep the roadmap milestone broad but singular, then place the detailed decomposition in `development-plan.md` or the execution task board
+- if a previously numbered `Stage` is later found incomplete, do not backfill that same theme by inventing a newer higher-numbered top-level stage; reopen the original stage, or extend it with sub-stages / nested decomposition / a revised `development-plan.md`
 - if two roadmap rows would have nearly the same goal, merge or rename them until a human can tell exactly why they are different
 - roadmap rows should answer "what theme is this" and "what makes it complete" without requiring readers to inspect `.codex/*`
 

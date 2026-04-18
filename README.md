@@ -74,7 +74,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 If you use VS Code as the daily operator surface, there are now two companion extensions that make the workflow much lighter:
 
 - `Project Assistant Host` in [integrations/vscode-host](integrations/vscode-host/README.md): activity-bar workspace control plus a status-bar summary for daemon state and resume readiness
-- `Workspace Doc Browser` in [integrations/workspace-doc-browser](integrations/workspace-doc-browser/README.md): a `Browse Docs` status-bar button for GitHub-like local browser preview, plus a `Codex Context Meter` on the right side of the status bar
+- `Workspace Doc Browser` in [integrations/workspace-doc-browser](integrations/workspace-doc-browser/README.md) and [中文说明](integrations/workspace-doc-browser/README.zh-CN.md): a `Browse Docs` status-bar button for GitHub-like local browser preview, plus a `Codex Context Meter` on the right side of the status bar
 
 Local-source install:
 

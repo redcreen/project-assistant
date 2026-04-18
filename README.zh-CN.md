@@ -74,7 +74,7 @@ PROJECT_ASSISTANT_REF=v0.1.3 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-
 如果你把 VS Code 当作日常主操作面，现在有两套配套扩展可以把体验做轻很多：
 
 - [integrations/vscode-host](integrations/vscode-host/README.md) 里的 `Project Assistant Host`：提供活动栏工作区控制面，以及 daemon 状态 / resume readiness 的状态栏摘要
-- [integrations/workspace-doc-browser](integrations/workspace-doc-browser/README.md) 里的 `Workspace Doc Browser`：提供左侧状态栏 `Browse Docs` 按钮，用接近 GitHub 的方式在浏览器里查看本地文档；同时在状态栏右侧提供 `Codex Context Meter`
+- [integrations/workspace-doc-browser](integrations/workspace-doc-browser/README.md) 与 [中文说明](integrations/workspace-doc-browser/README.zh-CN.md) 里的 `Workspace Doc Browser`：提供左侧状态栏 `Browse Docs` 按钮，用接近 GitHub 的方式在浏览器里查看本地文档；同时在状态栏右侧提供 `Codex Context Meter`
 
 按本地源码安装：
 
