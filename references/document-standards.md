@@ -403,12 +403,11 @@ Public docs in this context means:
 
 - `README.md`
 - public pages under `docs/`
-- user-facing landing or install `README` pages under top-level module or skill folders when the repo distributes installable modules or skills
 
 Required pattern:
 
-- English canonical file: `README.md`, `docs/architecture.md`, `health/README.md`, `health/private-doctor/README.md`
-- Chinese counterpart: `README.zh-CN.md`, `docs/architecture.zh-CN.md`, `health/README.zh-CN.md`, `health/private-doctor/README.zh-CN.md`
+- English canonical file: `README.md`, `docs/architecture.md`
+- Chinese counterpart: `README.zh-CN.md`, `docs/architecture.zh-CN.md`
 
 Required switch block at the top of both paired files:
 
