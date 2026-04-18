@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_URL="${PROJECT_ASSISTANT_REPO:-https://github.com/redcreen/project-assistant.git}"
-REF="${PROJECT_ASSISTANT_REF:-v0.1.5}"
+REF="${PROJECT_ASSISTANT_REF:-v0.1.6}"
 TARGET_DIR="${PROJECT_ASSISTANT_DIR:-$HOME/.codex/skills/project-assistant}"
 BIN_DIR="${PROJECT_ASSISTANT_BIN_DIR:-$HOME/.local/bin}"
 AUTO_VSCODE_COMPONENTS="${PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS:-workspace-doc-browser}"
