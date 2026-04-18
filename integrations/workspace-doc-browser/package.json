@@ -1,0 +1,28 @@
+{
+  "name": "workspace-doc-browser",
+  "displayName": "Workspace Doc Browser",
+  "description": "Open the current workspace as a local MkDocs site in your browser.",
+  "version": "0.0.1",
+  "publisher": "redcreen",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:redcreen.workspaceDocBrowser.open"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "redcreen.workspaceDocBrowser.open",
+        "title": "Workspace Doc Browser: Open Browser Preview",
+        "category": "Workspace Docs",
+        "icon": "$(globe)"
+      }
+    ]
+  }
+}
