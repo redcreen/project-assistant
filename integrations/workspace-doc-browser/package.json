@@ -19,10 +19,33 @@
     "commands": [
       {
         "command": "redcreen.workspaceDocBrowser.open",
-        "title": "Workspace Doc Browser: Open Browser Preview",
+        "title": "Use Browser Preview",
         "category": "Workspace Docs",
         "icon": "$(globe)"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "redcreen.workspaceDocBrowser.open",
+          "when": "editorLangId == markdown",
+          "group": "navigation@9"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "redcreen.workspaceDocBrowser.open",
+          "when": "resourceExtname == .md",
+          "group": "navigation@9"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "redcreen.workspaceDocBrowser.open",
+          "when": "resourceExtname == .md || editorLangId == markdown",
+          "group": "navigation@9"
+        }
+      ]
+    }
   }
 }
