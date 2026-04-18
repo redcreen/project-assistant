@@ -133,7 +133,7 @@ Document ownership and templates live in:
 When generating `README`, `docs/README`, `architecture`, `roadmap`, `test-plan`, or ADRs, follow the document constraints in `references/document-standards.md`. Do not improvise a new structure when the standard already covers that doc type.
 When a roadmap contains `Stage` milestones and the repo also has a development plan, link those `Stage` references to the matching development-plan headings with repository-relative links.
 For `medium` and `large` repos, documentation retrofit should also establish a durable `development plan` layer under `docs/reference/<project-slug>/development-plan.md` so maintainers can move from roadmap-level direction to detailed execution order without dropping straight into `.codex/plan.md`.
-When a repo requires bilingual public docs, generate switchable English/Chinese file pairs for `README` and public `docs/*` pages, and validate that the language switch exists.
+When a repo requires bilingual public docs, generate switchable English/Chinese file pairs for `README`, public `docs/*` pages, and any user-facing landing or install `README` pages under top-level module or skill folders. Make sure doc governance includes those pages in the public-doc gate set, and validate that the language switch exists.
 When writing markdown into a repo, use repository-relative links. Do not write local absolute filesystem paths into repo docs.
 
 Roadmap integrity rules:

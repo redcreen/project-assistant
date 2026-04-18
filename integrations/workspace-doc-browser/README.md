@@ -2,10 +2,9 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-This VS Code companion extension adds two lightweight status-bar tools for local operator workflows:
+This VS Code companion extension adds a lightweight status-bar doc-browsing tool for local operator workflows:
 
 - `Browse Docs`: open the current workspace in a local browser preview that is optimized for Markdown-heavy repos and cross-file browsing
-- `Codex Context Meter`: show the current Codex input-token usage against the model context window, so you can see pressure before a session gets cramped
 
 ## Prerequisites
 
@@ -43,7 +42,6 @@ Developer: Restart Extension Host
 
 - a left-side status-bar button: `Browse Docs`
 - a local browser preview for the current workspace
-- a right-side status-bar meter for live Codex context usage
 
 ## Notes
 

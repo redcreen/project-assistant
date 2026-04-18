@@ -1731,6 +1731,29 @@ def default_doc_governance_payload(repo: Path, tier: str, official_modules: list
             "explicitMoves": {},
         }
 
+    module_public_doc_globs: list[str] = []
+    module_ownership_rules: list[dict[str, str]] = []
+    module_required_paths: list[str] = []
+    for module in official_modules:
+        module_public_doc_globs.extend(
+            [
+                f"{module}/*.md",
+                f"{module}/*/README.md",
+            ]
+        )
+        module_ownership_rules.extend(
+            [
+                {"glob": f"{module}/*.md", "role": "durable"},
+                {"glob": f"{module}/*/README.md", "role": "durable"},
+            ]
+        )
+        module_required_paths.extend(
+            [
+                f"{module}/README.md",
+                f"{module}/README.zh-CN.md",
+            ]
+        )
+
     return {
         "repoKind": "repo",
         "userCustomized": False,
@@ -1747,7 +1770,7 @@ def default_doc_governance_payload(repo: Path, tier: str, official_modules: list
                 "docs/devlog/README.md",
                 "docs/devlog/README.zh-CN.md",
                 "reports/generated/README.md",
-            ],
+            ] + module_required_paths,
         "docsHomeLinks": {
             "en": [
                 "reference/README.md",
@@ -1778,7 +1801,7 @@ def default_doc_governance_payload(repo: Path, tier: str, official_modules: list
             "docs/how-to/**/*.md",
             "docs/devlog/README.md",
             "integrations/**/README.md",
-        ],
+        ] + module_public_doc_globs,
         "publicDocExcludeGlobs": [
             ".codex/**",
             "docs/devlog/20*.md",
@@ -1813,6 +1836,7 @@ def default_doc_governance_payload(repo: Path, tier: str, official_modules: list
             {"glob": "reports/generated/*.md", "role": "generated"},
             {"glob": "reports/generated/**/*.md", "role": "generated"},
             {"glob": "workspace/*.md", "role": "working"},
+        ] + module_ownership_rules + [
             {"glob": "workspace/**/*.md", "role": "working"},
             {"glob": "releases/*.md", "role": "release"},
             {"glob": "releases/**/*.md", "role": "release"},
