@@ -5,6 +5,7 @@ REPO_URL="${PROJECT_ASSISTANT_REPO:-https://github.com/redcreen/project-assistan
 REF="${PROJECT_ASSISTANT_REF:-v0.1.5}"
 EXTENSIONS_DIR="${PROJECT_ASSISTANT_VSCODE_EXTENSIONS_DIR:-$HOME/.vscode/extensions}"
 COMPONENTS_RAW="${PROJECT_ASSISTANT_VSCODE_COMPONENTS:-project-assistant-host workspace-doc-browser}"
+SOURCE_DIR="${PROJECT_ASSISTANT_VSCODE_SOURCE_DIR:-}"
 TMP_DIR="$(mktemp -d)"
 
 cleanup() {
@@ -66,18 +67,28 @@ print(payload[field])
 PY
 }
 
-echo "Installing VS Code tools from ${REPO_URL} @ ${REF}"
-
-git clone --depth 1 "$REPO_URL" "$TMP_DIR/repo"
-git -C "$TMP_DIR/repo" fetch --depth 1 origin "$REF"
-git -C "$TMP_DIR/repo" checkout --detach FETCH_HEAD >/dev/null
+if [ -n "$SOURCE_DIR" ]; then
+  SOURCE_DIR="$(cd "$SOURCE_DIR" && pwd)"
+  if [ ! -f "$SOURCE_DIR/install-vscode-tools.sh" ]; then
+    echo "PROJECT_ASSISTANT_VSCODE_SOURCE_DIR does not look like a project-assistant checkout: $SOURCE_DIR" >&2
+    exit 1
+  fi
+  REPO_DIR="$SOURCE_DIR"
+  echo "Installing VS Code tools from local source ${REPO_DIR}"
+else
+  echo "Installing VS Code tools from ${REPO_URL} @ ${REF}"
+  REPO_DIR="$TMP_DIR/repo"
+  git clone --depth 1 "$REPO_URL" "$REPO_DIR"
+  git -C "$REPO_DIR" fetch --depth 1 origin "$REF"
+  git -C "$REPO_DIR" checkout --detach FETCH_HEAD >/dev/null
+fi
 
 mkdir -p "$EXTENSIONS_DIR"
 COMPONENTS="$(normalize_components "$COMPONENTS_RAW")"
 
 for component in $COMPONENTS; do
   package_dir="$(package_dir_for_component "$component")"
-  package_json="$TMP_DIR/repo/$package_dir/package.json"
+  package_json="$REPO_DIR/$package_dir/package.json"
   publisher="$(read_package_field "$package_json" publisher)"
   name="$(read_package_field "$package_json" name)"
   version="$(read_package_field "$package_json" version)"
@@ -91,7 +102,7 @@ for component in $COMPONENTS; do
   shopt -u nullglob
 
   mkdir -p "$target_dir"
-  cp -R "$TMP_DIR/repo/$package_dir/." "$target_dir/"
+  cp -R "$REPO_DIR/$package_dir/." "$target_dir/"
   echo "Installed ${extension_id} -> ${target_dir}"
 done
 

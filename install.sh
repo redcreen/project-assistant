@@ -5,6 +5,7 @@ REPO_URL="${PROJECT_ASSISTANT_REPO:-https://github.com/redcreen/project-assistan
 REF="${PROJECT_ASSISTANT_REF:-v0.1.5}"
 TARGET_DIR="${PROJECT_ASSISTANT_DIR:-$HOME/.codex/skills/project-assistant}"
 BIN_DIR="${PROJECT_ASSISTANT_BIN_DIR:-$HOME/.local/bin}"
+AUTO_VSCODE_COMPONENTS="${PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS:-workspace-doc-browser}"
 TMP_DIR="$(mktemp -d)"
 
 cleanup() {
@@ -25,7 +26,18 @@ mkdir -p "$BIN_DIR"
 chmod +x "$TARGET_DIR/bin/project-assistant"
 ln -sfn "$TARGET_DIR/bin/project-assistant" "$BIN_DIR/project-assistant"
 
+if [ -n "$AUTO_VSCODE_COMPONENTS" ] && [ "$AUTO_VSCODE_COMPONENTS" != "false" ] && [ "$AUTO_VSCODE_COMPONENTS" != "none" ]; then
+  echo "Auto-installing VS Code tools: ${AUTO_VSCODE_COMPONENTS}"
+  PROJECT_ASSISTANT_VSCODE_SOURCE_DIR="$TARGET_DIR" \
+  PROJECT_ASSISTANT_VSCODE_COMPONENTS="$AUTO_VSCODE_COMPONENTS" \
+  bash "$TARGET_DIR/install-vscode-tools.sh"
+fi
+
 echo "Installed to $TARGET_DIR"
 echo "CLI installed to $BIN_DIR/project-assistant"
+if [ -n "$AUTO_VSCODE_COMPONENTS" ] && [ "$AUTO_VSCODE_COMPONENTS" != "false" ] && [ "$AUTO_VSCODE_COMPONENTS" != "none" ]; then
+  echo "VS Code tools installed: $AUTO_VSCODE_COMPONENTS"
+  echo "If VS Code is open, run: Developer: Restart Extension Host"
+fi
 echo "Next step: start a new Codex session, then run: 项目助手 菜单"
 echo "Shell front door: project-assistant continue /path/to/repo"

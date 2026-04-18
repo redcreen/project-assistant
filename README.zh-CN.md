@@ -30,6 +30,8 @@
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.5/install.sh | bash
 ```
 
+这个安装现在会默认把 `Workspace Doc Browser` 一起装到 `~/.vscode/extensions`。
+
 从稳定 tag 手动安装：
 
 ```bash
@@ -57,6 +59,12 @@ git clone --branch v0.1.5 https://github.com/redcreen/project-assistant.git ~/.c
 
 ```bash
 PROJECT_ASSISTANT_REF=v0.1.5 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
+```
+
+如果你不想自动安装 VS Code 的 docs 插件：
+
+```bash
+PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=none bash install.sh
 ```
 
 ## 你实际会用到的命令
@@ -103,6 +111,7 @@ Developer: Restart Extension Host
 
 补充说明：
 
+- `install.sh` 现在默认会把 `Workspace Doc Browser` 一起装上，这样主 skill 安装完就能直接用 docs 浏览器
 - `Workspace Doc Browser` 依赖本机 `PATH` 里可用的 `mkdocs`
 - 这两套扩展目前还是本地 operator 工具，还没有打成 Marketplace release
 - 如果你只想装其中一个扩展，可以执行 `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.5/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`，或把它替换成 `workspace-doc-browser`

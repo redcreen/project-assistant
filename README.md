@@ -30,6 +30,8 @@ Safe tagged install:
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.5/install.sh | bash
 ```
 
+That install now auto-installs `Workspace Doc Browser` into `~/.vscode/extensions` by default.
+
 Manual install from the stable tag:
 
 ```bash
@@ -57,6 +59,12 @@ Optional install overrides:
 
 ```bash
 PROJECT_ASSISTANT_REF=v0.1.5 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
+```
+
+Disable the automatic VS Code docs plugin install:
+
+```bash
+PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=none bash install.sh
 ```
 
 ## Commands You Will Actually Use
@@ -103,6 +111,7 @@ Developer: Restart Extension Host
 
 Notes:
 
+- `install.sh` now auto-installs `Workspace Doc Browser` by default so the docs browser is ready right after the main skill install
 - `Workspace Doc Browser` requires `mkdocs` on your local `PATH`
 - both extensions are local operator add-ons and are not packaged as a Marketplace release yet
 - if you only want one extension, run `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.5/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash` or replace it with `workspace-doc-browser`
