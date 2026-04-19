@@ -12,9 +12,11 @@ const OUTPUT_NAME = "Workspace Doc Browser";
 const BUTTON_TEXT = "$(globe) Browse Docs";
 const LIVE_TEXT = "$(globe) Docs Live";
 const STARTING_TEXT = "$(sync~spin) Starting Docs";
+const REBUILDING_TEXT = "$(sync~spin) Rebuilding Docs";
 const DOCS_STARTUP_LOG_REVEAL_MS = 2500;
 const DOCS_STARTUP_READY_ATTEMPTS = 240;
 const DOCS_STARTUP_READY_DELAY_MS = 250;
+const DOCS_REBUILD_DEBOUNCE_MS = 600;
 
 class WorkspaceDocBrowser {
   constructor(context) {
@@ -23,15 +25,21 @@ class WorkspaceDocBrowser {
     this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 90);
     this.session = null;
     this.pendingOpen = null;
+    this.rebuildTimer = null;
   }
 
   activate() {
+    const watcher = vscode.workspace.createFileSystemWatcher("**/*.md");
     this.context.subscriptions.push(
       this.output,
       this.statusBar,
+      watcher,
       vscode.commands.registerCommand(COMMAND_ID, (targetUri) => this.open(targetUri)),
       vscode.workspace.onDidChangeWorkspaceFolders(() => this.updateStatusBar()),
       vscode.window.onDidChangeActiveTextEditor(() => this.updateStatusBar()),
+      watcher.onDidChange((uri) => this.handleMarkdownMutation(uri, "changed")),
+      watcher.onDidCreate((uri) => this.handleMarkdownMutation(uri, "created")),
+      watcher.onDidDelete((uri) => this.handleMarkdownMutation(uri, "deleted")),
       { dispose: () => this.disposeSession() },
     );
     this.updateStatusBar();
@@ -91,7 +99,9 @@ class WorkspaceDocBrowser {
     }
     const isPending = Boolean(this.pendingOpen && this.pendingOpen.workspaceRoot === workspaceRoot);
     const isLive = Boolean(this.session && this.session.workspaceRoot === workspaceRoot && this.isSessionLive(this.session));
-    this.statusBar.text = isPending ? STARTING_TEXT : (isLive ? LIVE_TEXT : BUTTON_TEXT);
+    this.statusBar.text = isPending
+      ? (this.pendingOpen.kind === "rebuild" ? REBUILDING_TEXT : STARTING_TEXT)
+      : (isLive ? LIVE_TEXT : BUTTON_TEXT);
     this.statusBar.tooltip = isPending
       ? this.pendingOpen.detail
       : isLive
@@ -101,11 +111,12 @@ class WorkspaceDocBrowser {
     this.statusBar.show();
   }
 
-  setPendingOpen(workspaceRoot, detail) {
+  setPendingOpen(workspaceRoot, detail, kind = "start") {
     this.clearPendingOpen();
     const pending = {
       workspaceRoot,
       detail,
+      kind,
       revealTimer: setTimeout(() => {
         if (this.pendingOpen !== pending) {
           return;
@@ -128,6 +139,11 @@ class WorkspaceDocBrowser {
     }
     this.pendingOpen = null;
     this.updateStatusBar();
+    if (this.session && this.session.rebuildRequested && this.isSessionAlive(this.session)) {
+      const { targetUri } = this.session;
+      this.session.rebuildRequested = false;
+      this.scheduleSessionRebuild(targetUri, this.session.workspaceRoot, "queued changes after the previous rebuild");
+    }
   }
 
   async openExternalUrl(url, workspaceRoot, contextLabel, session) {
@@ -151,16 +167,15 @@ class WorkspaceDocBrowser {
     if (!session || !this.isSessionAlive(session)) {
       return false;
     }
-    this.setPendingOpen(workspaceRoot, `Opening live docs preview for ${path.basename(workspaceRoot)}…`);
-    const preferredUrl = this.getPreferredStartUrl(session.url, workspaceRoot, targetUri);
-    session.preferredUrl = preferredUrl;
-    this.output.appendLine(`[reopen] ${preferredUrl}`);
-    try {
-      await this.openExternalUrl(preferredUrl, workspaceRoot, "the live docs URL", session);
-    } finally {
-      this.clearPendingOpen();
-    }
-    return true;
+    return this.startSession({
+      targetUri,
+      workspaceRoot,
+      detail: `Rebuilding live docs preview for ${path.basename(workspaceRoot)}…`,
+      kind: "rebuild",
+      port: session.port,
+      rawPort: session.rawPort,
+      openInBrowser: true,
+    });
   }
 
   async open(targetUri) {
@@ -170,17 +185,39 @@ class WorkspaceDocBrowser {
       return;
     }
 
-    this.setPendingOpen(workspaceRoot, `Starting local docs preview for ${path.basename(workspaceRoot)}…`);
-
     if (this.session && this.session.workspaceRoot === workspaceRoot && this.isSessionAlive(this.session)) {
       await this.openLiveSession(this.session, workspaceRoot, targetUri);
       return;
     }
 
+    await this.startSession({
+      targetUri,
+      workspaceRoot,
+      detail: `Starting local docs preview for ${path.basename(workspaceRoot)}…`,
+      kind: "start",
+      openInBrowser: true,
+    });
+  }
+
+  async startSession(options) {
+    const {
+      targetUri,
+      workspaceRoot,
+      detail,
+      kind,
+      port: preferredPort,
+      rawPort: preferredRawPort,
+      openInBrowser,
+    } = options;
+
+    this.setPendingOpen(workspaceRoot, detail, kind);
+
+    const previousSession = this.session && this.session.workspaceRoot === workspaceRoot ? this.session : null;
+    const port = preferredPort || await findFreePort();
+    const rawPort = preferredRawPort || await findFreePort();
+
     this.disposeSession();
 
-    const port = await findFreePort();
-    const rawPort = await findFreePort();
     const rawServerBase = `http://127.0.0.1:${rawPort}`;
     const { configPath, siteDir } = ensureMkDocsConfig(workspaceRoot, { rawServerBase });
     const url = `http://127.0.0.1:${port}/`;
@@ -201,9 +238,13 @@ class WorkspaceDocBrowser {
 
     const session = {
       workspaceRoot,
+      targetUri: this.normalizeTargetUri(targetUri),
       url,
       preferredUrl,
-      browserOpened: false,
+      port,
+      rawPort,
+      browserOpened: previousSession ? previousSession.browserOpened : false,
+      rebuildRequested: false,
       process: child,
       rawProcess,
       rawServerBase,
@@ -212,16 +253,22 @@ class WorkspaceDocBrowser {
     };
     this.session = session;
     this.updateStatusBar();
-    this.output.appendLine(`[start] ${workspaceRoot}`);
+    this.output.appendLine(`[${kind}] ${workspaceRoot}`);
     this.output.appendLine(`[cmd] ${command}`);
     this.output.appendLine(`[open] ${preferredUrl}`);
     this.output.appendLine(`[raw] ${rawServerBase}`);
 
     waitForPortReady(port, DOCS_STARTUP_READY_ATTEMPTS, DOCS_STARTUP_READY_DELAY_MS).then(() => {
-      if (this.session === session) {
-        this.clearPendingOpen();
+      if (this.session !== session) {
+        return null;
+      }
+      this.clearPendingOpen();
+      session.browserOpened = Boolean(previousSession && previousSession.browserOpened);
+      if (openInBrowser) {
         return this.openExternalUrl(preferredUrl, workspaceRoot, "the docs preview", session);
       }
+      this.updateStatusBar();
+      this.output.appendLine(`[ready] ${preferredUrl}`);
       return null;
     }).catch((error) => {
       this.clearPendingOpen();
@@ -278,6 +325,50 @@ class WorkspaceDocBrowser {
     rawProcess.on("exit", (code, signal) => {
       this.output.appendLine(`[raw-exit] code=${code} signal=${signal}`);
     });
+    return true;
+  }
+
+  handleMarkdownMutation(targetUri, eventType) {
+    if (!targetUri || targetUri.scheme !== "file" || !/\.md$/i.test(targetUri.fsPath)) {
+      return;
+    }
+    const workspaceRoot = this.getWorkspaceRoot(targetUri);
+    if (!workspaceRoot || !this.session || this.session.workspaceRoot !== workspaceRoot || !this.isSessionAlive(this.session)) {
+      return;
+    }
+    this.session.dirty = true;
+    this.session.rebuildRequested = true;
+    this.session.targetUri = this.normalizeTargetUri(targetUri) || this.session.targetUri;
+    this.output.appendLine(`[content-${eventType}] ${normalizeSlashes(path.relative(workspaceRoot, targetUri.fsPath))}`);
+    this.scheduleSessionRebuild(targetUri, workspaceRoot, `${eventType} markdown content`);
+  }
+
+  scheduleSessionRebuild(targetUri, workspaceRoot, reason) {
+    if (this.rebuildTimer) {
+      clearTimeout(this.rebuildTimer);
+    }
+    this.rebuildTimer = setTimeout(() => {
+      this.rebuildTimer = null;
+      if (!this.session || this.session.workspaceRoot !== workspaceRoot || !this.isSessionAlive(this.session)) {
+        return;
+      }
+      if (this.pendingOpen && this.pendingOpen.workspaceRoot === workspaceRoot) {
+        this.session.rebuildRequested = true;
+        return;
+      }
+      this.session.rebuildRequested = false;
+      this.startSession({
+        targetUri: targetUri || this.session.targetUri,
+        workspaceRoot,
+        detail: `Rebuilding docs preview for ${path.basename(workspaceRoot)} after ${reason}…`,
+        kind: "rebuild",
+        port: this.session.port,
+        rawPort: this.session.rawPort,
+        openInBrowser: false,
+      }).catch((error) => {
+        this.output.appendLine(`[rebuild-error] ${String(error)}`);
+      });
+    }, DOCS_REBUILD_DEBOUNCE_MS);
   }
 
   isSessionAlive(session = this.session) {
@@ -295,6 +386,10 @@ class WorkspaceDocBrowser {
   }
 
   disposeSession() {
+    if (this.rebuildTimer) {
+      clearTimeout(this.rebuildTimer);
+      this.rebuildTimer = null;
+    }
     if (!this.session) {
       return;
     }

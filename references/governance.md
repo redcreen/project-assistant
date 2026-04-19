@@ -36,7 +36,7 @@ When uncertain between two tiers, start with the heavier one only if the extra a
 ## Document Roles
 
 When generating durable docs, follow [document-standards.md](document-standards.md).
-When the repo requires bilingual public docs, treat English/Chinese file pairs and language switch links as part of the durable-doc gate set.
+When the repo requires bilingual public docs, treat English/Chinese file pairs and language switch links as part of the durable-doc gate set, including user-facing landing or install `README` pages under top-level module or skill folders.
 
 ### brief
 
