@@ -2,7 +2,6 @@
 
 const cp = require("child_process");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
 const net = require("net");
 const vscode = require("vscode");
@@ -12,11 +11,12 @@ const OUTPUT_NAME = "Workspace Doc Browser";
 const BUTTON_TEXT = "$(globe) Browse Docs";
 const LIVE_TEXT = "$(globe) Docs Live";
 const STARTING_TEXT = "$(sync~spin) Starting Docs";
-const REBUILDING_TEXT = "$(sync~spin) Rebuilding Docs";
+const OPENING_TEXT = "$(sync~spin) Opening Docs";
 const DOCS_STARTUP_LOG_REVEAL_MS = 2500;
-const DOCS_STARTUP_READY_ATTEMPTS = 240;
-const DOCS_STARTUP_READY_DELAY_MS = 250;
-const DOCS_REBUILD_DEBOUNCE_MS = 600;
+const DOCS_STARTUP_READY_ATTEMPTS = 120;
+const DOCS_STARTUP_READY_DELAY_MS = 100;
+const TREE_REFRESH_MS = 3000;
+const FILE_REFRESH_MS = 1200;
 
 class WorkspaceDocBrowser {
   constructor(context) {
@@ -25,21 +25,15 @@ class WorkspaceDocBrowser {
     this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 90);
     this.session = null;
     this.pendingOpen = null;
-    this.rebuildTimer = null;
   }
 
   activate() {
-    const watcher = vscode.workspace.createFileSystemWatcher("**/*.md");
     this.context.subscriptions.push(
       this.output,
       this.statusBar,
-      watcher,
       vscode.commands.registerCommand(COMMAND_ID, (targetUri) => this.open(targetUri)),
       vscode.workspace.onDidChangeWorkspaceFolders(() => this.updateStatusBar()),
       vscode.window.onDidChangeActiveTextEditor(() => this.updateStatusBar()),
-      watcher.onDidChange((uri) => this.handleMarkdownMutation(uri, "changed")),
-      watcher.onDidCreate((uri) => this.handleMarkdownMutation(uri, "created")),
-      watcher.onDidDelete((uri) => this.handleMarkdownMutation(uri, "deleted")),
       { dispose: () => this.disposeSession() },
     );
     this.updateStatusBar();
@@ -68,27 +62,60 @@ class WorkspaceDocBrowser {
     return folder ? folder.uri.fsPath : null;
   }
 
-  getPreferredStartUrl(baseUrl, workspaceRoot, targetUri) {
+  pickDefaultMarkdownPath(workspaceRoot) {
+    const preferred = [
+      "README.md",
+      "README.zh-CN.md",
+      "docs/README.md",
+      "docs/README.zh-CN.md",
+      "index.md",
+    ];
+    for (const relativePath of preferred) {
+      const absolutePath = path.join(workspaceRoot, relativePath);
+      if (isMarkdownFile(path.basename(relativePath), absolutePath)) {
+        return normalizeSlashes(relativePath);
+      }
+    }
+    return findFirstMarkdownPath(workspaceRoot, "");
+  }
+
+  getTargetDescriptor(workspaceRoot, targetUri) {
     const normalizedTargetUri = this.normalizeTargetUri(targetUri);
-    if (!normalizedTargetUri) {
-      return baseUrl;
+    if (normalizedTargetUri) {
+      const relativePath = normalizeSlashes(path.relative(workspaceRoot, normalizedTargetUri.fsPath));
+      if (relativePath && !relativePath.startsWith("..") && !path.isAbsolute(relativePath)) {
+        return {
+          relativePath,
+          isMarkdown: /\.md$/i.test(relativePath),
+        };
+      }
     }
-    const activePath = normalizedTargetUri.fsPath;
-    const relativePath = path.relative(workspaceRoot, activePath);
-    if (!relativePath || relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
-      return baseUrl;
+    const fallbackPath = this.pickDefaultMarkdownPath(workspaceRoot);
+    if (!fallbackPath) {
+      return null;
     }
-    if (!/\.md$/i.test(activePath)) {
-      return baseUrl;
+    return {
+      relativePath: fallbackPath,
+      isMarkdown: true,
+    };
+  }
+
+  getBootstrapUrl(baseUrl, workspaceRoot, relativePath) {
+    const bootstrapUrl = new URL("/__workspace_doc_browser__/bootstrap", `${String(baseUrl || "").replace(/\/$/, "")}/`);
+    bootstrapUrl.searchParams.set("path", relativePath);
+    bootstrapUrl.searchParams.set("workspace", path.basename(workspaceRoot));
+    return bootstrapUrl.toString();
+  }
+
+  getTargetUrl(baseUrl, workspaceRoot, targetUri) {
+    const descriptor = this.getTargetDescriptor(workspaceRoot, targetUri);
+    if (!descriptor) {
+      return `${String(baseUrl || "").replace(/\/$/, "")}/`;
     }
-    const normalizedRelativePath = normalizeSlashes(relativePath);
-    if (markdownPathNeedsRawView(normalizedRelativePath)) {
-      const preferredUrl = new URL(baseUrl);
-      preferredUrl.searchParams.set("view", normalizedRelativePath);
-      return preferredUrl.toString();
+    if (descriptor.isMarkdown) {
+      return this.getBootstrapUrl(baseUrl, workspaceRoot, descriptor.relativePath);
     }
-    const href = markdownPathToHref(normalizedRelativePath);
-    return new URL(href, baseUrl).toString();
+    return new URL(encodePathSegments(descriptor.relativePath), `${String(baseUrl || "").replace(/\/$/, "")}/`).toString();
   }
 
   updateStatusBar() {
@@ -100,7 +127,7 @@ class WorkspaceDocBrowser {
     const isPending = Boolean(this.pendingOpen && this.pendingOpen.workspaceRoot === workspaceRoot);
     const isLive = Boolean(this.session && this.session.workspaceRoot === workspaceRoot && this.isSessionLive(this.session));
     this.statusBar.text = isPending
-      ? (this.pendingOpen.kind === "rebuild" ? REBUILDING_TEXT : STARTING_TEXT)
+      ? (this.pendingOpen.kind === "start" ? STARTING_TEXT : OPENING_TEXT)
       : (isLive ? LIVE_TEXT : BUTTON_TEXT);
     this.statusBar.tooltip = isPending
       ? this.pendingOpen.detail
@@ -111,7 +138,7 @@ class WorkspaceDocBrowser {
     this.statusBar.show();
   }
 
-  setPendingOpen(workspaceRoot, detail, kind = "start") {
+  setPendingOpen(workspaceRoot, detail, kind) {
     this.clearPendingOpen();
     const pending = {
       workspaceRoot,
@@ -139,14 +166,18 @@ class WorkspaceDocBrowser {
     }
     this.pendingOpen = null;
     this.updateStatusBar();
-    if (this.session && this.session.rebuildRequested && this.isSessionAlive(this.session)) {
-      const { targetUri } = this.session;
-      this.session.rebuildRequested = false;
-      this.scheduleSessionRebuild(targetUri, this.session.workspaceRoot, "queued changes after the previous rebuild");
-    }
   }
 
-  async openExternalUrl(url, workspaceRoot, contextLabel, session) {
+  announceManualAction(workspaceRoot, kind) {
+    const workspaceName = path.basename(workspaceRoot);
+    const message = kind === "start"
+      ? `Workspace Doc Browser: starting docs for ${workspaceName}…`
+      : `Workspace Doc Browser: opening docs for ${workspaceName}…`;
+    vscode.window.showInformationMessage(message);
+    vscode.window.setStatusBarMessage(message, 4000);
+  }
+
+  async openBrowserUrl(url, workspaceRoot, contextLabel, session) {
     this.output.appendLine(`[browser-open] ${contextLabel}: ${url}`);
     const opened = await vscode.env.openExternal(vscode.Uri.parse(url));
     if (session && this.session === session) {
@@ -163,19 +194,97 @@ class WorkspaceDocBrowser {
     return opened;
   }
 
-  async openLiveSession(session, workspaceRoot, targetUri) {
+  async openExistingSession(session, workspaceRoot, targetUri) {
     if (!session || !this.isSessionAlive(session)) {
       return false;
     }
-    return this.startSession({
-      targetUri,
-      workspaceRoot,
-      detail: `Rebuilding live docs preview for ${path.basename(workspaceRoot)}…`,
-      kind: "rebuild",
-      port: session.port,
-      rawPort: session.rawPort,
-      openInBrowser: true,
-    });
+    const targetUrl = this.getTargetUrl(session.baseUrl, workspaceRoot, targetUri);
+    session.targetUri = this.normalizeTargetUri(targetUri);
+    this.setPendingOpen(workspaceRoot, `Opening docs preview for ${path.basename(workspaceRoot)}…`, "open");
+    try {
+      await this.openBrowserUrl(targetUrl, workspaceRoot, "the docs preview", session);
+    } finally {
+      this.clearPendingOpen();
+    }
+    return true;
+  }
+
+  async startSession(workspaceRoot, targetUri) {
+    this.setPendingOpen(workspaceRoot, `Starting docs preview for ${path.basename(workspaceRoot)}…`, "start");
+
+    try {
+      const port = await findFreePort();
+      this.disposeSession();
+
+      const baseUrl = `http://127.0.0.1:${port}/`;
+      const rawServerScript = buildRawFileServerScript(workspaceRoot, port);
+      const rawProcess = cp.spawn(process.execPath, ["-e", rawServerScript], {
+        cwd: workspaceRoot,
+        env: process.env,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+
+      const session = {
+        workspaceRoot,
+        baseUrl,
+        port,
+        browserOpened: false,
+        targetUri: this.normalizeTargetUri(targetUri),
+        process: rawProcess,
+      };
+      this.session = session;
+      this.updateStatusBar();
+      this.output.appendLine(`[start] ${workspaceRoot}`);
+      this.output.appendLine(`[raw] ${baseUrl}`);
+
+      rawProcess.stdout.on("data", (chunk) => {
+        this.output.append(chunk.toString());
+      });
+      rawProcess.stderr.on("data", (chunk) => {
+        this.output.append(chunk.toString());
+      });
+      rawProcess.on("error", (error) => {
+        this.clearPendingOpen();
+        this.output.appendLine(`[error] ${String(error)}`);
+        vscode.window.showErrorMessage(`Workspace Doc Browser: ${String(error)}`);
+        if (this.session === session) {
+          this.session = null;
+          this.updateStatusBar();
+        }
+      });
+      rawProcess.on("exit", (code, signal) => {
+        this.clearPendingOpen();
+        this.output.appendLine(`[raw-exit] code=${code} signal=${signal}`);
+        const wasCurrentSession = this.session === session;
+        if (wasCurrentSession) {
+          this.session = null;
+          this.updateStatusBar();
+        }
+        if (code && code !== 0) {
+          vscode.window.showErrorMessage(`Workspace Doc Browser: preview backend exited with code ${code}.`);
+          this.output.show(true);
+        } else if (wasCurrentSession && signal !== "SIGTERM") {
+          vscode.window.showWarningMessage("Workspace Doc Browser: preview stopped.");
+        }
+      });
+
+      await waitForPortReady(port, DOCS_STARTUP_READY_ATTEMPTS, DOCS_STARTUP_READY_DELAY_MS);
+      if (this.session !== session) {
+        return false;
+      }
+      const targetUrl = this.getTargetUrl(baseUrl, workspaceRoot, targetUri);
+      await this.openBrowserUrl(targetUrl, workspaceRoot, "the docs preview", session);
+      return true;
+    } catch (error) {
+      this.output.appendLine(`[open-error] ${String(error)}`);
+      this.output.show(true);
+      vscode.window.showWarningMessage(
+        `Workspace Doc Browser: the docs server for ${path.basename(workspaceRoot)} did not become ready yet. Check the Workspace Doc Browser output for details.`,
+      );
+      return false;
+    } finally {
+      this.clearPendingOpen();
+    }
   }
 
   async open(targetUri) {
@@ -185,190 +294,17 @@ class WorkspaceDocBrowser {
       return;
     }
 
+    this.announceManualAction(
+      workspaceRoot,
+      this.session && this.session.workspaceRoot === workspaceRoot && this.isSessionAlive(this.session) ? "open" : "start",
+    );
+
     if (this.session && this.session.workspaceRoot === workspaceRoot && this.isSessionAlive(this.session)) {
-      await this.openLiveSession(this.session, workspaceRoot, targetUri);
+      await this.openExistingSession(this.session, workspaceRoot, targetUri);
       return;
     }
 
-    await this.startSession({
-      targetUri,
-      workspaceRoot,
-      detail: `Starting local docs preview for ${path.basename(workspaceRoot)}…`,
-      kind: "start",
-      openInBrowser: true,
-    });
-  }
-
-  async startSession(options) {
-    const {
-      targetUri,
-      workspaceRoot,
-      detail,
-      kind,
-      port: preferredPort,
-      rawPort: preferredRawPort,
-      openInBrowser,
-    } = options;
-
-    this.setPendingOpen(workspaceRoot, detail, kind);
-
-    const previousSession = this.session && this.session.workspaceRoot === workspaceRoot ? this.session : null;
-    const port = preferredPort || await findFreePort();
-    const rawPort = preferredRawPort || await findFreePort();
-
-    this.disposeSession();
-
-    const rawServerBase = `http://127.0.0.1:${rawPort}`;
-    const { configPath, siteDir } = ensureMkDocsConfig(workspaceRoot, { rawServerBase });
-    const url = `http://127.0.0.1:${port}/`;
-    const preferredUrl = this.getPreferredStartUrl(url, workspaceRoot, targetUri);
-    const shell = process.env.SHELL || "/bin/zsh";
-    const command = `mkdocs serve -f ${shellQuote(configPath)} -a 127.0.0.1:${port}`;
-    const rawServerScript = buildRawFileServerScript(workspaceRoot, rawPort);
-    const rawProcess = cp.spawn(process.execPath, ["-e", rawServerScript], {
-      cwd: workspaceRoot,
-      env: process.env,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    const child = cp.spawn(shell, ["-lc", command], {
-      cwd: workspaceRoot,
-      env: process.env,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-
-    const session = {
-      workspaceRoot,
-      targetUri: this.normalizeTargetUri(targetUri),
-      url,
-      preferredUrl,
-      port,
-      rawPort,
-      browserOpened: previousSession ? previousSession.browserOpened : false,
-      rebuildRequested: false,
-      process: child,
-      rawProcess,
-      rawServerBase,
-      configPath,
-      siteDir,
-    };
-    this.session = session;
-    this.updateStatusBar();
-    this.output.appendLine(`[${kind}] ${workspaceRoot}`);
-    this.output.appendLine(`[cmd] ${command}`);
-    this.output.appendLine(`[open] ${preferredUrl}`);
-    this.output.appendLine(`[raw] ${rawServerBase}`);
-
-    waitForPortReady(port, DOCS_STARTUP_READY_ATTEMPTS, DOCS_STARTUP_READY_DELAY_MS).then(() => {
-      if (this.session !== session) {
-        return null;
-      }
-      this.clearPendingOpen();
-      session.browserOpened = Boolean(previousSession && previousSession.browserOpened);
-      if (openInBrowser) {
-        return this.openExternalUrl(preferredUrl, workspaceRoot, "the docs preview", session);
-      }
-      this.updateStatusBar();
-      this.output.appendLine(`[ready] ${preferredUrl}`);
-      return null;
-    }).catch((error) => {
-      this.clearPendingOpen();
-      this.output.appendLine(`[open-error] ${String(error)}`);
-      this.output.show(true);
-      vscode.window.showWarningMessage(
-        `Workspace Doc Browser: the docs server for ${path.basename(workspaceRoot)} did not become ready yet. Check the Workspace Doc Browser output for details.`,
-      );
-    });
-
-    child.stdout.on("data", (chunk) => {
-      this.output.append(chunk.toString());
-    });
-    child.stderr.on("data", (chunk) => {
-      this.output.append(chunk.toString());
-    });
-    child.on("error", (error) => {
-      this.clearPendingOpen();
-      this.output.appendLine(`[error] ${String(error)}`);
-      vscode.window.showErrorMessage(`Workspace Doc Browser: ${String(error)}`);
-      if (this.session === session) {
-        this.session = null;
-        this.updateStatusBar();
-      }
-    });
-    child.on("exit", (code, signal) => {
-      this.clearPendingOpen();
-      this.output.appendLine(`[exit] code=${code} signal=${signal}`);
-      const wasCurrentSession = this.session === session;
-      if (wasCurrentSession) {
-        this.session = null;
-        this.updateStatusBar();
-      }
-      if (code && code !== 0) {
-        const message = code === 127
-          ? "MkDocs was not found in the VS Code shell environment."
-          : `MkDocs preview exited with code ${code}.`;
-        vscode.window.showErrorMessage(`Workspace Doc Browser: ${message}`);
-        this.output.show(true);
-      } else if (wasCurrentSession && signal !== "SIGTERM") {
-        vscode.window.showWarningMessage("Workspace Doc Browser: preview stopped.");
-      }
-    });
-
-    rawProcess.stdout.on("data", (chunk) => {
-      this.output.append(chunk.toString());
-    });
-    rawProcess.stderr.on("data", (chunk) => {
-      this.output.append(chunk.toString());
-    });
-    rawProcess.on("error", (error) => {
-      this.output.appendLine(`[raw-error] ${String(error)}`);
-    });
-    rawProcess.on("exit", (code, signal) => {
-      this.output.appendLine(`[raw-exit] code=${code} signal=${signal}`);
-    });
-    return true;
-  }
-
-  handleMarkdownMutation(targetUri, eventType) {
-    if (!targetUri || targetUri.scheme !== "file" || !/\.md$/i.test(targetUri.fsPath)) {
-      return;
-    }
-    const workspaceRoot = this.getWorkspaceRoot(targetUri);
-    if (!workspaceRoot || !this.session || this.session.workspaceRoot !== workspaceRoot || !this.isSessionAlive(this.session)) {
-      return;
-    }
-    this.session.dirty = true;
-    this.session.rebuildRequested = true;
-    this.session.targetUri = this.normalizeTargetUri(targetUri) || this.session.targetUri;
-    this.output.appendLine(`[content-${eventType}] ${normalizeSlashes(path.relative(workspaceRoot, targetUri.fsPath))}`);
-    this.scheduleSessionRebuild(targetUri, workspaceRoot, `${eventType} markdown content`);
-  }
-
-  scheduleSessionRebuild(targetUri, workspaceRoot, reason) {
-    if (this.rebuildTimer) {
-      clearTimeout(this.rebuildTimer);
-    }
-    this.rebuildTimer = setTimeout(() => {
-      this.rebuildTimer = null;
-      if (!this.session || this.session.workspaceRoot !== workspaceRoot || !this.isSessionAlive(this.session)) {
-        return;
-      }
-      if (this.pendingOpen && this.pendingOpen.workspaceRoot === workspaceRoot) {
-        this.session.rebuildRequested = true;
-        return;
-      }
-      this.session.rebuildRequested = false;
-      this.startSession({
-        targetUri: targetUri || this.session.targetUri,
-        workspaceRoot,
-        detail: `Rebuilding docs preview for ${path.basename(workspaceRoot)} after ${reason}…`,
-        kind: "rebuild",
-        port: this.session.port,
-        rawPort: this.session.rawPort,
-        openInBrowser: false,
-      }).catch((error) => {
-        this.output.appendLine(`[rebuild-error] ${String(error)}`);
-      });
-    }, DOCS_REBUILD_DEBOUNCE_MS);
+    await this.startSession(workspaceRoot, targetUri);
   }
 
   isSessionAlive(session = this.session) {
@@ -386,154 +322,16 @@ class WorkspaceDocBrowser {
   }
 
   disposeSession() {
-    if (this.rebuildTimer) {
-      clearTimeout(this.rebuildTimer);
-      this.rebuildTimer = null;
-    }
     if (!this.session) {
       return;
     }
-    const { process: child, rawProcess } = this.session;
+    const { process } = this.session;
     this.session = null;
-    if (child && !child.killed) {
+    if (process && !process.killed) {
       try {
-        child.kill("SIGTERM");
+        process.kill("SIGTERM");
       } catch {}
     }
-    if (rawProcess && !rawProcess.killed) {
-      try {
-        rawProcess.kill("SIGTERM");
-      } catch {}
-    }
-  }
-}
-
-function ensureMkDocsConfig(workspaceRoot, options = {}) {
-  const safeName = `${path.basename(workspaceRoot) || "workspace"}-${Buffer.from(workspaceRoot).toString("base64").replace(/[^a-zA-Z0-9]/g, "").slice(0, 12)}`;
-  const baseDir = path.join(os.tmpdir(), "workspace-doc-browser", safeName);
-  const siteDir = path.join(baseDir, "site");
-  const configPath = path.join(baseDir, "mkdocs.yml");
-  const themeDir = path.join(baseDir, "theme");
-  fs.mkdirSync(baseDir, { recursive: true });
-  fs.mkdirSync(themeDir, { recursive: true });
-  fs.writeFileSync(path.join(themeDir, "main.html"), buildGithubLikeMainTemplate(), "utf8");
-  const nav = buildWorkspaceNav(workspaceRoot);
-  const repoTree = buildRepoTree(workspaceRoot, "", options.rawServerBase || "");
-  const config = [
-    `site_name: ${yamlString(path.basename(workspaceRoot) || "Workspace Docs")}`,
-    `docs_dir: ${yamlString(workspaceRoot)}`,
-    `site_dir: ${yamlString(siteDir)}`,
-    "strict: false",
-    "use_directory_urls: false",
-    "theme:",
-    "  name: mkdocs",
-    `  custom_dir: ${yamlString(themeDir)}`,
-    "exclude_docs: |",
-    "  .git/",
-    "  .vscode/",
-    "  .idea/",
-    "  node_modules/",
-    "  .DS_Store",
-    "",
-    "extra:",
-    `  workspace_name: ${yamlString(path.basename(workspaceRoot) || "Workspace Docs")}`,
-    `  raw_server_base: ${yamlString(options.rawServerBase || "")}`,
-    "  repo_tree:",
-    renderRepoTreeYaml(repoTree, 4),
-    "",
-    "nav:",
-    renderNavYaml(nav, 2),
-  ].join("\n");
-  fs.writeFileSync(configPath, config, "utf8");
-  return { configPath, siteDir };
-}
-
-function buildWorkspaceNav(workspaceRoot) {
-  const tree = buildMarkdownTree(workspaceRoot, "");
-  const homepage = tree.files.find((item) => /^readme(\.[^.]+)?\.md$/i.test(item.title) || /^index\.md$/i.test(item.title));
-  const items = [];
-  if (homepage) {
-    items.push(homepage);
-  }
-  for (const dir of tree.directories) {
-    items.push(dir);
-  }
-  for (const file of tree.files) {
-    if (file !== homepage) {
-      items.push(file);
-    }
-  }
-  return items;
-}
-
-function buildMarkdownTree(workspaceRoot, relativeDir) {
-  const absoluteDir = path.join(workspaceRoot, relativeDir);
-  const entries = fs.readdirSync(absoluteDir, { withFileTypes: true })
-    .filter((entry) => !shouldIgnoreEntry(entry.name, entry.isDirectory(), { includeDotfiles: false }))
-    .sort(compareEntries);
-
-  const directories = [];
-  const files = [];
-
-  for (const entry of entries) {
-    const relativePath = normalizeSlashes(path.posix.join(relativeDir, entry.name));
-    const absolutePath = path.join(workspaceRoot, relativePath);
-    if (entry.isDirectory()) {
-      const child = buildMarkdownTree(workspaceRoot, relativePath);
-      if (child.directories.length || child.files.length) {
-        directories.push({
-          title: `${entry.name}/`,
-          children: [...child.directories, ...child.files],
-        });
-      }
-      continue;
-    }
-    if (entry.isFile() && isMarkdownFile(entry.name, absolutePath)) {
-      files.push({
-        title: entry.name,
-        path: relativePath,
-      });
-    }
-  }
-
-  return {
-    directories,
-    files,
-  };
-}
-
-function shouldIgnoreEntry(name, isDirectory, options = {}) {
-  const includeDotfiles = Boolean(options.includeDotfiles);
-  if (!name || name === ".DS_Store") {
-    return true;
-  }
-  if (!includeDotfiles && name.startsWith(".") && name !== ".github") {
-    return true;
-  }
-  if (isDirectory) {
-    return ["node_modules", ".git", ".vscode", ".idea", "__pycache__", ".mkdocs", ".mkdocs-site"].includes(name);
-  }
-  return false;
-}
-
-function compareEntries(left, right) {
-  if (left.isDirectory() && !right.isDirectory()) {
-    return -1;
-  }
-  if (!left.isDirectory() && right.isDirectory()) {
-    return 1;
-  }
-  return left.name.localeCompare(right.name, undefined, { numeric: true, sensitivity: "base" });
-}
-
-function isMarkdownFile(name, absolutePath) {
-  if (!/\.md$/i.test(name)) {
-    return false;
-  }
-  try {
-    return fs.statSync(absolutePath).isFile();
-  } catch {
-    return false;
   }
 }
 
@@ -548,103 +346,67 @@ function encodePathSegments(value) {
     .join("/");
 }
 
-function markdownPathToHref(relativePath) {
-  const normalized = normalizeSlashes(String(relativePath || ""));
-  const base = path.posix.basename(normalized).toLowerCase();
-  if (base === "readme.md" || base === "index.md") {
-    const dir = path.posix.dirname(normalized);
-    return !dir || dir === "." ? "index.html" : `${dir}/index.html`;
-  }
-  return normalized.replace(/\.md$/i, ".html");
-}
-
-function markdownPathNeedsRawView(relativePath) {
-  const normalized = normalizeSlashes(String(relativePath || ""));
-  if (!normalized) {
+function isMarkdownFile(name, absolutePath) {
+  if (!/\.md$/i.test(name)) {
     return false;
   }
-  return normalized
-    .split("/")
-    .some((segment) => segment.startsWith(".") && segment !== ".github");
+  try {
+    return fs.statSync(absolutePath).isFile();
+  } catch {
+    return false;
+  }
 }
 
-function buildRepoTree(workspaceRoot, relativeDir, rawServerBase = "") {
-  const absoluteDir = path.join(workspaceRoot, relativeDir);
-  const entries = fs.readdirSync(absoluteDir, { withFileTypes: true })
-    .filter((entry) => !shouldIgnoreEntry(entry.name, entry.isDirectory(), { includeDotfiles: true }))
-    .sort(compareEntries);
+function shouldIgnoreEntry(name, isDirectory, options = {}) {
+  const includeDotfiles = Boolean(options.includeDotfiles);
+  if (!name || name === ".DS_Store") {
+    return true;
+  }
+  if (!includeDotfiles && name.startsWith(".") && name !== ".github") {
+    return true;
+  }
+  if (isDirectory) {
+    return ["node_modules", ".git", ".vscode", ".idea", "__pycache__", ".mkdocs", ".mkdocs-site", "dist"].includes(name);
+  }
+  return false;
+}
 
-  const items = [];
+function compareEntries(left, right) {
+  if (left.isDirectory() && !right.isDirectory()) {
+    return -1;
+  }
+  if (!left.isDirectory() && right.isDirectory()) {
+    return 1;
+  }
+  return left.name.localeCompare(right.name, undefined, { numeric: true, sensitivity: "base" });
+}
+
+function findFirstMarkdownPath(workspaceRoot, relativeDir) {
+  const absoluteDir = path.join(workspaceRoot, relativeDir);
+  let entries = [];
+  try {
+    entries = fs.readdirSync(absoluteDir, { withFileTypes: true })
+      .filter((entry) => !shouldIgnoreEntry(entry.name, entry.isDirectory(), { includeDotfiles: false }))
+      .sort(compareEntries);
+  } catch {
+    return "";
+  }
 
   for (const entry of entries) {
     const relativePath = normalizeSlashes(path.posix.join(relativeDir, entry.name));
     const absolutePath = path.join(workspaceRoot, relativePath);
     if (entry.isDirectory()) {
-      items.push({
-        title: `${entry.name}/`,
-        kind: "directory",
-        path: relativePath,
-        children: buildRepoTree(workspaceRoot, relativePath, rawServerBase),
-      });
+      const childPath = findFirstMarkdownPath(workspaceRoot, relativePath);
+      if (childPath) {
+        return childPath;
+      }
       continue;
     }
-    if (!entry.isFile()) {
-      continue;
-    }
-    const markdown = isMarkdownFile(entry.name, absolutePath);
-    const markdownUsesRawView = markdown && markdownPathNeedsRawView(relativePath);
-    items.push({
-      title: entry.name,
-      kind: markdown ? "markdown" : "file",
-      href: markdown
-        ? (markdownUsesRawView ? `?view=${encodeURIComponent(relativePath)}` : markdownPathToHref(relativePath))
-        : `${String(rawServerBase || "").replace(/\/$/, "")}/${encodePathSegments(relativePath)}`,
-      sourcePath: relativePath,
-      viewPath: markdownUsesRawView || !markdown ? relativePath : "",
-    });
-  }
-
-  return items;
-}
-
-function renderNavYaml(items, indent = 0) {
-  const lines = [];
-  const spaces = " ".repeat(indent);
-  for (const item of items) {
-    if (item.children) {
-      lines.push(`${spaces}- ${yamlString(item.title)}:`);
-      lines.push(renderNavYaml(item.children, indent + 2));
-    } else {
-      lines.push(`${spaces}- ${yamlString(item.title)}: ${yamlString(item.path)}`);
+    if (entry.isFile() && isMarkdownFile(entry.name, absolutePath)) {
+      return relativePath;
     }
   }
-  return lines.filter(Boolean).join("\n");
-}
-
-function renderRepoTreeYaml(items, indent = 0) {
-  const lines = [];
-  const spaces = " ".repeat(indent);
-  for (const item of items) {
-    lines.push(`${spaces}- title: ${yamlString(item.title)}`);
-    lines.push(`${spaces}  kind: ${yamlString(item.kind)}`);
-    if (item.path) {
-      lines.push(`${spaces}  path: ${yamlString(item.path)}`);
-    }
-    if (item.href) {
-      lines.push(`${spaces}  href: ${yamlString(item.href)}`);
-    }
-    if (item.sourcePath) {
-      lines.push(`${spaces}  source_path: ${yamlString(item.sourcePath)}`);
-    }
-    if (item.viewPath) {
-      lines.push(`${spaces}  view_path: ${yamlString(item.viewPath)}`);
-    }
-    if (item.children && item.children.length) {
-      lines.push(`${spaces}  children:`);
-      lines.push(renderRepoTreeYaml(item.children, indent + 4));
-    }
-  }
-  return lines.filter(Boolean).join("\n");
+  return "";
 }
 
 function buildRawFileServerScript(workspaceRoot, port) {
@@ -652,8 +414,11 @@ function buildRawFileServerScript(workspaceRoot, port) {
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+
 const root = ${JSON.stringify(workspaceRoot)};
 const port = ${Number(port)};
+const TREE_REFRESH_MS = ${TREE_REFRESH_MS};
+const FILE_REFRESH_MS = ${FILE_REFRESH_MS};
 
 const textTypes = new Map([
   [".md", "text/markdown; charset=utf-8"],
@@ -682,9 +447,72 @@ function send(res, status, body, contentType) {
   res.writeHead(status, {
     "Content-Type": contentType,
     "Access-Control-Allow-Origin": "*",
-    "Cache-Control": "no-store"
+    "Cache-Control": "no-store",
   });
   res.end(body);
+}
+
+function normalizeSlashes(value) {
+  return String(value || "").replace(/\\\\/g, "/");
+}
+
+function shouldIgnoreEntry(name, isDirectory, includeDotfiles) {
+  if (!name || name === ".DS_Store") {
+    return true;
+  }
+  if (!includeDotfiles && name.startsWith(".") && name !== ".github") {
+    return true;
+  }
+  if (isDirectory) {
+    return ["node_modules", ".git", ".vscode", ".idea", "__pycache__", ".mkdocs", ".mkdocs-site", "dist"].includes(name);
+  }
+  return false;
+}
+
+function compareEntries(left, right) {
+  if (left.isDirectory() && !right.isDirectory()) {
+    return -1;
+  }
+  if (!left.isDirectory() && right.isDirectory()) {
+    return 1;
+  }
+  return left.name.localeCompare(right.name, undefined, { numeric: true, sensitivity: "base" });
+}
+
+function buildRepoTree(relativeDir) {
+  const absoluteDir = path.join(root, relativeDir);
+  let entries = [];
+  try {
+    entries = fs.readdirSync(absoluteDir, { withFileTypes: true })
+      .filter((entry) => !shouldIgnoreEntry(entry.name, entry.isDirectory(), true))
+      .sort(compareEntries);
+  } catch {
+    return [];
+  }
+
+  const items = [];
+  for (const entry of entries) {
+    const relativePath = normalizeSlashes(path.posix.join(relativeDir, entry.name));
+    const absolutePath = path.join(root, relativePath);
+    if (entry.isDirectory()) {
+      items.push({
+        title: entry.name + "/",
+        kind: "directory",
+        path: relativePath,
+        children: buildRepoTree(relativePath),
+      });
+      continue;
+    }
+    if (!entry.isFile()) {
+      continue;
+    }
+    items.push({
+      title: entry.name,
+      kind: /\\.md$/i.test(entry.name) ? "markdown" : "file",
+      sourcePath: relativePath,
+    });
+  }
+  return items;
 }
 
 http.createServer((req, res) => {
@@ -695,16 +523,32 @@ http.createServer((req, res) => {
     res.writeHead(204, {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "*"
+      "Access-Control-Allow-Headers": "*",
     });
     return res.end();
   }
+
   const parsed = new URL(req.url, "http://127.0.0.1");
+  if (parsed.pathname === "/__workspace_doc_browser__/tree") {
+    return send(res, 200, JSON.stringify(buildRepoTree("")), "application/json; charset=utf-8");
+  }
+  if (parsed.pathname === "/__workspace_doc_browser__/bootstrap") {
+    const relativePath = String(parsed.searchParams.get("path") || "");
+    const workspace = String(parsed.searchParams.get("workspace") || "Workspace Docs");
+    return send(
+      res,
+      200,
+      (${buildBootstrapViewerHtml.toString()})(workspace, relativePath, TREE_REFRESH_MS, FILE_REFRESH_MS),
+      "text/html; charset=utf-8",
+    );
+  }
+
   const relativePath = decodeURIComponent(parsed.pathname.replace(/^\\/+/, ""));
   const target = path.resolve(root, relativePath);
   if (!target.startsWith(path.resolve(root))) {
     return send(res, 403, "Forbidden", "text/plain; charset=utf-8");
   }
+
   fs.stat(target, (error, stat) => {
     if (error || !stat.isFile()) {
       return send(res, 404, "Not Found", "text/plain; charset=utf-8");
@@ -724,708 +568,493 @@ http.createServer((req, res) => {
 `;
 }
 
-function buildGithubLikeMainTemplate() {
-  return `{% extends "base.html" %}
-{% macro render_tree(items, depth=0) -%}
-  <ul class="repo-tree level-{{ depth }}">
-    {%- for item in items %}
-      {%- set is_current_markdown = page and page.file and item.source_path and item.source_path == page.file.src_path %}
-      {%- set is_open_markdown_dir = page and page.file and item.path and page.file.src_path.startswith(item.path + '/') %}
-      <li class="repo-node{% if is_current_markdown %} active{% endif %}{% if item.children %} is-directory{% else %} is-file{% endif %}" data-depth="{{ depth }}">
-        {%- if item.children %}
-          <details class="repo-folder"{% if is_open_markdown_dir %} open{% endif %}>
-            <summary class="repo-folder-label">{{ item.title }}</summary>
-            {{ render_tree(item.children, depth + 1) }}
-          </details>
-        {%- else %}
-          <a class="repo-link{% if is_current_markdown %} active{% endif %}" data-source-path="{{ item.source_path|default('') }}" data-view-path="{{ item.view_path|default('') }}" href="{{ item.href|url }}">{{ item.title }}</a>
-        {%- endif %}
-      </li>
-    {%- endfor %}
-  </ul>
-{%- endmacro %}
-{% block extrahead %}
-  {{ super() }}
+function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fileRefreshMs) {
+  function escapeBootstrapHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  const title = escapeBootstrapHtml(String(workspaceName || "Workspace Docs"));
+  const fileLabel = escapeBootstrapHtml(String(relativePath || ""));
+  const safeRelativePath = JSON.stringify(String(relativePath || ""));
+  const safeWorkspaceName = JSON.stringify(String(workspaceName || "Workspace Docs"));
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${title}</title>
   <style>
     :root {
-      --gh-canvas-default: #ffffff;
-      --gh-canvas-subtle: #f6f8fa;
-      --gh-border-default: #d0d7de;
-      --gh-border-muted: #d8dee4;
-      --gh-fg-default: #1f2328;
-      --gh-fg-muted: #59636e;
-      --gh-accent-fg: #0969da;
-      --gh-accent-emphasis: #0550ae;
-      --gh-code-bg: rgba(175, 184, 193, 0.2);
-      --gh-pre-bg: #f6f8fa;
-      --gh-heading-border: #d8dee4;
-      --gh-blockquote: #d0d7de;
-      --gh-table-header: #f6f8fa;
-      --gh-shadow: 0 1px 0 rgba(31, 35, 40, 0.04);
-      --gh-sidebar-width: 252px;
+      --bg: #f6f8fa;
+      --panel: #ffffff;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --muted: #59636e;
+      --link: #0969da;
+      --code-bg: rgba(175, 184, 193, 0.2);
+      --pre-bg: #f6f8fa;
     }
-
-    html, body {
-      background: var(--gh-canvas-subtle);
-      color: var(--gh-fg-default);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
+    * { box-sizing: border-box; }
     body {
-      min-height: 100vh;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.6;
     }
-
-    .navbar {
-      background: var(--gh-canvas-default);
-      border-bottom: 1px solid var(--gh-border-default);
-      box-shadow: var(--gh-shadow);
-      min-height: 56px;
-      margin-bottom: 20px;
+    .shell {
+      width: min(1320px, calc(100vw - 32px));
+      margin: 24px auto;
     }
-
-    .navbar .navbar-brand,
-    .navbar .navbar-nav > li > a {
-      color: var(--gh-fg-default) !important;
-      font-weight: 600;
+    .content, .sidebar {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(31, 35, 40, 0.04);
     }
-
-    .navbar .navbar-nav > li > a:hover,
-    .navbar .navbar-brand:hover {
-      color: var(--gh-accent-fg) !important;
-      background: transparent;
-    }
-
-    .container {
-      width: min(100%, 1360px);
-    }
-
-    .navbar .nav.navbar-nav {
-      display: none !important;
-    }
-
-    .workspace-layout {
+    .layout {
       display: grid;
-      grid-template-columns: var(--gh-sidebar-width) minmax(0, 1fr);
-      gap: 24px;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 16px;
       align-items: start;
-      margin-bottom: 32px;
     }
-
-    .repo-sidebar {
+    .sidebar {
       position: sticky;
-      top: 76px;
-      max-height: calc(100vh - 92px);
-      background: var(--gh-canvas-default);
-      border: 1px solid var(--gh-border-default);
-      border-radius: 6px;
-      box-shadow: var(--gh-shadow);
+      top: 16px;
       overflow: hidden;
     }
-
-    .repo-sidebar,
-    .repo-tree-wrap {
-      scrollbar-width: thin;
-    }
-
-    .repo-sidebar-header {
+    .sidebar-header {
       padding: 12px 14px;
-      font-size: 14px;
       font-weight: 700;
-      border-bottom: 1px solid var(--gh-border-muted);
+      border-bottom: 1px solid var(--border);
       background: linear-gradient(to bottom, #ffffff, #fafbfc);
     }
-
-    .repo-tree-wrap {
-      max-height: calc(100vh - 146px);
+    .sidebar-body {
+      max-height: calc(100vh - 64px);
       overflow: auto;
       padding: 8px 0;
     }
-
-    .repo-tree {
+    .tree,
+    .tree ul {
       margin: 0;
       padding: 0;
       list-style: none;
     }
-
-    .repo-tree,
-    .repo-tree ul,
-    .repo-tree li,
-    .repo-folder,
-    details.repo-folder,
-    details.repo-folder[open] {
-      background: transparent !important;
-      border: 0 !important;
-      box-shadow: none !important;
-      min-height: 0 !important;
-      margin: 0 !important;
-      padding: 0 !important;
+    .tree li {
+      margin: 0;
     }
-
-    .repo-tree ul {
-      margin-bottom: 0 !important;
-      padding-top: 0 !important;
-      padding-bottom: 0 !important;
+    .tree ul {
+      padding-left: 16px;
     }
-
-    .repo-tree .repo-tree {
-      padding-left: 12px;
-      margin-top: 0;
+    .tree details {
+      margin: 0;
     }
-
-    .repo-folder > .repo-tree {
-      margin-left: 14px !important;
-      padding-left: 10px !important;
-      border-left: 1px solid rgba(208, 215, 222, 0.9) !important;
-    }
-
-    .repo-node {
-      list-style: none;
-    }
-
-    .repo-folder summary {
-      list-style: none;
-      display: block;
-    }
-
-    .repo-folder summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .repo-folder-label,
-    .repo-link {
-      display: block;
-      position: relative;
-      padding: 4px 10px 4px 28px !important;
-      color: var(--gh-fg-muted);
-      font-size: 12px;
-      line-height: 1.35;
-      text-decoration: none;
-      border-radius: 4px;
-      margin: 0 6px !important;
+    .tree summary {
       cursor: pointer;
+      padding: 6px 14px;
+      color: var(--muted);
+      user-select: none;
     }
-
-    .repo-folder-label {
-      font-weight: 600;
-      color: var(--gh-fg-default);
-    }
-
-    .repo-folder-label::before {
-      content: "▸";
-      position: absolute;
-      left: 8px;
-      top: 4px;
-      font-size: 10px;
-      color: var(--gh-fg-muted);
-      transition: transform 120ms ease;
-    }
-
-    .repo-folder[open] > .repo-folder-label::before {
-      transform: rotate(90deg);
-    }
-
-    .repo-folder-label::after {
-      content: "";
-      position: absolute;
-      left: 20px;
-      top: 5px;
-      width: 11px;
-      height: 9px;
-      border: 1px solid #bf8700;
-      border-radius: 2px 2px 1px 1px;
-      background: linear-gradient(to bottom, #fff8c5, #f8e3a1);
-      box-sizing: border-box;
-      opacity: 0.95;
-    }
-
-    .repo-link::before {
-      content: "";
-      position: absolute;
-      left: 8px;
-      top: 4px;
-      width: 10px;
-      height: 12px;
-      border: 1px solid var(--gh-border-default);
-      border-radius: 2px;
-      background: linear-gradient(to bottom, #ffffff, #f6f8fa);
-      box-sizing: border-box;
-      opacity: 0.9;
-    }
-
-    .repo-folder-label,
-    .repo-link {
-      padding-left: 24px !important;
-    }
-
-    .repo-folder-label {
-      padding-left: 36px !important;
-    }
-
-    .repo-folder-label:hover,
-    .repo-link:hover {
-      color: var(--gh-accent-fg);
-      background: rgba(9, 105, 218, 0.06);
+    .tree a {
+      display: block;
+      padding: 6px 14px;
+      color: var(--text);
       text-decoration: none;
+      border-left: 2px solid transparent;
     }
-
-    .repo-node.active > .repo-link,
-    .repo-node.active > .repo-folder > .repo-folder-label,
-    .repo-link.active {
-      color: var(--gh-accent-emphasis);
-      background: rgba(9, 105, 218, 0.08);
+    .tree a:hover {
+      background: #f6f8fa;
+      color: var(--link);
+    }
+    .tree a.active {
+      color: var(--link);
       font-weight: 600;
-    }
-
-    .repo-node.is-directory {
-      margin-bottom: 1px;
-    }
-
-    .repo-link.active::before {
-      border-color: rgba(9, 105, 218, 0.35);
+      border-left-color: var(--link);
       background: rgba(9, 105, 218, 0.08);
     }
-
-    .repo-content {
-      min-width: 0;
+    .content {
+      padding: 28px 32px;
+      min-height: 70vh;
     }
-
-    .repo-page-header {
-      margin-bottom: 12px;
-      padding: 14px 16px;
-      background: var(--gh-canvas-default);
-      border: 1px solid var(--gh-border-default);
-      border-radius: 6px;
-      box-shadow: var(--gh-shadow);
-    }
-
-    .repo-page-title {
-      font-size: 22px;
-      font-weight: 700;
-      line-height: 1.3;
-      color: var(--gh-fg-default);
-    }
-
-    .repo-page-subtitle {
-      margin-top: 4px;
-      color: var(--gh-fg-muted);
-      font-size: 13px;
-    }
-
-    .repo-breadcrumb {
-      margin-bottom: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--gh-fg-muted);
-    }
-
-    .repo-breadcrumb .current {
-      color: var(--gh-fg-default);
-    }
-
-    .markdown-body {
-      padding: 32px 40px;
-      background: var(--gh-canvas-default);
-      border: 1px solid var(--gh-border-default);
-      border-radius: 6px;
-      box-shadow: var(--gh-shadow);
-    }
-
-    @media (max-width: 900px) {
-      .workspace-layout {
-        grid-template-columns: 1fr;
-      }
-
-      .repo-sidebar {
-        position: static;
-        max-height: none;
-        margin-bottom: 16px;
-      }
-
-      .repo-tree-wrap {
-        max-height: none;
-      }
-
-      .markdown-body {
-        padding: 24px 20px;
-        border-left: 0;
-        border-right: 0;
-        border-radius: 0;
-      }
-    }
-
-    .markdown-body > h1:first-child,
-    .markdown-body > h2:first-child,
-    .markdown-body > h3:first-child {
-      margin-top: 0;
-      padding-top: 0;
-    }
-
-    .markdown-body h1,
-    .markdown-body h2,
-    .markdown-body h3,
-    .markdown-body h4,
-    .markdown-body h5,
-    .markdown-body h6 {
-      color: var(--gh-fg-default);
-      font-weight: 600;
+    .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
       line-height: 1.25;
       margin-top: 24px;
       margin-bottom: 16px;
     }
-
-    .markdown-body h1,
-    .markdown-body h2 {
+    .content h1, .content h2 {
       padding-bottom: 0.3em;
-      border-bottom: 1px solid var(--gh-heading-border);
+      border-bottom: 1px solid var(--border);
     }
-
-    .markdown-body h1 { font-size: 2em; }
-    .markdown-body h2 { font-size: 1.5em; }
-    .markdown-body h3 { font-size: 1.25em; }
-    .markdown-body h4 { font-size: 1em; }
-    .markdown-body h5 { font-size: 0.875em; }
-    .markdown-body h6 { font-size: 0.85em; color: var(--gh-fg-muted); }
-
-    .markdown-body p,
-    .markdown-body ul,
-    .markdown-body ol,
-    .markdown-body dl,
-    .markdown-body table,
-    .markdown-body blockquote,
-    .markdown-body pre {
+    .content p, .content ul, .content ol, .content blockquote, .content pre, .content table {
       margin-top: 0;
       margin-bottom: 16px;
     }
-
-    .markdown-body a {
-      color: var(--gh-accent-fg);
+    .content a {
+      color: var(--link);
       text-decoration: none;
     }
-
-    .markdown-body a:hover {
-      color: var(--gh-accent-emphasis);
+    .content a:hover {
       text-decoration: underline;
     }
-
-    .markdown-body code,
-    .markdown-body tt {
+    .content code {
       padding: 0.2em 0.4em;
-      margin: 0;
       font-size: 85%;
-      white-space: break-spaces;
-      background: var(--gh-code-bg);
+      background: var(--code-bg);
       border-radius: 6px;
-      font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, "Liberation Mono", monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
-
-    .markdown-body pre {
+    .content pre {
       padding: 16px;
       overflow: auto;
-      font-size: 85%;
-      line-height: 1.45;
-      background: var(--gh-pre-bg);
+      background: var(--pre-bg);
+      border: 1px solid var(--border);
       border-radius: 6px;
-      border: 1px solid var(--gh-border-muted);
     }
-
-    .markdown-body pre code {
+    .content pre code {
       padding: 0;
       background: transparent;
       border-radius: 0;
       white-space: pre;
     }
-
-    .repo-code-view {
-      margin: 0;
-      white-space: pre;
-    }
-
-    .repo-file-meta {
-      margin-bottom: 12px;
-      color: var(--gh-fg-muted);
-      font-size: 12px;
-    }
-
-    .markdown-body blockquote {
+    .content blockquote {
       padding: 0 1em;
-      color: var(--gh-fg-muted);
-      border-left: 0.25em solid var(--gh-blockquote);
+      color: var(--muted);
+      border-left: 0.25em solid var(--border);
     }
-
-    .markdown-body hr {
-      height: 0.25em;
-      padding: 0;
-      margin: 24px 0;
-      background: var(--gh-heading-border);
-      border: 0;
+    .file-meta {
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 13px;
     }
-
-    .markdown-body table {
-      display: block;
-      width: max-content;
-      max-width: 100%;
-      overflow: auto;
-      border-spacing: 0;
-      border-collapse: collapse;
-    }
-
-    .markdown-body table th,
-    .markdown-body table td {
-      padding: 6px 13px;
-      border: 1px solid var(--gh-border-default);
-    }
-
-    .markdown-body table th {
-      font-weight: 600;
-      background: var(--gh-table-header);
-    }
-
-    .markdown-body table tr:nth-child(2n) {
-      background: var(--gh-canvas-subtle);
-    }
-
-    .markdown-body img {
-      max-width: 100%;
-      height: auto;
-      box-sizing: content-box;
-      background: var(--gh-canvas-default);
-      border-radius: 6px;
-    }
-
-    .admonition,
-    .alert {
-      border: 1px solid var(--gh-border-default);
-      border-radius: 6px;
-      background: var(--gh-canvas-subtle);
-      box-shadow: none;
-    }
-
-    .admonition-title,
-    .alert-title {
-      background: transparent;
-      color: var(--gh-fg-default);
-      border-bottom: 1px solid var(--gh-border-muted);
-      font-weight: 600;
-    }
-
-    .navbar .navbar-brand::before {
-      content: "Local Docs";
-    }
-
-    .navbar .navbar-brand {
-      font-size: 0;
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: static;
+      }
+      .sidebar-body {
+        max-height: none;
+      }
+      .content {
+        padding: 24px 20px;
+      }
     }
   </style>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      var params = new URLSearchParams(window.location.search);
-      var currentView = params.get("view");
-      var currentPath = normalizePagePath(window.location.pathname || "/");
-      var rawServerBase = {{ config.extra.raw_server_base|tojson }};
-      var activeApplied = false;
-
-      function markActive(link) {
-        activeApplied = true;
-        link.classList.add("active");
-        var node = link.closest(".repo-node");
-        if (node) {
-          node.classList.add("active");
-        }
-        var parent = link.parentElement;
-        while (parent) {
-          if (parent.tagName === "DETAILS") {
-            parent.open = true;
-          }
-          if (parent.classList && parent.classList.contains("repo-node")) {
-            parent.classList.add("active");
-          }
-          parent = parent.parentElement;
-        }
-      }
-
-      function clearActiveLinks() {
-        document.querySelectorAll(".repo-link.active, .repo-node.active").forEach(function (node) {
-          node.classList.remove("active");
-        });
-      }
-
-      function renderFileView(viewPath, link) {
-        currentView = viewPath;
-        var content = document.querySelector(".markdown-body");
-        var subtitle = document.querySelector(".repo-page-subtitle");
-        var breadcrumb = document.querySelector(".repo-breadcrumb .current");
-        if (subtitle) {
-          subtitle.textContent = viewPath;
-        }
-        if (breadcrumb) {
-          breadcrumb.textContent = viewPath.split("/").pop() || viewPath;
-        }
-        document.querySelectorAll(".repo-folder").forEach(function (folder) {
-          folder.open = false;
-        });
-        clearActiveLinks();
-        if (link) {
-          markActive(link);
-        }
-        var rawUrl = buildRawFileUrl(rawServerBase, viewPath);
-        fetch(rawUrl, { cache: "no-store" })
-          .then(function (response) {
-            if (!response.ok) {
-              throw new Error("HTTP " + response.status);
-            }
-            return response.text();
-          })
-          .then(function (text) {
-            if (!content) {
-              return;
-            }
-            var escaped = text
-              .replace(/&/g, "&amp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
-            var ext = viewPath.includes(".") ? viewPath.split(".").pop() : "text";
-            content.innerHTML =
-              '<div class="repo-file-meta">Viewing local file: ' + escapedPath(viewPath) + '</div>' +
-              '<pre class="repo-code-view"><code class="language-' + escapedAttr(ext) + '">' + escaped + '</code></pre>';
-          })
-          .catch(function (error) {
-            if (content) {
-              content.innerHTML =
-                '<div class="repo-file-meta">Unable to open file: ' + escapedPath(viewPath) + '</div>' +
-                '<pre class="repo-code-view"><code>' + escapedPath(String(error)) + '</code></pre>';
-            }
-          });
-      }
-
-      document.querySelectorAll(".repo-link").forEach(function (link) {
-        try {
-          var target = new URL(link.getAttribute("href"), window.location.href);
-          var targetView = link.dataset.viewPath || "";
-          if (targetView) {
-            link.addEventListener("click", function (event) {
-              event.preventDefault();
-              history.pushState({ view: targetView }, "", window.location.pathname + "?view=" + encodeURIComponent(targetView));
-              renderFileView(targetView, link);
-            });
-          }
-          if (currentView && link.dataset.sourcePath === currentView) {
-            markActive(link);
-            return;
-          }
-          if (!currentView && normalizePagePath(target.pathname) === currentPath && !target.search) {
-            markActive(link);
-          }
-        } catch (error) {
-          console.warn("repo tree activation failed", error);
-        }
-      });
-
-      if (currentView) {
-        var activeLink = document.querySelector('.repo-link[data-source-path="' + cssEscape(currentView) + '"]');
-        renderFileView(currentView, activeLink);
-      }
-
-      window.addEventListener("popstate", function () {
-        var poppedView = new URLSearchParams(window.location.search).get("view");
-        if (poppedView) {
-          var activeLink = document.querySelector('.repo-link[data-source-path="' + cssEscape(poppedView) + '"]');
-          renderFileView(poppedView, activeLink);
-        } else {
-          window.location.reload();
-        }
-      });
-
-      function escapedPath(value) {
-        return String(value || "")
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
-      }
-
-      function escapedAttr(value) {
-        return String(value || "")
-          .replace(/&/g, "")
-          .replace(/"/g, "")
-          .replace(/'/g, "")
-          .replace(/</g, "")
-          .replace(/>/g, "");
-      }
-
-      function normalizePagePath(value) {
-        if (!value || value === "/") {
-          return "/";
-        }
-        return value.replace(/\/index\.html$/i, "/");
-      }
-
-      function buildRawFileUrl(base, relativePath) {
-        var normalizedBase = String(base || "").replace(/\/$/, "");
-        var encodedPath = String(relativePath || "")
-          .split("/")
-          .map(function (segment) { return encodeURIComponent(segment); })
-          .join("/");
-        return normalizedBase + "/" + encodedPath;
-      }
-
-      function cssEscape(value) {
-        if (window.CSS && typeof window.CSS.escape === "function") {
-          return window.CSS.escape(String(value || ""));
-        }
-        return String(value || "").replace(/["\\]/g, "\\$&");
-      }
-    });
-  </script>
-{% endblock %}
-{% block content %}
-  <div class="workspace-layout">
-    <aside class="repo-sidebar">
-      <div class="repo-sidebar-header">Files</div>
-      <div class="repo-tree-wrap">
-        {{ render_tree(config.extra.repo_tree) }}
-      </div>
-    </aside>
-    <section class="repo-content" role="main">
-      <div class="repo-page-header">
-        <div class="repo-page-title">{{ config.extra.workspace_name }}</div>
-        <div class="repo-page-subtitle">{{ page.file.src_path if page and page.file else page.title }}</div>
-      </div>
-      <div class="repo-breadcrumb">{{ config.site_name }} / <span class="current">{{ page.title }}</span></div>
-      <article class="markdown-body">{{ page.content }}</article>
-    </section>
+</head>
+<body>
+  <div class="shell">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-header">Files</div>
+        <div id="sidebar-body" class="sidebar-body"></div>
+      </aside>
+      <article id="content" class="content">
+        <div class="file-meta">${fileLabel || "Current markdown file"}</div>
+        <p>Loading markdown preview…</p>
+      </article>
+    </div>
   </div>
-{% endblock %}
-`;
-}
+  <script>
+    const relativePath = ${safeRelativePath};
+    const workspaceName = ${safeWorkspaceName};
+    const treeRefreshMs = ${Number(treeRefreshMs)};
+    const fileRefreshMs = ${Number(fileRefreshMs)};
+    const content = document.getElementById("content");
+    const sidebarBody = document.getElementById("sidebar-body");
+    let lastMarkdown = "";
+    let lastTreeJson = "";
+    const openFolders = new Set();
 
-function yamlString(value) {
-  return JSON.stringify(String(value));
-}
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
 
-function shellQuote(value) {
-  return `'${String(value).replace(/'/g, `'\\''`)}'`;
-}
+    function encodePath(pathValue) {
+      return String(pathValue || "")
+        .split("/")
+        .map((segment) => encodeURIComponent(segment))
+        .join("/");
+    }
 
-function findFreePort() {
-  return new Promise((resolve, reject) => {
-    const server = net.createServer();
-    server.unref();
-    server.on("error", reject);
-    server.listen(0, "127.0.0.1", () => {
-      const address = server.address();
-      const port = address && typeof address === "object" ? address.port : null;
-      server.close((error) => {
-        if (error) {
-          reject(error);
-        } else if (port) {
-          resolve(port);
-        } else {
-          reject(new Error("Unable to allocate a local port."));
+    function isExternalHref(value) {
+      return /^(https?:|mailto:|tel:|data:)/i.test(String(value || "").trim());
+    }
+
+    function splitHref(value) {
+      const raw = String(value || "");
+      const index = raw.indexOf("#");
+      if (index === -1) {
+        return { pathPart: raw, hashPart: "" };
+      }
+      return {
+        pathPart: raw.slice(0, index),
+        hashPart: raw.slice(index + 1),
+      };
+    }
+
+    function resolveRelativePath(basePath, targetPath) {
+      const normalizedBase = String(basePath || "").replace(/^\\/+/, "");
+      const normalizedTarget = String(targetPath || "").replace(/^\\/+/, "");
+      const baseSegments = normalizedBase.split("/").filter(Boolean);
+      if (baseSegments.length) {
+        baseSegments.pop();
+      }
+      for (const segment of normalizedTarget.split("/")) {
+        if (!segment || segment === ".") {
+          continue;
+        }
+        if (segment === "..") {
+          if (baseSegments.length) {
+            baseSegments.pop();
+          }
+          continue;
+        }
+        baseSegments.push(segment);
+      }
+      return baseSegments.join("/");
+    }
+
+    function bootstrapHref(sourcePath, hashPart = "") {
+      const params = new URLSearchParams();
+      params.set("path", sourcePath);
+      params.set("workspace", workspaceName);
+      return "/__workspace_doc_browser__/bootstrap?" + params.toString() + (hashPart ? "#" + encodeURIComponent(hashPart) : "");
+    }
+
+    function rawFileHref(sourcePath, hashPart = "") {
+      return "/" + encodePath(sourcePath) + (hashPart ? "#" + encodeURIComponent(hashPart) : "");
+    }
+
+    function resolveDocHref(href) {
+      const raw = String(href || "").trim();
+      if (!raw) {
+        return "";
+      }
+      if (isExternalHref(raw)) {
+        return raw;
+      }
+      const { pathPart, hashPart } = splitHref(raw);
+      if (!pathPart && hashPart) {
+        return "#" + encodeURIComponent(hashPart);
+      }
+      const resolvedPath = pathPart.startsWith("/")
+        ? pathPart.replace(/^\\/+/, "")
+        : resolveRelativePath(relativePath, pathPart);
+      if (/\\.md$/i.test(resolvedPath)) {
+        return bootstrapHref(resolvedPath, hashPart);
+      }
+      return rawFileHref(resolvedPath, hashPart);
+    }
+
+    function slugifyHeading(value, seen) {
+      let slug = String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^\u4e00-\u9fff\\w\\- ]+/g, "")
+        .replace(/\\s+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+      if (!slug) {
+        slug = "section";
+      }
+      const count = seen[slug] || 0;
+      seen[slug] = count + 1;
+      return count ? slug + "-" + count : slug;
+    }
+
+    function renderInline(value) {
+      let text = escapeHtml(value);
+      text = text.replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)/g, (_, alt, href) => '<img alt="' + escapeHtml(alt) + '" src="' + escapeHtml(resolveDocHref(href)) + '">');
+      text = text.replace(/\\\`([^\\\`]+)\\\`/g, "<code>$1</code>");
+      text = text.replace(/\\*\\*([^*]+)\\*\\*/g, "<strong>$1</strong>");
+      text = text.replace(/\\*([^*]+)\\*/g, "<em>$1</em>");
+      text = text.replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, (_, label, href) => '<a href="' + escapeHtml(resolveDocHref(href)) + '">' + label + '</a>');
+      return text;
+    }
+
+    function renderMarkdown(text) {
+      const lines = String(text || "").replace(/\\r\\n/g, "\\n").split("\\n");
+      const output = [];
+      let paragraph = [];
+      let listItems = [];
+      let listType = "";
+      let inCode = false;
+      let codeLines = [];
+      const headingIds = Object.create(null);
+
+      function flushParagraph() {
+        if (paragraph.length) {
+          output.push("<p>" + renderInline(paragraph.join(" ")) + "</p>");
+          paragraph = [];
+        }
+      }
+
+      function flushList() {
+        if (listItems.length) {
+          output.push("<" + listType + ">" + listItems.join("") + "</" + listType + ">");
+          listItems = [];
+          listType = "";
+        }
+      }
+
+      function flushCode() {
+        if (inCode) {
+          output.push("<pre><code>" + escapeHtml(codeLines.join("\\n")) + "</code></pre>");
+          inCode = false;
+          codeLines = [];
+        }
+      }
+
+      for (const line of lines) {
+        if (line.startsWith("\`\`\`")) {
+          flushParagraph();
+          flushList();
+          if (inCode) {
+            flushCode();
+          } else {
+            inCode = true;
+            codeLines = [];
+          }
+          continue;
+        }
+        if (inCode) {
+          codeLines.push(line);
+          continue;
+        }
+        if (!line.trim()) {
+          flushParagraph();
+          flushList();
+          continue;
+        }
+        const heading = line.match(/^(#{1,6})\\s+(.*)$/);
+        if (heading) {
+          flushParagraph();
+          flushList();
+          const level = heading[1].length;
+          const anchorId = slugifyHeading(heading[2], headingIds);
+          output.push("<h" + level + " id=\\"" + escapeHtml(anchorId) + "\\">" + renderInline(heading[2]) + "</h" + level + ">");
+          continue;
+        }
+        const quote = line.match(/^>\\s?(.*)$/);
+        if (quote) {
+          flushParagraph();
+          flushList();
+          output.push("<blockquote><p>" + renderInline(quote[1]) + "</p></blockquote>");
+          continue;
+        }
+        const unordered = line.match(/^[-*]\\s+(.*)$/);
+        if (unordered) {
+          flushParagraph();
+          if (listType && listType !== "ul") {
+            flushList();
+          }
+          listType = "ul";
+          listItems.push("<li>" + renderInline(unordered[1]) + "</li>");
+          continue;
+        }
+        const ordered = line.match(/^\\d+\\.\\s+(.*)$/);
+        if (ordered) {
+          flushParagraph();
+          if (listType && listType !== "ol") {
+            flushList();
+          }
+          listType = "ol";
+          listItems.push("<li>" + renderInline(ordered[1]) + "</li>");
+          continue;
+        }
+        paragraph.push(line.trim());
+      }
+
+      flushParagraph();
+      flushList();
+      flushCode();
+      return output.join("\\n");
+    }
+
+    function captureOpenFolders() {
+      openFolders.clear();
+      document.querySelectorAll("details[data-path]").forEach((details) => {
+        if (details.open) {
+          openFolders.add(details.dataset.path);
         }
       });
-    });
-  });
+    }
+
+    function renderTreeItems(items) {
+      return "<ul class=\\"tree\\">" + items.map((item) => {
+        if (item.children && item.children.length) {
+          const shouldOpen = (item.path && relativePath.startsWith(item.path + "/")) || openFolders.has(item.path);
+          return "<li><details data-path=\\"" + escapeHtml(item.path || "") + "\\" " + (shouldOpen ? "open" : "") + "><summary>" + escapeHtml(item.title) + "</summary>" + renderTreeItems(item.children) + "</details></li>";
+        }
+        const active = item.sourcePath === relativePath ? " active" : "";
+        const href = item.kind === "markdown"
+          ? bootstrapHref(item.sourcePath || "")
+          : rawFileHref(item.sourcePath || "");
+        return "<li><a class=\\"repo-link" + active + "\\" href=\\"" + escapeHtml(href) + "\\">" + escapeHtml(item.title) + "</a></li>";
+      }).join("") + "</ul>";
+    }
+
+    async function loadTree() {
+      captureOpenFolders();
+      const response = await fetch("/__workspace_doc_browser__/tree", { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+      }
+      const tree = await response.json();
+      const treeJson = JSON.stringify(tree);
+      if (treeJson !== lastTreeJson) {
+        lastTreeJson = treeJson;
+        sidebarBody.innerHTML = renderTreeItems(tree);
+      }
+    }
+
+    async function loadCurrentMarkdown() {
+      const response = await fetch("/" + encodePath(relativePath), { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+      }
+      const text = await response.text();
+      if (text !== lastMarkdown) {
+        lastMarkdown = text;
+        content.innerHTML = '<div class="file-meta">' + escapeHtml(relativePath) + '</div>' + renderMarkdown(text);
+        if (window.location.hash) {
+          const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+          if (target) {
+            target.scrollIntoView();
+          }
+        }
+      }
+    }
+
+    async function refreshTree() {
+      try {
+        await loadTree();
+      } catch {}
+    }
+
+    async function refreshMarkdown() {
+      try {
+        await loadCurrentMarkdown();
+      } catch (error) {
+        content.innerHTML = '<div class="file-meta">' + escapeHtml(relativePath) + '</div><p>Unable to load markdown preview.</p><pre><code>' + escapeHtml(String(error)) + '</code></pre>';
+      }
+    }
+
+    document.title = relativePath ? relativePath + " - " + workspaceName : workspaceName;
+    refreshTree();
+    refreshMarkdown();
+    setInterval(refreshTree, treeRefreshMs);
+    setInterval(refreshMarkdown, fileRefreshMs);
+  </script>
+</body>
+</html>`;
 }
 
 function waitForPortReady(port, attempts = 40, delayMs = 150) {
@@ -1450,6 +1079,27 @@ function waitForPortReady(port, attempts = 40, delayMs = 150) {
     };
 
     tryConnect();
+  });
+}
+
+function findFreePort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.unref();
+    server.on("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      const port = address && typeof address === "object" ? address.port : null;
+      server.close((error) => {
+        if (error) {
+          reject(error);
+        } else if (port) {
+          resolve(port);
+        } else {
+          reject(new Error("Failed to allocate a local preview port."));
+        }
+      });
+    });
   });
 }
 

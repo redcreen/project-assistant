@@ -89,7 +89,7 @@ PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=none bash install.sh
 如果你把 VS Code 当作日常主操作面，现在有两套配套扩展可以把体验做轻很多：
 
 - [integrations/vscode-host](integrations/vscode-host/README.md) 里的 `Project Assistant Host`：提供活动栏工作区控制面，以及 daemon 状态 / resume readiness 的状态栏摘要
-- [integrations/workspace-doc-browser](integrations/workspace-doc-browser/README.md) 与 [中文说明](integrations/workspace-doc-browser/README.zh-CN.md) 里的 `Workspace Doc Browser`：提供左侧状态栏 `Browse Docs` 按钮，用接近 GitHub 的方式在浏览器里查看本地文档；同时在状态栏右侧提供 `Codex Context Meter`
+- [integrations/workspace-doc-browser](integrations/workspace-doc-browser/README.md) 与 [中文说明](integrations/workspace-doc-browser/README.zh-CN.md) 里的 `Workspace Doc Browser`：提供左侧状态栏 `Browse Docs` 按钮，用实时浏览器预览的方式查看 Markdown 密集型仓库
 
 稳定 tag 一键安装：
 
@@ -112,7 +112,6 @@ Developer: Restart Extension Host
 补充说明：
 
 - `install.sh` 现在默认会把 `Workspace Doc Browser` 一起装上，这样主 skill 安装完就能直接用 docs 浏览器
-- `Workspace Doc Browser` 依赖本机 `PATH` 里可用的 `mkdocs`
 - 这两套扩展目前还是本地 operator 工具，还没有打成 Marketplace release
 - 如果你只想装其中一个扩展，可以执行 `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.8/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`，或把它替换成 `workspace-doc-browser`
 - 如果你更新了源码，重新执行一次 `bash install-vscode-tools.sh` 并重启 `Extension Host` 即可

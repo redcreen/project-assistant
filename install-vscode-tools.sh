@@ -106,9 +106,5 @@ for component in $COMPONENTS; do
   echo "Installed ${extension_id} -> ${target_dir}"
 done
 
-if printf '%s\n' "$COMPONENTS" | grep -q "workspace-doc-browser" && ! command -v mkdocs >/dev/null 2>&1; then
-  echo "Warning: Workspace Doc Browser requires mkdocs on your PATH." >&2
-fi
-
 echo "Next step: in VS Code run 'Developer: Restart Extension Host'"
 echo "Installed components: ${COMPONENTS}"

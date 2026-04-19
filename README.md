@@ -89,7 +89,7 @@ If you use the host or daemon workflow, the most common background commands are:
 If VS Code is your daily operator surface, there are two companion extensions that make this much easier:
 
 - `Project Assistant Host` in [integrations/vscode-host](integrations/vscode-host/README.md): activity-bar workspace control plus a status-bar summary for daemon state and resume readiness
-- `Workspace Doc Browser` in [integrations/workspace-doc-browser](integrations/workspace-doc-browser/README.md) and [中文说明](integrations/workspace-doc-browser/README.zh-CN.md): a `Browse Docs` status-bar button for GitHub-like local browser preview, plus a `Codex Context Meter` on the right side of the status bar
+- `Workspace Doc Browser` in [integrations/workspace-doc-browser](integrations/workspace-doc-browser/README.md) and [中文说明](integrations/workspace-doc-browser/README.zh-CN.md): a `Browse Docs` status-bar button for live browser preview of Markdown-heavy repos
 
 One-line install from the stable tag:
 
@@ -112,7 +112,6 @@ Developer: Restart Extension Host
 Notes:
 
 - `install.sh` now auto-installs `Workspace Doc Browser` by default so the docs browser is ready right after the main skill install
-- `Workspace Doc Browser` requires `mkdocs` on your local `PATH`
 - both extensions are local operator add-ons and are not packaged as a Marketplace release yet
 - if you only want one extension, run `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.8/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash` or replace it with `workspace-doc-browser`
 - after updating either extension from source, rerun `bash install-vscode-tools.sh` and restart the extension host

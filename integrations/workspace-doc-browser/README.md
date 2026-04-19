@@ -9,7 +9,6 @@ This VS Code companion extension adds a lightweight status-bar doc-browsing tool
 ## Prerequisites
 
 - VS Code 1.100 or newer
-- `mkdocs` available on your local `PATH`
 
 ## Install
 
@@ -41,9 +40,12 @@ Developer: Restart Extension Host
 ## What You Get
 
 - a left-side status-bar button: `Browse Docs`
-- a local browser preview for the current workspace
+- a live browser preview for the current workspace
+- markdown links that continue to render as markdown pages instead of falling back to raw `.md` files
+- non-markdown files that stay visible in the file tree and open through the local preview backend
 
 ## Notes
 
 - the extension is a local operator add-on and is not packaged as a Marketplace release yet
+- the preview runs from a lightweight local raw-preview backend; it does not require `mkdocs`
 - after updating the source, copy it again and restart the extension host

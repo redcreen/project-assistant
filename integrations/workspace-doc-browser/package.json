@@ -1,7 +1,7 @@
 {
   "name": "workspace-doc-browser",
   "displayName": "Workspace Doc Browser",
-  "description": "Open the current workspace as a local MkDocs site in your browser.",
+  "description": "Open the current workspace as a live browser preview for Markdown-heavy repos.",
   "version": "0.0.1",
   "publisher": "redcreen",
   "engines": {
