@@ -588,7 +588,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
   <title>${title}</title>
   <style>
     :root {
-      --bg: #f6f8fa;
+      --bg: #f3f5f7;
       --panel: #ffffff;
       --border: #d0d7de;
       --text: #1f2328;
@@ -596,29 +596,31 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       --link: #0969da;
       --code-bg: rgba(175, 184, 193, 0.2);
       --pre-bg: #f6f8fa;
+      --sidebar-hover: #eef5ff;
+      --quote-bg: #fbfcfd;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      line-height: 1.6;
+      font: 16px/1.72 ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", Helvetica, Arial, sans-serif;
+      text-rendering: optimizeLegibility;
     }
     .shell {
-      width: min(1320px, calc(100vw - 32px));
-      margin: 24px auto;
+      width: min(1400px, calc(100vw - 32px));
+      margin: 18px auto;
     }
     .content, .sidebar {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      box-shadow: 0 1px 2px rgba(31, 35, 40, 0.04);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(31, 35, 40, 0.04);
     }
     .layout {
       display: grid;
-      grid-template-columns: 280px minmax(0, 1fr);
-      gap: 16px;
+      grid-template-columns: 286px minmax(0, 1fr);
+      gap: 18px;
       align-items: start;
     }
     .sidebar {
@@ -627,7 +629,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       overflow: hidden;
     }
     .sidebar-header {
-      padding: 12px 14px;
+      padding: 14px 16px;
       font-weight: 700;
       border-bottom: 1px solid var(--border);
       background: linear-gradient(to bottom, #ffffff, #fafbfc);
@@ -635,7 +637,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
     .sidebar-body {
       max-height: calc(100vh - 64px);
       overflow: auto;
-      padding: 8px 0;
+      padding: 10px 0 12px;
     }
     .tree,
     .tree ul {
@@ -647,26 +649,31 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       margin: 0;
     }
     .tree ul {
-      padding-left: 16px;
+      padding-left: 18px;
     }
     .tree details {
       margin: 0;
     }
     .tree summary {
       cursor: pointer;
-      padding: 6px 14px;
+      padding: 7px 16px;
       color: var(--muted);
       user-select: none;
+      font-size: 14px;
+      line-height: 1.45;
     }
     .tree a {
       display: block;
-      padding: 6px 14px;
+      padding: 7px 16px;
       color: var(--text);
       text-decoration: none;
       border-left: 2px solid transparent;
+      font-size: 14px;
+      line-height: 1.45;
+      word-break: break-word;
     }
     .tree a:hover {
-      background: #f6f8fa;
+      background: var(--sidebar-hover);
       color: var(--link);
     }
     .tree a.active {
@@ -676,58 +683,147 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       background: rgba(9, 105, 218, 0.08);
     }
     .content {
-      padding: 28px 32px;
+      padding: 32px 36px 40px;
       min-height: 70vh;
     }
-    .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
-      line-height: 1.25;
-      margin-top: 24px;
-      margin-bottom: 16px;
+    .content-shell {
+      width: min(860px, 100%);
     }
-    .content h1, .content h2 {
+    .file-meta {
+      margin-bottom: 22px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .markdown-body {
+      font-size: 17px;
+    }
+    .markdown-body > :first-child {
+      margin-top: 0;
+    }
+    .markdown-body > :last-child {
+      margin-bottom: 0;
+    }
+    .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body h6 {
+      line-height: 1.25;
+      margin-top: 1.8em;
+      margin-bottom: 0.7em;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      scroll-margin-top: 24px;
+    }
+    .markdown-body h1 {
+      font-size: 2.2rem;
+    }
+    .markdown-body h2 {
+      font-size: 1.72rem;
+    }
+    .markdown-body h3 {
+      font-size: 1.35rem;
+    }
+    .markdown-body h4 {
+      font-size: 1.12rem;
+    }
+    .markdown-body h5, .markdown-body h6 {
+      font-size: 1rem;
+    }
+    .markdown-body h1, .markdown-body h2 {
       padding-bottom: 0.3em;
       border-bottom: 1px solid var(--border);
     }
-    .content p, .content ul, .content ol, .content blockquote, .content pre, .content table {
+    .markdown-body p, .markdown-body ul, .markdown-body ol, .markdown-body blockquote, .markdown-body pre, .markdown-body table, .markdown-body hr {
       margin-top: 0;
-      margin-bottom: 16px;
+      margin-bottom: 1.15em;
     }
-    .content a {
+    .markdown-body ul, .markdown-body ol {
+      padding-left: 1.45em;
+    }
+    .markdown-body li {
+      margin: 0.35em 0;
+    }
+    .markdown-body li > p {
+      margin-bottom: 0.45em;
+    }
+    .markdown-body a {
       color: var(--link);
       text-decoration: none;
+      text-underline-offset: 0.18em;
+      word-break: break-word;
     }
-    .content a:hover {
+    .markdown-body a:hover {
       text-decoration: underline;
     }
-    .content code {
+    .markdown-body strong {
+      font-weight: 700;
+    }
+    .markdown-body hr {
+      border: 0;
+      border-top: 1px solid var(--border);
+    }
+    .markdown-body code {
       padding: 0.2em 0.4em;
-      font-size: 85%;
+      font-size: 0.88em;
       background: var(--code-bg);
       border-radius: 6px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
-    .content pre {
-      padding: 16px;
+    .markdown-body pre {
+      padding: 18px 20px;
       overflow: auto;
       background: var(--pre-bg);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.58;
     }
-    .content pre code {
+    .markdown-body pre code {
       padding: 0;
       background: transparent;
       border-radius: 0;
       white-space: pre;
     }
-    .content blockquote {
-      padding: 0 1em;
+    .markdown-body blockquote {
+      padding: 0.12em 1.05em;
       color: var(--muted);
       border-left: 0.25em solid var(--border);
+      background: var(--quote-bg);
+      border-radius: 0 10px 10px 0;
     }
-    .file-meta {
-      margin-bottom: 16px;
+    .markdown-body blockquote > :last-child {
+      margin-bottom: 0;
+    }
+    .markdown-body table {
+      display: block;
+      width: max-content;
+      min-width: 100%;
+      overflow: auto;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+    .markdown-body th,
+    .markdown-body td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+    .markdown-body th {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    .markdown-body img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 1.2em 0;
+      border-radius: 10px;
+    }
+    .markdown-body .empty-state,
+    .markdown-body .error-state {
       color: var(--muted);
-      font-size: 13px;
+      font-size: 15px;
     }
     @media (max-width: 900px) {
       .layout {
@@ -740,7 +836,16 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
         max-height: none;
       }
       .content {
-        padding: 24px 20px;
+        padding: 24px 20px 28px;
+      }
+      .markdown-body {
+        font-size: 16px;
+      }
+      .markdown-body h1 {
+        font-size: 1.9rem;
+      }
+      .markdown-body h2 {
+        font-size: 1.5rem;
       }
     }
   </style>
@@ -753,8 +858,12 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
         <div id="sidebar-body" class="sidebar-body"></div>
       </aside>
       <article id="content" class="content">
-        <div class="file-meta">${fileLabel || "Current markdown file"}</div>
-        <p>Loading markdown preview…</p>
+        <div class="content-shell">
+          <div class="file-meta">${fileLabel || "Current markdown file"}</div>
+          <div class="markdown-body">
+            <p class="empty-state">Loading markdown preview…</p>
+          </div>
+        </div>
       </article>
     </div>
   </div>
@@ -887,6 +996,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       let listType = "";
       let inCode = false;
       let codeLines = [];
+      let codeLanguage = "";
       const headingIds = Object.create(null);
 
       function flushParagraph() {
@@ -906,14 +1016,38 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
 
       function flushCode() {
         if (inCode) {
-          output.push("<pre><code>" + escapeHtml(codeLines.join("\\n")) + "</code></pre>");
+          const languageClass = codeLanguage ? ' class=\\"language-' + escapeHtml(codeLanguage) + '\\"' : "";
+          output.push("<pre><code" + languageClass + ">" + escapeHtml(codeLines.join("\\n")) + "</code></pre>");
           inCode = false;
           codeLines = [];
+          codeLanguage = "";
         }
       }
 
-      for (const line of lines) {
-        if (line.startsWith("\`\`\`")) {
+      function isHorizontalRule(line) {
+        return /^\\s{0,3}([-*_])(\\s*\\1){2,}\\s*$/.test(line);
+      }
+
+      function isTableDivider(line) {
+        return /^\\s*\\|?(\\s*:?-{3,}:?\\s*\\|)+\\s*:?-{3,}:?\\s*\\|?\\s*$/.test(line);
+      }
+
+      function parseTableRow(line) {
+        const trimmed = String(line || "").trim().replace(/^\\|/, "").replace(/\\|$/, "");
+        return trimmed.split("|").map((cell) => cell.trim());
+      }
+
+      function renderTable(headerCells, rows) {
+        const headerHtml = "<tr>" + headerCells.map((cell) => "<th>" + renderInline(cell) + "</th>").join("") + "</tr>";
+        const bodyHtml = rows.map((row) => "<tr>" + row.map((cell) => "<td>" + renderInline(cell) + "</td>").join("") + "</tr>").join("");
+        return "<table><thead>" + headerHtml + "</thead><tbody>" + bodyHtml + "</tbody></table>";
+      }
+
+      for (let index = 0; index < lines.length; index += 1) {
+        const line = lines[index];
+        const nextLine = lines[index + 1] || "";
+        const fence = line.match(/^\`\`\`\\s*([\\w-]+)?\\s*$/);
+        if (fence) {
           flushParagraph();
           flushList();
           if (inCode) {
@@ -921,6 +1055,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
           } else {
             inCode = true;
             codeLines = [];
+            codeLanguage = fence[1] || "";
           }
           continue;
         }
@@ -931,6 +1066,26 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
         if (!line.trim()) {
           flushParagraph();
           flushList();
+          continue;
+        }
+        if (line.includes("|") && isTableDivider(nextLine)) {
+          flushParagraph();
+          flushList();
+          const headerCells = parseTableRow(line);
+          const rows = [];
+          index += 2;
+          while (index < lines.length && lines[index].trim() && lines[index].includes("|")) {
+            rows.push(parseTableRow(lines[index]));
+            index += 1;
+          }
+          index -= 1;
+          output.push(renderTable(headerCells, rows));
+          continue;
+        }
+        if (isHorizontalRule(line)) {
+          flushParagraph();
+          flushList();
+          output.push("<hr>");
           continue;
         }
         const heading = line.match(/^(#{1,6})\\s+(.*)$/);
@@ -978,6 +1133,10 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       return output.join("\\n");
     }
 
+    function renderContentFrame(bodyHtml) {
+      return '<div class="content-shell"><div class="file-meta">' + escapeHtml(relativePath) + '</div><div class="markdown-body">' + bodyHtml + '</div></div>';
+    }
+
     function captureOpenFolders() {
       openFolders.clear();
       document.querySelectorAll("details[data-path]").forEach((details) => {
@@ -1023,7 +1182,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       const text = await response.text();
       if (text !== lastMarkdown) {
         lastMarkdown = text;
-        content.innerHTML = '<div class="file-meta">' + escapeHtml(relativePath) + '</div>' + renderMarkdown(text);
+        content.innerHTML = renderContentFrame(renderMarkdown(text));
         if (window.location.hash) {
           const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
           if (target) {
@@ -1043,7 +1202,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       try {
         await loadCurrentMarkdown();
       } catch (error) {
-        content.innerHTML = '<div class="file-meta">' + escapeHtml(relativePath) + '</div><p>Unable to load markdown preview.</p><pre><code>' + escapeHtml(String(error)) + '</code></pre>';
+        content.innerHTML = renderContentFrame('<p class="error-state">Unable to load markdown preview.</p><pre><code>' + escapeHtml(String(error)) + '</code></pre>');
       }
     }
 
