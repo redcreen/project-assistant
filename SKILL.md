@@ -208,6 +208,12 @@ Prefer the bundled scripts when present:
   中文：按架构信号、升级 gate 和开发日志状态校验发布就绪度
 - `scripts/release_skill.py`
   中文：更新版本、安装地址，并创建 release commit 和 tag
+- `scripts/validate_repo_markdown_integrity.py`
+  中文：对整个仓库的 Markdown 做本地链接、锚点和绝对路径完整性校验
+- `scripts/nightly_project_audit.py`
+  中文：按项目助手规范对多个本地仓库做夜间汇总巡检，并输出 Markdown / JSON 报告
+- `scripts/install_nightly_project_audit.py`
+  中文：把夜间巡检安装成 macOS `launchd` 定时任务
 
 Use scripts first for structure, convergence, and reporting. Use model judgment for content quality, prioritization, and implementation decisions.
 
@@ -421,6 +427,7 @@ Preferred maintainer hint:
 
 If the repo contains `VERSION`, `install.sh`, and tag-based install docs, prefer `scripts/release_skill.py`.
 When scripts are available, prefer computed architecture signal output over stale prose and keep the release path on `validate_gate_set.py --profile release`.
+Treat versioned one-click install links as part of the default release surface: update them through the release automation before tagging, and fail release readiness when they drift from `VERSION`.
 
 ### 开发日志 / Devlog
 

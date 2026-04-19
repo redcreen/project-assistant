@@ -5,7 +5,8 @@ import argparse
 import json
 from pathlib import Path
 
-from control_surface_lib import classify_architecture_signal, labeled_bullet_value, normalized_bullets, read_text, section
+from control_surface_lib import classify_architecture_signal, development_log_capture_state, normalized_bullets, read_text, section
+from release_ref_lib import validate_release_refs
 
 
 def main() -> int:
@@ -21,7 +22,7 @@ def main() -> int:
     architecture_state = classify_architecture_signal(repo)
     architecture_signal = architecture_state["signal"].lower()
     escalation_gate = architecture_state["gate"].lower()
-    pending_capture = labeled_bullet_value(section(status_text, "Development Log Capture"), "Pending Capture").lower()
+    pending_capture = str(development_log_capture_state(repo)["pending_capture"]).lower()
     blockers = normalized_bullets(section(status_text, "Blockers / Open Decisions"))
     if architecture_signal != "green":
         warnings.append(f"release blocked: architecture signal is {architecture_signal}")
@@ -31,6 +32,10 @@ def main() -> int:
         warnings.append("release blocked: development-log capture is still pending")
     if blockers:
         warnings.append("release blocked: blockers or open decisions are still recorded")
+    version = read_text(repo / "VERSION").strip()
+    if version:
+        for item in validate_release_refs(repo, version):
+            warnings.append(f"release blocked: {item}")
 
     payload = {"ok": not warnings, "warnings": warnings}
     if args.format == "json":

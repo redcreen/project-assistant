@@ -18,10 +18,15 @@ STUB_RE = re.compile(r"^>\s*TODO:\s*(translate the facts|把 .* 的事实同步�
 MERMAID_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
 LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 ABSOLUTE_LOCAL_RE = re.compile(r"(?<![A-Za-z0-9_])(?:file://)?/(?:Users|home|tmp|var|private|opt|Volumes)/[^\s)>\"]+")
+HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$", re.MULTILINE)
 
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
+
+
+def strip_fenced_code_blocks(text: str) -> str:
+    return re.sub(r"```.*?```", "", text, flags=re.DOTALL)
 
 
 def public_docs(repo: Path) -> list[Path]:
@@ -40,12 +45,13 @@ def public_docs(repo: Path) -> list[Path]:
     return docs
 
 def warn_placeholders(rel: str, text: str, warnings: list[str]) -> None:
+    visible_text = strip_fenced_code_blocks(text)
     for snippet in PLACEHOLDER_SNIPPETS:
-        if snippet in text:
+        if snippet in visible_text:
             warnings.append(f"{rel} still contains placeholder text: {snippet}")
-    if TODO_LINE_RE.search(text):
+    if TODO_LINE_RE.search(visible_text):
         warnings.append(f"{rel} still contains TODO-style placeholder lines")
-    if STUB_RE.search(text):
+    if STUB_RE.search(visible_text):
         warnings.append(f"{rel} is still a translation stub, not a finished public doc")
 
 
@@ -83,6 +89,29 @@ def warn_empty_mermaid(rel: str, text: str, warnings: list[str]) -> None:
             warnings.append(f"{rel} contains a placeholder Mermaid block")
 
 
+def markdown_heading_ids(text: str) -> set[str]:
+    seen: dict[str, int] = {}
+    ids: set[str] = set()
+    for match in HEADING_RE.finditer(text):
+        value = match.group(2).strip().lower()
+        value = re.sub(r"[`*_]+", "", value)
+        value = value.replace("&", " and ")
+        chars: list[str] = []
+        dash_open = False
+        for ch in value:
+            if ch.isalnum():
+                chars.append(ch)
+                dash_open = False
+            elif chars and not dash_open:
+                chars.append("-")
+                dash_open = True
+        slug = "".join(chars).strip("-") or "section"
+        count = seen.get(slug, 0)
+        seen[slug] = count + 1
+        ids.add(f"{slug}-{count}" if count else slug)
+    return ids
+
+
 def resolved_target(path: Path, target: str) -> Path | None:
     if target.startswith(("http://", "https://", "mailto:", "#")):
         return None
@@ -94,16 +123,32 @@ def resolved_target(path: Path, target: str) -> Path | None:
 
 def warn_broken_links(repo: Path, path: Path, text: str, warnings: list[str]) -> None:
     rel = path.relative_to(repo).as_posix()
-    for target in LINK_RE.findall(text):
+    visible_text = strip_fenced_code_blocks(text)
+    heading_ids_cache: dict[Path, set[str]] = {}
+    for target in LINK_RE.findall(visible_text):
+        fragment = ""
+        if "#" in target:
+            _, fragment = target.split("#", 1)
+        if target.startswith("#"):
+            heading_ids = markdown_heading_ids(text)
+            if fragment and fragment not in heading_ids:
+                warnings.append(f"{rel} links to missing anchor: {target}")
+            continue
         resolved = resolved_target(path, target)
         if resolved is None:
             continue
         if not resolved.exists():
             warnings.append(f"{rel} links to missing target: {target}")
+            continue
+        if fragment and resolved.suffix.lower() == ".md":
+            if resolved not in heading_ids_cache:
+                heading_ids_cache[resolved] = markdown_heading_ids(read_text(resolved))
+            if fragment not in heading_ids_cache[resolved]:
+                warnings.append(f"{rel} links to missing anchor: {target}")
 
 
 def warn_absolute_local_paths(rel: str, text: str, warnings: list[str]) -> None:
-    matches = sorted(set(ABSOLUTE_LOCAL_RE.findall(text)))
+    matches = sorted(set(ABSOLUTE_LOCAL_RE.findall(strip_fenced_code_blocks(text))))
     for match in matches:
         warnings.append(f"{rel} contains a local absolute path; use repo-relative links instead: {match}")
 

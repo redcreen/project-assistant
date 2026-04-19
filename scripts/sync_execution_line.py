@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from control_surface_lib import classify_architecture_signal, labeled_bullet_value, latest_devlog_entry, read_text, section
+from control_surface_lib import build_status_development_log_capture_body, classify_architecture_signal, labeled_bullet_value, read_text, section
 
 
 def replace_section(text: str, heading: str, body: str) -> str:
@@ -191,14 +191,7 @@ def build_devlog_plan_body() -> str:
 
 
 def build_devlog_status_body(repo: Path) -> str:
-    latest_name = latest_devlog_entry(repo) or "none"
-    return "\n".join(
-        [
-            "- Trigger Level: high",
-            "- Pending Capture: no",
-            f"- Last Entry: {latest_name}",
-        ]
-    )
+    return build_status_development_log_capture_body(repo)
 
 
 def plan_architecture_body(state: dict[str, str]) -> str:

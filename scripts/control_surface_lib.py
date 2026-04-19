@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable
@@ -256,6 +257,79 @@ STATUS_COMPLETION_RULES: list[tuple[tuple[str, ...], int]] = [
     (("baseline-complete",), 85),
     (("complete",), 100),
 ]
+
+
+DEVELOPMENT_LOG_SKIP_SUBJECT_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"^chore:\s*release\b", re.IGNORECASE),
+    re.compile(r"^release:\s*v", re.IGNORECASE),
+    re.compile(r"^release v", re.IGNORECASE),
+    re.compile(r"^merge\b", re.IGNORECASE),
+    re.compile(r"^commit current workspace changes\b", re.IGNORECASE),
+    re.compile(r"^restore unrelated local files\b", re.IGNORECASE),
+    re.compile(r"^auto-rebuild\b", re.IGNORECASE),
+)
+DEVELOPMENT_LOG_DURABLE_SUBJECT_HINTS: tuple[str, ...] = (
+    "feat",
+    "fix",
+    "refactor",
+    "harden",
+    "hardening",
+    "tighten",
+    "improve",
+    "clarify",
+    "align",
+    "converge",
+    "architecture",
+    "roadmap",
+    "development plan",
+    "dev plan",
+    "gate",
+    "release",
+    "milestone",
+    "stage",
+    "baseline",
+    "runtime",
+    "host",
+    "queue",
+    "resume",
+    "dogfooding",
+    "evidence",
+)
+DEVELOPMENT_LOG_ALWAYS_DURABLE_PATH_PREFIXES: tuple[str, ...] = (
+    "scripts/",
+    "src/",
+    "test/",
+    "tests/",
+    "evals/",
+    "integrations/",
+    "bin/",
+)
+DEVELOPMENT_LOG_ALWAYS_DURABLE_FILES: set[str] = {
+    "VERSION",
+    "install.sh",
+    "install-vscode-tools.sh",
+}
+DEVELOPMENT_LOG_DURABLE_DOC_PREFIXES: tuple[str, ...] = (
+    ".codex/delivery-supervision.md",
+    ".codex/dogfooding-evidence.md",
+    ".codex/entry-routing.md",
+    ".codex/plan.md",
+    ".codex/program-board.md",
+    ".codex/ptl-supervision.md",
+    ".codex/status.md",
+    ".codex/strategy.md",
+    ".codex/worker-handoff.md",
+    "README.md",
+    "README.zh-CN.md",
+    "SKILL.md",
+    "docs/architecture",
+    "docs/reference/",
+    "docs/roadmap",
+    "docs/test-plan",
+    "docs/workstreams/",
+)
+DEVELOPMENT_LOG_IGNORE_PATH_PREFIXES: tuple[str, ...] = ("docs/devlog/",)
+DEVELOPMENT_LOG_REASON_EXAMPLE_LIMIT = 2
 
 
 def slugify(value: str) -> str:
@@ -689,8 +763,172 @@ def latest_devlog_entry(repo: Path) -> str:
     entries = [p for p in devlog_dir.glob("20*.md") if p.is_file()]
     if not entries:
         return ""
-    latest = max(entries, key=lambda p: (p.stat().st_mtime, p.name))
+    latest = max(entries, key=lambda p: p.name)
     return latest.relative_to(repo).as_posix()
+
+
+def git_stdout(repo: Path, *args: str) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if result.returncode != 0:
+        return ""
+    return result.stdout.strip()
+
+
+def git_repo_available(repo: Path) -> bool:
+    return git_stdout(repo, "rev-parse", "--is-inside-work-tree") == "true"
+
+
+def latest_devlog_commit(repo: Path, entry_rel: str) -> str:
+    if not entry_rel or not git_repo_available(repo):
+        return ""
+    return git_stdout(repo, "log", "-1", "--format=%H", "--", entry_rel)
+
+
+def commit_paths(repo: Path, commit_sha: str) -> list[str]:
+    if not commit_sha:
+        return []
+    output = git_stdout(
+        repo,
+        "diff-tree",
+        "--root",
+        "--no-commit-id",
+        "--name-only",
+        "-r",
+        "-m",
+        commit_sha,
+        "--",
+        ".",
+        ":(exclude)docs/devlog",
+    )
+    return [line.strip() for line in output.splitlines() if line.strip()]
+
+
+def commit_subject_is_skippable(subject: str) -> bool:
+    lowered = subject.strip().lower()
+    return any(pattern.search(lowered) for pattern in DEVELOPMENT_LOG_SKIP_SUBJECT_PATTERNS)
+
+
+def commit_touches_durable_docs(paths: list[str]) -> bool:
+    for path in paths:
+        if any(path == prefix or path.startswith(prefix) for prefix in DEVELOPMENT_LOG_DURABLE_DOC_PREFIXES):
+            return True
+    return False
+
+
+def commit_has_durable_subject_hint(subject: str) -> bool:
+    lowered = subject.strip().lower()
+    return any(hint in lowered for hint in DEVELOPMENT_LOG_DURABLE_SUBJECT_HINTS)
+
+
+def commit_likely_requires_devlog(subject: str, paths: list[str]) -> bool:
+    if commit_subject_is_skippable(subject):
+        return False
+    effective_paths = [
+        path
+        for path in paths
+        if path and not any(path.startswith(prefix) for prefix in DEVELOPMENT_LOG_IGNORE_PATH_PREFIXES)
+    ]
+    if not effective_paths:
+        return commit_has_durable_subject_hint(subject)
+    if any(path in DEVELOPMENT_LOG_ALWAYS_DURABLE_FILES for path in effective_paths):
+        return True
+    if any(path.startswith(prefix) for path in effective_paths for prefix in DEVELOPMENT_LOG_ALWAYS_DURABLE_PATH_PREFIXES):
+        return True
+    if commit_touches_durable_docs(effective_paths):
+        return commit_has_durable_subject_hint(subject)
+    return commit_has_durable_subject_hint(subject)
+
+
+def compact_commit_subject(subject: str, max_len: int = 72) -> str:
+    compact = re.sub(r"\s+", " ", subject).strip()
+    if len(compact) <= max_len:
+        return compact
+    return compact[: max_len - 3].rstrip() + "..."
+
+
+def recent_devlog_candidate_commits(repo: Path, latest_entry: str, limit: int = 20) -> list[dict[str, Any]]:
+    if not git_repo_available(repo):
+        return []
+    base_commit = latest_devlog_commit(repo, latest_entry) if latest_entry else ""
+    if latest_entry and not base_commit and (repo / latest_entry).exists():
+        return []
+    range_spec = f"{base_commit}..HEAD" if base_commit else "HEAD"
+    output = git_stdout(
+        repo,
+        "log",
+        f"-{limit}",
+        "--format=%H%x1f%s",
+        range_spec,
+        "--",
+        ".",
+        ":(exclude)docs/devlog",
+    )
+    candidates: list[dict[str, Any]] = []
+    for line in output.splitlines():
+        if "\x1f" not in line:
+            continue
+        commit_sha, subject = line.split("\x1f", 1)
+        paths = commit_paths(repo, commit_sha)
+        if not commit_likely_requires_devlog(subject, paths):
+            continue
+        candidates.append(
+            {
+                "sha": commit_sha,
+                "subject": subject.strip(),
+                "paths": paths,
+            }
+        )
+    return candidates
+
+
+def development_log_capture_state(repo: Path) -> dict[str, Any]:
+    latest_entry = latest_devlog_entry(repo)
+    candidates = recent_devlog_candidate_commits(repo, latest_entry)
+    reason = ""
+    pending_capture = "no"
+    if candidates:
+        pending_capture = "yes"
+        subjects = "; ".join(
+            compact_commit_subject(item["subject"]) for item in candidates[:DEVELOPMENT_LOG_REASON_EXAMPLE_LIMIT]
+        )
+        if latest_entry:
+            reason = f"commits landed after the latest devlog and changed durable repo surfaces; latest examples: {subjects}"
+        else:
+            reason = f"no durable devlog entry exists yet; recent durable changes include: {subjects}"
+    elif latest_entry:
+        reason = "latest devlog already captures the most recent durable reasoning"
+    elif git_repo_available(repo):
+        reason = "no durable devlog entry exists yet, but recent git history does not require a backfill"
+    else:
+        reason = "git history is unavailable; create a devlog manually when durable reasoning needs to be preserved"
+
+    return {
+        "trigger_level": "high",
+        "pending_capture": pending_capture,
+        "reason": reason,
+        "last_entry": latest_entry or "none",
+        "candidate_commits": candidates,
+    }
+
+
+def build_status_development_log_capture_body(repo: Path) -> str:
+    state = development_log_capture_state(repo)
+    last_entry = state["last_entry"]
+    last_entry_display = f"`{last_entry}`" if last_entry != "none" else "none"
+    return "\n".join(
+        [
+            f"- Trigger Level: {state['trigger_level']}",
+            f"- Pending Capture: {state['pending_capture']}",
+            f"- Reason: {state['reason']}",
+            f"- Last Entry: {last_entry_display}",
+        ]
+    )
 
 
 def normalized_bullets(text: str) -> list[str]:
@@ -1167,7 +1405,7 @@ def classify_architecture_signal(repo: Path) -> dict[str, str]:
     current_line = labeled_bullet_value(section(status_text, "Current Execution Line"), "Objective")
     tasks = execution_task_lines(status_text)
     done_tasks, total_tasks = execution_task_progress(tasks)
-    pending_capture = labeled_bullet_value(section(status_text, "Development Log Capture"), "Pending Capture").lower()
+    pending_capture = str(development_log_capture_state(repo)["pending_capture"]).lower()
 
     root_cause = labeled_bullet_value(status_arch, "Root Cause Hypothesis") or labeled_bullet_value(
         plan_arch, "Root Cause Hypothesis"
@@ -1505,6 +1743,17 @@ def validate_repo(repo: Path) -> ValidationResult:
                 warnings.append(f"{rel} missing execution task checkboxes")
             elif not all(re.search(r"\bEL-\d+\b", line) for line in task_lines):
                 warnings.append(f"{rel} execution tasks missing EL-* task ids")
+        live_devlog_state = development_log_capture_state(repo)
+        recorded_pending_capture = labeled_bullet_value(status_devlog, "Pending Capture").lower()
+        recorded_last_entry = labeled_bullet_value(status_devlog, "Last Entry") or "none"
+        if recorded_pending_capture and recorded_pending_capture != live_devlog_state["pending_capture"]:
+            warnings.append(
+                ".codex/status.md Pending Capture does not match live development-log state; run sync_development_log_state.py"
+            )
+        if recorded_last_entry != live_devlog_state["last_entry"]:
+            warnings.append(
+                ".codex/status.md Last Entry does not match the latest devlog index; run sync_development_log_state.py"
+            )
 
     commands_text = read_text(repo / ".codex/COMMANDS.md")
     if commands_text:

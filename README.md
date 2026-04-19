@@ -203,6 +203,9 @@ project-assistant/
 - `scripts/validate_vscode_host_extension.py`
 - `scripts/validate_daemon_host_mvp.py`
 - `scripts/validate_daemon_legacy_rollout.py`
+- `scripts/validate_repo_markdown_integrity.py`
+- `scripts/nightly_project_audit.py`
+- `scripts/install_nightly_project_audit.py`
 - `scripts/capability_snapshot.py`
 - `scripts/progress_snapshot.py`
 - `scripts/context_handoff.py`
@@ -225,6 +228,9 @@ python3 scripts/validate_daemon_runtime.py /path/to/repo --format text
 python3 scripts/validate_vscode_host_extension.py /path/to/repo --format text
 python3 scripts/validate_daemon_host_mvp.py /path/to/repo --format text
 python3 scripts/validate_daemon_legacy_rollout.py /path/to/repo --format text
+python3 scripts/validate_repo_markdown_integrity.py /path/to/repo --format text
+python3 scripts/nightly_project_audit.py
+python3 scripts/install_nightly_project_audit.py --hour 23 --minute 30
 python3 scripts/validate_gate_set.py /path/to/repo --profile fast
 python3 scripts/validate_gate_set.py /path/to/repo --profile deep
 python3 scripts/validate_gate_set.py /path/to/repo --profile release
@@ -253,8 +259,9 @@ python3 scripts/validate_gate_set.py /path/to/repo --profile release
 What it does:
 
 - bump `VERSION`
-- update the tag-based install URLs in both README files
-- update `install.sh`
+- update tag-based one-click install links across versioned docs by default
+- update `install.sh` and `install-vscode-tools.sh`
+- fail release readiness if install links drift away from the current `VERSION`
 - create a release commit
 - create a git tag
 

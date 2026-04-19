@@ -597,6 +597,10 @@ def ensure_section_before(text: str, heading: str, body: str, before_headings: l
 def parse_roadmap_milestones(text: str, chinese: bool) -> list[dict[str, str]]:
     body = section_body(text, ["Milestones"] if not chinese else ["里程碑"])
     rows: list[dict[str, str]] = []
+
+    def strip_embedded_markdown_links(value: str) -> str:
+        return re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", value).strip()
+
     for line in body.splitlines():
         stripped = line.strip()
         if not stripped.startswith("|"):
@@ -608,10 +612,10 @@ def parse_roadmap_milestones(text: str, chinese: bool) -> list[dict[str, str]]:
             continue
         rows.append(
             {
-                "label": unwrap_markdown_label(cells[0]),
+                "label": strip_embedded_markdown_links(unwrap_markdown_label(cells[0])),
                 "status": cells[1],
                 "goal": cells[2],
-                "depends": unwrap_markdown_label(cells[3]),
+                "depends": strip_embedded_markdown_links(unwrap_markdown_label(cells[3])),
                 "exit": cells[4],
             }
         )

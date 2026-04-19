@@ -65,17 +65,17 @@ It answers one practical question:
 | M7 | done | improve narrative quality and automatic architecture triggers | M6 | less manual cleanup and fewer direction corrections after retrofit |
 | M8 | deferred | optimize internal control-surface output by language | handoff + command templates + validation policy | continues as bounded supporting backlog |
 | M9 | deferred | compress continue / resume / handoff snapshots without losing recoverability | continue snapshot + handoff + validation policy | continues as bounded supporting backlog |
-| M10 | done | add a strategic-evaluation layer above execution | [M7](#m7) + approved strategic direction | the system emits durable strategic judgment and still leaves direction changes to human approval |
-| M11 | done | add program orchestration across slices/executors | [M10](#m10) + durable program board | the system coordinates related slices instead of depending on repeated human “continue” prompts |
-| M12 | done | add supervised long-run delivery | [M11](#m11) + stable escalation policy | long-running delivery can continue to real business decision points |
-| M13 | done | add the PTL-driven supervision loop | [M12](#m12) + durable delivery supervision | PTL can inspect, continue, re-sequence, or escalate periodically or by event |
-| M14 | done | add worker handoff and re-entry | [M13](#m13) + durable handoff / supervision truth | `when a worker stops, the project does not stop` becomes durable capability |
-| M15 | later | add selective multi-executor scheduling only for safe parallel work | [M14](#m14) + disjoint write scopes + conflict control | real multi-executor work is only allowed when write scopes and return paths are explicit |
-| M16 | done | add the unified hard entry and tool front door | [M14](#m14) + versioned control surface + entry scripts | old repos auto-upgrade first and `continue / progress / handoff` no longer fall back to free prose first |
-| M17 | done | build the PTL daemon runtime core and write-safe fast-path baseline | [M16](#m16) + daemon-first architecture + runtime contract | the daemon runtime, queue/event contract, runtime store, and minimum CLI control surface are usable |
-| M18 | done | build the VS Code host shell and live-status surfaces | [M17](#m17) + daemon event contract | users can see queue state, status, the active slice, and recent events in VS Code |
-| M19 | done | build the host continue-resume bridge so `resume-ready` becomes a host action | [M18](#m18) + Codex runner / command contract | `manual continue` and conservative `one-click continue` work without chat-box injection |
-| M20 | done | validate the daemon-host baseline on local workspaces and re-validate older feature families on top of it | [M19](#m19) + representative local workspaces | the daemon-host baseline is stable and older capabilities keep passing on the new baseline |
+| M10 | done | add a strategic-evaluation layer above execution | M7 + approved strategic direction | the system emits durable strategic judgment and still leaves direction changes to human approval |
+| M11 | done | add program orchestration across slices/executors | M10 + durable program board | the system coordinates related slices instead of depending on repeated human “continue” prompts |
+| M12 | done | add supervised long-run delivery | M11 + stable escalation policy | long-running delivery can continue to real business decision points |
+| M13 | done | add the PTL-driven supervision loop | M12 + durable delivery supervision | PTL can inspect, continue, re-sequence, or escalate periodically or by event |
+| M14 | done | add worker handoff and re-entry | M13 + durable handoff / supervision truth | `when a worker stops, the project does not stop` becomes durable capability |
+| M15 | later | add selective multi-executor scheduling only for safe parallel work | M14 + disjoint write scopes + conflict control | real multi-executor work is only allowed when write scopes and return paths are explicit |
+| M16 | done | add the unified hard entry and tool front door | M14 + versioned control surface + entry scripts | old repos auto-upgrade first and `continue / progress / handoff` no longer fall back to free prose first |
+| M17 | done | build the PTL daemon runtime core and write-safe fast-path baseline | M16 + daemon-first architecture + runtime contract | the daemon runtime, queue/event contract, runtime store, and minimum CLI control surface are usable |
+| M18 | done | build the VS Code host shell and live-status surfaces | M17 + daemon event contract | users can see queue state, status, the active slice, and recent events in VS Code |
+| M19 | done | build the host continue-resume bridge so `resume-ready` becomes a host action | M18 + Codex runner / command contract | `manual continue` and conservative `one-click continue` work without chat-box injection |
+| M20 | done | validate the daemon-host baseline on local workspaces and re-validate older feature families on top of it | M19 + representative local workspaces | the daemon-host baseline is stable and older capabilities keep passing on the new baseline |
 | M21 | done | resume post-M16 rollout verification on top of the daemon-host baseline | M20 | representative legacy repos still upgrade first, render structured panels, and are no longer dominated by avoidable synchronous work |
 
 ## Ordered Execution Queue
@@ -182,7 +182,7 @@ It answers one practical question:
 | --- | --- |
 | Status | done |
 | Goal | add a strategic-evaluation layer above execution |
-| Depends On | [M7](#m7) + approved strategic direction |
+| Depends On | M7 + approved strategic direction |
 | Exit Criteria | the system emits durable strategic judgment and still leaves direction changes to human approval |
 
 ### M11
@@ -191,7 +191,7 @@ It answers one practical question:
 | --- | --- |
 | Status | done |
 | Goal | add program orchestration across slices/executors |
-| Depends On | [M10](#m10) + durable program board |
+| Depends On | M10 + durable program board |
 | Exit Criteria | the system coordinates related slices instead of depending on repeated human “continue” prompts |
 
 ### M12
@@ -200,7 +200,7 @@ It answers one practical question:
 | --- | --- |
 | Status | done |
 | Goal | add supervised long-run delivery |
-| Depends On | [M11](#m11) + stable escalation policy |
+| Depends On | M11 + stable escalation policy |
 | Exit Criteria | long-running delivery can continue to real business decision points |
 
 ### M13
@@ -209,7 +209,7 @@ It answers one practical question:
 | --- | --- |
 | Status | done |
 | Goal | add the PTL-driven supervision loop |
-| Depends On | [M12](#m12) + durable delivery supervision |
+| Depends On | M12 + durable delivery supervision |
 | Exit Criteria | PTL can inspect, continue, re-sequence, or escalate periodically or by event |
 
 ### M14
@@ -218,7 +218,7 @@ It answers one practical question:
 | --- | --- |
 | Status | done |
 | Goal | add worker handoff and re-entry |
-| Depends On | [M13](#m13) + durable handoff / supervision truth |
+| Depends On | M13 + durable handoff / supervision truth |
 | Exit Criteria | `when a worker stops, the project does not stop` becomes durable capability |
 
 ### M15
@@ -227,7 +227,7 @@ It answers one practical question:
 | --- | --- |
 | Status | later |
 | Goal | add selective multi-executor scheduling only for safe parallel work |
-| Depends On | [M14](#m14) + disjoint write scopes + conflict control |
+| Depends On | M14 + disjoint write scopes + conflict control |
 | Exit Criteria | real multi-executor work is only allowed when write scopes and return paths are explicit |
 
 ### M16
@@ -236,7 +236,7 @@ It answers one practical question:
 | --- | --- |
 | Status | done |
 | Goal | add the unified hard entry and tool front door |
-| Depends On | [M14](#m14) + versioned control surface + entry scripts |
+| Depends On | M14 + versioned control surface + entry scripts |
 | Exit Criteria | old repos auto-upgrade first and `continue / progress / handoff` no longer fall back to free prose first |
 
 ### M17
@@ -245,7 +245,7 @@ It answers one practical question:
 | --- | --- |
 | Status | done |
 | Goal | build the PTL daemon runtime core and write-safe fast-path baseline |
-| Depends On | [M16](#m16) + daemon-first architecture + runtime contract |
+| Depends On | M16 + daemon-first architecture + runtime contract |
 | Exit Criteria | the daemon runtime, queue/event contract, runtime store, and minimum CLI control surface are usable |
 
 ### M18
@@ -254,7 +254,7 @@ It answers one practical question:
 | --- | --- |
 | Status | done |
 | Goal | build the VS Code host shell and live-status surfaces |
-| Depends On | [M17](#m17) + daemon event contract |
+| Depends On | M17 + daemon event contract |
 | Exit Criteria | users can see queue state, status, the active slice, and recent events in VS Code |
 
 ### M19
@@ -263,7 +263,7 @@ It answers one practical question:
 | --- | --- |
 | Status | done |
 | Goal | build the host continue-resume bridge so `resume-ready` becomes a host action |
-| Depends On | [M18](#m18) + Codex runner / command contract |
+| Depends On | M18 + Codex runner / command contract |
 | Exit Criteria | `manual continue` and conservative `one-click continue` work without chat-box injection |
 
 ### M20
@@ -272,7 +272,7 @@ It answers one practical question:
 | --- | --- |
 | Status | done |
 | Goal | validate the daemon-host baseline on local workspaces and re-validate older feature families on top of it |
-| Depends On | [M19](#m19) + representative local workspaces |
+| Depends On | M19 + representative local workspaces |
 | Exit Criteria | the daemon-host baseline is stable and older capabilities keep passing on the new baseline |
 
 ### M21

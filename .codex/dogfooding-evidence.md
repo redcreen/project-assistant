@@ -23,7 +23,7 @@
 | daemon-host local fixture | representative fixture workspace | `validate_daemon_host_mvp.py` covers bootstrap / retrofit / docs-retrofit / validate-fast / progress / continue / handoff | the daemon-host baseline is proven on a clean local workspace, not only inside the skill repo |
 | legacy rollout fixture | downgraded legacy workspace | `validate_daemon_legacy_rollout.py` proves upgrade-first continue / progress / handoff behavior on a downgraded fixture repo | old-generation repos still recover through the same baseline instead of forking a second path |
 | VS Code host shell | host bridge | `validate_vscode_host_extension.py` and `integrations/vscode-host/` show the first host frontend is implemented and regression-tested | host evidence is real enough to stabilize, but not yet broad enough to justify a heavier host surface |
-| broader local repos | broader real-workspace dogfood | `/Users/redcreen/Project/unified-memory-core` and `/Users/redcreen/Project/codex limit` each completed daemon-host `continue / progress / handoff` through a clean daemon session and produced task logs with correct headings | the daemon-host baseline now has repeated real-workspace evidence outside the skill repo and fixtures; broader adoption is no longer hypothetical |
+| broader local repos | broader real-workspace dogfood | `unified-memory-core` and `codex limit` each completed daemon-host `continue / progress / handoff` through a clean daemon session and produced task logs with correct headings | the daemon-host baseline now has repeated real-workspace evidence outside the skill repo and fixtures; broader adoption is no longer hypothetical |
 
 ## Evidence Gaps
 

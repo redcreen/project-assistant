@@ -14,6 +14,7 @@ MODE_ALIASES = {
     "docs-retrofit": {"docs-retrofit", "docs retrofit", "文档整改", "文档整理"},
     "continue": {"continue", "resume", "继续", "恢复"},
     "progress": {"progress", "进展"},
+    "devlog": {"devlog", "开发日志"},
     "handoff": {"handoff", "交接", "压缩上下文"},
     "resume-readiness": {"resume-readiness", "readiness", "继续前升级", "升级检查"},
     "daemon": {"daemon", "守护进程"},
@@ -26,6 +27,7 @@ BACKEND_SCRIPTS = {
     "docs-retrofit": "retrofit_entry.py",
     "continue": "continue_entry.py",
     "progress": "progress_entry.py",
+    "devlog": "devlog_entry.py",
     "handoff": "handoff_entry.py",
     "resume-readiness": "sync_resume_readiness.py",
     "daemon": "daemon_entry.py",
@@ -81,15 +83,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Canonical daemon-host front door for project-assistant. "
-            "Route bootstrap/retrofit/continue/progress/handoff and daemon control through one entry."
+            "Route bootstrap/retrofit/continue/progress/devlog/handoff and daemon control through one entry."
         ),
         epilog=(
             "Examples: project-assistant continue . | project-assistant daemon status . | "
+            "project-assistant devlog . --title '...' --problem '...' --thinking '...' --solution '...' --validation '...' | "
             "project-assistant queue . | python3 scripts/project_assistant_entry.py docs-retrofit /path/to/repo. "
             "Direct backend scripts remain available for validation/debug, but operators and hosts should enter here first."
         ),
     )
-    parser.add_argument("mode", help="Mode: bootstrap, retrofit, docs-retrofit, continue, progress, handoff, or resume-readiness")
+    parser.add_argument("mode", help="Mode: bootstrap, retrofit, docs-retrofit, continue, progress, devlog, handoff, or resume-readiness")
     parser.add_argument("repo", nargs="?", default=".", help="Repository root; defaults to the current working directory")
     args, extra_args = parser.parse_known_args()
 

@@ -623,21 +623,62 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       gap: 18px;
       align-items: start;
     }
+    body.sidebar-collapsed .layout {
+      grid-template-columns: 56px minmax(0, 1fr);
+    }
     .sidebar {
       position: sticky;
       top: 16px;
       overflow: hidden;
     }
     .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 14px 16px;
       font-weight: 700;
       border-bottom: 1px solid var(--border);
       background: linear-gradient(to bottom, #ffffff, #fafbfc);
     }
+    .sidebar-title {
+      white-space: nowrap;
+    }
+    .sidebar-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      margin-left: 12px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--muted);
+      cursor: pointer;
+      font: inherit;
+      line-height: 1;
+    }
+    .sidebar-toggle:hover {
+      color: var(--link);
+      background: var(--sidebar-hover);
+    }
     .sidebar-body {
       max-height: calc(100vh - 64px);
       overflow: auto;
       padding: 10px 0 12px;
+    }
+    body.sidebar-collapsed .sidebar-header {
+      justify-content: center;
+      padding: 14px 10px;
+      border-bottom: 0;
+    }
+    body.sidebar-collapsed .sidebar-title,
+    body.sidebar-collapsed .sidebar-body {
+      display: none;
+    }
+    body.sidebar-collapsed .sidebar-toggle {
+      margin-left: 0;
     }
     .tree,
     .tree ul {
@@ -794,13 +835,19 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
     .markdown-body blockquote > :last-child {
       margin-bottom: 0;
     }
+    .markdown-body .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin-bottom: 1.15em;
+    }
+    .markdown-body .table-wrap:last-child {
+      margin-bottom: 0;
+    }
     .markdown-body table {
-      display: block;
-      width: max-content;
-      min-width: 100%;
-      overflow: auto;
+      width: 100%;
       border-collapse: collapse;
       border-spacing: 0;
+      table-layout: fixed;
     }
     .markdown-body th,
     .markdown-body td {
@@ -808,10 +855,18 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       border: 1px solid var(--border);
       text-align: left;
       vertical-align: top;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
     .markdown-body th {
       background: #f6f8fa;
       font-weight: 600;
+    }
+    .markdown-body td code,
+    .markdown-body th code {
+      white-space: break-spaces;
+      word-break: break-word;
     }
     .markdown-body img {
       display: block;
@@ -819,6 +874,28 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       height: auto;
       margin: 1.2em 0;
       border-radius: 10px;
+    }
+    .markdown-body .mermaid-diagram {
+      margin: 1.2em 0;
+      padding: 16px 18px;
+      overflow-x: auto;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .markdown-body .mermaid-diagram .mermaid {
+      width: max-content;
+      min-width: 100%;
+    }
+    .markdown-body .mermaid-diagram svg {
+      display: block;
+      height: auto;
+      max-width: none;
+    }
+    .markdown-body .mermaid-diagram.mermaid-error .mermaid {
+      color: var(--muted);
+      font: 14px/1.58 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre;
     }
     .markdown-body .empty-state,
     .markdown-body .error-state {
@@ -829,8 +906,14 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       .layout {
         grid-template-columns: 1fr;
       }
+      body.sidebar-collapsed .layout {
+        grid-template-columns: 1fr;
+      }
       .sidebar {
         position: static;
+      }
+      body.sidebar-collapsed .sidebar {
+        display: none;
       }
       .sidebar-body {
         max-height: none;
@@ -853,8 +936,11 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
 <body>
   <div class="shell">
     <div class="layout">
-      <aside class="sidebar">
-        <div class="sidebar-header">Files</div>
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+          <span class="sidebar-title">Files</span>
+          <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Collapse file tree" title="Collapse file tree">◀</button>
+        </div>
         <div id="sidebar-body" class="sidebar-body"></div>
       </aside>
       <article id="content" class="content">
@@ -873,10 +959,16 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
     const treeRefreshMs = ${Number(treeRefreshMs)};
     const fileRefreshMs = ${Number(fileRefreshMs)};
     const content = document.getElementById("content");
+    const sidebar = document.getElementById("sidebar");
     const sidebarBody = document.getElementById("sidebar-body");
+    const sidebarToggle = document.getElementById("sidebar-toggle");
+    const mermaidScriptUrl = "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js";
     let lastMarkdown = "";
     let lastTreeJson = "";
+    let mermaidApi = null;
+    let mermaidLoadPromise = null;
     const openFolders = new Set();
+    const sidebarStateKey = "workspace-doc-browser.sidebar:" + workspaceName;
 
     function escapeHtml(value) {
       return String(value || "")
@@ -988,6 +1080,62 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       return text;
     }
 
+    function mermaidConfig() {
+      return {
+        startOnLoad: false,
+        securityLevel: "loose",
+        theme: "default",
+        fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", Helvetica, Arial, sans-serif',
+      };
+    }
+
+    function ensureMermaid() {
+      if (mermaidApi) {
+        return Promise.resolve(mermaidApi);
+      }
+      if (window.mermaid) {
+        mermaidApi = window.mermaid;
+        mermaidApi.initialize(mermaidConfig());
+        return Promise.resolve(mermaidApi);
+      }
+      if (mermaidLoadPromise) {
+        return mermaidLoadPromise;
+      }
+      mermaidLoadPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = mermaidScriptUrl;
+        script.async = true;
+        script.dataset.workspaceDocBrowserMermaid = "1";
+        script.onload = () => {
+          if (!window.mermaid) {
+            reject(new Error("Mermaid script loaded, but Mermaid did not initialize."));
+            return;
+          }
+          mermaidApi = window.mermaid;
+          mermaidApi.initialize(mermaidConfig());
+          resolve(mermaidApi);
+        };
+        script.onerror = () => reject(new Error("Failed to load Mermaid renderer."));
+        document.head.appendChild(script);
+      });
+      return mermaidLoadPromise;
+    }
+
+    async function renderMermaidDiagrams() {
+      const nodes = Array.from(content.querySelectorAll(".mermaid-diagram .mermaid"));
+      if (!nodes.length) {
+        return;
+      }
+      try {
+        const mermaid = await ensureMermaid();
+        await mermaid.run({ nodes });
+      } catch {
+        content.querySelectorAll(".mermaid-diagram").forEach((container) => {
+          container.classList.add("mermaid-error");
+        });
+      }
+    }
+
     function renderMarkdown(text) {
       const lines = String(text || "").replace(/\\r\\n/g, "\\n").split("\\n");
       const output = [];
@@ -1016,8 +1164,13 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
 
       function flushCode() {
         if (inCode) {
-          const languageClass = codeLanguage ? ' class=\\"language-' + escapeHtml(codeLanguage) + '\\"' : "";
-          output.push("<pre><code" + languageClass + ">" + escapeHtml(codeLines.join("\\n")) + "</code></pre>");
+          const codeText = codeLines.join("\\n");
+          if (String(codeLanguage || "").toLowerCase() === "mermaid") {
+            output.push('<div class="mermaid-diagram"><div class="mermaid">' + escapeHtml(codeText) + "</div></div>");
+          } else {
+            const languageClass = codeLanguage ? ' class=\\"language-' + escapeHtml(codeLanguage) + '\\"' : "";
+            output.push("<pre><code" + languageClass + ">" + escapeHtml(codeText) + "</code></pre>");
+          }
           inCode = false;
           codeLines = [];
           codeLanguage = "";
@@ -1040,7 +1193,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       function renderTable(headerCells, rows) {
         const headerHtml = "<tr>" + headerCells.map((cell) => "<th>" + renderInline(cell) + "</th>").join("") + "</tr>";
         const bodyHtml = rows.map((row) => "<tr>" + row.map((cell) => "<td>" + renderInline(cell) + "</td>").join("") + "</tr>").join("");
-        return "<table><thead>" + headerHtml + "</thead><tbody>" + bodyHtml + "</tbody></table>";
+        return '<div class="table-wrap"><table><thead>' + headerHtml + "</thead><tbody>" + bodyHtml + "</tbody></table></div>";
       }
 
       for (let index = 0; index < lines.length; index += 1) {
@@ -1137,6 +1290,26 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       return '<div class="content-shell"><div class="file-meta">' + escapeHtml(relativePath) + '</div><div class="markdown-body">' + bodyHtml + '</div></div>';
     }
 
+    function setSidebarCollapsed(collapsed) {
+      document.body.classList.toggle("sidebar-collapsed", Boolean(collapsed));
+      if (sidebarToggle) {
+        sidebarToggle.textContent = collapsed ? "▶" : "◀";
+        sidebarToggle.setAttribute("aria-label", collapsed ? "Expand file tree" : "Collapse file tree");
+        sidebarToggle.setAttribute("title", collapsed ? "Expand file tree" : "Collapse file tree");
+      }
+      try {
+        window.localStorage.setItem(sidebarStateKey, collapsed ? "1" : "0");
+      } catch {}
+    }
+
+    function restoreSidebarState() {
+      try {
+        return window.localStorage.getItem(sidebarStateKey) === "1";
+      } catch {
+        return false;
+      }
+    }
+
     function captureOpenFolders() {
       openFolders.clear();
       document.querySelectorAll("details[data-path]").forEach((details) => {
@@ -1183,6 +1356,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       if (text !== lastMarkdown) {
         lastMarkdown = text;
         content.innerHTML = renderContentFrame(renderMarkdown(text));
+        await renderMermaidDiagrams();
         if (window.location.hash) {
           const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
           if (target) {
@@ -1207,6 +1381,12 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
     }
 
     document.title = relativePath ? relativePath + " - " + workspaceName : workspaceName;
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener("click", () => {
+        setSidebarCollapsed(!document.body.classList.contains("sidebar-collapsed"));
+      });
+    }
+    setSidebarCollapsed(restoreSidebarState());
     refreshTree();
     refreshMarkdown();
     setInterval(refreshTree, treeRefreshMs);

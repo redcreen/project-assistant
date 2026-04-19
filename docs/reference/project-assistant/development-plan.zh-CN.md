@@ -65,17 +65,17 @@
 | M7 | done | 提升叙事质量与自动架构触发能力 | M6 | 整改后的手工清理更少，方向纠偏提示更少 |
 | M8 | deferred | 按语言优化内部控制面输出 | handoff + command templates + validation policy | 继续作为 bounded supporting backlog |
 | M9 | deferred | 自动压缩上下文与 continue / resume / handoff 快照体量而不损失可恢复性 | continue snapshot + handoff + validation policy | 继续作为 bounded supporting backlog |
-| M10 | done | 增加位于执行层之上的战略评估层 | [M7](#m7) + 已批准的战略方向 | 系统能产出 durable 战略判断，并把方向变化继续交给人类审批 |
-| M11 | done | 增加跨多个切片或执行器的程序编排层 | [M10](#m10) + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
-| M12 | done | 增加受监督的长期自动交付层 | [M11](#m11) + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点 |
-| M13 | done | 增加由 PTL 驱动的监督环 | [M12](#m12) + durable delivery supervision | PTL 能周期性 / 事件驱动地巡检、继续、重排或升级 |
-| M14 | done | 增加 worker 接续与回流 | [M13](#m13) + durable handoff / supervision truth | `worker 停了，项目不能跟着停` 成为 durable 能力 |
-| M15 | later | 增加选择性多执行器调度，只对安全并行任务开放 | [M14](#m14) + 不相交写入边界 + 冲突控制 | 只有 write scope 清楚、回收口明确、冲突门禁成立时，才允许真正多执行器并行 |
-| M16 | done | 增加统一硬入口与工具前门 | [M14](#m14) + 版本化控制面 + entry scripts | 旧项目会先自动升级到当前控制面代际，且 `continue / progress / handoff` 第一屏不再绕回自由 prose |
-| M17 | done | 建立 PTL daemon runtime core 与 write-safe 快升级基线 | [M16](#m16) + daemon-first 架构 + runtime contract | daemon runtime、queue/event contract、runtime store 与最小 CLI 控制面可用 |
-| M18 | done | 建立 VS Code 宿主前端壳与 live status 面 | [M17](#m17) + daemon 事件契约 | 用户已能在 VS Code 中看到队列、状态、当前切片与最近事件 |
-| M19 | done | 建立宿主 continue 恢复桥，把 `resume-ready` 接成宿主动作 | [M18](#m18) + Codex runner / 命令契约 | `manual continue` 与保守的 `one-click continue` 可用；不依赖聊天框注入 |
-| M20 | done | 在 daemon-host 基线上完成本地工作区验证与旧功能逐项回归 | [M19](#m19) + 代表性本地 workspace | daemon-host 基线稳定，且旧能力在新基线上持续重新通过 |
+| M10 | done | 增加位于执行层之上的战略评估层 | M7 + 已批准的战略方向 | 系统能产出 durable 战略判断，并把方向变化继续交给人类审批 |
+| M11 | done | 增加跨多个切片或执行器的程序编排层 | M10 + durable program board | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
+| M12 | done | 增加受监督的长期自动交付层 | M11 + 稳定升级策略 | 长期交付能持续推进到真正的业务裁决点 |
+| M13 | done | 增加由 PTL 驱动的监督环 | M12 + durable delivery supervision | PTL 能周期性 / 事件驱动地巡检、继续、重排或升级 |
+| M14 | done | 增加 worker 接续与回流 | M13 + durable handoff / supervision truth | `worker 停了，项目不能跟着停` 成为 durable 能力 |
+| M15 | later | 增加选择性多执行器调度，只对安全并行任务开放 | M14 + 不相交写入边界 + 冲突控制 | 只有 write scope 清楚、回收口明确、冲突门禁成立时，才允许真正多执行器并行 |
+| M16 | done | 增加统一硬入口与工具前门 | M14 + 版本化控制面 + entry scripts | 旧项目会先自动升级到当前控制面代际，且 `continue / progress / handoff` 第一屏不再绕回自由 prose |
+| M17 | done | 建立 PTL daemon runtime core 与 write-safe 快升级基线 | M16 + daemon-first 架构 + runtime contract | daemon runtime、queue/event contract、runtime store 与最小 CLI 控制面可用 |
+| M18 | done | 建立 VS Code 宿主前端壳与 live status 面 | M17 + daemon 事件契约 | 用户已能在 VS Code 中看到队列、状态、当前切片与最近事件 |
+| M19 | done | 建立宿主 continue 恢复桥，把 `resume-ready` 接成宿主动作 | M18 + Codex runner / 命令契约 | `manual continue` 与保守的 `one-click continue` 可用；不依赖聊天框注入 |
+| M20 | done | 在 daemon-host 基线上完成本地工作区验证与旧功能逐项回归 | M19 + 代表性本地 workspace | daemon-host 基线稳定，且旧能力在新基线上持续重新通过 |
 | M21 | done | 在 daemon-host 基线上恢复 post-M16 rollout verification | M20 | 代表性旧代际仓库继续先升级再输出结构化面板，且体验不再被可避免的同步工作主导 |
 
 ## 顺序执行队列
@@ -182,7 +182,7 @@
 | --- | --- |
 | 当前状态 | done |
 | 目标 | 增加位于执行层之上的战略评估层 |
-| 依赖 | [M7](#m7) + 已批准的战略方向 |
+| 依赖 | M7 + 已批准的战略方向 |
 | 退出条件 | 系统能产出 durable 战略判断，并把方向变化继续交给人类审批 |
 
 ### M11
@@ -191,7 +191,7 @@
 | --- | --- |
 | 当前状态 | done |
 | 目标 | 增加跨多个切片或执行器的程序编排层 |
-| 依赖 | [M10](#m10) + durable program board |
+| 依赖 | M10 + durable program board |
 | 退出条件 | 系统能协调多个相关切片，而不是持续依赖人工输入“继续” |
 
 ### M12
@@ -200,7 +200,7 @@
 | --- | --- |
 | 当前状态 | done |
 | 目标 | 增加受监督的长期自动交付层 |
-| 依赖 | [M11](#m11) + 稳定升级策略 |
+| 依赖 | M11 + 稳定升级策略 |
 | 退出条件 | 长期交付能持续推进到真正的业务裁决点 |
 
 ### M13
@@ -209,7 +209,7 @@
 | --- | --- |
 | 当前状态 | done |
 | 目标 | 增加由 PTL 驱动的监督环 |
-| 依赖 | [M12](#m12) + durable delivery supervision |
+| 依赖 | M12 + durable delivery supervision |
 | 退出条件 | PTL 能周期性 / 事件驱动地巡检、继续、重排或升级 |
 
 ### M14
@@ -218,7 +218,7 @@
 | --- | --- |
 | 当前状态 | done |
 | 目标 | 增加 worker 接续与回流 |
-| 依赖 | [M13](#m13) + durable handoff / supervision truth |
+| 依赖 | M13 + durable handoff / supervision truth |
 | 退出条件 | `worker 停了，项目不能跟着停` 成为 durable 能力 |
 
 ### M15
@@ -227,7 +227,7 @@
 | --- | --- |
 | 当前状态 | later |
 | 目标 | 增加选择性多执行器调度，只对安全并行任务开放 |
-| 依赖 | [M14](#m14) + 不相交写入边界 + 冲突控制 |
+| 依赖 | M14 + 不相交写入边界 + 冲突控制 |
 | 退出条件 | 只有 write scope 清楚、回收口明确、冲突门禁成立时，才允许真正多执行器并行 |
 
 ### M16
@@ -236,7 +236,7 @@
 | --- | --- |
 | 当前状态 | done |
 | 目标 | 增加统一硬入口与工具前门 |
-| 依赖 | [M14](#m14) + 版本化控制面 + entry scripts |
+| 依赖 | M14 + 版本化控制面 + entry scripts |
 | 退出条件 | 旧项目会先自动升级到当前控制面代际，且 `continue / progress / handoff` 第一屏不再绕回自由 prose |
 
 ### M17
@@ -245,7 +245,7 @@
 | --- | --- |
 | 当前状态 | done |
 | 目标 | 建立 PTL daemon runtime core 与 write-safe 快升级基线 |
-| 依赖 | [M16](#m16) + daemon-first 架构 + runtime contract |
+| 依赖 | M16 + daemon-first 架构 + runtime contract |
 | 退出条件 | daemon runtime、queue/event contract、runtime store 与最小 CLI 控制面可用 |
 
 ### M18
@@ -254,7 +254,7 @@
 | --- | --- |
 | 当前状态 | done |
 | 目标 | 建立 VS Code 宿主前端壳与 live status 面 |
-| 依赖 | [M17](#m17) + daemon 事件契约 |
+| 依赖 | M17 + daemon 事件契约 |
 | 退出条件 | 用户已能在 VS Code 中看到队列、状态、当前切片与最近事件 |
 
 ### M19
@@ -263,7 +263,7 @@
 | --- | --- |
 | 当前状态 | done |
 | 目标 | 建立宿主 continue 恢复桥，把 `resume-ready` 接成宿主动作 |
-| 依赖 | [M18](#m18) + Codex runner / 命令契约 |
+| 依赖 | M18 + Codex runner / 命令契约 |
 | 退出条件 | `manual continue` 与保守的 `one-click continue` 可用；不依赖聊天框注入 |
 
 ### M20
@@ -272,7 +272,7 @@
 | --- | --- |
 | 当前状态 | done |
 | 目标 | 在 daemon-host 基线上完成本地工作区验证与旧功能逐项回归 |
-| 依赖 | [M19](#m19) + 代表性本地 workspace |
+| 依赖 | M19 + 代表性本地 workspace |
 | 退出条件 | daemon-host 基线稳定，且旧能力在新基线上持续重新通过 |
 
 ### M21

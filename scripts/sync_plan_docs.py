@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
+import sys
 from pathlib import Path
 
 from control_surface_lib import ensure_roadmap_stage_links, parse_tier, relative_markdown_target
@@ -38,6 +40,15 @@ def main(argv: list[str] | None = None) -> int:
     for rel in ensure_roadmap_stage_links(repo):
         if rel not in touched:
             touched.append(rel)
+
+    scripts_dir = Path(__file__).resolve().parent
+    subprocess.run(
+        [sys.executable, str(scripts_dir / "sync_development_log_state.py"), str(repo)],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
 
     print(f"touched: {', '.join(touched) if touched else '(none)'}")
     return 0

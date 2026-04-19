@@ -8,6 +8,7 @@
 
 ## 条目
 
+- [Restore accurate devlog capture and the devlog front door](2026-04-19-restore-accurate-devlog-capture-and-the-devlog-front-door.md)
 - [Broaden daemon-host dogfooding evidence before any new host surface](2026-04-14-broaden-daemon-host-dogfooding-evidence.md)
 - [记录系统性时延问题与异步执行硬约束](2026-04-13-entry.md)
 - [落成 M17-M21 daemon-host baseline 并收口控制真相](2026-04-13-daemon-host-baseline-m17-through-m21.md)

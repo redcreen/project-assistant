@@ -30,7 +30,8 @@
 ## Development Log Capture
 - Trigger Level: high
 - Pending Capture: no
-- Last Entry: docs/devlog/2026-04-13-daemon-host-baseline-m17-through-m21.md
+- Reason: latest devlog already captures the most recent durable reasoning
+- Last Entry: `docs/devlog/2026-04-19-restore-accurate-devlog-capture-and-the-devlog-front-door.md`
 
 ## Architecture Supervision
 - Signal: `green`
@@ -81,7 +82,7 @@
 ## In Progress
 
 - `post-M21` 稳定化与 dogfooding 已成为新的当前切片：当前目标不是再讨论 daemon 值不值得做，而是把这条 baseline 保持成真实可用的默认快路径。
-- broader dogfooding evidence 已扩到两个真实本地 repo：`/Users/redcreen/Project/unified-memory-core` 与 `/Users/redcreen/Project/codex limit` 都已通过 clean daemon session 下的 `continue / progress / handoff` 采证，说明 baseline 不再只靠 self-repo 与 fixtures 站立。
+- broader dogfooding evidence 已扩到两个真实本地 repo：`unified-memory-core` 与 `codex limit` 都已通过 clean daemon session 下的 `continue / progress / handoff` 采证，说明 baseline 不再只靠 self-repo 与 fixtures 站立。
 - `.codex/dogfooding-evidence.md` 现在已把 self-repo、runtime、fixture、legacy rollout、VS Code host 与 broader local repos 的证据、缺口和 evidence-gated 决策条件收口成 durable 真相；当前重点转为继续积累 adoption evidence，并保持 release packaging / stronger host surfaces / `M15` evidence-gated。
 
 ## Blockers / Open Decisions

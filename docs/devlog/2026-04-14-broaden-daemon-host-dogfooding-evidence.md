@@ -13,7 +13,7 @@
 
 ## Solution
 
-使用 `daemon_validation_lib` 在两个真实本地 repo 上启动 clean daemon session：`/Users/redcreen/Project/unified-memory-core` 与 `/Users/redcreen/Project/codex limit`。对每个 repo 依次执行 `continue`、`progress`、`handoff`，等待任务完成并检查输出 heading 与任务日志路径。随后把这批结果写回 `.codex/dogfooding-evidence.md`，并同步 `.codex/status.md`、`.codex/plan.md`，把 `EL-3` 从“准备采证”推进到“已有 broader real-workspace evidence”。同时保留 `EL-4` 为 evidence-gated backlog，不因为两次成功就提前打开 single foreground writer 主线。
+使用 `daemon_validation_lib` 在两个真实本地 repo 上启动 clean daemon session：`unified-memory-core` 与 `codex limit`。对每个 repo 依次执行 `continue`、`progress`、`handoff`，等待任务完成并检查输出 heading 与任务日志路径。随后把这批结果写回 `.codex/dogfooding-evidence.md`，并同步 `.codex/status.md`、`.codex/plan.md`，把 `EL-3` 从“准备采证”推进到“已有 broader real-workspace evidence”。同时保留 `EL-4` 为 evidence-gated backlog，不因为两次成功就提前打开 single foreground writer 主线。
 
 ## Validation
 

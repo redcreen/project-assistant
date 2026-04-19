@@ -6,6 +6,8 @@ import re
 from datetime import date
 from pathlib import Path
 
+from control_surface_lib import build_status_development_log_capture_body
+
 
 DEVLOG_HOME = """# Development Log
 
@@ -96,13 +98,7 @@ def refresh_status_devlog_state(repo: Path, entry_rel: str) -> None:
     text = status_path.read_text(encoding="utf-8")
     if "## Development Log Capture" not in text:
         return
-    body = "\n".join(
-        [
-            "- Trigger Level: high",
-            "- Pending Capture: no",
-            f"- Last Entry: {entry_rel}",
-        ]
-    )
+    body = build_status_development_log_capture_body(repo)
     status_path.write_text(replace_section(text, "Development Log Capture", body), encoding="utf-8")
 
 

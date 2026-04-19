@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 from pathlib import Path
 
@@ -609,9 +610,20 @@ def first_risk(status_text: str) -> str:
 
 
 def markdown_file_link(path: Path, label: str, line: int | None = None) -> str:
-    target = str(path)
-    if line:
-        target = f"{target}:{line}"
+    resolved = path.resolve()
+    repo_root = next(
+        (
+            candidate
+            for candidate in [resolved.parent, *resolved.parents]
+            if (candidate / ".codex").exists()
+        ),
+        resolved.parent,
+    )
+    source_dir = repo_root / ".codex" / "host-views"
+    if source_dir.exists():
+        target = os.path.relpath(resolved, start=source_dir).replace(os.sep, "/")
+    else:
+        target = os.path.relpath(resolved, start=repo_root).replace(os.sep, "/")
     if " " in target:
         target = f"<{target}>"
     return f"[{label}]({target})"
