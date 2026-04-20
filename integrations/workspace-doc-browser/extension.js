@@ -57,6 +57,15 @@ class WorkspaceDocBrowser {
       if (folder) {
         return folder.uri.fsPath;
       }
+      try {
+        const stat = fs.statSync(normalizedTargetUri.fsPath);
+        if (stat.isDirectory()) {
+          return normalizedTargetUri.fsPath;
+        }
+        if (stat.isFile()) {
+          return path.dirname(normalizedTargetUri.fsPath);
+        }
+      } catch {}
     }
     const folder = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0];
     return folder ? folder.uri.fsPath : null;
