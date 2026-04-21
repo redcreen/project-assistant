@@ -1,6 +1,7 @@
 "use strict";
 
 const cp = require("child_process");
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const net = require("net");
@@ -18,6 +19,8 @@ const DOCS_STARTUP_READY_DELAY_MS = 100;
 const TREE_REFRESH_MS = 3000;
 const FILE_REFRESH_MS = 1200;
 const RAW_PREFIX = "/__workspace_doc_browser__/raw/";
+const SESSION_STATE_PREFIX = "workspaceDocBrowser.session:";
+const SELF_WATCH_INTERVAL_MS = 800;
 
 class WorkspaceDocBrowser {
   constructor(context) {
@@ -26,6 +29,12 @@ class WorkspaceDocBrowser {
     this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 90);
     this.session = null;
     this.pendingOpen = null;
+    this.serverCodeStamp = computeServerCodeStamp();
+    this.selfWatchPaths = [
+      __filename,
+      path.join(__dirname, "package.json"),
+    ];
+    this.selfRestartQueued = false;
   }
 
   activate() {
@@ -35,9 +44,118 @@ class WorkspaceDocBrowser {
       vscode.commands.registerCommand(COMMAND_ID, (targetUri) => this.open(targetUri)),
       vscode.workspace.onDidChangeWorkspaceFolders(() => this.updateStatusBar()),
       vscode.window.onDidChangeActiveTextEditor(() => this.updateStatusBar()),
-      { dispose: () => this.disposeSession() },
+      { dispose: () => { void this.disposeSession({ keepProcess: true }); } },
+      this.watchOwnFilesForReload(),
     );
+    void this.restoreSessionForCurrentWorkspace();
     this.updateStatusBar();
+  }
+
+  watchOwnFilesForReload() {
+    const listeners = [];
+    const onWatchTick = () => {
+      const nextStamp = computeServerCodeStamp();
+      if (nextStamp === this.serverCodeStamp || this.selfRestartQueued) {
+        return;
+      }
+      this.selfRestartQueued = true;
+      this.output.appendLine("[self-update] Extension code changed on disk. Restarting Extension Host.");
+      vscode.window.setStatusBarMessage("Workspace Doc Browser: extension updated, restarting Extension Host…", 4000);
+      setTimeout(() => {
+        void vscode.commands.executeCommand("workbench.action.restartExtensionHost");
+      }, 150);
+    };
+
+    for (const watchPath of this.selfWatchPaths) {
+      const listener = () => onWatchTick();
+      try {
+        fs.watchFile(watchPath, { interval: SELF_WATCH_INTERVAL_MS, persistent: false }, listener);
+        listeners.push({ watchPath, listener });
+      } catch {}
+    }
+
+    return {
+      dispose() {
+        for (const { watchPath, listener } of listeners) {
+          try {
+            fs.unwatchFile(watchPath, listener);
+          } catch {}
+        }
+      },
+    };
+  }
+
+  getSessionStateKey(workspaceRoot) {
+    return `${SESSION_STATE_PREFIX}${workspaceRoot}`;
+  }
+
+  async persistSession(session = this.session) {
+    if (!session || !session.workspaceRoot || !session.port) {
+      return;
+    }
+    await this.context.globalState.update(this.getSessionStateKey(session.workspaceRoot), {
+      workspaceRoot: session.workspaceRoot,
+      port: session.port,
+      pid: session.process && session.process.pid ? session.process.pid : (session.pid || null),
+      browserOpened: Boolean(session.browserOpened),
+      serverCodeStamp: this.serverCodeStamp,
+    });
+  }
+
+  async clearPersistedSession(workspaceRoot) {
+    if (!workspaceRoot) {
+      return;
+    }
+    await this.context.globalState.update(this.getSessionStateKey(workspaceRoot), undefined);
+  }
+
+  async restorePersistedSession(workspaceRoot) {
+    if (!workspaceRoot) {
+      return null;
+    }
+    const stored = this.context.globalState.get(this.getSessionStateKey(workspaceRoot));
+    if (!stored || !stored.port) {
+      return null;
+    }
+    if (stored.serverCodeStamp !== this.serverCodeStamp) {
+      if (stored.pid) {
+        try {
+          process.kill(stored.pid, "SIGTERM");
+        } catch {}
+      }
+      await this.clearPersistedSession(workspaceRoot);
+      return null;
+    }
+    const reachable = await isPortReachable(stored.port);
+    if (!reachable) {
+      await this.clearPersistedSession(workspaceRoot);
+      return null;
+    }
+    const session = {
+      workspaceRoot,
+      baseUrl: `http://127.0.0.1:${stored.port}/`,
+      port: stored.port,
+      pid: stored.pid || null,
+      browserOpened: Boolean(stored.browserOpened),
+      targetUri: null,
+      process: null,
+      restored: true,
+    };
+    this.session = session;
+    this.output.appendLine(`[restore] ${workspaceRoot} -> ${session.baseUrl}`);
+    this.updateStatusBar();
+    return session;
+  }
+
+  async restoreSessionForCurrentWorkspace() {
+    if (this.session && this.isSessionAlive(this.session)) {
+      return this.session;
+    }
+    const workspaceRoot = this.getWorkspaceRoot();
+    if (!workspaceRoot) {
+      return null;
+    }
+    return this.restorePersistedSession(workspaceRoot);
   }
 
   normalizeTargetUri(targetUri) {
@@ -201,6 +319,7 @@ class WorkspaceDocBrowser {
     const opened = await vscode.env.openExternal(vscode.Uri.parse(url));
     if (session && this.session === session) {
       session.browserOpened = Boolean(opened);
+      void this.persistSession(session);
       this.updateStatusBar();
     }
     if (!opened) {
@@ -215,6 +334,14 @@ class WorkspaceDocBrowser {
 
   async openExistingSession(session, workspaceRoot, targetUri) {
     if (!session || !this.isSessionAlive(session)) {
+      return false;
+    }
+    if (!(await isPortReachable(session.port))) {
+      if (this.session === session) {
+        this.session = null;
+      }
+      await this.clearPersistedSession(workspaceRoot);
+      this.updateStatusBar();
       return false;
     }
     const targetUrl = this.getTargetUrl(session.baseUrl, workspaceRoot, targetUri);
@@ -233,7 +360,7 @@ class WorkspaceDocBrowser {
 
     try {
       const port = await findFreePort();
-      this.disposeSession();
+      await this.disposeSession();
 
       const baseUrl = `http://127.0.0.1:${port}/`;
       const rawServerScript = buildRawFileServerScript(workspaceRoot, port);
@@ -252,6 +379,7 @@ class WorkspaceDocBrowser {
         process: rawProcess,
       };
       this.session = session;
+      await this.persistSession(session);
       this.updateStatusBar();
       this.output.appendLine(`[start] ${workspaceRoot}`);
       this.output.appendLine(`[raw] ${baseUrl}`);
@@ -270,6 +398,7 @@ class WorkspaceDocBrowser {
           this.session = null;
           this.updateStatusBar();
         }
+        void this.clearPersistedSession(workspaceRoot);
       });
       rawProcess.on("exit", (code, signal) => {
         this.clearPendingOpen();
@@ -279,6 +408,7 @@ class WorkspaceDocBrowser {
           this.session = null;
           this.updateStatusBar();
         }
+        void this.clearPersistedSession(workspaceRoot);
         if (code && code !== 0) {
           vscode.window.showErrorMessage(`Workspace Doc Browser: preview backend exited with code ${code}.`);
           this.output.show(true);
@@ -318,6 +448,10 @@ class WorkspaceDocBrowser {
       this.session && this.session.workspaceRoot === workspaceRoot && this.isSessionAlive(this.session) ? "open" : "start",
     );
 
+    if ((!this.session || this.session.workspaceRoot !== workspaceRoot || !this.isSessionAlive(this.session))) {
+      await this.restorePersistedSession(workspaceRoot);
+    }
+
     if (this.session && this.session.workspaceRoot === workspaceRoot && this.isSessionAlive(this.session)) {
       await this.openExistingSession(this.session, workspaceRoot, targetUri);
       return;
@@ -329,10 +463,15 @@ class WorkspaceDocBrowser {
   isSessionAlive(session = this.session) {
     return Boolean(
       session &&
-      session.process &&
-      !session.process.killed &&
-      session.process.exitCode === null &&
-      session.process.signalCode === null,
+      (
+        session.restored ||
+        (
+          session.process &&
+          !session.process.killed &&
+          session.process.exitCode === null &&
+          session.process.signalCode === null
+        )
+      ),
     );
   }
 
@@ -340,17 +479,28 @@ class WorkspaceDocBrowser {
     return Boolean(this.isSessionAlive(session) && session && session.browserOpened);
   }
 
-  disposeSession() {
+  async disposeSession(options = {}) {
+    const keepProcess = Boolean(options.keepProcess);
     if (!this.session) {
       return;
     }
-    const { process } = this.session;
+    const { process: childProcess, pid, workspaceRoot } = this.session;
     this.session = null;
-    if (process && !process.killed) {
+    if (keepProcess) {
+      this.updateStatusBar();
+      return;
+    }
+    if (childProcess && !childProcess.killed) {
       try {
-        process.kill("SIGTERM");
+        childProcess.kill("SIGTERM");
+      } catch {}
+    } else if (pid) {
+      try {
+        process.kill(pid, "SIGTERM");
       } catch {}
     }
+    await this.clearPersistedSession(workspaceRoot);
+    this.updateStatusBar();
   }
 }
 
@@ -2143,6 +2293,27 @@ function findFreePort() {
         }
       });
     });
+  });
+}
+
+function computeServerCodeStamp() {
+  try {
+    const contents = fs.readFileSync(__filename);
+    return crypto.createHash("sha1").update(contents).digest("hex");
+  } catch {
+    return "unknown";
+  }
+}
+
+function isPortReachable(port, host = "127.0.0.1") {
+  return new Promise((resolve) => {
+    const socket = net.createConnection({ port, host });
+    const finish = (result) => {
+      socket.destroy();
+      resolve(result);
+    };
+    socket.once("connect", () => finish(true));
+    socket.once("error", () => finish(false));
   });
 }
 
