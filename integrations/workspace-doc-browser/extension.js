@@ -95,7 +95,7 @@ class WorkspaceDocBrowser {
       if (relativePath && !relativePath.startsWith("..") && !path.isAbsolute(relativePath)) {
         return {
           relativePath,
-          isMarkdown: /\.md$/i.test(relativePath),
+          kind: getFileKind(relativePath),
         };
       }
     }
@@ -105,7 +105,7 @@ class WorkspaceDocBrowser {
     }
     return {
       relativePath: fallbackPath,
-      isMarkdown: true,
+      kind: "markdown",
     };
   }
 
@@ -121,7 +121,7 @@ class WorkspaceDocBrowser {
     if (!descriptor) {
       return `${String(baseUrl || "").replace(/\/$/, "")}/`;
     }
-    if (descriptor.isMarkdown) {
+    if (isPreviewableKind(descriptor.kind)) {
       return this.getBootstrapUrl(baseUrl, workspaceRoot, descriptor.relativePath);
     }
     return new URL(encodePathSegments(descriptor.relativePath), `${String(baseUrl || "").replace(/\/$/, "")}/`).toString();
@@ -348,6 +348,24 @@ function normalizeSlashes(value) {
   return String(value || "").replace(/\\/g, "/");
 }
 
+function getFileKind(filePath) {
+  const lowerPath = String(filePath || "").toLowerCase();
+  if (/\.md$/i.test(lowerPath)) {
+    return "markdown";
+  }
+  if (/\.(png|apng|jpe?g|gif|webp|svg|bmp|ico|avif|tiff?)$/i.test(lowerPath)) {
+    return "image";
+  }
+  if (/\.(txt|json|js|ts|py|sh|yml|yaml|toml|ini|cfg|conf|xml|html|css|csv|env)$/i.test(lowerPath) || /(^|\/)(\.gitignore|dockerfile)$/i.test(lowerPath)) {
+    return "text";
+  }
+  return "file";
+}
+
+function isPreviewableKind(kind) {
+  return kind === "markdown" || kind === "image" || kind === "text";
+}
+
 function encodePathSegments(value) {
   return normalizeSlashes(String(value || ""))
     .split("/")
@@ -429,7 +447,7 @@ const port = ${Number(port)};
 const TREE_REFRESH_MS = ${TREE_REFRESH_MS};
 const FILE_REFRESH_MS = ${FILE_REFRESH_MS};
 
-const textTypes = new Map([
+const contentTypes = new Map([
   [".md", "text/markdown; charset=utf-8"],
   [".txt", "text/plain; charset=utf-8"],
   [".json", "application/json; charset=utf-8"],
@@ -450,6 +468,18 @@ const textTypes = new Map([
   [".env", "text/plain; charset=utf-8"],
   [".gitignore", "text/plain; charset=utf-8"],
   [".dockerfile", "text/plain; charset=utf-8"],
+  [".png", "image/png"],
+  [".apng", "image/apng"],
+  [".jpg", "image/jpeg"],
+  [".jpeg", "image/jpeg"],
+  [".gif", "image/gif"],
+  [".webp", "image/webp"],
+  [".svg", "image/svg+xml; charset=utf-8"],
+  [".bmp", "image/bmp"],
+  [".ico", "image/x-icon"],
+  [".avif", "image/avif"],
+  [".tif", "image/tiff"],
+  [".tiff", "image/tiff"],
 ]);
 
 function send(res, status, body, contentType) {
@@ -463,6 +493,20 @@ function send(res, status, body, contentType) {
 
 function normalizeSlashes(value) {
   return String(value || "").replace(/\\\\/g, "/");
+}
+
+function getFileKind(filePath) {
+  const lowerPath = String(filePath || "").toLowerCase();
+  if (/\\.md$/i.test(lowerPath)) {
+    return "markdown";
+  }
+  if (/\\.(png|apng|jpe?g|gif|webp|svg|bmp|ico|avif|tiff?)$/i.test(lowerPath)) {
+    return "image";
+  }
+  if (/\\.(txt|json|js|ts|py|sh|yml|yaml|toml|ini|cfg|conf|xml|html|css|csv|env)$/i.test(lowerPath) || /(^|\\/)(\\.gitignore|dockerfile)$/i.test(lowerPath)) {
+    return "text";
+  }
+  return "file";
 }
 
 function shouldIgnoreEntry(name, isDirectory, includeDotfiles) {
@@ -517,7 +561,7 @@ function buildRepoTree(relativeDir) {
     }
     items.push({
       title: entry.name,
-      kind: /\\.md$/i.test(entry.name) ? "markdown" : "file",
+      kind: getFileKind(relativePath),
       sourcePath: relativePath,
     });
   }
@@ -563,7 +607,7 @@ http.createServer((req, res) => {
       return send(res, 404, "Not Found", "text/plain; charset=utf-8");
     }
     const ext = path.extname(target).toLowerCase();
-    const type = textTypes.get(ext) || textTypes.get(path.basename(target).toLowerCase()) || "application/octet-stream";
+    const type = contentTypes.get(ext) || contentTypes.get(path.basename(target).toLowerCase()) || "application/octet-stream";
     fs.readFile(target, type.includes("charset=utf-8") ? "utf8" : null, (readError, data) => {
       if (readError) {
         return send(res, 500, String(readError), "text/plain; charset=utf-8");
@@ -731,6 +775,38 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       font-weight: 600;
       border-left-color: var(--link);
       background: rgba(9, 105, 218, 0.08);
+    }
+    .tree-file {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .tree-thumb {
+      flex: 0 0 42px;
+      width: 42px;
+      height: 42px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background:
+        linear-gradient(45deg, rgba(208, 215, 222, 0.36) 25%, transparent 25%, transparent 75%, rgba(208, 215, 222, 0.36) 75%),
+        linear-gradient(45deg, rgba(208, 215, 222, 0.36) 25%, transparent 25%, transparent 75%, rgba(208, 215, 222, 0.36) 75%);
+      background-color: #ffffff;
+      background-position: 0 0, 6px 6px;
+      background-size: 12px 12px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+    .tree-thumb img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .tree-label {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
     .content {
       padding: 32px 36px 40px;
@@ -906,6 +982,76 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       font: 14px/1.58 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       white-space: pre;
     }
+    .asset-body {
+      margin-top: 4px;
+    }
+    .asset-image-stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 280px;
+      padding: 18px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background:
+        linear-gradient(45deg, rgba(208, 215, 222, 0.24) 25%, transparent 25%, transparent 75%, rgba(208, 215, 222, 0.24) 75%),
+        linear-gradient(45deg, rgba(208, 215, 222, 0.24) 25%, transparent 25%, transparent 75%, rgba(208, 215, 222, 0.24) 75%);
+      background-color: #ffffff;
+      background-position: 0 0, 12px 12px;
+      background-size: 24px 24px;
+    }
+    .asset-image-stage img {
+      display: block;
+      max-width: 100%;
+      max-height: min(78vh, 980px);
+      width: auto;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 18px 44px rgba(31, 35, 40, 0.12);
+      background: #ffffff;
+    }
+    .asset-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .asset-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .asset-button:hover {
+      color: var(--link);
+      background: var(--sidebar-hover);
+    }
+    .text-file-body pre {
+      padding: 18px 20px;
+      margin: 0;
+      overflow: auto;
+      background: var(--pre-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.58;
+    }
+    .text-file-body code {
+      padding: 0;
+      background: transparent;
+      border-radius: 0;
+      white-space: pre;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
     .markdown-body .empty-state,
     .markdown-body .error-state {
       color: var(--muted);
@@ -993,6 +1139,20 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
         .join("/");
     }
 
+    function fileKindForPath(sourcePath) {
+      const lowerPath = String(sourcePath || "").toLowerCase();
+      if (/\\.md$/i.test(lowerPath)) {
+        return "markdown";
+      }
+      if (/\\.(png|apng|jpe?g|gif|webp|svg|bmp|ico|avif|tiff?)$/i.test(lowerPath)) {
+        return "image";
+      }
+      if (/\\.(txt|json|js|ts|py|sh|yml|yaml|toml|ini|cfg|conf|xml|html|css|csv|env)$/i.test(lowerPath) || /(^|\\/)(\\.gitignore|dockerfile)$/i.test(lowerPath)) {
+        return "text";
+      }
+      return "file";
+    }
+
     function isExternalHref(value) {
       return /^(https?:|mailto:|tel:|data:)/i.test(String(value || "").trim());
     }
@@ -1038,11 +1198,12 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       return "/__workspace_doc_browser__/bootstrap?" + params.toString() + (hashPart ? "#" + encodeURIComponent(hashPart) : "");
     }
 
-    function rawFileHref(sourcePath, hashPart = "") {
-      return "/" + encodePath(sourcePath) + (hashPart ? "#" + encodeURIComponent(hashPart) : "");
+    function rawFileHref(sourcePath, hashPart = "", cacheBust = "") {
+      const query = cacheBust ? "?v=" + encodeURIComponent(cacheBust) : "";
+      return "/" + encodePath(sourcePath) + query + (hashPart ? "#" + encodeURIComponent(hashPart) : "");
     }
 
-    function resolveDocHref(href) {
+    function resolvePreviewHref(href) {
       const raw = String(href || "").trim();
       if (!raw) {
         return "";
@@ -1057,10 +1218,26 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       const resolvedPath = pathPart.startsWith("/")
         ? pathPart.replace(/^\\/+/, "")
         : resolveRelativePath(relativePath, pathPart);
-      if (/\\.md$/i.test(resolvedPath)) {
+      const kind = fileKindForPath(resolvedPath);
+      if (kind === "markdown" || kind === "image" || kind === "text") {
         return bootstrapHref(resolvedPath, hashPart);
       }
       return rawFileHref(resolvedPath, hashPart);
+    }
+
+    function resolveInlineImageSrc(href) {
+      const raw = String(href || "").trim();
+      if (!raw) {
+        return "";
+      }
+      if (isExternalHref(raw)) {
+        return raw;
+      }
+      const { pathPart } = splitHref(raw);
+      const resolvedPath = pathPart.startsWith("/")
+        ? pathPart.replace(/^\\/+/, "")
+        : resolveRelativePath(relativePath, pathPart);
+      return rawFileHref(resolvedPath);
     }
 
     function slugifyHeading(value, seen) {
@@ -1081,11 +1258,11 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
 
     function renderInline(value) {
       let text = escapeHtml(value);
-      text = text.replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)/g, (_, alt, href) => '<img alt="' + escapeHtml(alt) + '" src="' + escapeHtml(resolveDocHref(href)) + '">');
+      text = text.replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)/g, (_, alt, href) => '<img alt="' + escapeHtml(alt) + '" src="' + escapeHtml(resolveInlineImageSrc(href)) + '">');
       text = text.replace(/\\\`([^\\\`]+)\\\`/g, "<code>$1</code>");
       text = text.replace(/\\*\\*([^*]+)\\*\\*/g, "<strong>$1</strong>");
       text = text.replace(/\\*([^*]+)\\*/g, "<em>$1</em>");
-      text = text.replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, (_, label, href) => '<a href="' + escapeHtml(resolveDocHref(href)) + '">' + label + '</a>');
+      text = text.replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, (_, label, href) => '<a href="' + escapeHtml(resolvePreviewHref(href)) + '">' + label + '</a>');
       return text;
     }
 
@@ -1299,6 +1476,21 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       return '<div class="content-shell"><div class="file-meta">' + escapeHtml(relativePath) + '</div><div class="markdown-body">' + bodyHtml + '</div></div>';
     }
 
+    function renderTextFrame(text) {
+      return '<div class="content-shell"><div class="file-meta">' + escapeHtml(relativePath) + '</div><div class="asset-body text-file-body"><pre><code>' + escapeHtml(text) + '</code></pre></div></div>';
+    }
+
+    function renderImageFrame() {
+      const rawHref = rawFileHref(relativePath);
+      const imageSrc = rawFileHref(relativePath, "", Date.now().toString());
+      return '<div class="content-shell"><div class="file-meta">' + escapeHtml(relativePath) + '</div><div class="asset-body image-file-body"><div class="asset-image-stage"><img alt="' + escapeHtml(relativePath.split("/").pop() || relativePath) + '" src="' + escapeHtml(imageSrc) + '"></div><div class="asset-actions"><a class="asset-button" href="' + escapeHtml(rawHref) + '" target="_blank" rel="noreferrer">Open Raw Image</a></div></div></div>';
+    }
+
+    function renderBinaryFrame() {
+      const rawHref = rawFileHref(relativePath);
+      return '<div class="content-shell"><div class="file-meta">' + escapeHtml(relativePath) + '</div><div class="markdown-body"><p class="empty-state">This file type is not rendered inline yet.</p><p><a class="asset-button" href="' + escapeHtml(rawHref) + '" target="_blank" rel="noreferrer">Open Raw File</a></p></div></div>';
+    }
+
     function setSidebarCollapsed(collapsed) {
       document.body.classList.toggle("sidebar-collapsed", Boolean(collapsed));
       if (sidebarToggle) {
@@ -1335,10 +1527,13 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
           return "<li><details data-path=\\"" + escapeHtml(item.path || "") + "\\" " + (shouldOpen ? "open" : "") + "><summary>" + escapeHtml(item.title) + "</summary>" + renderTreeItems(item.children) + "</details></li>";
         }
         const active = item.sourcePath === relativePath ? " active" : "";
-        const href = item.kind === "markdown"
+        const href = item.kind === "markdown" || item.kind === "image" || item.kind === "text"
           ? bootstrapHref(item.sourcePath || "")
           : rawFileHref(item.sourcePath || "");
-        return "<li><a class=\\"repo-link" + active + "\\" href=\\"" + escapeHtml(href) + "\\">" + escapeHtml(item.title) + "</a></li>";
+        const labelHtml = item.kind === "image"
+          ? '<span class="tree-file"><span class="tree-thumb"><img alt="" loading="lazy" src="' + escapeHtml(rawFileHref(item.sourcePath || "", "", item.sourcePath || "")) + '"></span><span class="tree-label">' + escapeHtml(item.title) + "</span></span>"
+          : '<span class="tree-file"><span class="tree-label">' + escapeHtml(item.title) + "</span></span>";
+        return "<li><a class=\\"repo-link" + active + "\\" href=\\"" + escapeHtml(href) + "\\">" + labelHtml + "</a></li>";
       }).join("") + "</ul>";
     }
 
@@ -1356,7 +1551,22 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       }
     }
 
-    async function loadCurrentMarkdown() {
+    async function loadCurrentFile() {
+      const fileKind = fileKindForPath(relativePath);
+      if (fileKind === "image") {
+        if (lastMarkdown !== "__image__") {
+          lastMarkdown = "__image__";
+          content.innerHTML = renderImageFrame();
+        }
+        return;
+      }
+      if (fileKind === "file") {
+        if (lastMarkdown !== "__binary__") {
+          lastMarkdown = "__binary__";
+          content.innerHTML = renderBinaryFrame();
+        }
+        return;
+      }
       const response = await fetch("/" + encodePath(relativePath), { cache: "no-store" });
       if (!response.ok) {
         throw new Error("HTTP " + response.status);
@@ -1364,14 +1574,18 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       const text = await response.text();
       if (text !== lastMarkdown) {
         lastMarkdown = text;
-        content.innerHTML = renderContentFrame(renderMarkdown(text));
-        await renderMermaidDiagrams();
-        if (window.location.hash) {
-          const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
-          if (target) {
-            target.scrollIntoView();
+        if (fileKind === "markdown") {
+          content.innerHTML = renderContentFrame(renderMarkdown(text));
+          await renderMermaidDiagrams();
+          if (window.location.hash) {
+            const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+            if (target) {
+              target.scrollIntoView();
+            }
           }
+          return;
         }
+        content.innerHTML = renderTextFrame(text);
       }
     }
 
@@ -1381,11 +1595,11 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       } catch {}
     }
 
-    async function refreshMarkdown() {
+    async function refreshFile() {
       try {
-        await loadCurrentMarkdown();
+        await loadCurrentFile();
       } catch (error) {
-        content.innerHTML = renderContentFrame('<p class="error-state">Unable to load markdown preview.</p><pre><code>' + escapeHtml(String(error)) + '</code></pre>');
+        content.innerHTML = renderContentFrame('<p class="error-state">Unable to load file preview.</p><pre><code>' + escapeHtml(String(error)) + '</code></pre>');
       }
     }
 
@@ -1397,9 +1611,9 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
     }
     setSidebarCollapsed(restoreSidebarState());
     refreshTree();
-    refreshMarkdown();
+    refreshFile();
     setInterval(refreshTree, treeRefreshMs);
-    setInterval(refreshMarkdown, fileRefreshMs);
+    setInterval(refreshFile, fileRefreshMs);
   </script>
 </body>
 </html>`;
