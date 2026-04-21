@@ -77,6 +77,7 @@ It answers one practical question:
 | M19 | done | build the host continue-resume bridge so `resume-ready` becomes a host action | M18 + Codex runner / command contract | `manual continue` and conservative `one-click continue` work without chat-box injection |
 | M20 | done | validate the daemon-host baseline on local workspaces and re-validate older feature families on top of it | M19 + representative local workspaces | the daemon-host baseline is stable and older capabilities keep passing on the new baseline |
 | M21 | done | resume post-M16 rollout verification on top of the daemon-host baseline | M20 | representative legacy repos still upgrade first, render structured panels, and are no longer dominated by avoidable synchronous work |
+| M22 | later | add reviewable correction-driven self-learning and a stable rule library | M18 + M19 + a host-neutral registry root | repeated corrections become pending candidates, the host and Status Bar support explicit review, and accepted rules persist without reinstall loss |
 
 ## Ordered Execution Queue
 
@@ -283,6 +284,15 @@ It answers one practical question:
 | Goal | resume post-M16 rollout verification on top of the daemon-host baseline |
 | Depends On | M20 |
 | Exit Criteria | representative legacy repos still upgrade first, render structured panels, and are no longer dominated by avoidable synchronous work |
+
+### M22
+
+| Item | Current Value |
+| --- | --- |
+| Status | later |
+| Goal | add reviewable correction-driven self-learning and a stable rule library |
+| Depends On | M18 + M19 + a host-neutral registry root |
+| Exit Criteria | repeated corrections become pending candidates, the host and Status Bar support explicit review, and accepted rules persist without reinstall loss |
 
 ## Current Next Step
 

@@ -77,6 +77,7 @@
 | M19 | done | 建立宿主 continue 恢复桥，把 `resume-ready` 接成宿主动作 | M18 + Codex runner / 命令契约 | `manual continue` 与保守的 `one-click continue` 可用；不依赖聊天框注入 |
 | M20 | done | 在 daemon-host 基线上完成本地工作区验证与旧功能逐项回归 | M19 + 代表性本地 workspace | daemon-host 基线稳定，且旧能力在新基线上持续重新通过 |
 | M21 | done | 在 daemon-host 基线上恢复 post-M16 rollout verification | M20 | 代表性旧代际仓库继续先升级再输出结构化面板，且体验不再被可避免的同步工作主导 |
+| M22 | later | 增加可 review 的纠错驱动自我学习与稳定规则库 | M18 + M19 + 宿主中立 registry root | 反复纠正能形成 pending candidates，宿主和状态栏可明确 review，accepted rules 持久生效且不被重装覆盖 |
 
 ## 顺序执行队列
 
@@ -283,6 +284,15 @@
 | 目标 | 在 daemon-host 基线上恢复 post-M16 rollout verification |
 | 依赖 | M20 |
 | 退出条件 | 代表性旧代际仓库继续先升级再输出结构化面板，且体验不再被可避免的同步工作主导 |
+
+### M22
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | later |
+| 目标 | 增加可 review 的纠错驱动自我学习与稳定规则库 |
+| 依赖 | M18 + M19 + 宿主中立 registry root |
+| 退出条件 | 反复纠正能形成 pending candidates，宿主和状态栏可明确 review，accepted rules 持久生效且不被重装覆盖 |
 
 ## 当前下一步
 

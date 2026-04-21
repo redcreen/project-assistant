@@ -84,6 +84,17 @@ PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=none bash install.sh
 - `project-assistant daemon start`
 - `project-assistant queue`
 
+## 共享 Codex 线程入口
+
+如果 Telegram 或别的 OpenClaw channel 已经绑到某条 Codex thread，而你想让本机终端加入同一条 thread，用：
+
+```bash
+bin/openclaw-codex list
+bin/openclaw-codex resume
+```
+
+这个入口会读取 `~/.openclaw/openclaw-codex-app-server/state.json`，然后在本机用 `codex resume <threadId>` 恢复最新匹配的 thread。要共享同一条前台 thread，就走这个入口，不要指望一个无关的 API 聊天窗口自动刷新外部 thread 更新。
+
 ## VS Code 状态栏工具
 
 如果你把 VS Code 当作日常主操作面，现在有两套配套扩展可以把体验做轻很多：
@@ -141,11 +152,19 @@ Developer: Restart Extension Host
 - 更深的 roadmap、milestone 和策略叙事放在 docs 里，不放在这个首页 README 里
 - 如果你要看工程侧原理和当前方向，直接从下面的文档导航进入
 
+## AI 编程模式定位
+
+- `project-assistant` 当前更接近 `Agentic Engineering + Harness Engineering`，吸收了一部分 `SDD` 和 `BMAD` 的做法，但不是默认的 `Vibe Coding` 工具，也不把 `Ralph Wiggum Loop` 当主交付路径。
+- 详细对比见：[AI 编程模式对比](docs/reference/project-assistant/ai-coding-modes-comparison.zh-CN.md)
+
 ## 文档导航
 
 - [文档首页](docs/README.zh-CN.md)
 - [架构](docs/architecture.zh-CN.md)
 - [路线图](docs/roadmap.zh-CN.md)
+- [AI 编程模式对比](docs/reference/project-assistant/ai-coding-modes-comparison.zh-CN.md)
+- [纠错驱动的自我学习](docs/reference/project-assistant/correction-driven-self-learning.zh-CN.md)
+- [自我学习治理总览](docs/reference/project-assistant/self-learning-governance-overview.zh-CN.md)
 - [战略方向](docs/reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md)
 - [编排与入口模型](docs/reference/project-assistant/orchestration-model.zh-CN.md)
 - [测试计划](docs/test-plan.zh-CN.md)
@@ -163,6 +182,7 @@ project-assistant/
 ├── .codex/
 ├── SKILL.md
 ├── VERSION
+├── bin/
 ├── install.sh
 ├── install-vscode-tools.sh
 ├── README.md
@@ -175,7 +195,9 @@ project-assistant/
 
 ### 关键脚本
 
+- `bin/openclaw-codex`
 - `scripts/project_assistant_entry.py`
+- `scripts/openclaw_codex_bridge.py`
 - `scripts/sync_entry_routing.py`
 - `scripts/validate_entry_routing.py`
 - `scripts/sync_dogfooding_evidence.py`

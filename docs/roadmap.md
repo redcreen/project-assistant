@@ -61,6 +61,7 @@ See the detailed execution plan: [project-assistant/development-plan.md](referen
 | [M19](reference/project-assistant/development-plan.md#m19) | done | build the host continue-resume bridge so `resume-ready` becomes a host action | [M18](reference/project-assistant/development-plan.md#m18) + Codex runner / command contract | `manual continue` and conservative `one-click continue` work without chat-box injection |
 | [M20](reference/project-assistant/development-plan.md#m20) | done | validate the daemon-host baseline on local workspaces and re-validate older feature families on top of it | [M19](reference/project-assistant/development-plan.md#m19) + representative local workspaces | the daemon-host baseline is stable and older capabilities keep passing on the new baseline |
 | [M21](reference/project-assistant/development-plan.md#m21) | done | resume post-M16 rollout verification on top of the daemon-host baseline | [M20](reference/project-assistant/development-plan.md#m20) | representative legacy repos still upgrade first, render structured panels, and are no longer dominated by avoidable synchronous work |
+| [M22](reference/project-assistant/development-plan.md#m22) | later | add reviewable correction-driven self-learning and a stable rule library | [M18](reference/project-assistant/development-plan.md#m18) + [M19](reference/project-assistant/development-plan.md#m19) + a host-neutral registry root | repeated corrections become pending candidates, the host and Status Bar support explicit review, and accepted rules persist without reinstall loss |
 
 ## Milestone Flow
 
@@ -83,6 +84,7 @@ flowchart LR
     M18 --> M19["M19 host resume bridge"]
     M19 --> M20["M20 daemon-host validation + legacy regression"]
     M20 --> M21["M21 resume post-M16 rollout"]
+    M21 --> M22["M22 reviewable self-learning + rule library"]
     M21 --> M15["M15 selective multi-executor scheduling"]
 ```
 
@@ -100,6 +102,7 @@ flowchart LR
 | --- | --- | --- |
 | daemon-host baseline hardening and dogfooding | `M17-M21` are complete, but retention will depend on whether the baseline stays fast and stable in real use | active / current mainline |
 | issue-driven closure loop | when a durable problem is identified, the skill should eventually auto-run the chain `devlog -> architecture -> roadmap/development plan -> long implementation run` | supporting backlog / todo |
+| reviewable correction-learning loop | repeated user corrections should become reviewable candidates, host/status-bar prompts, and promotable stable rules instead of remaining trapped inside chat history | supporting backlog / candidate next slice |
 | control-truth synchronization determinism | when users run `project assistant continue`, `.codex/status.md`, `.codex/plan.md`, `strategy / program-board / delivery / PTL / handoff`, and `continue / progress / handoff` should stop feeling out of sync | supporting backlog / todo |
 | stronger host surfaces | Webview dashboards, chat participants, and web/remote hosts should be built only after the daemon-host baseline is trusted | later / supporting backlog |
 
@@ -109,9 +112,11 @@ flowchart LR
 | --- | --- | --- |
 | daemon-first async execution, host resume bridge, and latency governance | the original latency complaint is now embodied in a working baseline: daemon runtime, host live status, and continue bridge ship together; the next job is to make that path stable and adoptable | active in roadmap and development plan |
 | business planning and program orchestration | `project-assistant` has completed the PTL-centered `M10 / M11 / M12 / M13 / M14 / M16` layers; `M15` remains an evidence-gated later layer | active in roadmap and development plan |
+| reviewable self-learning and rule library | repeated user corrections should become reviewable artifacts, host-visible review prompts, and accepted stable rules that survive reinstall instead of hidden model drift | supporting backlog / candidate next slice |
 | issue-driven closure loop | when a durable problem is identified, the skill should eventually auto-trigger `devlog -> architecture -> roadmap/development plan -> long implementation run` rather than depending on repeated human prompts | supporting backlog / todo |
 
 Direction docs:
 
 - [Strategic Planning And Program Orchestration](reference/project-assistant/strategic-planning-and-program-orchestration.md)
 - [Host Resume Bridge And VS Code Feasibility](reference/project-assistant/host-resume-bridge.md)
+- [Correction-Driven Self-Learning](reference/project-assistant/correction-driven-self-learning.md)

@@ -17,6 +17,7 @@ const DOCS_STARTUP_READY_ATTEMPTS = 120;
 const DOCS_STARTUP_READY_DELAY_MS = 100;
 const TREE_REFRESH_MS = 3000;
 const FILE_REFRESH_MS = 1200;
+const RAW_PREFIX = "/__workspace_doc_browser__/raw/";
 
 class WorkspaceDocBrowser {
   constructor(context) {
@@ -93,9 +94,16 @@ class WorkspaceDocBrowser {
     if (normalizedTargetUri) {
       const relativePath = normalizeSlashes(path.relative(workspaceRoot, normalizedTargetUri.fsPath));
       if (relativePath && !relativePath.startsWith("..") && !path.isAbsolute(relativePath)) {
+        let kind = getFileKind(relativePath);
+        try {
+          const stat = fs.statSync(normalizedTargetUri.fsPath);
+          if (stat.isDirectory()) {
+            kind = "directory";
+          }
+        } catch {}
         return {
           relativePath,
-          kind: getFileKind(relativePath),
+          kind,
         };
       }
     }
@@ -109,11 +117,13 @@ class WorkspaceDocBrowser {
     };
   }
 
-  getBootstrapUrl(baseUrl, workspaceRoot, relativePath) {
-    const bootstrapUrl = new URL("/__workspace_doc_browser__/bootstrap", `${String(baseUrl || "").replace(/\/$/, "")}/`);
-    bootstrapUrl.searchParams.set("path", relativePath);
-    bootstrapUrl.searchParams.set("workspace", path.basename(workspaceRoot));
-    return bootstrapUrl.toString();
+  getPreviewUrl(baseUrl, relativePath, kind = "") {
+    const normalizedPath = normalizeSlashes(String(relativePath || "")).replace(/^\/+/, "");
+    const trimmedPath = normalizedPath.replace(/\/+$/, "");
+    const pathValue = kind === "directory"
+      ? (trimmedPath ? `${encodePathSegments(trimmedPath)}/` : "")
+      : encodePathSegments(trimmedPath);
+    return new URL(pathValue, `${String(baseUrl || "").replace(/\/$/, "")}/`).toString();
   }
 
   getTargetUrl(baseUrl, workspaceRoot, targetUri) {
@@ -122,7 +132,7 @@ class WorkspaceDocBrowser {
       return `${String(baseUrl || "").replace(/\/$/, "")}/`;
     }
     if (isPreviewableKind(descriptor.kind)) {
-      return this.getBootstrapUrl(baseUrl, workspaceRoot, descriptor.relativePath);
+      return this.getPreviewUrl(baseUrl, descriptor.relativePath, descriptor.kind);
     }
     return new URL(encodePathSegments(descriptor.relativePath), `${String(baseUrl || "").replace(/\/$/, "")}/`).toString();
   }
@@ -356,6 +366,9 @@ function getFileKind(filePath) {
   if (/\.(png|apng|jpe?g|gif|webp|svg|bmp|ico|avif|tiff?)$/i.test(lowerPath)) {
     return "image";
   }
+  if (/\.(mp4|webm|mov|m4v|ogg|ogv)$/i.test(lowerPath)) {
+    return "video";
+  }
   if (/\.(txt|json|js|ts|py|sh|yml|yaml|toml|ini|cfg|conf|xml|html|css|csv|env)$/i.test(lowerPath) || /(^|\/)(\.gitignore|dockerfile)$/i.test(lowerPath)) {
     return "text";
   }
@@ -363,7 +376,7 @@ function getFileKind(filePath) {
 }
 
 function isPreviewableKind(kind) {
-  return kind === "markdown" || kind === "image" || kind === "text";
+  return kind === "directory" || kind === "markdown" || kind === "image" || kind === "video" || kind === "text";
 }
 
 function encodePathSegments(value) {
@@ -446,6 +459,7 @@ const root = ${JSON.stringify(workspaceRoot)};
 const port = ${Number(port)};
 const TREE_REFRESH_MS = ${TREE_REFRESH_MS};
 const FILE_REFRESH_MS = ${FILE_REFRESH_MS};
+const RAW_PREFIX = ${JSON.stringify(RAW_PREFIX)};
 
 const contentTypes = new Map([
   [".md", "text/markdown; charset=utf-8"],
@@ -480,6 +494,12 @@ const contentTypes = new Map([
   [".avif", "image/avif"],
   [".tif", "image/tiff"],
   [".tiff", "image/tiff"],
+  [".mp4", "video/mp4"],
+  [".webm", "video/webm"],
+  [".mov", "video/quicktime"],
+  [".m4v", "video/x-m4v"],
+  [".ogg", "video/ogg"],
+  [".ogv", "video/ogg"],
 ]);
 
 function send(res, status, body, contentType) {
@@ -502,6 +522,9 @@ function getFileKind(filePath) {
   }
   if (/\\.(png|apng|jpe?g|gif|webp|svg|bmp|ico|avif|tiff?)$/i.test(lowerPath)) {
     return "image";
+  }
+  if (/\\.(mp4|webm|mov|m4v|ogg|ogv)$/i.test(lowerPath)) {
+    return "video";
   }
   if (/\\.(txt|json|js|ts|py|sh|yml|yaml|toml|ini|cfg|conf|xml|html|css|csv|env)$/i.test(lowerPath) || /(^|\\/)(\\.gitignore|dockerfile)$/i.test(lowerPath)) {
     return "text";
@@ -530,6 +553,70 @@ function compareEntries(left, right) {
     return 1;
   }
   return left.name.localeCompare(right.name, undefined, { numeric: true, sensitivity: "base" });
+}
+
+function rawRelativePathFromRequestPath(requestPath) {
+  const normalized = normalizeSlashes(String(requestPath || ""));
+  if (!normalized.startsWith(RAW_PREFIX)) {
+    return "";
+  }
+  return normalized.slice(RAW_PREFIX.length).replace(/^\\/+/, "");
+}
+
+function sendPreviewPage(res, relativePath, resourceKind) {
+  return send(
+    res,
+    200,
+    (${buildBootstrapViewerHtml.toString()})(path.basename(root) || "Workspace Docs", relativePath, resourceKind, TREE_REFRESH_MS, FILE_REFRESH_MS),
+    "text/html; charset=utf-8",
+  );
+}
+
+function sendRawFile(req, res, target) {
+  const ext = path.extname(target).toLowerCase();
+  const type = contentTypes.get(ext) || contentTypes.get(path.basename(target).toLowerCase()) || "application/octet-stream";
+  fs.stat(target, (statError, stat) => {
+    if (statError || !stat.isFile()) {
+      return send(res, 404, "Not Found", "text/plain; charset=utf-8");
+    }
+    const commonHeaders = {
+      "Content-Type": type,
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "no-store",
+      "Accept-Ranges": "bytes",
+    };
+    const range = String((req && req.headers && req.headers.range) || "").trim();
+    if (range) {
+      const match = range.match(/^bytes=(\\d*)-(\\d*)$/);
+      if (!match) {
+        res.writeHead(416, {
+          ...commonHeaders,
+          "Content-Range": "bytes */" + stat.size,
+        });
+        return res.end();
+      }
+      const start = match[1] ? Number(match[1]) : 0;
+      const end = match[2] ? Number(match[2]) : (stat.size - 1);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end < start || end >= stat.size) {
+        res.writeHead(416, {
+          ...commonHeaders,
+          "Content-Range": "bytes */" + stat.size,
+        });
+        return res.end();
+      }
+      res.writeHead(206, {
+        ...commonHeaders,
+        "Content-Length": end - start + 1,
+        "Content-Range": "bytes " + start + "-" + end + "/" + stat.size,
+      });
+      return fs.createReadStream(target, { start, end }).pipe(res);
+    }
+    res.writeHead(200, {
+      ...commonHeaders,
+      "Content-Length": stat.size,
+    });
+    return fs.createReadStream(target).pipe(res);
+  });
 }
 
 function buildRepoTree(relativeDir) {
@@ -587,41 +674,59 @@ http.createServer((req, res) => {
   }
   if (parsed.pathname === "/__workspace_doc_browser__/bootstrap") {
     const relativePath = String(parsed.searchParams.get("path") || "");
-    const workspace = String(parsed.searchParams.get("workspace") || "Workspace Docs");
-    return send(
-      res,
-      200,
-      (${buildBootstrapViewerHtml.toString()})(workspace, relativePath, TREE_REFRESH_MS, FILE_REFRESH_MS),
-      "text/html; charset=utf-8",
-    );
+    return sendPreviewPage(res, relativePath, getFileKind(relativePath));
   }
 
-  const relativePath = decodeURIComponent(parsed.pathname.replace(/^\\/+/, ""));
+  const rawRelativePath = rawRelativePathFromRequestPath(parsed.pathname);
+  const relativePath = decodeURIComponent(rawRelativePath || parsed.pathname.replace(/^\\/+/, ""));
   const target = path.resolve(root, relativePath);
   if (!target.startsWith(path.resolve(root))) {
     return send(res, 403, "Forbidden", "text/plain; charset=utf-8");
   }
 
-  fs.stat(target, (error, stat) => {
-    if (error || !stat.isFile()) {
+  let targetStat = null;
+  try {
+    targetStat = fs.statSync(target);
+  } catch {}
+
+  if (!targetStat) {
+    return send(res, 404, "Not Found", "text/plain; charset=utf-8");
+  }
+
+  if (targetStat.isDirectory()) {
+    if (rawRelativePath) {
       return send(res, 404, "Not Found", "text/plain; charset=utf-8");
     }
-    const ext = path.extname(target).toLowerCase();
-    const type = contentTypes.get(ext) || contentTypes.get(path.basename(target).toLowerCase()) || "application/octet-stream";
-    fs.readFile(target, type.includes("charset=utf-8") ? "utf8" : null, (readError, data) => {
-      if (readError) {
-        return send(res, 500, String(readError), "text/plain; charset=utf-8");
-      }
-      send(res, 200, data, type);
-    });
-  });
+    const normalizedDirectoryPath = normalizeSlashes(relativePath).replace(/^\\/+|\\/+$/g, "");
+    if (parsed.pathname !== "/" && !parsed.pathname.endsWith("/")) {
+      res.writeHead(302, {
+        Location: "/" + encodeURIComponent(normalizedDirectoryPath).replace(/%2F/g, "/") + "/",
+        "Cache-Control": "no-store",
+      });
+      return res.end();
+    }
+    return sendPreviewPage(res, normalizedDirectoryPath, "directory");
+  }
+
+  if (!targetStat.isFile()) {
+    return send(res, 404, "Not Found", "text/plain; charset=utf-8");
+  }
+
+  if (!rawRelativePath) {
+    const kind = getFileKind(relativePath);
+    if (kind === "markdown" || kind === "image" || kind === "video" || kind === "text") {
+      return sendPreviewPage(res, relativePath, kind);
+    }
+  }
+
+  return sendRawFile(req, res, target);
 }).listen(port, "127.0.0.1", () => {
   console.log("[raw-server] listening on http://127.0.0.1:" + port);
 });
 `;
 }
 
-function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fileRefreshMs) {
+function buildBootstrapViewerHtml(workspaceName, relativePath, resourceKind, treeRefreshMs, fileRefreshMs) {
   function escapeBootstrapHtml(value) {
     return String(value || "")
       .replace(/&/g, "&amp;")
@@ -633,6 +738,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
   const fileLabel = escapeBootstrapHtml(String(relativePath || ""));
   const safeRelativePath = JSON.stringify(String(relativePath || ""));
   const safeWorkspaceName = JSON.stringify(String(workspaceName || "Workspace Docs"));
+  const safeResourceKind = JSON.stringify(String(resourceKind || "file"));
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -1011,6 +1117,20 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       box-shadow: 0 18px 44px rgba(31, 35, 40, 0.12);
       background: #ffffff;
     }
+    .asset-video-stage {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #0f1720;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+    .asset-video-stage video {
+      display: block;
+      width: 100%;
+      max-height: min(78vh, 980px);
+      border-radius: 10px;
+      background: #000000;
+    }
     .asset-actions {
       display: flex;
       flex-wrap: wrap;
@@ -1051,6 +1171,64 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       border-radius: 0;
       white-space: pre;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .directory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .directory-card {
+      display: block;
+      padding: 14px;
+      color: var(--text);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 8px 24px rgba(31, 35, 40, 0.04);
+    }
+    .directory-card:hover {
+      color: var(--link);
+      border-color: rgba(9, 105, 218, 0.25);
+      background: var(--sidebar-hover);
+    }
+    .directory-card-thumb {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 120px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background:
+        linear-gradient(45deg, rgba(208, 215, 222, 0.24) 25%, transparent 25%, transparent 75%, rgba(208, 215, 222, 0.24) 75%),
+        linear-gradient(45deg, rgba(208, 215, 222, 0.24) 25%, transparent 25%, transparent 75%, rgba(208, 215, 222, 0.24) 75%);
+      background-color: #ffffff;
+      background-position: 0 0, 12px 12px;
+      background-size: 24px 24px;
+      color: var(--muted);
+      font-size: 40px;
+    }
+    .directory-card-thumb img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .directory-card-name {
+      font-size: 15px;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .directory-card-meta {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
     .markdown-body .empty-state,
     .markdown-body .error-state {
@@ -1111,8 +1289,10 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
   <script>
     const relativePath = ${safeRelativePath};
     const workspaceName = ${safeWorkspaceName};
+    const currentResourceKind = ${safeResourceKind};
     const treeRefreshMs = ${Number(treeRefreshMs)};
     const fileRefreshMs = ${Number(fileRefreshMs)};
+    const rawPrefix = ${JSON.stringify(RAW_PREFIX)};
     const content = document.getElementById("content");
     const sidebar = document.getElementById("sidebar");
     const sidebarBody = document.getElementById("sidebar-body");
@@ -1120,6 +1300,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
     const mermaidScriptUrl = "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js";
     let lastMarkdown = "";
     let lastTreeJson = "";
+    let lastTreeData = [];
     let mermaidApi = null;
     let mermaidLoadPromise = null;
     const openFolders = new Set();
@@ -1147,6 +1328,9 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       if (/\\.(png|apng|jpe?g|gif|webp|svg|bmp|ico|avif|tiff?)$/i.test(lowerPath)) {
         return "image";
       }
+      if (/\\.(mp4|webm|mov|m4v|ogg|ogv)$/i.test(lowerPath)) {
+        return "video";
+      }
       if (/\\.(txt|json|js|ts|py|sh|yml|yaml|toml|ini|cfg|conf|xml|html|css|csv|env)$/i.test(lowerPath) || /(^|\\/)(\\.gitignore|dockerfile)$/i.test(lowerPath)) {
         return "text";
       }
@@ -1173,7 +1357,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       const normalizedBase = String(basePath || "").replace(/^\\/+/, "");
       const normalizedTarget = String(targetPath || "").replace(/^\\/+/, "");
       const baseSegments = normalizedBase.split("/").filter(Boolean);
-      if (baseSegments.length) {
+      if (currentResourceKind !== "directory" && baseSegments.length) {
         baseSegments.pop();
       }
       for (const segment of normalizedTarget.split("/")) {
@@ -1191,16 +1375,17 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       return baseSegments.join("/");
     }
 
-    function bootstrapHref(sourcePath, hashPart = "") {
-      const params = new URLSearchParams();
-      params.set("path", sourcePath);
-      params.set("workspace", workspaceName);
-      return "/__workspace_doc_browser__/bootstrap?" + params.toString() + (hashPart ? "#" + encodeURIComponent(hashPart) : "");
+    function previewHref(sourcePath, resourceKind = "", hashPart = "") {
+      const normalizedPath = String(sourcePath || "").replace(/^\\/+|\\/+$/g, "");
+      const baseHref = resourceKind === "directory"
+        ? (normalizedPath ? "/" + encodePath(normalizedPath) + "/" : "/")
+        : "/" + encodePath(normalizedPath);
+      return baseHref + (hashPart ? "#" + encodeURIComponent(hashPart) : "");
     }
 
     function rawFileHref(sourcePath, hashPart = "", cacheBust = "") {
       const query = cacheBust ? "?v=" + encodeURIComponent(cacheBust) : "";
-      return "/" + encodePath(sourcePath) + query + (hashPart ? "#" + encodeURIComponent(hashPart) : "");
+      return rawPrefix + encodePath(sourcePath) + query + (hashPart ? "#" + encodeURIComponent(hashPart) : "");
     }
 
     function resolvePreviewHref(href) {
@@ -1215,12 +1400,23 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       if (!pathPart && hashPart) {
         return "#" + encodeURIComponent(hashPart);
       }
+      const isDirectoryLink = pathPart.endsWith("/");
       const resolvedPath = pathPart.startsWith("/")
         ? pathPart.replace(/^\\/+/, "")
         : resolveRelativePath(relativePath, pathPart);
+      if (isDirectoryLink) {
+        return previewHref(resolvedPath, "directory", hashPart);
+      }
+      const treeEntry = findTreeEntryByPath(lastTreeData, resolvedPath);
+      if (treeEntry && treeEntry.kind === "directory") {
+        return previewHref(resolvedPath, "directory", hashPart);
+      }
+      if (treeEntry && (treeEntry.kind === "markdown" || treeEntry.kind === "image" || treeEntry.kind === "video" || treeEntry.kind === "text")) {
+        return previewHref(resolvedPath, treeEntry.kind, hashPart);
+      }
       const kind = fileKindForPath(resolvedPath);
-      if (kind === "markdown" || kind === "image" || kind === "text") {
-        return bootstrapHref(resolvedPath, hashPart);
+      if (kind === "markdown" || kind === "image" || kind === "video" || kind === "text") {
+        return previewHref(resolvedPath, kind, hashPart);
       }
       return rawFileHref(resolvedPath, hashPart);
     }
@@ -1486,9 +1682,85 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       return '<div class="content-shell"><div class="file-meta">' + escapeHtml(relativePath) + '</div><div class="asset-body image-file-body"><div class="asset-image-stage"><img alt="' + escapeHtml(relativePath.split("/").pop() || relativePath) + '" src="' + escapeHtml(imageSrc) + '"></div><div class="asset-actions"><a class="asset-button" href="' + escapeHtml(rawHref) + '" target="_blank" rel="noreferrer">Open Raw Image</a></div></div></div>';
     }
 
+    function renderVideoFrame() {
+      const rawHref = rawFileHref(relativePath);
+      const videoSrc = rawFileHref(relativePath, "", Date.now().toString());
+      return '<div class="content-shell"><div class="file-meta">' + escapeHtml(relativePath) + '</div><div class="asset-body video-file-body"><div class="asset-video-stage"><video controls preload="metadata" src="' + escapeHtml(videoSrc) + '"></video></div><div class="asset-actions"><a class="asset-button" href="' + escapeHtml(rawHref) + '" target="_blank" rel="noreferrer">Open Raw Video</a></div></div></div>';
+    }
+
     function renderBinaryFrame() {
       const rawHref = rawFileHref(relativePath);
       return '<div class="content-shell"><div class="file-meta">' + escapeHtml(relativePath) + '</div><div class="markdown-body"><p class="empty-state">This file type is not rendered inline yet.</p><p><a class="asset-button" href="' + escapeHtml(rawHref) + '" target="_blank" rel="noreferrer">Open Raw File</a></p></div></div>';
+    }
+
+    function findDirectoryChildren(items, targetPath) {
+      const normalizedTarget = String(targetPath || "").replace(/^\\/+|\\/+$/g, "");
+      if (!normalizedTarget) {
+        return Array.isArray(items) ? items : [];
+      }
+      const segments = normalizedTarget.split("/").filter(Boolean);
+      let currentItems = Array.isArray(items) ? items : [];
+      for (const segment of segments) {
+        const nextItem = currentItems.find((item) => item.kind === "directory" && item.path && item.path.split("/").pop() === segment);
+        if (!nextItem) {
+          return [];
+        }
+        currentItems = Array.isArray(nextItem.children) ? nextItem.children : [];
+      }
+      return currentItems;
+    }
+
+    function findTreeEntryByPath(items, targetPath) {
+      const normalizedTarget = String(targetPath || "").replace(/^\\/+|\\/+$/g, "");
+      if (!normalizedTarget) {
+        return null;
+      }
+      const queue = Array.isArray(items) ? items.slice() : [];
+      while (queue.length) {
+        const item = queue.shift();
+        if (!item || typeof item !== "object") {
+          continue;
+        }
+        if (item.kind === "directory" && String(item.path || "").replace(/^\\/+|\\/+$/g, "") === normalizedTarget) {
+          return item;
+        }
+        if (item.kind !== "directory" && String(item.sourcePath || "").replace(/^\\/+|\\/+$/g, "") === normalizedTarget) {
+          return item;
+        }
+        if (Array.isArray(item.children) && item.children.length) {
+          queue.push(...item.children);
+        }
+      }
+      return null;
+    }
+
+    function renderDirectoryCard(item) {
+      const resourcePath = item.kind === "directory" ? (item.path || "") : (item.sourcePath || "");
+      let href = rawFileHref(resourcePath);
+      if (item.kind === "directory" || item.kind === "markdown" || item.kind === "image" || item.kind === "video" || item.kind === "text") {
+        href = previewHref(resourcePath, item.kind);
+      }
+      let thumb = '<div class="directory-card-thumb">📄</div>';
+      if (item.kind === "directory") {
+        thumb = '<div class="directory-card-thumb">📁</div>';
+      } else if (item.kind === "image") {
+        thumb = '<div class="directory-card-thumb"><img alt="" loading="lazy" src="' + escapeHtml(rawFileHref(resourcePath, "", resourcePath)) + '"></div>';
+      } else if (item.kind === "video") {
+        thumb = '<div class="directory-card-thumb">🎬</div>';
+      } else if (item.kind === "markdown") {
+        thumb = '<div class="directory-card-thumb">📝</div>';
+      } else if (item.kind === "text") {
+        thumb = '<div class="directory-card-thumb">📄</div>';
+      }
+      const metaLabel = item.kind === "directory" ? "Directory" : item.kind;
+      return '<a class="directory-card" href="' + escapeHtml(href) + '">' + thumb + '<div class="directory-card-name">' + escapeHtml(item.title || resourcePath) + '</div><div class="directory-card-meta">' + escapeHtml(metaLabel) + '</div></a>';
+    }
+
+    function renderDirectoryFrame(items) {
+      if (!items.length) {
+        return '<div class="content-shell"><div class="file-meta">' + escapeHtml(relativePath || "/") + '</div><div class="markdown-body"><p class="empty-state">This directory is empty.</p></div></div>';
+      }
+      return '<div class="content-shell"><div class="file-meta">' + escapeHtml(relativePath || "/") + '</div><div class="asset-body"><div class="directory-grid">' + items.map((item) => renderDirectoryCard(item)).join("") + '</div></div></div>';
     }
 
     function setSidebarCollapsed(collapsed) {
@@ -1526,10 +1798,11 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
           const shouldOpen = (item.path && relativePath.startsWith(item.path + "/")) || openFolders.has(item.path);
           return "<li><details data-path=\\"" + escapeHtml(item.path || "") + "\\" " + (shouldOpen ? "open" : "") + "><summary>" + escapeHtml(item.title) + "</summary>" + renderTreeItems(item.children) + "</details></li>";
         }
-        const active = item.sourcePath === relativePath ? " active" : "";
-        const href = item.kind === "markdown" || item.kind === "image" || item.kind === "text"
-          ? bootstrapHref(item.sourcePath || "")
-          : rawFileHref(item.sourcePath || "");
+        const active = currentResourceKind !== "directory" && item.sourcePath === relativePath ? " active" : "";
+        let href = rawFileHref(item.sourcePath || "");
+        if (item.kind === "markdown" || item.kind === "image" || item.kind === "video" || item.kind === "text") {
+          href = previewHref(item.sourcePath || "", item.kind);
+        }
         const labelHtml = item.kind === "image"
           ? '<span class="tree-file"><span class="tree-thumb"><img alt="" loading="lazy" src="' + escapeHtml(rawFileHref(item.sourcePath || "", "", item.sourcePath || "")) + '"></span><span class="tree-label">' + escapeHtml(item.title) + "</span></span>"
           : '<span class="tree-file"><span class="tree-label">' + escapeHtml(item.title) + "</span></span>";
@@ -1547,16 +1820,38 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
       const treeJson = JSON.stringify(tree);
       if (treeJson !== lastTreeJson) {
         lastTreeJson = treeJson;
+        lastTreeData = Array.isArray(tree) ? tree : [];
         sidebarBody.innerHTML = renderTreeItems(tree);
+        if (currentResourceKind === "markdown") {
+          lastMarkdown = "";
+        }
       }
     }
 
     async function loadCurrentFile() {
-      const fileKind = fileKindForPath(relativePath);
+      const fileKind = currentResourceKind === "directory" ? "directory" : fileKindForPath(relativePath);
+      if (fileKind === "directory") {
+        if (!lastTreeJson) {
+          await loadTree();
+        }
+        const directorySignature = "__directory__:" + relativePath + ":" + lastTreeJson;
+        if (lastMarkdown !== directorySignature) {
+          lastMarkdown = directorySignature;
+          content.innerHTML = renderDirectoryFrame(findDirectoryChildren(lastTreeData, relativePath));
+        }
+        return;
+      }
       if (fileKind === "image") {
         if (lastMarkdown !== "__image__") {
           lastMarkdown = "__image__";
           content.innerHTML = renderImageFrame();
+        }
+        return;
+      }
+      if (fileKind === "video") {
+        if (lastMarkdown !== "__video__") {
+          lastMarkdown = "__video__";
+          content.innerHTML = renderVideoFrame();
         }
         return;
       }
@@ -1567,7 +1862,7 @@ function buildBootstrapViewerHtml(workspaceName, relativePath, treeRefreshMs, fi
         }
         return;
       }
-      const response = await fetch("/" + encodePath(relativePath), { cache: "no-store" });
+      const response = await fetch(rawFileHref(relativePath), { cache: "no-store" });
       if (!response.ok) {
         throw new Error("HTTP " + response.status);
       }

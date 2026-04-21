@@ -84,6 +84,17 @@ If you use the host or daemon workflow, the most common background commands are:
 - `project-assistant daemon start`
 - `project-assistant queue`
 
+## Shared Codex Thread Helper
+
+If Telegram or another OpenClaw channel is already bound to a Codex thread and you want the local terminal to join that same thread, use:
+
+```bash
+bin/openclaw-codex list
+bin/openclaw-codex resume
+```
+
+That helper reads `~/.openclaw/openclaw-codex-app-server/state.json` and resumes the latest matching thread locally with `codex resume <threadId>`. Use this shared-thread entry instead of expecting an unrelated API chat window to auto-refresh external thread updates.
+
 ## VS Code Status Bar Tools
 
 If VS Code is your daily operator surface, there are two companion extensions that make this much easier:
@@ -141,11 +152,19 @@ Current boundary:
 - the deeper roadmap, milestone, and strategy details live in the docs, not in this README
 - if you want the engineering rationale behind the current direction, start from the documentation map below
 
+## AI Coding Positioning
+
+- `project-assistant` is currently closest to `Agentic Engineering + Harness Engineering`, while also absorbing parts of `SDD` and `BMAD`; it is not a default `Vibe Coding` tool and it does not treat `Ralph Wiggum Loop` as the main delivery path.
+- Detailed comparison: [AI Coding Modes Comparison](docs/reference/project-assistant/ai-coding-modes-comparison.md)
+
 ## Documentation Map
 
 - [Docs Home](docs/README.md)
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
+- [AI Coding Modes Comparison](docs/reference/project-assistant/ai-coding-modes-comparison.md)
+- [Correction-Driven Self-Learning](docs/reference/project-assistant/correction-driven-self-learning.md)
+- [Self-Learning Governance Overview](docs/reference/project-assistant/self-learning-governance-overview.md)
 - [Strategic Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md)
 - [Orchestration And Entry Model](docs/reference/project-assistant/orchestration-model.md)
 - [Test Plan](docs/test-plan.md)
@@ -163,6 +182,7 @@ project-assistant/
 ├── .codex/
 ├── SKILL.md
 ├── VERSION
+├── bin/
 ├── install.sh
 ├── install-vscode-tools.sh
 ├── README.md
@@ -175,7 +195,9 @@ project-assistant/
 
 ### Key Scripts
 
+- `bin/openclaw-codex`
 - `scripts/project_assistant_entry.py`
+- `scripts/openclaw_codex_bridge.py`
 - `scripts/sync_entry_routing.py`
 - `scripts/validate_entry_routing.py`
 - `scripts/sync_dogfooding_evidence.py`

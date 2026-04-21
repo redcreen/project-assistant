@@ -29,8 +29,8 @@
 
 ## Development Log Capture
 - Trigger Level: high
-- Pending Capture: no
-- Reason: latest devlog already captures the most recent durable reasoning
+- Pending Capture: yes
+- Reason: commits landed after the latest devlog and changed durable repo surfaces; latest examples: Support docs preview for markdown outside workspace
 - Last Entry: `docs/devlog/2026-04-19-restore-accurate-devlog-capture-and-the-devlog-front-door.md`
 
 ## Architecture Supervision

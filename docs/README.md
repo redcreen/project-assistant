@@ -10,6 +10,9 @@
 - Roadmap: [roadmap.md](roadmap.md)
 - Project origin: [reference/project-assistant/project-origin-and-working-method.md](reference/project-assistant/project-origin-and-working-method.md)
 - Strategic direction: [reference/project-assistant/strategic-planning-and-program-orchestration.md](reference/project-assistant/strategic-planning-and-program-orchestration.md)
+- AI coding modes comparison: [reference/project-assistant/ai-coding-modes-comparison.md](reference/project-assistant/ai-coding-modes-comparison.md)
+- Correction-driven self-learning: [reference/project-assistant/correction-driven-self-learning.md](reference/project-assistant/correction-driven-self-learning.md)
+- Self-learning governance overview: [reference/project-assistant/self-learning-governance-overview.md](reference/project-assistant/self-learning-governance-overview.md)
 - Daemon MVP: [reference/project-assistant/ptl-daemon-mvp.md](reference/project-assistant/ptl-daemon-mvp.md)
 - Host resume bridge: [reference/project-assistant/host-resume-bridge.md](reference/project-assistant/host-resume-bridge.md)
 - Canonical commands and operator usage: [../references/usage.md](../references/usage.md)
@@ -29,6 +32,9 @@
 | See what is next | [roadmap.md](roadmap.md) |
 | Understand the question this skill originally grew from | [reference/project-assistant/project-origin-and-working-method.md](reference/project-assistant/project-origin-and-working-method.md) |
 | See the approved strategic layer beyond the current roadmap | [reference/project-assistant/strategic-planning-and-program-orchestration.md](reference/project-assistant/strategic-planning-and-program-orchestration.md) |
+| Compare this skill with current AI coding patterns | [reference/project-assistant/ai-coding-modes-comparison.md](reference/project-assistant/ai-coding-modes-comparison.md) |
+| Plan a reviewable self-learning loop for repeated corrections | [reference/project-assistant/correction-driven-self-learning.md](reference/project-assistant/correction-driven-self-learning.md) |
+| Review the full self-learning, rule-layering, and Growware-alignment discussion | [reference/project-assistant/self-learning-governance-overview.md](reference/project-assistant/self-learning-governance-overview.md) |
 | Understand the daemon-host baseline boundary | [reference/project-assistant/ptl-daemon-mvp.md](reference/project-assistant/ptl-daemon-mvp.md) |
 | Understand the host resume bridge and VS Code positioning | [reference/project-assistant/host-resume-bridge.md](reference/project-assistant/host-resume-bridge.md) |
 | Use the daemon-host default fast path and canonical commands | [../references/usage.md](../references/usage.md) |

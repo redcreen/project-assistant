@@ -10,6 +10,9 @@
 - 路线图：[roadmap.zh-CN.md](roadmap.zh-CN.md)
 - 项目起点：[reference/project-assistant/project-origin-and-working-method.zh-CN.md](reference/project-assistant/project-origin-and-working-method.zh-CN.md)
 - 战略方向：[reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md](reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md)
+- AI 编程模式对比：[reference/project-assistant/ai-coding-modes-comparison.zh-CN.md](reference/project-assistant/ai-coding-modes-comparison.zh-CN.md)
+- 纠错驱动的自我学习：[reference/project-assistant/correction-driven-self-learning.zh-CN.md](reference/project-assistant/correction-driven-self-learning.zh-CN.md)
+- 自我学习治理总览：[reference/project-assistant/self-learning-governance-overview.zh-CN.md](reference/project-assistant/self-learning-governance-overview.zh-CN.md)
 - daemon MVP：[reference/project-assistant/ptl-daemon-mvp.zh-CN.md](reference/project-assistant/ptl-daemon-mvp.zh-CN.md)
 - 宿主恢复桥：[reference/project-assistant/host-resume-bridge.zh-CN.md](reference/project-assistant/host-resume-bridge.zh-CN.md)
 - 统一前门与操作命令：[../references/usage.md](../references/usage.md)
@@ -29,6 +32,9 @@
 | 了解下一步计划 | [roadmap.zh-CN.md](roadmap.zh-CN.md) |
 | 了解这个 skill 是从什么问题长出来的 | [reference/project-assistant/project-origin-and-working-method.zh-CN.md](reference/project-assistant/project-origin-and-working-method.zh-CN.md) |
 | 了解当前路线图之后已经确认的战略方向 | [reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md](reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md) |
+| 对比这套能力和当前常见的 AI 编程模式 | [reference/project-assistant/ai-coding-modes-comparison.zh-CN.md](reference/project-assistant/ai-coding-modes-comparison.zh-CN.md) |
+| 规划“反复纠正 -> review -> 规则库”的自我学习能力 | [reference/project-assistant/correction-driven-self-learning.zh-CN.md](reference/project-assistant/correction-driven-self-learning.zh-CN.md) |
+| 整体 review 当前自我学习、规则分层与 Growware 合约映射 | [reference/project-assistant/self-learning-governance-overview.zh-CN.md](reference/project-assistant/self-learning-governance-overview.zh-CN.md) |
 | 理解 daemon-host baseline 的边界 | [reference/project-assistant/ptl-daemon-mvp.zh-CN.md](reference/project-assistant/ptl-daemon-mvp.zh-CN.md) |
 | 理解宿主恢复桥与 VS Code 扩展定位 | [reference/project-assistant/host-resume-bridge.zh-CN.md](reference/project-assistant/host-resume-bridge.zh-CN.md) |
 | 走 daemon-host 默认快路径并查看 canonical commands | [../references/usage.md](../references/usage.md) |

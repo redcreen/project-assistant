@@ -61,6 +61,7 @@
 | [M19](reference/project-assistant/development-plan.zh-CN.md#m19) | done | 建立宿主 continue 恢复桥，把 `resume-ready` 接成宿主动作 | [M18](reference/project-assistant/development-plan.zh-CN.md#m18) + Codex runner / 命令契约 | `manual continue` 与保守的 `one-click continue` 可用；不依赖聊天框注入 |
 | [M20](reference/project-assistant/development-plan.zh-CN.md#m20) | done | 在 daemon-host 基线上完成本地工作区验证与旧功能逐项回归 | [M19](reference/project-assistant/development-plan.zh-CN.md#m19) + 代表性本地 workspace | daemon-host 基线稳定，且旧能力在新基线上持续重新通过 |
 | [M21](reference/project-assistant/development-plan.zh-CN.md#m21) | done | 在 daemon-host 基线上恢复 post-M16 rollout verification | [M20](reference/project-assistant/development-plan.zh-CN.md#m20) | 代表性旧代际仓库继续先升级再输出结构化面板，且体验不再被可避免的同步工作主导 |
+| [M22](reference/project-assistant/development-plan.zh-CN.md#m22) | later | 增加可 review 的纠错驱动自我学习与稳定规则库 | [M18](reference/project-assistant/development-plan.zh-CN.md#m18) + [M19](reference/project-assistant/development-plan.zh-CN.md#m19) + 宿主中立 registry root | 反复纠正能形成 pending candidates，宿主和状态栏可明确 review，accepted rules 持久生效且不被重装覆盖 |
 
 ## 里程碑流转
 
@@ -83,6 +84,7 @@ flowchart LR
     M18 --> M19["M19 host resume bridge"]
     M19 --> M20["M20 daemon-host 验证 + 旧功能回归"]
     M20 --> M21["M21 恢复 post-M16 rollout"]
+    M21 --> M22["M22 reviewable self-learning + rule library"]
     M21 --> M15["M15 选择性多执行器调度"]
 ```
 
@@ -100,6 +102,7 @@ flowchart LR
 | --- | --- | --- |
 | daemon-host baseline 稳定化与 dogfooding | `M17-M21` 已完成，但真正决定留存的是 baseline 能否稳定成为默认快路径 | active / current mainline |
 | 问题驱动收口环 | 当 durable 问题被识别后，skill 未来应自动触发“日志 -> 架构 -> 路线图 / 开发计划 -> 长任务实现”的闭环 | supporting backlog / todo |
+| 可 review 的纠错学习环 | 用户反复纠正 assistant 的内容，应变成候选规则、宿主和状态栏提示，以及可 promotion 的稳定规则，而不是继续困在聊天记录里 | supporting backlog / candidate next slice |
 | 控制面真相同步确定性 | 当用户执行 `项目助手 继续` 时，`.codex/status.md`、`.codex/plan.md`、`strategy / program-board / delivery / PTL / handoff` 以及 `continue / progress / handoff` 输出之间不应再出现刷新顺序不一致 | supporting backlog / todo |
 | 同仓多宿主前台单写者保护 | 现在 daemon 已有 foreground lease，但 VS Code 宿主还没有把它真正接成“同一仓库只能有一个前台写代码 owner”，是否值得做要继续看真实使用证据 | supporting backlog / todo |
 | 更强宿主表面 | Webview dashboard、chat participant、web / remote host 等增强入口应建立在 daemon-host baseline 稳定后 | later / supporting backlog |
@@ -110,9 +113,11 @@ flowchart LR
 | --- | --- | --- |
 | daemon-first 异步执行、宿主恢复桥与时延治理 | 当前用户痛点已经落实成 working baseline：daemon runtime、宿主状态面和 continue bridge 已交付，下一步是把它变成稳定、可 adopt 的默认路径 | active in roadmap and development plan |
 | 业务规划与程序编排层 | `project-assistant` 已完成以项目技术负责人（PTL）为核心的 `M10 / M11 / M12 / M13 / M14 / M16`；`M15` 继续保持为证据驱动 later 层 | active in roadmap and development plan |
+| 可 review 的自我学习与规则库 | 用户反复纠正 assistant 的内容，应通过宿主可见 review 流程进入稳定规则库，并以独立 registry root 持久保存，而不是隐式漂移或写进安装目录 | supporting backlog / candidate next slice |
 | 问题驱动收口环 | 当 durable 问题被识别后，skill 未来应自动触发“日志 -> 架构 -> 路线图 / 开发计划 -> 长任务实现”的闭环，而不是依赖用户重复下指令 | supporting backlog / todo |
 
 方向文档：
 
 - [业务规划与程序编排方向](reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md)
 - [宿主恢复桥与 VS Code 扩展可行性](reference/project-assistant/host-resume-bridge.zh-CN.md)
+- [纠错驱动的自我学习](reference/project-assistant/correction-driven-self-learning.zh-CN.md)
