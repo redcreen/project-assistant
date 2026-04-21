@@ -104,6 +104,10 @@ for component in $COMPONENTS; do
   mkdir -p "$target_dir"
   cp -R "$REPO_DIR/$package_dir/." "$target_dir/"
   echo "Installed ${extension_id} -> ${target_dir}"
+
+  if [ "$component" = "workspace-doc-browser" ] && [ "$(uname -s)" = "Darwin" ] && [ -f "$target_dir/install-macos-finder-quick-action.sh" ]; then
+    bash "$target_dir/install-macos-finder-quick-action.sh" "$target_dir"
+  fi
 done
 
 echo "Next step: in VS Code run 'Developer: Restart Extension Host'"
