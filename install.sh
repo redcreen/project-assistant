@@ -5,7 +5,7 @@ REPO_URL="${PROJECT_ASSISTANT_REPO:-https://github.com/redcreen/project-assistan
 REF="${PROJECT_ASSISTANT_REF:-v0.1.9}"
 TARGET_DIR="${PROJECT_ASSISTANT_DIR:-$HOME/.codex/skills/project-assistant}"
 BIN_DIR="${PROJECT_ASSISTANT_BIN_DIR:-$HOME/.local/bin}"
-AUTO_VSCODE_COMPONENTS="${PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS:-workspace-doc-browser}"
+AUTO_VSCODE_COMPONENTS="${PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS:-project-assistant-host}"
 TMP_DIR="$(mktemp -d)"
 
 cleanup() {

@@ -11,7 +11,7 @@
 - 让 Codex 在推进实现时，把 plan / status / progress / docs / handoff 一起维护起来
 - 把已经发散的仓库重新收敛到“文档、控制面、验证、执行线”一致
 - 让长任务跨会话可恢复，而不是每开新线程都从头讲一遍
-- 如果你常驻 VS Code，可以直接用状态栏和浏览器文档预览做日常操作
+- 如果你常驻 VS Code，可以直接用活动栏和状态栏做日常操作
 
 ## 适合什么场景
 
@@ -30,7 +30,7 @@
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install.sh | bash
 ```
 
-这个安装现在会默认把 `Workspace Doc Browser` 一起装到 `~/.vscode/extensions`。
+这个安装现在会默认把 `Project Assistant Host` 装到 `~/.vscode/extensions`。
 
 从稳定 tag 手动安装：
 
@@ -95,12 +95,11 @@ bin/openclaw-codex resume
 
 这个入口会读取 `~/.openclaw/openclaw-codex-app-server/state.json`，然后在本机用 `codex resume <threadId>` 恢复最新匹配的 thread。要共享同一条前台 thread，就走这个入口，不要指望一个无关的 API 聊天窗口自动刷新外部 thread 更新。
 
-## VS Code 状态栏工具
+## VS Code 操作面
 
-如果你把 VS Code 当作日常主操作面，现在有两套配套扩展可以把体验做轻很多：
+如果你把 VS Code 当作日常主操作面，当前的配套扩展是：
 
 - [integrations/vscode-host](integrations/vscode-host/README.md) 里的 `Project Assistant Host`：提供活动栏工作区控制面，以及 daemon 状态 / resume readiness 的状态栏摘要
-- [integrations/workspace-doc-browser](integrations/workspace-doc-browser/README.md) 与 [中文说明](integrations/workspace-doc-browser/README.zh-CN.md) 里的 `Workspace Doc Browser`：提供左侧状态栏 `Browse Docs` 按钮，用实时浏览器预览的方式查看 Markdown 密集型仓库
 
 稳定 tag 一键安装：
 
@@ -122,9 +121,9 @@ Developer: Restart Extension Host
 
 补充说明：
 
-- `install.sh` 现在默认会把 `Workspace Doc Browser` 一起装上，这样主 skill 安装完就能直接用 docs 浏览器
-- 这两套扩展目前还是本地 operator 工具，还没有打成 Marketplace release
-- 如果你只想装其中一个扩展，可以执行 `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`，或把它替换成 `workspace-doc-browser`
+- `install.sh` 现在默认会把 `Project Assistant Host` 装上
+- 这个扩展目前还是本地 operator 工具，还没有打成 Marketplace release
+- 如果你只想显式安装 host，可以执行 `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`
 - 如果你更新了源码，重新执行一次 `bash install-vscode-tools.sh` 并重启 `Extension Host` 即可
 
 ## 它会替你做什么

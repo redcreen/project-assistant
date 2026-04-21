@@ -4,7 +4,7 @@ set -euo pipefail
 REPO_URL="${PROJECT_ASSISTANT_REPO:-https://github.com/redcreen/project-assistant.git}"
 REF="${PROJECT_ASSISTANT_REF:-v0.1.9}"
 EXTENSIONS_DIR="${PROJECT_ASSISTANT_VSCODE_EXTENSIONS_DIR:-$HOME/.vscode/extensions}"
-COMPONENTS_RAW="${PROJECT_ASSISTANT_VSCODE_COMPONENTS:-project-assistant-host workspace-doc-browser}"
+COMPONENTS_RAW="${PROJECT_ASSISTANT_VSCODE_COMPONENTS:-project-assistant-host}"
 SOURCE_DIR="${PROJECT_ASSISTANT_VSCODE_SOURCE_DIR:-}"
 TMP_DIR="$(mktemp -d)"
 
@@ -20,13 +20,10 @@ normalize_components() {
   for item in $raw; do
     case "$item" in
       all)
-        normalized="$normalized project-assistant-host workspace-doc-browser"
+        normalized="$normalized project-assistant-host"
         ;;
       host|project-assistant-host)
         normalized="$normalized project-assistant-host"
-        ;;
-      docs|doc-browser|workspace-doc-browser)
-        normalized="$normalized workspace-doc-browser"
         ;;
       *)
         echo "Unsupported PROJECT_ASSISTANT_VSCODE_COMPONENTS item: $item" >&2
@@ -41,9 +38,6 @@ package_dir_for_component() {
   case "$1" in
     project-assistant-host)
       printf '%s\n' "integrations/vscode-host"
-      ;;
-    workspace-doc-browser)
-      printf '%s\n' "integrations/workspace-doc-browser"
       ;;
     *)
       echo "Unknown component: $1" >&2
@@ -105,9 +99,6 @@ for component in $COMPONENTS; do
   cp -R "$REPO_DIR/$package_dir/." "$target_dir/"
   echo "Installed ${extension_id} -> ${target_dir}"
 
-  if [ "$component" = "workspace-doc-browser" ] && [ "$(uname -s)" = "Darwin" ] && [ -f "$target_dir/install-macos-finder-quick-action.sh" ]; then
-    bash "$target_dir/install-macos-finder-quick-action.sh" "$target_dir"
-  fi
 done
 
 echo "Next step: in VS Code run 'Developer: Restart Extension Host'"

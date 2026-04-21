@@ -11,7 +11,7 @@
 - let Codex keep plan, status, progress, docs, and handoff aligned while work moves
 - retrofit messy repos until docs, control surfaces, and validation agree again
 - keep long-running work recoverable across sessions instead of restarting from scratch
-- use lightweight VS Code operator surfaces when you want live status and browser-based doc reading
+- use a lightweight VS Code operator surface when you want live status and queue control
 
 ## Best Fit
 
@@ -30,7 +30,7 @@ Safe tagged install:
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install.sh | bash
 ```
 
-That install now auto-installs `Workspace Doc Browser` into `~/.vscode/extensions` by default.
+That install now auto-installs `Project Assistant Host` into `~/.vscode/extensions` by default.
 
 Manual install from the stable tag:
 
@@ -95,12 +95,11 @@ bin/openclaw-codex resume
 
 That helper reads `~/.openclaw/openclaw-codex-app-server/state.json` and resumes the latest matching thread locally with `codex resume <threadId>`. Use this shared-thread entry instead of expecting an unrelated API chat window to auto-refresh external thread updates.
 
-## VS Code Status Bar Tools
+## VS Code Operator Surface
 
-If VS Code is your daily operator surface, there are two companion extensions that make this much easier:
+If VS Code is your daily operator surface, the companion extension is:
 
 - `Project Assistant Host` in [integrations/vscode-host](integrations/vscode-host/README.md): activity-bar workspace control plus a status-bar summary for daemon state and resume readiness
-- `Workspace Doc Browser` in [integrations/workspace-doc-browser](integrations/workspace-doc-browser/README.md) and [中文说明](integrations/workspace-doc-browser/README.zh-CN.md): a `Browse Docs` status-bar button for live browser preview of Markdown-heavy repos
 
 One-line install from the stable tag:
 
@@ -122,10 +121,10 @@ Developer: Restart Extension Host
 
 Notes:
 
-- `install.sh` now auto-installs `Workspace Doc Browser` by default so the docs browser is ready right after the main skill install
-- both extensions are local operator add-ons and are not packaged as a Marketplace release yet
-- if you only want one extension, run `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash` or replace it with `workspace-doc-browser`
-- after updating either extension from source, rerun `bash install-vscode-tools.sh` and restart the extension host
+- `install.sh` now auto-installs `Project Assistant Host` by default
+- the extension is a local operator add-on and is not packaged as a Marketplace release yet
+- if you only want the host explicitly, run `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`
+- after updating the extension from source, rerun `bash install-vscode-tools.sh` and restart the extension host
 
 ## What It Does For You
 
