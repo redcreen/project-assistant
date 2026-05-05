@@ -34,7 +34,7 @@
 - Trigger Level: high
 - Pending Capture: no
 - Reason: latest devlog already captures the most recent durable reasoning
-- Last Entry: `docs/devlog/2026-05-05-daemon-host-release-prep.md`
+- Last Entry: `docs/devlog/2026-05-05-release-tag-guidance-correction.md`
 
 ## Architecture Supervision
 - Signal: `green`

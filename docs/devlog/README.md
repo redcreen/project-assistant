@@ -8,6 +8,7 @@ This directory records durable implementation narratives: what went wrong, what 
 
 ## Entries
 
+- [修正发布 tag 指南并重跑 release](2026-05-05-release-tag-guidance-correction.md)
 - [明确 daemon-host release prep 与安装入口](2026-05-05-daemon-host-release-prep.md)
 - [Restore accurate devlog capture and the devlog front door](2026-04-19-restore-accurate-devlog-capture-and-the-devlog-front-door.md)
 - [Broaden daemon-host dogfooding evidence before any new host surface](2026-04-14-broaden-daemon-host-dogfooding-evidence.md)
