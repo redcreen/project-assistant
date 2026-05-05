@@ -38,8 +38,8 @@
 
 ## Architecture Supervision
 - Signal: `green`
-- Signal Basis: M22 governed learning is accepted and active; release-prep now separates the immutable `v0.1.9` stable tag from the mainline daemon-host/PTL-loop release candidate.
-- Root Cause Hypothesis: if release-facing docs mix `v0.1.9` with the mainline release candidate, users can install the wrong capability set.
+- Signal Basis: M22 governed learning is accepted and active; the daemon-host/PTL-loop baseline now has an immutable stable tag, while `v0.1.9` remains the previous docs-browser-era release.
+- Root Cause Hypothesis: if release-facing docs mix the previous `v0.1.9` release with the current daemon-host/PTL-loop stable tag, users can install the wrong capability set.
 - Correct Layer: release notes, install/version references, branch-aware install scripts, README/docs roadmap, and validation gates.
 - Automatic Review Trigger: when version references, install scripts, release notes, or daemon-host baseline validation changes
 - Escalation Gate: continue automatically
@@ -120,8 +120,8 @@
 
 ## In Progress
 
-- release packaging prep 已完成：`v0.1.9` 被标为 previous stable，daemon-host / PTL-loop 当前通过 mainline release-candidate 命令获取。
-- release gate 已在当前 release-candidate 内容上通过；新 immutable tag 尚未创建，需要 clean-tree release flow 创建。
+- release packaging prep 已完成：`v0.1.9` 被标为 previous docs-browser release，daemon-host / PTL-loop baseline 已通过当前 stable tag 获取。
+- release gate 已在当前 release 内容上通过；clean-tree release flow 已创建 immutable tag。
 - 跨项目 dogfood 已在 `style engine` 与 `openclaw-skills` 上执行：style-engine 命中 image-generation / learned rules；openclaw-skills 正确要求 Phase 6 bridge 前 human review，随后被显式暂停，避免误推进 order 主线。
 
 ## Blockers / Open Decisions
@@ -130,11 +130,11 @@
 
 ## Follow-ups
 
-- 新 release tag 仍需在 clean working tree 上由 release flow 创建。
-- PTL learning 的跨项目自动晋升和规则衰减仍属于后续增强；基础语义归纳已进入当前 release candidate。
+- 后续 release tag 仍需在 clean working tree 上由 release flow 创建。
+- PTL learning 的跨项目自动晋升和规则衰减仍属于后续增强；基础语义归纳已进入当前 stable baseline。
 
 ## Next 3 Actions
 
-1. Commit the current release-candidate changes.
-2. Run `python3 scripts/validate_gate_set.py . --profile release`.
-3. If release validation stays green, run `python3 scripts/release_skill.py patch`.
+1. Push `main` and the release tag when remote publication is intended.
+2. Update representative downstream projects from the stable tag and verify PTL signals.
+3. Monitor dogfood results before promoting cross-project rules automatically.

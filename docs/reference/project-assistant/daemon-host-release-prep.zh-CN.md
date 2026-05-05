@@ -4,33 +4,33 @@
 
 ## 决策
 
-`v0.1.9` 仍然是最后一个不可变稳定 tag。当前 daemon-host / PTL-loop baseline 只是 mainline release candidate，直到后续真正生成 release commit 和 tag。
+daemon-host / PTL-loop baseline 已经生成不可变 release tag。正常安装应使用当前稳定安装命令。
 
-不要把 `v0.1.9` 描述成已经包含当前 mainline-only 行为。`v0.1.9` tag 里已有 daemon-host 壳，但它自带的安装脚本默认仍安装旧的 `Workspace Doc Browser`；它不包含当前分支里的 PTL learning review、message ingress loop、completion gate、task pipeline 细化、Codex App loop hook 等新工作。
+`v0.1.9` 保留为上一版 docs-browser 时代 release。不要把 `v0.1.9` 描述成已经包含 PTL learning review、message ingress loop、completion gate、task pipeline 细化或 Codex App loop hook。
 
 ## 安装路径
 
-上一版稳定发布：
+当前稳定发布：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install.sh | bash
 ```
 
-从 mainline 安装 daemon-host / PTL-loop release candidate：
+从 mainline 安装开发版：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/main/install.sh | PROJECT_ASSISTANT_REF=main PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=project-assistant-host bash
 ```
 
-只从 mainline 安装 host：
+只从 mainline 安装 host 开发版：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/main/install-vscode-tools.sh | PROJECT_ASSISTANT_REF=main PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash
 ```
 
-## `v0.1.9` 之后的 mainline delta
+## `v0.1.9` 之后的 release delta
 
-当前 `HEAD` 在这轮未提交 PTL-loop 工作之前，比 `v0.1.9` 多 7 个提交：
+daemon-host / PTL-loop release 包含早期 `v0.1.9` 之后的 docs-browser 工作：
 
 - 支持 workspace 外 Markdown 文档预览
 - 给 workspace doc browser 增加图片预览
@@ -39,11 +39,11 @@ curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/main/ins
 - 增加 workspace docs 的 Finder quick action
 - 从 `project-assistant` 移除 browser preview integration
 
-当前工作树又在此基础上增加 daemon-host / PTL-loop release-candidate 层：PTL learning review、task pipeline diagnostics、message ingress、completion gate、Codex App loop hook、Codex CLI wrapper，以及 install-ref validation。
+它同时增加 daemon-host / PTL-loop baseline：PTL learning review、task pipeline diagnostics、message ingress、completion gate、Codex App loop hook、Codex CLI wrapper、语义 learning candidates、跨项目 dogfood 证据，以及 install-ref validation。
 
 ## 发布门禁
 
-生成新的不可变 tag 前：
+后续生成新的不可变 tag 前：
 
 1. 先提交当前 release-candidate changes。
 2. 运行 `python3 scripts/validate_gate_set.py . --profile release`。
@@ -53,4 +53,4 @@ curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/main/ins
 
 ## 当前边界
 
-本文档只是准备 release 路径，本身不会创建新 tag。在新的 tag 存在前，需要当前 daemon-host / PTL-loop 行为的用户应使用 mainline release-candidate 命令，而不是 `v0.1.9` 稳定命令。
+需要 daemon-host / PTL-loop 行为时使用当前稳定 tag。只有在明确测试未发布开发变更时，才使用 `main`。

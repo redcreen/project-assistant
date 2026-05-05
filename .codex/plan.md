@@ -18,9 +18,9 @@
 
 ## Architecture Supervision
 - Signal: `green`
-- Signal Basis: M22 governed learning is accepted and active; release-prep now separates the immutable `v0.1.9` stable tag from the mainline daemon-host/PTL-loop release candidate.
+- Signal Basis: M22 governed learning is accepted and active; the daemon-host/PTL-loop baseline now has an immutable stable tag, while `v0.1.9` remains the previous docs-browser-era release.
 - Problem Class: 这是 release packaging / operator truth 问题；用户需要明确版本入口，而不是靠 mainline 状态自行推断。
-- Root Cause Hypothesis: 如果 README、安装脚本和 roadmap 把 `v0.1.9` 与 mainline release candidate 混成一个入口，用户会错误安装旧能力或误以为新能力已打 tag。
+- Root Cause Hypothesis: 如果 README、安装脚本和 roadmap 把上一版 `v0.1.9` 与当前 daemon-host/PTL-loop stable tag 混成一个入口，用户会错误安装旧能力。
 - Correct Layer: release notes、install/version references、README/docs roadmap、validation gates。
 - Persistent Registry: accepted PTL learned rules already live in `~/.codex/project-assistant/learned-registry.json` and are no longer blocking this slice.
 - Rejected Shortcut: 不只改一个 README 版本号；必须检查 release delta、安装路径、install script ref 支持和 gate 输出是否一致。

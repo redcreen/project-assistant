@@ -24,15 +24,15 @@
 
 ## 安装
 
-稳定 tag 一键安装（`v0.1.9`，上一版稳定入口）：
+稳定 tag 一键安装（当前 release）：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install.sh | bash
 ```
 
-这个不可变 tag 是上一版稳定发布。它自带的安装脚本默认安装旧的 `Workspace Doc Browser`，不包含当前 PTL learning / message-loop 这一轮工作。
+这个不可变 tag 已包含 daemon-host / PTL loop baseline：PTL learning review、message ingress、completion gate、task pipeline、Codex App loop hook 和本地 host 安装路径。
 
-从 mainline 安装 daemon-host / PTL loop release candidate：
+从 mainline 安装开发版：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/main/install.sh | PROJECT_ASSISTANT_REF=main PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=project-assistant-host bash
@@ -136,7 +136,7 @@ Developer: Restart Extension Host
 
 补充说明：
 
-- mainline 的 `install.sh` 默认会把 `Project Assistant Host` 装上；不可变的 `v0.1.9` 安装脚本默认仍是旧 docs browser
+- 当前 tag 的 `install.sh` 默认会把 `Project Assistant Host` 装上；`v0.1.9` 保留为上一版 docs-browser 时代 release
 - 这个扩展目前还是本地 operator 工具，还没有打成 Marketplace release
 - 如果你只想显式安装 host，可以执行 `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`
 - 如果你更新了源码，重新执行一次 `bash install-vscode-tools.sh` 并重启 `Extension Host` 即可

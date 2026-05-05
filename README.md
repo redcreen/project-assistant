@@ -24,15 +24,15 @@ If you only need a tiny one-file helper or a throwaway prompt, this skill is pro
 
 ## Install
 
-Stable tagged install (`v0.1.9`, previous stable):
+Stable tagged install (current release):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install.sh | bash
 ```
 
-That immutable tag is the previous stable release. Its bundled installer defaults to the older `Workspace Doc Browser`; it does not contain the current PTL learning/message-loop work.
+That immutable tag includes the daemon-host/PTL loop baseline: PTL learning review, message ingress, completion gate, task pipeline, Codex App loop hook, and the local host installer path.
 
-Daemon-host/PTL loop release-candidate install from mainline:
+Mainline development install:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/main/install.sh | PROJECT_ASSISTANT_REF=main PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=project-assistant-host bash
@@ -136,7 +136,7 @@ Developer: Restart Extension Host
 
 Notes:
 
-- mainline `install.sh` auto-installs `Project Assistant Host` by default; the immutable `v0.1.9` installer defaults to the older docs browser
+- the tagged `install.sh` auto-installs `Project Assistant Host` by default; `v0.1.9` remains the older docs-browser-era release
 - the extension is a local operator add-on and is not packaged as a Marketplace release yet
 - if you only want the host explicitly, run `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`
 - after updating the extension from source, rerun `bash install-vscode-tools.sh` and restart the extension host
