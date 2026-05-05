@@ -13,7 +13,7 @@ daemon-host / PTL-loop baseline 已经生成不可变 release tag。正常安装
 当前稳定发布：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.11/install.sh | bash
 ```
 
 从 mainline 安装开发版：

@@ -13,7 +13,7 @@ The daemon-host/PTL-loop baseline has been cut as an immutable release tag. Use 
 Current stable release:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.11/install.sh | bash
 ```
 
 Mainline development install:

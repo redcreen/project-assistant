@@ -27,7 +27,7 @@
 稳定 tag 一键安装（当前 release）：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.11/install.sh | bash
 ```
 
 这个不可变 tag 已包含 daemon-host / PTL loop baseline：PTL learning review、message ingress、completion gate、task pipeline、Codex App loop hook 和本地 host 安装路径。
@@ -43,7 +43,7 @@ curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/main/ins
 从稳定 tag 手动安装：
 
 ```bash
-git clone --branch v0.1.10 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
+git clone --branch v0.1.11 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
 
 如果你想直接用最新的 VS Code / daemon-host / PTL learning / task-loop 工具链，使用上面的 mainline 命令，不要把旧稳定 tag 当成当前能力入口。
@@ -66,7 +66,7 @@ git clone --branch v0.1.10 https://github.com/redcreen/project-assistant.git ~/.
 可选安装覆盖：
 
 ```bash
-PROJECT_ASSISTANT_REF=v0.1.10 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
+PROJECT_ASSISTANT_REF=v0.1.11 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
 ```
 
 如果你不想自动安装 VS Code 组件：
@@ -113,7 +113,7 @@ bin/openclaw-codex resume
 稳定 tag 一键安装 host：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install-vscode-tools.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.11/install-vscode-tools.sh | bash
 ```
 
 mainline 一键安装 host：
@@ -138,7 +138,7 @@ Developer: Restart Extension Host
 
 - 当前 tag 的 `install.sh` 默认会把 `Project Assistant Host` 装上；`v0.1.9` 保留为上一版 docs-browser 时代 release
 - 这个扩展目前还是本地 operator 工具，还没有打成 Marketplace release
-- 如果你只想显式安装 host，可以执行 `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`
+- 如果你只想显式安装 host，可以执行 `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.11/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`
 - 如果你更新了源码，重新执行一次 `bash install-vscode-tools.sh` 并重启 `Extension Host` 即可
 
 ## 它会替你做什么
