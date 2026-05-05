@@ -13,7 +13,7 @@ Do not describe `v0.1.9` as containing current mainline-only behavior. The `v0.1
 Stable previous release:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install.sh | bash
 ```
 
 Daemon-host/PTL-loop release candidate from mainline:

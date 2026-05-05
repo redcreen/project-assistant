@@ -27,7 +27,7 @@ If you only need a tiny one-file helper or a throwaway prompt, this skill is pro
 Stable tagged install (`v0.1.9`, previous stable):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install.sh | bash
 ```
 
 That immutable tag is the previous stable release. Its bundled installer defaults to the older `Workspace Doc Browser`; it does not contain the current PTL learning/message-loop work.
@@ -43,7 +43,7 @@ That mainline path installs the current skill plus `Project Assistant Host` into
 Manual install from the stable tag:
 
 ```bash
-git clone --branch v0.1.9 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
+git clone --branch v0.1.10 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
 
 If you want the newest VS Code, daemon-host, PTL learning, and task-loop tooling, use the mainline command above instead of the old stable tag.
@@ -66,7 +66,7 @@ Recommended first steps:
 Optional install overrides:
 
 ```bash
-PROJECT_ASSISTANT_REF=v0.1.9 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
+PROJECT_ASSISTANT_REF=v0.1.10 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
 ```
 
 Disable automatic VS Code component install:
@@ -113,7 +113,7 @@ If VS Code is your daily operator surface, the companion extension is:
 One-line host install from the stable tag:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install-vscode-tools.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install-vscode-tools.sh | bash
 ```
 
 One-line host install from mainline:
@@ -138,7 +138,7 @@ Notes:
 
 - mainline `install.sh` auto-installs `Project Assistant Host` by default; the immutable `v0.1.9` installer defaults to the older docs browser
 - the extension is a local operator add-on and is not packaged as a Marketplace release yet
-- if you only want the host explicitly, run `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`
+- if you only want the host explicitly, run `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`
 - after updating the extension from source, rerun `bash install-vscode-tools.sh` and restart the extension host
 
 ## What It Does For You

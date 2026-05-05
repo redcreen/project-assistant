@@ -13,7 +13,7 @@
 上一版稳定发布：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.10/install.sh | bash
 ```
 
 从 mainline 安装 daemon-host / PTL-loop release candidate：
