@@ -13,22 +13,22 @@
 ## 总体进展
 | 项目 | 当前值 |
 | --- | --- |
-| 总体进度 | 3 / 4 execution tasks 完成 |
-| 当前阶段 | `post-M21 daemon-host baseline active` |
-| 当前切片 | `stabilize-daemon-host-baseline-for-dogfooding` |
-| 当前目标 | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins |
-| 当前切片退出条件 | daemon-host baseline 可被更广泛使用，且没有高频 runtime/host 回归 |
-| 明确下一步动作 | EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice |
-| 下一候选切片 | `package-daemon-host-baseline-for-release` |
+| 总体进度 | 5 / 5 execution tasks 完成 |
+| 当前阶段 | `release packaging prep active` |
+| 当前切片 | `package-daemon-host-baseline-for-release` |
+| 当前目标 | prepare the daemon-host baseline for release-facing installation and update paths |
+| 当前切片退出条件 | 用户可以通过明确版本入口获取 daemon-host baseline，而不是只依赖当前仓库 mainline |
+| 明确下一步动作 | 当前 execution tasks 已完成，转向下一切片 |
+| 下一候选切片 | `future-host-expansion-and-m15-evidence` |
 
 查看详细执行计划：[project-assistant/development-plan.zh-CN.md](reference/project-assistant/development-plan.zh-CN.md)
 
 ## 当前 / 下一步 / 更后面
 | 时间层级 | 重点 | 退出信号 |
 | --- | --- | --- |
-| 当前 | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | daemon-host baseline 可被更广泛使用，且没有高频 runtime/host 回归 |
-| 下一步 | 决定 daemon-host baseline 的 release 叙事、安装说明和版本落点 | 用户可以通过明确版本入口获取 daemon-host baseline，而不是只依赖当前仓库 mainline |
-| 更后面 | 只在 daemon-host baseline 已稳定、dogfooding 证据充分后，再判断是否扩大到更强宿主表面或重新讨论 `M15 | 有足够证据支持下一条更大的主线，而不是靠猜测扩范围 |
+| 当前 | prepare the daemon-host baseline for release-facing installation and update paths | 用户可以通过明确版本入口获取 daemon-host baseline，而不是只依赖当前仓库 mainline |
+| 下一步 | 只在 daemon-host baseline 已稳定、dogfooding 证据充分后，再判断是否扩大到更强宿主表面或重新讨论 `M15 | 有足够证据支持下一条更大的主线，而不是靠猜测扩范围 |
+| 更后面 | 建立 daemon runtime、runtime store、queue/event contract，以及最小的 `start/status/stop/queue` 控制面 | 已完成并成为 daemon-host baseline 的基础层 |
 
 ## 里程碑规则
 - 一个里程碑只对应一个清晰的主题目标
@@ -61,7 +61,11 @@
 | [M19](reference/project-assistant/development-plan.zh-CN.md#m19) | done | 建立宿主 continue 恢复桥，把 `resume-ready` 接成宿主动作 | [M18](reference/project-assistant/development-plan.zh-CN.md#m18) + Codex runner / 命令契约 | `manual continue` 与保守的 `one-click continue` 可用；不依赖聊天框注入 |
 | [M20](reference/project-assistant/development-plan.zh-CN.md#m20) | done | 在 daemon-host 基线上完成本地工作区验证与旧功能逐项回归 | [M19](reference/project-assistant/development-plan.zh-CN.md#m19) + 代表性本地 workspace | daemon-host 基线稳定，且旧能力在新基线上持续重新通过 |
 | [M21](reference/project-assistant/development-plan.zh-CN.md#m21) | done | 在 daemon-host 基线上恢复 post-M16 rollout verification | [M20](reference/project-assistant/development-plan.zh-CN.md#m20) | 代表性旧代际仓库继续先升级再输出结构化面板，且体验不再被可避免的同步工作主导 |
-| [M22](reference/project-assistant/development-plan.zh-CN.md#m22) | later | 增加可 review 的纠错驱动自我学习与稳定规则库 | [M18](reference/project-assistant/development-plan.zh-CN.md#m18) + [M19](reference/project-assistant/development-plan.zh-CN.md#m19) + 宿主中立 registry root | 反复纠正能形成 pending candidates，宿主和状态栏可明确 review，accepted rules 持久生效且不被重装覆盖 |
+| [M22](reference/project-assistant/development-plan.zh-CN.md#m22) | done | 增加可 review 的纠错驱动自我学习与稳定规则库 | [M18](reference/project-assistant/development-plan.zh-CN.md#m18) + [M19](reference/project-assistant/development-plan.zh-CN.md#m19) + 宿主中立 registry root | 反复纠正能形成 pending candidates，宿主和状态栏可明确 review，accepted rules 持久生效且不被重装覆盖 |
+| [M23](reference/project-assistant/development-plan.zh-CN.md#m23) | done | 建立 PTL policy gate baseline，让其它项目进入项目助手时自动生成 policy 并运行 preflight | [M13](reference/project-assistant/development-plan.zh-CN.md#m13) + [M16](reference/project-assistant/development-plan.zh-CN.md#m16) + PTL 角色职责文档 | `continue / progress` 自动输出 PTL signal，fixture 覆盖 generic、missing-control、style-engine-like、openclaw-skills-like 场景 |
+| [M24](reference/project-assistant/development-plan.zh-CN.md#m24) | done | 建立 no-known-required-next-step completion gate，防止项目助手把必做项留成“下一步”后停下 | [M16](reference/project-assistant/development-plan.zh-CN.md#m16) + [M23](reference/project-assistant/development-plan.zh-CN.md#m23) + closeout stop taxonomy | final-check、open task、最终答复 next-step、显式延期和人类决策 fixtures 都能稳定给出正确 completion decision |
+| [M25](reference/project-assistant/development-plan.zh-CN.md#m25) | done | 建立程序化 Task Pipeline Runner，让每次非平凡执行先入队，再由 runner 循环推进 next task / repair / return / stop | [M16](reference/project-assistant/development-plan.zh-CN.md#m16) + [M23](reference/project-assistant/development-plan.zh-CN.md#m23) + [M24](reference/project-assistant/development-plan.zh-CN.md#m24) | command-loop、repair-loop、llm-pause、run-argument-enqueue、human-decision、entry-panel fixtures 都能稳定给出正确 pipeline state |
+| [M26](reference/project-assistant/development-plan.zh-CN.md#m26) | done | 建立 host/message ingress 层，让每条 host/user message 默认能进入程序化 task loop | [M25](reference/project-assistant/development-plan.zh-CN.md#m25) + 统一前门 + entry panels | execution-message、discussion-message、classify-only、front-door、entry-panel fixtures 都能稳定给出正确 message-ingress state |
 
 ## 里程碑流转
 
@@ -85,6 +89,11 @@ flowchart LR
     M19 --> M20["M20 daemon-host 验证 + 旧功能回归"]
     M20 --> M21["M21 恢复 post-M16 rollout"]
     M21 --> M22["M22 reviewable self-learning + rule library"]
+    M21 --> M23["M23 PTL policy gate baseline"]
+    M23 --> M24["M24 Completion gate baseline"]
+    M24 --> M25["M25 Task pipeline runner"]
+    M25 --> M26["M26 Message ingress"]
+    M26 --> M22
     M21 --> M15["M15 选择性多执行器调度"]
 ```
 
@@ -103,6 +112,10 @@ flowchart LR
 | daemon-host baseline 稳定化与 dogfooding | `M17-M21` 已完成，但真正决定留存的是 baseline 能否稳定成为默认快路径 | active / current mainline |
 | 问题驱动收口环 | 当 durable 问题被识别后，skill 未来应自动触发“日志 -> 架构 -> 路线图 / 开发计划 -> 长任务实现”的闭环 | supporting backlog / todo |
 | 可 review 的纠错学习环 | 用户反复纠正 assistant 的内容，应变成候选规则、宿主和状态栏提示，以及可 promotion 的稳定规则，而不是继续困在聊天记录里 | supporting backlog / candidate next slice |
+| PTL policy gate 自动生效 | 其它项目进入 `continue / progress` 时，应自动生成 project policy、加载 domain pack 并输出 PTL signal | baseline delivered / host review pending |
+| Completion gate 防止一步一停 | 已知必要下一步不应被写进 final answer 后停下，必须继续执行、阻塞、人类决策或显式延期 | baseline delivered / default closeout gate |
+| Task pipeline 程序化循环 | 非平凡执行请求必须先入队成 task，由 runner 负责 next-task、repair、return-to-mainline 和停止条件 | baseline delivered / default execute gate |
+| Message ingress baseline | host/user message 必须在 LLM 工作前进入 message ingress，让普通聊天也能被分类、记录、入队并跑进程序化 loop | baseline delivered / host bridge hardening pending |
 | 控制面真相同步确定性 | 当用户执行 `项目助手 继续` 时，`.codex/status.md`、`.codex/plan.md`、`strategy / program-board / delivery / PTL / handoff` 以及 `continue / progress / handoff` 输出之间不应再出现刷新顺序不一致 | supporting backlog / todo |
 | 同仓多宿主前台单写者保护 | 现在 daemon 已有 foreground lease，但 VS Code 宿主还没有把它真正接成“同一仓库只能有一个前台写代码 owner”，是否值得做要继续看真实使用证据 | supporting backlog / todo |
 | 更强宿主表面 | Webview dashboard、chat participant、web / remote host 等增强入口应建立在 daemon-host baseline 稳定后 | later / supporting backlog |
@@ -114,6 +127,10 @@ flowchart LR
 | daemon-first 异步执行、宿主恢复桥与时延治理 | 当前用户痛点已经落实成 working baseline：daemon runtime、宿主状态面和 continue bridge 已交付，下一步是把它变成稳定、可 adopt 的默认路径 | active in roadmap and development plan |
 | 业务规划与程序编排层 | `project-assistant` 已完成以项目技术负责人（PTL）为核心的 `M10 / M11 / M12 / M13 / M14 / M16`；`M15` 继续保持为证据驱动 later 层 | active in roadmap and development plan |
 | 可 review 的自我学习与规则库 | 用户反复纠正 assistant 的内容，应通过宿主可见 review 流程进入稳定规则库，并以独立 registry root 持久保存，而不是隐式漂移或写进安装目录 | supporting backlog / candidate next slice |
+| PTL policy gate baseline | PTL 角色职责已经落成文档，当前第一步是让 policy sync + preflight 在其它项目入口自动运行，并为后续 review / registry 铺路 | delivered as M23 baseline |
+| Completion gate baseline | 项目助手不能再把已知必要下一步留给用户催促；final / closeout 前必须先通过 no-known-required-next-step gate | delivered as M24 baseline |
+| Task pipeline runner baseline | 流程控制不再交给 LLM 自觉；LLM 只在 bounded task 内生效，程序 runner 负责循环推进 | delivered as M25 baseline |
+| Message ingress baseline | 普通 host/user message 不应绕过 runner；message ingress 会在入队 pipeline work 前记录并分类每条消息 | delivered as M26 baseline |
 | 问题驱动收口环 | 当 durable 问题被识别后，skill 未来应自动触发“日志 -> 架构 -> 路线图 / 开发计划 -> 长任务实现”的闭环，而不是依赖用户重复下指令 | supporting backlog / todo |
 
 方向文档：

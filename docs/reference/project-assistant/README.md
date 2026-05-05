@@ -12,6 +12,9 @@ This directory holds the durable maintainer-facing reference stack that sits bel
 - [project-origin-and-working-method.md](project-origin-and-working-method.md): the origin question behind `project-assistant` and the working method derived from it
 - [strategic-planning-and-program-orchestration.md](strategic-planning-and-program-orchestration.md): approved strategic direction for strategic evaluation, program orchestration, and long-run supervised delivery
 - [ai-coding-modes-comparison.md](ai-coding-modes-comparison.md): compares the current capability against common 2026 AI coding modes and explains what it is and is not trying to be
+- [ptl-role-and-governed-learning.md](ptl-role-and-governed-learning.md): defines PTL responsibilities, stable activation, policy-pack generation, and human confirmation boundaries
+- [codex-app-loop-methods.md](codex-app-loop-methods.md): validates five Codex Desktop App paths for routing prompts into the project-assistant loop, including the selected `UserPromptSubmit` hook ingress
+- [daemon-host-release-prep.md](daemon-host-release-prep.md): records the current stable tag vs mainline release-candidate install path for the daemon-host/PTL-loop baseline
 - [correction-driven-self-learning.md](correction-driven-self-learning.md): defines the first self-learning line around repeated user corrections, review, and stable rule promotion
 - [self-learning-governance-overview.md](self-learning-governance-overview.md): summarizes the current discussion around self-learning, rule layering, Growware contract alignment, and cross-project promotion
 - [orchestration-model.md](orchestration-model.md): explains the current single-Codex orchestration model and how it differs from a future multi-executor layer

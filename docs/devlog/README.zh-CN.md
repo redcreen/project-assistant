@@ -8,6 +8,7 @@
 
 ## 条目
 
+- [明确 daemon-host release prep 与安装入口](2026-05-05-daemon-host-release-prep.md)
 - [Restore accurate devlog capture and the devlog front door](2026-04-19-restore-accurate-devlog-capture-and-the-devlog-front-door.md)
 - [Broaden daemon-host dogfooding evidence before any new host surface](2026-04-14-broaden-daemon-host-dogfooding-evidence.md)
 - [记录系统性时延问题与异步执行硬约束](2026-04-13-entry.md)

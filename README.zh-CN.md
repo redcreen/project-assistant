@@ -24,13 +24,21 @@
 
 ## 安装
 
-稳定 tag 一键安装：
+稳定 tag 一键安装（`v0.1.9`，上一版稳定入口）：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install.sh | bash
 ```
 
-这个安装现在会默认把 `Project Assistant Host` 装到 `~/.vscode/extensions`。
+这个不可变 tag 是上一版稳定发布。它自带的安装脚本默认安装旧的 `Workspace Doc Browser`，不包含当前 PTL learning / message-loop 这一轮工作。
+
+从 mainline 安装 daemon-host / PTL loop release candidate：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/main/install.sh | PROJECT_ASSISTANT_REF=main PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=project-assistant-host bash
+```
+
+这条 mainline 路径会安装当前 skill，并把 `Project Assistant Host` 装到 `~/.vscode/extensions`。
 
 从稳定 tag 手动安装：
 
@@ -38,7 +46,7 @@ curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/i
 git clone --branch v0.1.9 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
 
-如果你想直接用最新的 VS Code / daemon-host 工具链，建议直接安装仓库主线，而不是旧的稳定 tag。
+如果你想直接用最新的 VS Code / daemon-host / PTL learning / task-loop 工具链，使用上面的 mainline 命令，不要把旧稳定 tag 当成当前能力入口。
 
 ## 最简配置
 
@@ -61,7 +69,7 @@ git clone --branch v0.1.9 https://github.com/redcreen/project-assistant.git ~/.c
 PROJECT_ASSISTANT_REF=v0.1.9 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
 ```
 
-如果你不想自动安装 VS Code 的 docs 插件：
+如果你不想自动安装 VS Code 组件：
 
 ```bash
 PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=none bash install.sh
@@ -81,6 +89,7 @@ PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=none bash install.sh
 
 如果你用宿主 / daemon 流程，最常见的后台命令是：
 
+- `project-assistant message . --message "实现当前用户任务"`
 - `project-assistant daemon start`
 - `project-assistant queue`
 
@@ -101,10 +110,16 @@ bin/openclaw-codex resume
 
 - [integrations/vscode-host](integrations/vscode-host/README.md) 里的 `Project Assistant Host`：提供活动栏工作区控制面，以及 daemon 状态 / resume readiness 的状态栏摘要
 
-稳定 tag 一键安装：
+稳定 tag 一键安装 host：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install-vscode-tools.sh | bash
+```
+
+mainline 一键安装 host：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/main/install-vscode-tools.sh | PROJECT_ASSISTANT_REF=main PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash
 ```
 
 从当前源码目录安装：
@@ -121,7 +136,7 @@ Developer: Restart Extension Host
 
 补充说明：
 
-- `install.sh` 现在默认会把 `Project Assistant Host` 装上
+- mainline 的 `install.sh` 默认会把 `Project Assistant Host` 装上；不可变的 `v0.1.9` 安装脚本默认仍是旧 docs browser
 - 这个扩展目前还是本地 operator 工具，还没有打成 Marketplace release
 - 如果你只想显式安装 host，可以执行 `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`
 - 如果你更新了源码，重新执行一次 `bash install-vscode-tools.sh` 并重启 `Extension Host` 即可
@@ -132,6 +147,7 @@ Developer: Restart Extension Host
 - 让 `继续 / 进展 / 交接` 始终对着同一套当前真相
 - 随着工作推进自动更新 plan、status 和 devlog
 - 发现 drift 时自动把架构复盘拉上来
+- 通过 message ingress 捕获 host/user message，让普通聊天也能被分类、记录、入队并进入程序化 task loop
 - 如果你愿意，也可以配合本地 daemon、queue 和 VS Code host 形成 live operator workflow
 - 主要只在 checkpoint、阻塞点和需要人类判断时停下来
 
@@ -162,6 +178,9 @@ Developer: Restart Extension Host
 - [架构](docs/architecture.zh-CN.md)
 - [路线图](docs/roadmap.zh-CN.md)
 - [AI 编程模式对比](docs/reference/project-assistant/ai-coding-modes-comparison.zh-CN.md)
+- [PTL 角色与受治理自我学习职责](docs/reference/project-assistant/ptl-role-and-governed-learning.zh-CN.md)
+- [Codex App Loop 方法验证](docs/reference/project-assistant/codex-app-loop-methods.zh-CN.md)
+- [Daemon-Host Release Prep](docs/reference/project-assistant/daemon-host-release-prep.zh-CN.md)
 - [纠错驱动的自我学习](docs/reference/project-assistant/correction-driven-self-learning.zh-CN.md)
 - [自我学习治理总览](docs/reference/project-assistant/self-learning-governance-overview.zh-CN.md)
 - [战略方向](docs/reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md)
@@ -215,6 +234,22 @@ project-assistant/
 - `scripts/sync_execution_line.py`
 - `scripts/sync_architecture_supervision.py`
 - `scripts/sync_architecture_retrofit.py`
+- `scripts/ptl_gate.py`
+- `scripts/validate_ptl_gate.py`
+- `scripts/completion_gate.py`
+- `scripts/validate_completion_gate.py`
+- `scripts/pipeline_runner.py`
+- `scripts/validate_pipeline_runner.py`
+- `scripts/message_ingress.py`
+- `scripts/validate_message_ingress.py`
+- `scripts/codex_message_wrapper.py`
+- `scripts/install_codex_message_wrapper.py`
+- `scripts/validate_codex_message_wrapper.py`
+- `scripts/codex_app_loop.py`
+- `scripts/codex_app_user_prompt_hook.py`
+- `scripts/install_codex_app_loop.py`
+- `scripts/validate_codex_app_loop.py`
+- `scripts/validate_install_scripts.py`
 - `scripts/validate_gate_set.py`
 - `scripts/validate_release_readiness.py`
 - `scripts/write_development_log.py`
@@ -245,6 +280,19 @@ python3 scripts/validate_doc_quality.py /path/to/repo --format text
 python3 scripts/validate_control_surface_quality.py /path/to/repo --format text
 python3 scripts/validate_development_log.py /path/to/repo --format text
 python3 scripts/validate_architecture_retrofit.py /path/to/repo --format text
+python3 scripts/ptl_gate.py preflight /path/to/repo --mode continue
+python3 scripts/validate_ptl_gate.py /path/to/repo --format text
+python3 scripts/completion_gate.py final-check /path/to/repo --stop-reason complete
+python3 scripts/validate_completion_gate.py /path/to/repo --format text
+python3 scripts/pipeline_runner.py run /path/to/repo --task "实现当前用户任务"
+python3 scripts/validate_pipeline_runner.py /path/to/repo --format text
+python3 scripts/message_ingress.py ingest /path/to/repo --message "实现当前用户任务"
+python3 scripts/validate_message_ingress.py /path/to/repo --format text
+python3 scripts/install_codex_message_wrapper.py
+python3 scripts/validate_codex_message_wrapper.py /path/to/repo --format text
+python3 scripts/install_codex_app_loop.py
+python3 scripts/validate_codex_app_loop.py /path/to/repo --format text
+python3 scripts/validate_install_scripts.py /path/to/repo --format text
 python3 scripts/validate_daemon_runtime.py /path/to/repo --format text
 python3 scripts/validate_vscode_host_extension.py /path/to/repo --format text
 python3 scripts/validate_daemon_host_mvp.py /path/to/repo --format text

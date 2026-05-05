@@ -2,47 +2,50 @@
 
 ## Current Phase
 
-`post-M21 daemon-host baseline active`
+`release packaging prep active`
 
 ## Current Execution Line
-- Objective: keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins
-- Plan Link: stabilize-daemon-host-baseline-for-dogfooding
-- Runway: one checkpoint covering runtime hardening, operator docs, and broader adoption evidence capture
-- Progress: 3 / 4 tasks complete
+- Objective: prepare the daemon-host baseline for release-facing installation and update paths
+- Plan Link: package-daemon-host-baseline-for-release
+- Runway: one checkpoint covering release delta check, install/version truth, release-facing docs, gate outputs, and final validation
+- Progress: 5 / 5 tasks complete
 - Stop Conditions:
-  - a runtime or host regression changes the default path
-  - release packaging or host-surface expansion needs human judgment
-  - broader dogfooding shows the daemon-host baseline should not yet be the default fast path
-- Validation: `validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py` 已通过，M17-M21 baseline 已具备可持续回归的自动化入口
+  - release docs point users at a stale install path
+  - version references disagree across README, install scripts, and roadmap
+  - daemon-host baseline changes are not validated through the fast gate
+  - package-ready status is claimed without checking the current mainline delta
+- Validation: release-facing docs, install path/version references, `validate_install_scripts.py`, and `validate_gate_set.py --profile fast` agree for the release-prep baseline
 
 ## Architecture Supervision
 - Signal: `green`
-- Signal Basis: `M17-M21` 现在不仅有设计文档，还有 working runtime、runtime control surface、VS Code host shell、continue bridge 和 dedicated validators。当前需要的是 baseline 稳定化和 adoption evidence，而不是再停在实现前讨论。
-- Problem Class: 这是一个已经跨过“是否值得做”的阶段性产品问题；接下来重点是 runtime hardening、host adoption 和 regression confidence。
-- Root Cause Hypothesis: 造成“写代码被过程拖慢”的主要因素是前台主写入线和支撑任务耦合；daemon-host baseline 已经把这类支撑任务迁到后台队列和宿主状态面。
-- Correct Layer: daemon runtime contract、queue/event control surface、VS Code host shell、continue bridge、operator docs、gate coverage。
-- Rejected Shortcut: 不回退到纯同步 orchestration，也不把“往聊天框里自动写继续”当成主恢复链路。
-- Automatic Review Trigger: 当 runtime/host 边界、dogfooding 证据或 release 策略变化时自动触发
+- Signal Basis: M22 governed learning is accepted and active; release-prep now separates the immutable `v0.1.9` stable tag from the mainline daemon-host/PTL-loop release candidate.
+- Problem Class: 这是 release packaging / operator truth 问题；用户需要明确版本入口，而不是靠 mainline 状态自行推断。
+- Root Cause Hypothesis: 如果 README、安装脚本和 roadmap 把 `v0.1.9` 与 mainline release candidate 混成一个入口，用户会错误安装旧能力或误以为新能力已打 tag。
+- Correct Layer: release notes、install/version references、README/docs roadmap、validation gates。
+- Persistent Registry: accepted PTL learned rules already live in `~/.codex/project-assistant/learned-registry.json` and are no longer blocking this slice.
+- Rejected Shortcut: 不只改一个 README 版本号；必须检查 release delta、安装路径、install script ref 支持和 gate 输出是否一致。
+- Automatic Review Trigger: 当 release path、install script、version reference、release notes 或 daemon-host validation 变化时自动触发
 - Escalation Gate: continue automatically
 
 ## Escalation Model
 
-- Continue Automatically: 继续做 post-M21 稳定化、文档收口和 dogfooding 采证，不需要新的架构裁决
-- Raise But Continue: 局部 runtime/host UX 细节、日志展示方式或 operator docs 精简度可在当前方向内继续讨论
-- Require User Decision: 任何会改变默认宿主、扩大自动继续权限、打开 web / remote 宿主，或重启 `M15` 的选择，都必须等用户裁决
+- Continue Automatically: scan message ingress and preflight events for repeated correction patterns, then create pending candidates without activating them
+- Raise But Continue: pending candidates and accepted learned rules surface in host/status/PTL panels while ordinary work continues
+- Require User Decision: accepting, rejecting, snoozing, or escalating a learned rule requires explicit human review
 
 ## Execution Tasks
-- [x] EL-1 harden daemon runtime edges exposed by concurrent startup, shutdown, or status polling in real workspaces
-- [x] EL-2 keep README / architecture / usage / test plan / entry routing aligned with daemon-host as the new default fast path
-- [x] EL-3 collect broader dogfooding evidence before opening the next host surface or any M15 discussion
-- [ ] EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice
+- [x] EL-1 inspect current release/version/install references and mainline delta since the last safe install tag
+- [x] EL-2 align README, install instructions, and roadmap around the selected daemon-host baseline release path
+- [x] EL-3 ensure gate outputs and validation commands match the release-facing path
+- [x] EL-4 write release notes or release-prep summary for the daemon-host baseline
+- [x] EL-5 run fast gate and final consistency checks
 
 ## Development Log Capture
 - Trigger Level: high
 - Auto-Capture When:
-  - the daemon runtime contract changes in a way that affects host behavior
-  - the default host or continue bridge boundary changes
-  - a new dogfooding finding changes the release or rollout path
+  - release path, install script ref handling, version references, or release-prep notes change
+  - a new immutable release tag is prepared
+  - gate outputs change the release readiness decision
 - Skip When:
   - the change is formatting-only
   - the change stays inside an already-approved boundary
@@ -63,6 +66,41 @@
   - Risks: 如果 runtime control truth、文档和 gate 覆盖不同步，用户会重新感知到“做完了但不好用”
   - Validation: `validate_gate_set.py --profile deep`、runtime/host smoke、broader workspace dogfooding
   - Exit Condition: daemon-host baseline 可被更广泛使用，且没有高频 runtime/host 回归
+
+- Slice: ship-ptl-policy-gate-baseline
+  - Objective: 把 PTL 角色职责转成其它项目入口默认运行的 policy sync + preflight，并生成可见 PTL signal
+  - Dependencies: `ptl-role-and-governed-learning.md`、`M13` PTL supervision、`M16` unified hard entry
+  - Risks: 如果只写文档不接入口，PTL 不会稳定生效；如果写成项目名特判，后续无法迁移和自我学习
+  - Validation: `validate_ptl_gate.py`、`ptl_gate.py preflight`、`validate_gate_set.py --profile fast`
+  - Exit Condition: generic、missing-control、style-engine-like、openclaw-skills-like、entry-activation fixtures 都能稳定给出正确 PTL decision
+
+- Slice: ship-completion-gate-stop-semantics
+  - Objective: 防止 project-assistant 在存在已知必要下一步时停下，把“继续做完”变成 final / closeout 前的 gate
+  - Dependencies: `ship-ptl-policy-gate-baseline`、unified entry scripts、fast gate
+  - Risks: 如果只写原则不落到 gate，assistant 仍会把必做项写成下一步后停下；如果 gate 误拦 optional backlog，会影响正常收口
+  - Validation: `validate_completion_gate.py`、`completion_gate.py final-check`、`validate_gate_set.py --profile fast`
+  - Exit Condition: complete、open-task、final-text-next-step、explicit-deferred、human-decision fixtures 都能稳定给出正确 completion decision
+
+- Slice: ship-task-pipeline-runner-loop
+  - Objective: 把每次非平凡执行请求先入队成 pipeline task，再由程序循环决定下一 task、repair task、回到主线和停止条件
+  - Dependencies: `ship-completion-gate-stop-semantics`、`ptl_gate.py`、unified entry scripts
+  - Risks: 如果只做 gate 而没有 runner，系统仍只能说“不该停”，不能保证自动进入下一步；如果 LLM 控制循环，仍会回到做一步停一步
+  - Validation: `validate_pipeline_runner.py`、`pipeline_runner.py run --task`、`validate_gate_set.py --profile fast`
+  - Exit Condition: command-loop、repair-loop、llm-pause、run-argument-enqueue、human-decision、entry-panel fixtures 都能稳定给出正确 pipeline state
+
+- Slice: ship-host-message-ingress-loop
+  - Objective: route host/user messages through message ingress so each message is classified, recorded, enqueued into the task pipeline, and run through the programmatic loop by default
+  - Dependencies: `ship-task-pipeline-runner-loop`、unified entry scripts、`continue / progress` panels
+  - Risks: 如果只覆盖 `execute --task`，普通用户消息仍会绕过 loop；如果入口只做记录不入队，程序循环仍不会稳定发生
+  - Validation: `validate_message_ingress.py`、`message_ingress.py ingest`、`project_assistant_entry.py message`、`validate_gate_set.py --profile fast`
+  - Exit Condition: execution-message、discussion-message、classify-only、front-door、entry-panel fixtures 都能稳定给出正确 message-ingress state
+
+- Slice: connect-ptl-learning-review-to-host
+  - Objective: 把 pending review、accept、reject、snooze 接入 VS Code host 与 learned registry
+  - Dependencies: `ship-ptl-policy-gate-baseline`、host live status、宿主中立 registry root
+  - Risks: 如果 accepted rules 写进 skill 安装目录，重装会覆盖；如果没有人类 review，PTL 会变成静默自我修改器
+  - Validation: `validate_ptl_learning.py`、`validate_vscode_host_extension.py`、`validate_gate_set.py --profile fast`
+  - Exit Condition: 已完成；用户能从状态栏或宿主面板 review PTL rule，并把 accepted rules 写入重装不覆盖的 registry；PTL learning 已支持固定 pattern 与语义概念对归纳两类候选，且都必须通过 human review
 
 - Slice: package-daemon-host-baseline-for-release
   - Objective: 决定 daemon-host baseline 的 release 叙事、安装说明和版本落点

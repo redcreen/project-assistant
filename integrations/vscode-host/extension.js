@@ -190,6 +190,14 @@ function readTextIfExists(filePath) {
   }
 }
 
+function readJsonIfExists(filePath, fallback = null) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+  } catch {
+    return fallback;
+  }
+}
+
 function extractMarkdownSection(text, heading) {
   const pattern = new RegExp(`^## ${heading.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}\\n([\\s\\S]*?)(?=^## |\\Z)`, "m");
   const match = text.match(pattern);
@@ -257,6 +265,7 @@ class ProjectAssistantProvider {
     this.cliResolution = null;
     this.lastError = null;
     this.workspaceSession = null;
+    this.ptlLearning = { pending: [], summary: {} };
     this.autoResumeInFlight = false;
     this.lastAutoResumeTriggerId = 0;
     this.lastAutoResumeAttemptAt = "";
@@ -286,12 +295,12 @@ class ProjectAssistantProvider {
     return folder ? folder.uri.fsPath : null;
   }
 
-  actionItem(label, description, command, icon, tooltip) {
+  actionItem(label, description, command, icon, tooltip, args = []) {
     return new QueueItem(label, vscode.TreeItemCollapsibleState.None, {
       description,
       tooltip,
       iconPath: new vscode.ThemeIcon(icon),
-      command: commandSpec(command, label),
+      command: commandSpec(command, label, args),
       contextValue: "projectAssistantAction",
     });
   }
@@ -503,6 +512,30 @@ class ProjectAssistantProvider {
       detail: "Project Assistant could not derive a clear next action from .codex/plan.md or .codex/status.md yet.",
       primaryDoc: ".codex/status.md",
       secondaryDoc: ".codex/plan.md",
+    };
+  }
+
+  readPtlLearningReview() {
+    if (!this.workspaceRoot) {
+      return { pending: [], summary: {} };
+    }
+    const reviewPath = path.join(this.workspaceRoot, ".codex", "ptl-policy", "learning-review.json");
+    const payload = readJsonIfExists(reviewPath, {});
+    const candidates = Array.isArray(payload && payload.candidates) ? payload.candidates : [];
+    const pending = candidates.filter((candidate) => candidate && candidate.status === "candidate");
+    const accepted = candidates.filter((candidate) => candidate && candidate.status === "accepted");
+    const summary = payload && typeof payload.summary === "object" && payload.summary ? payload.summary : {};
+    return {
+      path: reviewPath,
+      pending,
+      accepted,
+      summary: {
+        pending: pending.length,
+        acceptedLocal: accepted.length,
+        acceptedRegistry: Number(summary.acceptedRegistry || 0),
+        rejected: Number(summary.rejected || 0),
+        snoozed: Number(summary.snoozed || 0),
+      },
     };
   }
 
@@ -936,6 +969,7 @@ class ProjectAssistantProvider {
       this.resolveCliPath();
       this.status = await this.runCli(["daemon", "status", this.workspaceRoot, "--json"]);
       this.workspaceSession = this.findLatestWorkspaceSession();
+      this.ptlLearning = this.readPtlLearningReview();
       const queuePayload = await this.runCli(["queue", this.workspaceRoot, "--json"]);
       this.queue = queuePayload.tasks || [];
       const events = await this.runCli(
@@ -954,22 +988,30 @@ class ProjectAssistantProvider {
       }
       const counts = this.status.queueSummary || {};
       const continuity = this.getExecutionContinuity();
-      const text = this.status.resumeReady
-        ? `PA: Ready to continue · ${counts.running || 0} running`
-        : `PA: ${friendlyStatus(this.status.status)} · ${counts.running || 0} running`;
+      const ptlPending = this.ptlLearning && Array.isArray(this.ptlLearning.pending) ? this.ptlLearning.pending.length : 0;
+      const text = ptlPending
+        ? `PA: PTL review ${ptlPending} · ${counts.running || 0} running`
+        : this.status.resumeReady
+          ? `PA: Ready to continue · ${counts.running || 0} running`
+          : `PA: ${friendlyStatus(this.status.status)} · ${counts.running || 0} running`;
       const tooltip = [
         `Stage: ${this.status.currentPhase || "n/a"}`,
         `Slice: ${this.status.activeSlice || "n/a"}`,
         `Checkpoint: ${continuity.currentCheckpoint || "n/a"}`,
         `Next: ${continuity.nextAction || "n/a"}`,
         `Queue: ${countSummary(counts)}`,
+        ptlPending ? `PTL learning review: ${ptlPending} pending` : "PTL learning review: none pending",
+        ...(ptlPending ? this.ptlLearning.pending.slice(0, 3).map((candidate) => `- ${candidate.title || candidate.id}`) : []),
       ].join("\n");
-      const command = this.status.resumeReady ? "projectAssistant.resumeCodex" : "projectAssistant.refresh";
+      const command = ptlPending
+        ? "projectAssistant.openPtlLearningReview"
+        : this.status.resumeReady ? "projectAssistant.resumeCodex" : "projectAssistant.refresh";
       this.setStatusBar(text, tooltip, command);
       await this.maybeAutoResumeFromDaemonEvents(events);
     } catch (error) {
       this.status = null;
       this.queue = [];
+      this.ptlLearning = { pending: [], summary: {} };
       this.lastError = String(error && error.message ? error.message : error);
       this.workspaceSession = null;
       if (this.lastError.includes("Cannot find the project-assistant CLI")) {
@@ -1091,6 +1133,7 @@ class ProjectAssistantProvider {
     const resumeTarget = this.getResumeTargetLabel();
     const continuity = this.getExecutionContinuity();
     const basis = this.getNextActionBasis();
+    const ptlPendingCandidates = this.ptlLearning && Array.isArray(this.ptlLearning.pending) ? this.ptlLearning.pending : [];
 
     const executionChildren = [
       this.infoItem(
@@ -1203,6 +1246,17 @@ class ProjectAssistantProvider {
         "Open the matching Codex session in VS Code when possible, otherwise fall back to the workspace-safe CLI resume path.",
       ),
     );
+    if (ptlPendingCandidates.length) {
+      nowChildren.push(
+        this.actionItem(
+          "Review PTL learning",
+          `${ptlPendingCandidates.length} pending candidate(s)`,
+          "projectAssistant.openPtlLearningReview",
+          "law",
+          "Open the governed PTL learning review panel before accepting rules into the persistent learned registry.",
+        ),
+      );
+    }
     nowChildren.push(
       this.actionItem(
         "Open continue view",
@@ -1230,6 +1284,40 @@ class ProjectAssistantProvider {
         "Render project-assistant handoff and open it as Markdown preview.",
       ),
     );
+
+    const ptlLearningChildren = [
+      this.actionItem(
+        "Open PTL learning review",
+        ptlPendingCandidates.length ? `${ptlPendingCandidates.length} pending` : "No pending candidates",
+        "projectAssistant.openPtlLearningReview",
+        ptlPendingCandidates.length ? "law" : "pass",
+        "Open the review panel with candidate evidence and exact accept/reject/snooze commands.",
+      ),
+    ];
+    if (ptlPendingCandidates.length) {
+      for (const candidate of ptlPendingCandidates.slice(0, 8)) {
+        const title = candidate.title || candidate.id || "PTL learning candidate";
+        const description = `${candidate.suggestedDecision || "warn"} · ${candidate.suggestedScope || "user-global"}`;
+        const tooltip = [
+          candidate.ruleText || title,
+          "",
+          `Candidate: ${candidate.id || "n/a"}`,
+          `Occurrences: ${candidate.occurrenceCount || "n/a"}`,
+        ].join("\n");
+        ptlLearningChildren.push(new QueueItem(title, vscode.TreeItemCollapsibleState.Collapsed, {
+          description,
+          tooltip,
+          iconPath: new vscode.ThemeIcon("lightbulb"),
+          children: [
+            this.actionItem("Accept", "Persist as learned rule", "projectAssistant.acceptPtlLearningRule", "pass", tooltip, [candidate]),
+            this.actionItem("Reject", "Do not apply this rule", "projectAssistant.rejectPtlLearningRule", "circle-slash", tooltip, [candidate]),
+            this.actionItem("Snooze 7d", "Hide temporarily", "projectAssistant.snoozePtlLearningRule", "clock", tooltip, [candidate]),
+          ],
+        }));
+      }
+    } else {
+      ptlLearningChildren.push(this.infoItem("No pending PTL learning review", "Accepted rules still apply through PTL preflight.", "pass"));
+    }
 
     const toolChildren = [
       this.actionItem(
@@ -1287,6 +1375,13 @@ class ProjectAssistantProvider {
         "projectAssistant.openRetrofitInTerminal",
         "tools",
         "Render project-assistant retrofit output and open it as Markdown preview.",
+      ),
+      this.actionItem(
+        "Open PTL learning review",
+        ptlPendingCandidates.length ? `${ptlPendingCandidates.length} pending` : "Review learned rules",
+        "projectAssistant.openPtlLearningReview",
+        "law",
+        "Open governed PTL learning review.",
       ),
       this.actionItem(
         "Refresh status",
@@ -1400,6 +1495,7 @@ class ProjectAssistantProvider {
     return [
       new QueueItem("Current Execution", vscode.TreeItemCollapsibleState.Expanded, { children: executionChildren, iconPath: new vscode.ThemeIcon("debug-step-over") }),
       new QueueItem("Do Next", vscode.TreeItemCollapsibleState.Expanded, { children: nowChildren, iconPath: new vscode.ThemeIcon("compass") }),
+      new QueueItem("PTL Learning Review", ptlPendingCandidates.length ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed, { description: String(ptlPendingCandidates.length), children: ptlLearningChildren, iconPath: new vscode.ThemeIcon(ptlPendingCandidates.length ? "law" : "pass") }),
       new QueueItem("Workspace Status", vscode.TreeItemCollapsibleState.Expanded, { children: summaryChildren, iconPath: new vscode.ThemeIcon("dashboard") }),
       new QueueItem("Task Queue", vscode.TreeItemCollapsibleState.Expanded, { description: String(this.queue.length), children: queueChildren, iconPath: new vscode.ThemeIcon("list-tree") }),
       new QueueItem("Workspace Details", vscode.TreeItemCollapsibleState.Collapsed, { children: detailChildren, iconPath: new vscode.ThemeIcon("info") }),
@@ -1454,6 +1550,76 @@ class ProjectAssistantProvider {
     }
     await this.runCommand("open continue view", async () => {
       await this.openProjectAssistantModeAsMarkdown("continue", "continue.md");
+    });
+  }
+
+  candidateId(candidate) {
+    if (!candidate) {
+      return "";
+    }
+    return typeof candidate === "string" ? candidate : String(candidate.id || "");
+  }
+
+  async openPtlLearningReview() {
+    if (!this.workspaceRoot) {
+      return;
+    }
+    await this.runCommand("open PTL learning review", async () => {
+      await this.openProjectAssistantModeAsMarkdown("ptl-learning", "ptl-learning-review.md");
+      this.ptlLearning = this.readPtlLearningReview();
+      this._onDidChangeTreeData.fire();
+    });
+  }
+
+  async acceptPtlLearningRule(candidate) {
+    if (!this.workspaceRoot) {
+      return;
+    }
+    await this.runCommand("accept PTL learning rule", async () => {
+      const id = this.candidateId(candidate);
+      if (!id) {
+        throw new Error("Missing PTL learning candidate id.");
+      }
+      const args = ["ptl-learning", this.workspaceRoot, "accept", "--id", id, "--json"];
+      if (candidate && candidate.suggestedDecision) {
+        args.splice(args.length - 1, 0, "--decision", String(candidate.suggestedDecision));
+      }
+      if (candidate && candidate.suggestedScope) {
+        args.splice(args.length - 1, 0, "--scope", String(candidate.suggestedScope));
+      }
+      await this.runCli(args);
+      vscode.window.showInformationMessage(`Project Assistant: accepted PTL learned rule ${id}.`);
+      await this.refresh();
+    });
+  }
+
+  async rejectPtlLearningRule(candidate) {
+    if (!this.workspaceRoot) {
+      return;
+    }
+    await this.runCommand("reject PTL learning rule", async () => {
+      const id = this.candidateId(candidate);
+      if (!id) {
+        throw new Error("Missing PTL learning candidate id.");
+      }
+      await this.runCli(["ptl-learning", this.workspaceRoot, "reject", "--id", id, "--reason", "rejected from host", "--json"]);
+      vscode.window.showInformationMessage(`Project Assistant: rejected PTL learning candidate ${id}.`);
+      await this.refresh();
+    });
+  }
+
+  async snoozePtlLearningRule(candidate) {
+    if (!this.workspaceRoot) {
+      return;
+    }
+    await this.runCommand("snooze PTL learning rule", async () => {
+      const id = this.candidateId(candidate);
+      if (!id) {
+        throw new Error("Missing PTL learning candidate id.");
+      }
+      await this.runCli(["ptl-learning", this.workspaceRoot, "snooze", "--id", id, "--days", "7", "--reason", "snoozed from host", "--json"]);
+      vscode.window.showInformationMessage(`Project Assistant: snoozed PTL learning candidate ${id} for 7 days.`);
+      await this.refresh();
     });
   }
 
@@ -2319,6 +2485,10 @@ function activate(context) {
     vscode.commands.registerCommand("projectAssistant.openProgressInTerminal", () => provider.openProgressInTerminal()),
     vscode.commands.registerCommand("projectAssistant.openHandoffInTerminal", () => provider.openHandoffInTerminal()),
     vscode.commands.registerCommand("projectAssistant.openRetrofitInTerminal", () => provider.openRetrofitInTerminal()),
+    vscode.commands.registerCommand("projectAssistant.openPtlLearningReview", () => provider.openPtlLearningReview()),
+    vscode.commands.registerCommand("projectAssistant.acceptPtlLearningRule", (candidate) => provider.acceptPtlLearningRule(candidate)),
+    vscode.commands.registerCommand("projectAssistant.rejectPtlLearningRule", (candidate) => provider.rejectPtlLearningRule(candidate)),
+    vscode.commands.registerCommand("projectAssistant.snoozePtlLearningRule", (candidate) => provider.snoozePtlLearningRule(candidate)),
     vscode.commands.registerCommand("projectAssistant.configureCliPath", () => provider.configureCliPath()),
     vscode.commands.registerCommand("projectAssistant.copyStopInstruction", () => provider.copyStopInstruction()),
     vscode.commands.registerCommand("projectAssistant.showOutput", () => provider.showOutput()),

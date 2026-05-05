@@ -16,8 +16,12 @@ trap cleanup EXIT
 echo "Installing project-assistant from ${REPO_URL} @ ${REF}"
 
 git clone --depth 1 "$REPO_URL" "$TMP_DIR/repo"
-git -C "$TMP_DIR/repo" fetch --depth 1 origin "refs/tags/$REF:refs/tags/$REF"
-git -C "$TMP_DIR/repo" checkout --detach "$REF"
+if git -C "$TMP_DIR/repo" fetch --depth 1 origin "refs/tags/$REF:refs/tags/$REF" >/dev/null 2>&1; then
+  git -C "$TMP_DIR/repo" checkout --detach "$REF"
+else
+  git -C "$TMP_DIR/repo" fetch --depth 1 origin "$REF"
+  git -C "$TMP_DIR/repo" checkout --detach FETCH_HEAD
+fi
 mkdir -p "$(dirname "$TARGET_DIR")"
 rm -rf "$TARGET_DIR"
 cp -R "$TMP_DIR/repo" "$TARGET_DIR"

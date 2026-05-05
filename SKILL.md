@@ -25,6 +25,7 @@ Primary modes:
 - `架构` / `architecture`
 - `架构整改` / `architecture-retrofit`
 - `执行` / `execute`
+- `消息` / `message` / `ingress`
 - `继续` / `恢复` / `continue` / `resume`
 - `进展` / `progress`
 - `整改` / `retrofit`
@@ -85,13 +86,20 @@ Most other flows should behave like background operating flows unless the user e
 1. classify the work as `small`, `medium`, or `large`
 2. create or refresh the minimum required control surface
 3. execute one slice at a time
-4. default to a meaningful uninterrupted execution line instead of waiting for repeated "continue" prompts
-5. express that execution line as a visible task board mapped back to the active slice or development plan
-6. keep a compact architecture-supervision state beside that task board
-7. use an explicit escalation gate: continue automatically, raise but continue, or require user decision
-8. keep status fresh at session boundaries
-9. for existing repos, retrofit to convergence rather than stopping in a partial state
-10. keep the user oriented during long-running work with short visible progress updates about the current phase, recent discovery, and next checkpoint
+4. before widening implementation, verify uncertain host, API, protocol, plugin, binary, or undocumented-behavior assumptions with the smallest feasible probe; if the probe fails, stop, shrink, or switch layer instead of continuing implementation
+5. default to a meaningful uninterrupted execution line instead of waiting for repeated "continue" prompts
+6. express that execution line as a visible task board mapped back to the active slice or development plan
+7. keep a compact architecture-supervision state beside that task board
+8. use an explicit escalation gate: continue automatically, raise but continue, or require user decision
+9. keep status fresh at session boundaries
+10. for existing repos, retrofit to convergence rather than stopping in a partial state
+11. keep the user oriented during long-running work with short visible progress updates about the current phase, recent discovery, and next checkpoint
+12. before declaring a project-assistant run complete, apply the no-known-required-next-step completion gate: if a known required next step remains and it is not blocked, human-decision-bound, or explicitly deferred, continue the work instead of leaving it as a follow-up
+13. treat every non-trivial execution request as a task inside the programmatic task pipeline; enqueue the task first, then let the runner decide next-task, repair-task, return-to-mainline, completion, blocked, or human-decision states
+14. route every non-empty project-assistant user message through message ingress when the host or local scripts can do so; execution messages enqueue and run, analysis/discussion messages still become explicit reviewable tasks, and classify-only must be deliberate
+15. when human confirmation is required, represent it as an explicit `human-decision` task in the pipeline; after the human accepts, rejects, snoozes, or says `全部接受` for a scoped review, close that task and let the runner continue automatically
+16. start every project-assistant reply with a state-sensitive compact loop header that states the current loop or task id and the goal for this turn; include exit or pause options only when work is still running or waiting, and if there is no active task or human action needed, explicitly say no human action is needed instead of asking the user to stop or pause
+17. whenever human action is needed, include a separate `需要人类做什么` section that re-lists the required actions, exact reply format, and current pending items; never rely on earlier context
 
 ### Tier Rules
 
@@ -172,6 +180,40 @@ Prefer the bundled scripts when present:
   中文：从当前执行线、blockers 和升级状态自动刷新架构信号与升级 gate
 - `scripts/sync_architecture_retrofit.py`
   中文：生成 repo 本地的架构整改工作底稿
+- `scripts/ptl_gate.py`
+  中文：生成 repo 本地的 PTL policy，并在 `continue / progress / execute / release` 前运行轻量 preflight
+- `scripts/ptl_learning.py`
+  中文：从反复纠正、失败模式和轻量语义归纳生成可 review 的 PTL learning candidates，并把接受后的规则写入重装不覆盖的 learned registry
+- `scripts/validate_ptl_gate.py`
+  中文：用隔离 fixture 校验 PTL policy sync、缺控制面阻塞、出图域和 OpenClaw 域自动识别
+- `scripts/validate_ptl_learning.py`
+  中文：用隔离 fixture 校验 learning review、accept / reject / snooze、语义归纳、持久 registry，以及 accepted rules 注入 PTL preflight
+- `scripts/completion_gate.py`
+  中文：在 final / closeout 前判断是否还存在已知必要下一步，防止把必做项留成“下一步”
+- `scripts/validate_completion_gate.py`
+  中文：用隔离 fixture 校验 open task、未完成进度、final answer next-step、显式延期和人类决策停止语义
+- `scripts/pipeline_runner.py`
+  中文：运行 repo 本地 `.codex/task-pipeline.json` 程序循环，负责任务入队、下一步选择、失败修复、显式 human-decision gate、LLM task 完成写回、final-text 必做后续入队、历史 message backlog 维护、回到主线和完成判断
+- `scripts/validate_pipeline_runner.py`
+  中文：用隔离 fixture 校验自动继续、失败修复、LLM task 暂停与 resolve 写回、人类决策、final-text 后续入队、历史 backlog 归档和入口面板
+- `scripts/message_ingress.py`
+  中文：把 host/user message 分类、记录到 `.codex/message-ingress.json`，并默认入队到 task pipeline 后进入程序循环
+- `scripts/validate_message_ingress.py`
+  中文：用隔离 fixture 校验执行消息、讨论消息、classify-only、统一前门和入口面板
+- `scripts/codex_message_wrapper.py`
+  中文：轻量包装 Codex CLI 初始 prompt，在转发给真实 `codex` 前先写入 project-assistant message ingress
+- `scripts/install_codex_message_wrapper.py`
+  中文：把 wrapper 安装到 `~/.local/bin/codex`，保留真实 Codex binary 路径并允许环境变量覆盖
+- `scripts/validate_codex_message_wrapper.py`
+  中文：用 fake codex 校验初始 prompt、`exec` prompt、`app-server` 跳过和禁用开关
+- `scripts/codex_app_loop.py`
+  中文：监听 Codex Desktop App 写入的 session JSONL，把 App 内用户消息异步兜底路由到 project-assistant message ingress 和 task pipeline
+- `scripts/codex_app_user_prompt_hook.py`
+  中文：Codex `UserPromptSubmit` hook 命令入口，在 App prompt 提交时把消息同步写入 message ingress 和 task pipeline
+- `scripts/install_codex_app_loop.py`
+  中文：安装全局 `AGENTS.md` 提示词前门、`UserPromptSubmit` hook、`features.codex_hooks = true` 和 macOS LaunchAgent，使 Codex App 消息有同步主入口和异步兜底
+- `scripts/validate_codex_app_loop.py`
+  中文：用隔离 fixture 校验 App `UserPromptSubmit` hook、session watcher、去重、trusted project 路由、安装器和入口面板
 - `scripts/validate_gate_set.py`
   中文：按 `fast` / `deep` 分层运行门禁
 - `scripts/write_development_log.py`
@@ -189,7 +231,7 @@ Prefer the bundled scripts when present:
 - `scripts/handoff_entry.py`
   中文：`交接` 的唯一结构化入口，强制输出可复制的交接面板
 - `scripts/project_assistant_entry.py`
-  中文：`启动 / 整改 / 文档整改 / 继续 / 进展 / 交接 / 继续前升级` 的统一前门，把 mode 路由到唯一后端链路
+  中文：`启动 / 整改 / 文档整改 / 消息 / 执行 / 继续 / 进展 / 交接 / 继续前升级` 的统一前门，把 mode 路由到唯一后端链路
 - `scripts/sync_resume_readiness.py`
   中文：在 `继续` / `恢复` 前按 `.codex/control-surface.json` 版本自动判断是否需要升级，并执行最小安全补齐
 - `scripts/sync_entry_routing.py`
@@ -277,6 +319,18 @@ If the user explicitly chooses architecture retrofit, prefer the architecture-re
 
 ### 执行 / Execute
 
+- when a non-empty user message arrives in project-assistant context and scripts are available, prefer `python3 scripts/message_ingress.py ingest <repo> --message "<user message>"` or `python3 scripts/project_assistant_entry.py message <repo> --message "<user message>"` before doing substantial work
+- when using Codex from a terminal, install the lightweight wrapper with `python3 scripts/install_codex_message_wrapper.py` so `codex "<prompt>"` and `codex exec "<prompt>"` enter message ingress before the real Codex binary runs
+- when using Codex Desktop App, install the App loop bridge with `python3 scripts/install_codex_app_loop.py`; it combines a `UserPromptSubmit` hook as the supported prompt-submit ingress, a global `AGENTS.md` front-door prompt, and a LaunchAgent session watcher fallback that routes Codex App `user_message` events into message ingress
+- use direct `pipeline_runner.py run --task` only as the lower-level execution entry after a message has already been captured, or when the caller is explicitly submitting a task rather than a host/user message
+- before doing implementation work, enqueue the user-requested work into the task pipeline; do not execute substantial project work outside the pipeline loop
+- when the route depends on uncertain host capability, API, binary, plugin mechanism, external protocol, or undocumented behavior, run a feasibility probe before broad implementation or docs
+- when scripts exist, prefer `python3 scripts/pipeline_runner.py run <repo> --task "<task title>"` for a new execution request, or `python3 scripts/project_assistant_entry.py execute <repo> --task "<task title>"` through the unified front door
+- let the programmatic loop decide whether to run the next task, create a repair task, return to the original task, stop as complete, block, or require human decision
+- LLM execution should happen inside one bounded pipeline task; control flow belongs to the runner, not to the model's memory or willingness to continue
+- start user-facing progress updates and final answers with: current loop and current goal; add `停止`, `暂停`, or a human-decision response format only when the current state actually needs an exit, pause, or human decision
+- when asking the human to decide, confirm, approve, reject, provide input, or unblock work, always restate `需要人类做什么` with numbered actions and exact reply examples before any optional detail
+- when an LLM task from the pipeline is completed, blocked, deferred, or needs human judgment, write the outcome back with `python3 scripts/pipeline_runner.py resolve <repo> --task-id <task-id> --outcome done --summary "<what changed>" --run-next` or the matching non-done outcome before final response
 - work one slice at a time
 - derive a current execution line from the active slice
 - map the execution line back to one explicit slice via `Plan Link`
@@ -297,6 +351,8 @@ Stop only when:
 - the current direction is judged red by architecture supervision
 - the escalation gate is `require user decision`
 
+Do not stop merely because a baseline or intermediate layer is usable. If the current answer would say "next step still needs X", decide whether X is required for the user's objective. Required X means continue automatically; optional, blocked, human-decision-bound, or explicitly deferred X must be labeled that way.
+
 ### 恢复 / Resume
 
 - automatically judge whether the repo's control-surface version is stale before resuming
@@ -312,7 +368,7 @@ Stop only when:
 - if the repo changed during `继续`, emit the continue panel first and add later narrative under a separate `本轮动作` block
 
 If `scripts/continue_entry.py` exists, run it first and use its output as the first user-visible block.
-If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `bootstrap / retrofit / continue / progress / handoff / resume-readiness`.
+If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `bootstrap / retrofit / message / execute / continue / progress / handoff / resume-readiness`.
 Otherwise, if `scripts/sync_resume_readiness.py` exists, run it first.
 Otherwise, if `scripts/continue_snapshot.py` exists, run it first.
 
@@ -321,7 +377,7 @@ Otherwise, if `scripts/continue_snapshot.py` exists, run it first.
 Use [references/progress-reporting.md](references/progress-reporting.md).
 
 If `scripts/progress_entry.py` exists, run it first and use its output as the first user-visible block.
-If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `bootstrap / retrofit / continue / progress / handoff / resume-readiness`.
+If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `bootstrap / retrofit / message / execute / continue / progress / handoff / resume-readiness`.
 Otherwise, if `scripts/progress_snapshot.py` exists, run it first.
 
 For `medium` and `large` projects, progress output should be a compact dashboard, not free-form prose. For large projects, include module view and Mermaid when it improves orientation.
@@ -378,7 +434,7 @@ If scripts exist:
 
 Gate policy:
 
-- `fast` = `validate_control_surface.py` + `validate_docs_system.py` + `validate_public_docs_i18n.py`
+- `fast` = `validate_control_surface.py` + `validate_docs_system.py` + `validate_public_docs_i18n.py` + `validate_entry_routing.py` + `validate_ptl_gate.py` + `validate_ptl_learning.py` + `validate_completion_gate.py` + `validate_pipeline_runner.py` + `validate_message_ingress.py` + `validate_codex_message_wrapper.py` + `validate_codex_app_loop.py`
 - `deep` = `fast` + `validate_markdown_governance.py` + `validate_doc_quality.py` + `validate_control_surface_quality.py` + `validate_development_log.py`
 - `release` = `deep` + `validate_release_readiness.py`
 - `整改`, `文档整改`, and `文档整理` must finish on `deep`
@@ -469,7 +525,7 @@ When asked to compress context or prepare a new thread:
 - prefer a structured handoff panel over prose
 
 If `scripts/handoff_entry.py` exists, run it first and use its output as the first user-visible block.
-If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `bootstrap / retrofit / continue / progress / handoff / resume-readiness`.
+If `scripts/project_assistant_entry.py` exists, prefer it as the canonical front door for `bootstrap / retrofit / message / execute / continue / progress / handoff / resume-readiness`.
 Otherwise, prefer `scripts/context_handoff.py`.
 
 You may proactively suggest `项目助手 压缩上下文` at natural phase boundaries or when the user is losing orientation, but do not spam it.
@@ -498,7 +554,16 @@ Treat explicit commands as override windows, not as the primary way the user mus
 
 - confirm the current slice is verified
 - update status
-- state next entry criteria
+- run `scripts/completion_gate.py final-check <repo> --stop-reason complete` before declaring completion when scripts are available
+- if the completion gate returns `require-continue`, continue execution instead of presenting the remaining work as a follow-up
+- state next entry criteria only when the remaining work is optional, blocked, requires human decision, or explicitly deferred
+
+Allowed stop taxonomy:
+
+- `complete`: the objective contract is satisfied and no known required next step remains
+- `blocked`: execution cannot continue because of a concrete tool, permission, environment, or missing-information blocker
+- `requires-human-decision`: business direction, risk upgrade, accepted-rule promotion, external write, cost, compatibility, or product commitment requires human judgment
+- `explicitly-deferred`: the user or objective contract explicitly moved the remaining work out of the current run
 
 ## Freshness Rules
 

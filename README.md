@@ -24,13 +24,21 @@ If you only need a tiny one-file helper or a throwaway prompt, this skill is pro
 
 ## Install
 
-Safe tagged install:
+Stable tagged install (`v0.1.9`, previous stable):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install.sh | bash
 ```
 
-That install now auto-installs `Project Assistant Host` into `~/.vscode/extensions` by default.
+That immutable tag is the previous stable release. Its bundled installer defaults to the older `Workspace Doc Browser`; it does not contain the current PTL learning/message-loop work.
+
+Daemon-host/PTL loop release-candidate install from mainline:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/main/install.sh | PROJECT_ASSISTANT_REF=main PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=project-assistant-host bash
+```
+
+That mainline path installs the current skill plus `Project Assistant Host` into `~/.vscode/extensions`.
 
 Manual install from the stable tag:
 
@@ -38,7 +46,7 @@ Manual install from the stable tag:
 git clone --branch v0.1.9 https://github.com/redcreen/project-assistant.git ~/.codex/skills/project-assistant
 ```
 
-If you want the newest VS Code and daemon-host tooling, install from the repository mainline instead of the old stable tag.
+If you want the newest VS Code, daemon-host, PTL learning, and task-loop tooling, use the mainline command above instead of the old stable tag.
 
 ## Minimal Configuration
 
@@ -61,7 +69,7 @@ Optional install overrides:
 PROJECT_ASSISTANT_REF=v0.1.9 PROJECT_ASSISTANT_DIR="$HOME/.codex/skills/project-assistant" bash install.sh
 ```
 
-Disable the automatic VS Code docs plugin install:
+Disable automatic VS Code component install:
 
 ```bash
 PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=none bash install.sh
@@ -81,6 +89,7 @@ PROJECT_ASSISTANT_AUTO_VSCODE_COMPONENTS=none bash install.sh
 
 If you use the host or daemon workflow, the most common background commands are:
 
+- `project-assistant message . --message "implement the current user task"`
 - `project-assistant daemon start`
 - `project-assistant queue`
 
@@ -101,10 +110,16 @@ If VS Code is your daily operator surface, the companion extension is:
 
 - `Project Assistant Host` in [integrations/vscode-host](integrations/vscode-host/README.md): activity-bar workspace control plus a status-bar summary for daemon state and resume readiness
 
-One-line install from the stable tag:
+One-line host install from the stable tag:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install-vscode-tools.sh | bash
+```
+
+One-line host install from mainline:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/main/install-vscode-tools.sh | PROJECT_ASSISTANT_REF=main PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash
 ```
 
 Install from the current checkout:
@@ -121,7 +136,7 @@ Developer: Restart Extension Host
 
 Notes:
 
-- `install.sh` now auto-installs `Project Assistant Host` by default
+- mainline `install.sh` auto-installs `Project Assistant Host` by default; the immutable `v0.1.9` installer defaults to the older docs browser
 - the extension is a local operator add-on and is not packaged as a Marketplace release yet
 - if you only want the host explicitly, run `curl -fsSL https://raw.githubusercontent.com/redcreen/project-assistant/v0.1.9/install-vscode-tools.sh | PROJECT_ASSISTANT_VSCODE_COMPONENTS=project-assistant-host bash`
 - after updating the extension from source, rerun `bash install-vscode-tools.sh` and restart the extension host
@@ -132,6 +147,7 @@ Notes:
 - keeps `continue / progress / handoff` aligned with the same current truth
 - updates plan, status, and development-log surfaces as work moves
 - promotes architecture review automatically when drift shows up
+- routes host/user messages through message ingress so ordinary chat can be classified, recorded, enqueued, and run through the programmatic task loop
 - can run a local daemon, queue, and VS Code host when you want a live operator workflow
 - stops mainly at checkpoints, blockers, or decisions that need human judgment
 
@@ -162,6 +178,9 @@ Current boundary:
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [AI Coding Modes Comparison](docs/reference/project-assistant/ai-coding-modes-comparison.md)
+- [PTL Role And Governed Learning](docs/reference/project-assistant/ptl-role-and-governed-learning.md)
+- [Codex App Loop Method Validation](docs/reference/project-assistant/codex-app-loop-methods.md)
+- [Daemon-Host Release Prep](docs/reference/project-assistant/daemon-host-release-prep.md)
 - [Correction-Driven Self-Learning](docs/reference/project-assistant/correction-driven-self-learning.md)
 - [Self-Learning Governance Overview](docs/reference/project-assistant/self-learning-governance-overview.md)
 - [Strategic Direction](docs/reference/project-assistant/strategic-planning-and-program-orchestration.md)
@@ -215,6 +234,24 @@ project-assistant/
 - `scripts/sync_execution_line.py`
 - `scripts/sync_architecture_supervision.py`
 - `scripts/sync_architecture_retrofit.py`
+- `scripts/ptl_gate.py`
+- `scripts/ptl_learning.py`
+- `scripts/validate_ptl_gate.py`
+- `scripts/validate_ptl_learning.py`
+- `scripts/completion_gate.py`
+- `scripts/validate_completion_gate.py`
+- `scripts/pipeline_runner.py`
+- `scripts/validate_pipeline_runner.py`
+- `scripts/message_ingress.py`
+- `scripts/validate_message_ingress.py`
+- `scripts/codex_message_wrapper.py`
+- `scripts/install_codex_message_wrapper.py`
+- `scripts/validate_codex_message_wrapper.py`
+- `scripts/codex_app_loop.py`
+- `scripts/codex_app_user_prompt_hook.py`
+- `scripts/install_codex_app_loop.py`
+- `scripts/validate_codex_app_loop.py`
+- `scripts/validate_install_scripts.py`
 - `scripts/validate_gate_set.py`
 - `scripts/validate_release_readiness.py`
 - `scripts/write_development_log.py`
@@ -245,6 +282,21 @@ python3 scripts/validate_doc_quality.py /path/to/repo --format text
 python3 scripts/validate_control_surface_quality.py /path/to/repo --format text
 python3 scripts/validate_development_log.py /path/to/repo --format text
 python3 scripts/validate_architecture_retrofit.py /path/to/repo --format text
+python3 scripts/ptl_gate.py preflight /path/to/repo --mode continue
+python3 scripts/ptl_learning.py panel /path/to/repo
+python3 scripts/validate_ptl_gate.py /path/to/repo --format text
+python3 scripts/validate_ptl_learning.py /path/to/repo --format text
+python3 scripts/completion_gate.py final-check /path/to/repo --stop-reason complete
+python3 scripts/validate_completion_gate.py /path/to/repo --format text
+python3 scripts/pipeline_runner.py run /path/to/repo --task "implement the current user task"
+python3 scripts/validate_pipeline_runner.py /path/to/repo --format text
+python3 scripts/message_ingress.py ingest /path/to/repo --message "implement the current user task"
+python3 scripts/validate_message_ingress.py /path/to/repo --format text
+python3 scripts/install_codex_message_wrapper.py
+python3 scripts/validate_codex_message_wrapper.py /path/to/repo --format text
+python3 scripts/install_codex_app_loop.py
+python3 scripts/validate_codex_app_loop.py /path/to/repo --format text
+python3 scripts/validate_install_scripts.py /path/to/repo --format text
 python3 scripts/validate_daemon_runtime.py /path/to/repo --format text
 python3 scripts/validate_vscode_host_extension.py /path/to/repo --format text
 python3 scripts/validate_daemon_host_mvp.py /path/to/repo --format text

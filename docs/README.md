@@ -11,6 +11,9 @@
 - Project origin: [reference/project-assistant/project-origin-and-working-method.md](reference/project-assistant/project-origin-and-working-method.md)
 - Strategic direction: [reference/project-assistant/strategic-planning-and-program-orchestration.md](reference/project-assistant/strategic-planning-and-program-orchestration.md)
 - AI coding modes comparison: [reference/project-assistant/ai-coding-modes-comparison.md](reference/project-assistant/ai-coding-modes-comparison.md)
+- PTL role and governed learning: [reference/project-assistant/ptl-role-and-governed-learning.md](reference/project-assistant/ptl-role-and-governed-learning.md)
+- Codex App loop method validation: [reference/project-assistant/codex-app-loop-methods.md](reference/project-assistant/codex-app-loop-methods.md)
+- Daemon-host release prep: [reference/project-assistant/daemon-host-release-prep.md](reference/project-assistant/daemon-host-release-prep.md)
 - Correction-driven self-learning: [reference/project-assistant/correction-driven-self-learning.md](reference/project-assistant/correction-driven-self-learning.md)
 - Self-learning governance overview: [reference/project-assistant/self-learning-governance-overview.md](reference/project-assistant/self-learning-governance-overview.md)
 - Daemon MVP: [reference/project-assistant/ptl-daemon-mvp.md](reference/project-assistant/ptl-daemon-mvp.md)
@@ -33,6 +36,9 @@
 | Understand the question this skill originally grew from | [reference/project-assistant/project-origin-and-working-method.md](reference/project-assistant/project-origin-and-working-method.md) |
 | See the approved strategic layer beyond the current roadmap | [reference/project-assistant/strategic-planning-and-program-orchestration.md](reference/project-assistant/strategic-planning-and-program-orchestration.md) |
 | Compare this skill with current AI coding patterns | [reference/project-assistant/ai-coding-modes-comparison.md](reference/project-assistant/ai-coding-modes-comparison.md) |
+| Understand PTL duties, policy-pack generation, and human confirmation boundaries | [reference/project-assistant/ptl-role-and-governed-learning.md](reference/project-assistant/ptl-role-and-governed-learning.md) |
+| Validate Codex Desktop App prompt ingress into the project-assistant loop | [reference/project-assistant/codex-app-loop-methods.md](reference/project-assistant/codex-app-loop-methods.md) |
+| Choose the correct daemon-host/PTL-loop install path | [reference/project-assistant/daemon-host-release-prep.md](reference/project-assistant/daemon-host-release-prep.md) |
 | Plan a reviewable self-learning loop for repeated corrections | [reference/project-assistant/correction-driven-self-learning.md](reference/project-assistant/correction-driven-self-learning.md) |
 | Review the full self-learning, rule-layering, and Growware-alignment discussion | [reference/project-assistant/self-learning-governance-overview.md](reference/project-assistant/self-learning-governance-overview.md) |
 | Understand the daemon-host baseline boundary | [reference/project-assistant/ptl-daemon-mvp.md](reference/project-assistant/ptl-daemon-mvp.md) |

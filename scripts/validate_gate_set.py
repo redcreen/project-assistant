@@ -16,6 +16,14 @@ FAST_VALIDATORS = [
     "validate_docs_system.py",
     "validate_public_docs_i18n.py",
     "validate_entry_routing.py",
+    "validate_ptl_gate.py",
+    "validate_ptl_learning.py",
+    "validate_completion_gate.py",
+    "validate_pipeline_runner.py",
+    "validate_message_ingress.py",
+    "validate_codex_message_wrapper.py",
+    "validate_codex_app_loop.py",
+    "validate_install_scripts.py",
 ]
 
 DEEP_ONLY_VALIDATORS = [

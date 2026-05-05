@@ -11,6 +11,9 @@
 - 项目起点：[reference/project-assistant/project-origin-and-working-method.zh-CN.md](reference/project-assistant/project-origin-and-working-method.zh-CN.md)
 - 战略方向：[reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md](reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md)
 - AI 编程模式对比：[reference/project-assistant/ai-coding-modes-comparison.zh-CN.md](reference/project-assistant/ai-coding-modes-comparison.zh-CN.md)
+- PTL 角色与受治理自我学习职责：[reference/project-assistant/ptl-role-and-governed-learning.zh-CN.md](reference/project-assistant/ptl-role-and-governed-learning.zh-CN.md)
+- Codex App Loop 方法验证：[reference/project-assistant/codex-app-loop-methods.zh-CN.md](reference/project-assistant/codex-app-loop-methods.zh-CN.md)
+- Daemon-host release prep：[reference/project-assistant/daemon-host-release-prep.zh-CN.md](reference/project-assistant/daemon-host-release-prep.zh-CN.md)
 - 纠错驱动的自我学习：[reference/project-assistant/correction-driven-self-learning.zh-CN.md](reference/project-assistant/correction-driven-self-learning.zh-CN.md)
 - 自我学习治理总览：[reference/project-assistant/self-learning-governance-overview.zh-CN.md](reference/project-assistant/self-learning-governance-overview.zh-CN.md)
 - daemon MVP：[reference/project-assistant/ptl-daemon-mvp.zh-CN.md](reference/project-assistant/ptl-daemon-mvp.zh-CN.md)
@@ -33,6 +36,9 @@
 | 了解这个 skill 是从什么问题长出来的 | [reference/project-assistant/project-origin-and-working-method.zh-CN.md](reference/project-assistant/project-origin-and-working-method.zh-CN.md) |
 | 了解当前路线图之后已经确认的战略方向 | [reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md](reference/project-assistant/strategic-planning-and-program-orchestration.zh-CN.md) |
 | 对比这套能力和当前常见的 AI 编程模式 | [reference/project-assistant/ai-coding-modes-comparison.zh-CN.md](reference/project-assistant/ai-coding-modes-comparison.zh-CN.md) |
+| 理解 PTL 的职责、规则包生成和人类确认边界 | [reference/project-assistant/ptl-role-and-governed-learning.zh-CN.md](reference/project-assistant/ptl-role-and-governed-learning.zh-CN.md) |
+| 验证 Codex Desktop App prompt 是否能进入 project-assistant loop | [reference/project-assistant/codex-app-loop-methods.zh-CN.md](reference/project-assistant/codex-app-loop-methods.zh-CN.md) |
+| 选择正确的 daemon-host / PTL-loop 安装路径 | [reference/project-assistant/daemon-host-release-prep.zh-CN.md](reference/project-assistant/daemon-host-release-prep.zh-CN.md) |
 | 规划“反复纠正 -> review -> 规则库”的自我学习能力 | [reference/project-assistant/correction-driven-self-learning.zh-CN.md](reference/project-assistant/correction-driven-self-learning.zh-CN.md) |
 | 整体 review 当前自我学习、规则分层与 Growware 合约映射 | [reference/project-assistant/self-learning-governance-overview.zh-CN.md](reference/project-assistant/self-learning-governance-overview.zh-CN.md) |
 | 理解 daemon-host baseline 的边界 | [reference/project-assistant/ptl-daemon-mvp.zh-CN.md](reference/project-assistant/ptl-daemon-mvp.zh-CN.md) |

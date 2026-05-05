@@ -31,6 +31,10 @@
     "onCommand:projectAssistant.openProgressInTerminal",
     "onCommand:projectAssistant.openHandoffInTerminal",
     "onCommand:projectAssistant.openRetrofitInTerminal",
+    "onCommand:projectAssistant.openPtlLearningReview",
+    "onCommand:projectAssistant.acceptPtlLearningRule",
+    "onCommand:projectAssistant.rejectPtlLearningRule",
+    "onCommand:projectAssistant.snoozePtlLearningRule",
     "onCommand:projectAssistant.copyStopInstruction"
   ],
   "main": "./extension.js",
@@ -145,6 +149,26 @@
         "command": "projectAssistant.openRetrofitInTerminal",
         "title": "Project Assistant: Open Retrofit View",
         "icon": "$(book)"
+      },
+      {
+        "command": "projectAssistant.openPtlLearningReview",
+        "title": "Project Assistant: Open PTL Learning Review",
+        "icon": "$(law)"
+      },
+      {
+        "command": "projectAssistant.acceptPtlLearningRule",
+        "title": "Project Assistant: Accept PTL Learning Rule",
+        "icon": "$(pass)"
+      },
+      {
+        "command": "projectAssistant.rejectPtlLearningRule",
+        "title": "Project Assistant: Reject PTL Learning Rule",
+        "icon": "$(circle-slash)"
+      },
+      {
+        "command": "projectAssistant.snoozePtlLearningRule",
+        "title": "Project Assistant: Snooze PTL Learning Rule",
+        "icon": "$(clock)"
       },
       {
         "command": "projectAssistant.copyStopInstruction",

@@ -12,11 +12,14 @@ MODE_ALIASES = {
     "bootstrap": {"bootstrap", "start", "启动"},
     "retrofit": {"retrofit", "整改"},
     "docs-retrofit": {"docs-retrofit", "docs retrofit", "文档整改", "文档整理"},
+    "execute": {"execute", "run", "执行"},
+    "message": {"message", "ingress", "chat", "消息", "用户消息"},
     "continue": {"continue", "resume", "继续", "恢复"},
     "progress": {"progress", "进展"},
     "devlog": {"devlog", "开发日志"},
     "handoff": {"handoff", "交接", "压缩上下文"},
     "resume-readiness": {"resume-readiness", "readiness", "继续前升级", "升级检查"},
+    "ptl-learning": {"ptl-learning", "learning-review", "ptl review", "ptl 学习", "学习复核"},
     "daemon": {"daemon", "守护进程"},
     "queue": {"queue", "任务队列"},
 }
@@ -25,11 +28,14 @@ BACKEND_SCRIPTS = {
     "bootstrap": "bootstrap_entry.py",
     "retrofit": "retrofit_entry.py",
     "docs-retrofit": "retrofit_entry.py",
+    "execute": "pipeline_runner.py",
+    "message": "message_ingress.py",
     "continue": "continue_entry.py",
     "progress": "progress_entry.py",
     "devlog": "devlog_entry.py",
     "handoff": "handoff_entry.py",
     "resume-readiness": "sync_resume_readiness.py",
+    "ptl-learning": "ptl_learning.py",
     "daemon": "daemon_entry.py",
     "queue": "daemon_entry.py",
 }
@@ -45,6 +51,7 @@ def canonical_mode(raw: str) -> str:
 
 DEFAULT_BACKEND_ARGS = {
     "docs-retrofit": ("--intent", "docs-retrofit"),
+    "message": ("ingest",),
 }
 
 
@@ -68,6 +75,19 @@ def run_backend(script_path: Path, repo: Path, extra_args: list[str]) -> int:
     if not callable(backend_main):
         result = subprocess.run([sys.executable, str(script_path), str(repo.resolve()), *extra_args])
         return result.returncode
+    if script_path.stem == "message_ingress":
+        command = extra_args[0] if extra_args else "ingest"
+        rest = extra_args[1:] if extra_args else []
+        return int(backend_main([command, str(repo.resolve()), *rest]) or 0)
+    if script_path.stem == "ptl_learning":
+        learning_commands = {"scan", "status", "panel", "accept", "accept-all", "apply-response", "reject", "snooze"}
+        if extra_args and extra_args[0] in learning_commands:
+            command = extra_args[0]
+            rest = extra_args[1:]
+        else:
+            command = "panel"
+            rest = extra_args
+        return int(backend_main([command, str(repo.resolve()), *rest]) or 0)
     return int(backend_main([str(repo.resolve()), *extra_args]) or 0)
 
 
@@ -83,16 +103,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Canonical daemon-host front door for project-assistant. "
-            "Route bootstrap/retrofit/continue/progress/devlog/handoff and daemon control through one entry."
+            "Route bootstrap/retrofit/message/execute/continue/progress/devlog/handoff/PTL learning and daemon control through one entry."
         ),
         epilog=(
-            "Examples: project-assistant continue . | project-assistant daemon status . | "
+            "Examples: project-assistant message . --message '...' | project-assistant execute . | project-assistant continue . | project-assistant daemon status . | "
             "project-assistant devlog . --title '...' --problem '...' --thinking '...' --solution '...' --validation '...' | "
             "project-assistant queue . | python3 scripts/project_assistant_entry.py docs-retrofit /path/to/repo. "
             "Direct backend scripts remain available for validation/debug, but operators and hosts should enter here first."
         ),
     )
-    parser.add_argument("mode", help="Mode: bootstrap, retrofit, docs-retrofit, continue, progress, devlog, handoff, or resume-readiness")
+    parser.add_argument("mode", help="Mode: bootstrap, retrofit, docs-retrofit, message, execute, continue, progress, devlog, handoff, resume-readiness, or ptl-learning")
     parser.add_argument("repo", nargs="?", default=".", help="Repository root; defaults to the current working directory")
     args, extra_args = parser.parse_known_args()
 

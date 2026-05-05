@@ -26,31 +26,32 @@ It answers one practical question:
 
 | Item | Current Value |
 | --- | --- |
-| Overall Progress | 3 / 4 execution tasks complete |
-| Current Phase | `post-M21 daemon-host baseline active` |
-| Active Slice | `stabilize-daemon-host-baseline-for-dogfooding` |
-| Current Objective | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins |
-| Active Slice Exit Signal | daemon-host baseline 可被更广泛使用，且没有高频 runtime/host 回归 |
-| Clear Next Move | EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice |
-| Next Candidate Slice | `package-daemon-host-baseline-for-release` |
+| Overall Progress | 5 / 5 execution tasks complete |
+| Current Phase | `release packaging prep active` |
+| Active Slice | `package-daemon-host-baseline-for-release` |
+| Current Objective | prepare the daemon-host baseline for release-facing installation and update paths |
+| Active Slice Exit Signal | 用户可以通过明确版本入口获取 daemon-host baseline，而不是只依赖当前仓库 mainline |
+| Clear Next Move | Current execution tasks are complete; move to the next slice |
+| Next Candidate Slice | `future-host-expansion-and-m15-evidence` |
 
 ## Current Position
 
 | Item | Current Value | Meaning |
 | --- | --- | --- |
-| Current Phase | `post-M21 daemon-host baseline active` | Current maintainer-facing phase |
-| Active Slice | `stabilize-daemon-host-baseline-for-dogfooding` | The slice tied to the current execution line |
-| Current Execution Line | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | What the repo is trying to finish now |
-| Validation | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py` 已通过，M17-M21 baseline 已具备可持续回归的自动化入口 | The checks that must stay true before moving on |
+| Current Phase | `release packaging prep active` | Current maintainer-facing phase |
+| Active Slice | `package-daemon-host-baseline-for-release` | The slice tied to the current execution line |
+| Current Execution Line | prepare the daemon-host baseline for release-facing installation and update paths | What the repo is trying to finish now |
+| Validation | release-facing docs, install path/version references, `validate_install_scripts.py`, and `validate_gate_set.py --profile fast` agree for the release-prep baseline | The checks that must stay true before moving on |
 
 ## Execution Task Progress
 
 | Order | Task | Status |
 | --- | --- | --- |
-| 1 | EL-1 harden daemon runtime edges exposed by concurrent startup, shutdown, or status polling in real workspaces | done |
-| 2 | EL-2 keep README / architecture / usage / test plan / entry routing aligned with daemon-host as the new default fast path | done |
-| 3 | EL-3 collect broader dogfooding evidence before opening the next host surface or any M15 discussion | done |
-| 4 | EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice | next |
+| 1 | EL-1 inspect current release/version/install references and mainline delta since the last safe install tag | done |
+| 2 | EL-2 align README, install instructions, and roadmap around the selected daemon-host baseline release path | done |
+| 3 | EL-3 ensure gate outputs and validation commands match the release-facing path | done |
+| 4 | EL-4 write release notes or release-prep summary for the daemon-host baseline | done |
+| 5 | EL-5 run fast gate and final consistency checks | done |
 
 ## Milestone Overview
 
@@ -77,22 +78,31 @@ It answers one practical question:
 | M19 | done | build the host continue-resume bridge so `resume-ready` becomes a host action | M18 + Codex runner / command contract | `manual continue` and conservative `one-click continue` work without chat-box injection |
 | M20 | done | validate the daemon-host baseline on local workspaces and re-validate older feature families on top of it | M19 + representative local workspaces | the daemon-host baseline is stable and older capabilities keep passing on the new baseline |
 | M21 | done | resume post-M16 rollout verification on top of the daemon-host baseline | M20 | representative legacy repos still upgrade first, render structured panels, and are no longer dominated by avoidable synchronous work |
-| M22 | later | add reviewable correction-driven self-learning and a stable rule library | M18 + M19 + a host-neutral registry root | repeated corrections become pending candidates, the host and Status Bar support explicit review, and accepted rules persist without reinstall loss |
+| M22 | done | add reviewable correction-driven self-learning and a stable rule library | M18 + M19 + a host-neutral registry root | repeated corrections become pending candidates, the host and Status Bar support explicit review, and accepted rules persist without reinstall loss |
+| M23 | done | build the PTL policy gate baseline so other projects auto-generate policy and run preflight | M13 + M16 + PTL role document | `continue / progress` output PTL signal and fixtures cover generic, missing-control, style-engine-like, and openclaw-skills-like scenarios |
+| M24 | done | build the no-known-required-next-step completion gate so project-assistant cannot leave required work as "next step" and stop | M16 + M23 + closeout stop taxonomy | final-check, open-task, final-answer next-step, explicit-deferral, and human-decision fixtures produce stable completion decisions |
+| M25 | done | build the programmatic Task Pipeline Runner so every non-trivial execution is enqueued before runner-controlled next-task / repair / return / stop | M16 + M23 + M24 | command-loop, repair-loop, llm-pause, run-argument-enqueue, human-decision, and entry-panel fixtures produce stable pipeline states |
+| M26 | done | build the host/message ingress layer so every host/user message can enter the programmatic task loop by default | M25 + unified front door + entry panels | execution-message, discussion-message, classify-only, front-door, and entry-panel fixtures produce stable message-ingress states |
 
 ## Ordered Execution Queue
 
 | Order | Slice | Status | Objective | Validation |
 | --- | --- | --- | --- | --- |
 | 1 | `close-m17-through-m21-daemon-host-baseline` | earlier slice | 把 daemon runtime、VS Code host shell、continue bridge、本地验证、旧功能回归和 post-M16 rollout 恢复一口气收口成可用 baseline | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py |
-| 2 | `stabilize-daemon-host-baseline-for-dogfooding` | current | 把刚完成的 daemon-host baseline 稳定成默认快路径，并为更广泛 dogfooding 准备好 operator docs 与采证入口 | validate_gate_set.py --profile deep`、runtime/host smoke、broader workspace dogfooding |
-| 3 | `package-daemon-host-baseline-for-release` | next / queued | 决定 daemon-host baseline 的 release 叙事、安装说明和版本落点 | release-facing docs、gate outputs 和 install path 对齐 |
-| 4 | `future-host-expansion-and-m15-evidence` | next / queued | 只在 daemon-host baseline 已稳定、dogfooding 证据充分后，再判断是否扩大到更强宿主表面或重新讨论 `M15 | real adoption evidence + clear write-scope boundaries |
-| 5 | `M17 / build-ptl-daemon-runtime-core` | next / queued | 建立 daemon runtime、runtime store、queue/event contract，以及最小的 `start/status/stop/queue` 控制面 | validate_daemon_runtime.py |
-| 6 | `M18 / build-vscode-host-shell-and-live-status` | next / queued | 建立 VS Code 宿主前端壳，至少包含 Tree View、Status Bar、Output channel，以及与 daemon 的连接 | validate_vscode_host_extension.py |
-| 7 | `M19 / wire-manual-and-one-click-continue` | next / queued | 把 `resume-ready` 事件接成 `manual continue`，并补上保守的 `one-click continue | validate_vscode_host_extension.py` + host continue smoke |
-| 8 | `M20 / validate-daemon-host-mvp-on-local-workspaces` | next / queued | 在代表性的本地 workspace 上验证 daemon + VS Code host MVP 的状态展示、恢复路径和稳定性 | validate_daemon_host_mvp.py |
-| 9 | `M20 / validate-legacy-feature-set-on-daemon-host-baseline` | next / queued | 在 daemon-host 基线上按家族逐项回归旧功能，而不是等所有能力都迁完再统一验收 | validate_daemon_host_mvp.py` + `validate_gate_set.py --profile deep |
-| 10 | `M21 / resume-post-m16-rollout-on-daemon-host-baseline` | next / queued | 在 daemon-host 基线稳定后，恢复 post-M16 rollout verification，并重新评估 host-bridge 证据 | validate_daemon_legacy_rollout.py |
+| 2 | `stabilize-daemon-host-baseline-for-dogfooding` | earlier slice | 把刚完成的 daemon-host baseline 稳定成默认快路径，并为更广泛 dogfooding 准备好 operator docs 与采证入口 | validate_gate_set.py --profile deep`、runtime/host smoke、broader workspace dogfooding |
+| 3 | `ship-ptl-policy-gate-baseline` | earlier slice | 把 PTL 角色职责转成其它项目入口默认运行的 policy sync + preflight，并生成可见 PTL signal | validate_ptl_gate.py`、`ptl_gate.py preflight`、`validate_gate_set.py --profile fast |
+| 4 | `ship-completion-gate-stop-semantics` | earlier slice | 防止 project-assistant 在存在已知必要下一步时停下，把“继续做完”变成 final / closeout 前的 gate | validate_completion_gate.py`、`completion_gate.py final-check`、`validate_gate_set.py --profile fast |
+| 5 | `ship-task-pipeline-runner-loop` | earlier slice | 把每次非平凡执行请求先入队成 pipeline task，再由程序循环决定下一 task、repair task、回到主线和停止条件 | validate_pipeline_runner.py`、`pipeline_runner.py run --task`、`validate_gate_set.py --profile fast |
+| 6 | `ship-host-message-ingress-loop` | earlier slice | route host/user messages through message ingress so each message is classified, recorded, enqueued into the task pipeline, and run through the programmatic loop by default | validate_message_ingress.py`、`message_ingress.py ingest`、`project_assistant_entry.py message`、`validate_gate_set.py --profile fast |
+| 7 | `connect-ptl-learning-review-to-host` | earlier slice | 把 pending review、accept、reject、snooze 接入 VS Code host 与 learned registry | validate_ptl_learning.py`、`validate_vscode_host_extension.py`、`validate_gate_set.py --profile fast |
+| 8 | `package-daemon-host-baseline-for-release` | just completed | 决定 daemon-host baseline 的 release 叙事、安装说明和版本落点 | release-facing docs、gate outputs 和 install path 对齐 |
+| 9 | `future-host-expansion-and-m15-evidence` | next / queued | 只在 daemon-host baseline 已稳定、dogfooding 证据充分后，再判断是否扩大到更强宿主表面或重新讨论 `M15 | real adoption evidence + clear write-scope boundaries |
+| 10 | `M17 / build-ptl-daemon-runtime-core` | next / queued | 建立 daemon runtime、runtime store、queue/event contract，以及最小的 `start/status/stop/queue` 控制面 | validate_daemon_runtime.py |
+| 11 | `M18 / build-vscode-host-shell-and-live-status` | next / queued | 建立 VS Code 宿主前端壳，至少包含 Tree View、Status Bar、Output channel，以及与 daemon 的连接 | validate_vscode_host_extension.py |
+| 12 | `M19 / wire-manual-and-one-click-continue` | next / queued | 把 `resume-ready` 事件接成 `manual continue`，并补上保守的 `one-click continue | validate_vscode_host_extension.py` + host continue smoke |
+| 13 | `M20 / validate-daemon-host-mvp-on-local-workspaces` | next / queued | 在代表性的本地 workspace 上验证 daemon + VS Code host MVP 的状态展示、恢复路径和稳定性 | validate_daemon_host_mvp.py |
+| 14 | `M20 / validate-legacy-feature-set-on-daemon-host-baseline` | next / queued | 在 daemon-host 基线上按家族逐项回归旧功能，而不是等所有能力都迁完再统一验收 | validate_daemon_host_mvp.py` + `validate_gate_set.py --profile deep |
+| 15 | `M21 / resume-post-m16-rollout-on-daemon-host-baseline` | next / queued | 在 daemon-host 基线稳定后，恢复 post-M16 rollout verification，并重新评估 host-bridge 证据 | validate_daemon_legacy_rollout.py |
 
 ## Milestone Details
 
@@ -289,13 +299,49 @@ It answers one practical question:
 
 | Item | Current Value |
 | --- | --- |
-| Status | later |
+| Status | done |
 | Goal | add reviewable correction-driven self-learning and a stable rule library |
 | Depends On | M18 + M19 + a host-neutral registry root |
 | Exit Criteria | repeated corrections become pending candidates, the host and Status Bar support explicit review, and accepted rules persist without reinstall loss |
+
+### M23
+
+| Item | Current Value |
+| --- | --- |
+| Status | done |
+| Goal | build the PTL policy gate baseline so other projects auto-generate policy and run preflight |
+| Depends On | M13 + M16 + PTL role document |
+| Exit Criteria | `continue / progress` output PTL signal and fixtures cover generic, missing-control, style-engine-like, and openclaw-skills-like scenarios |
+
+### M24
+
+| Item | Current Value |
+| --- | --- |
+| Status | done |
+| Goal | build the no-known-required-next-step completion gate so project-assistant cannot leave required work as "next step" and stop |
+| Depends On | M16 + M23 + closeout stop taxonomy |
+| Exit Criteria | final-check, open-task, final-answer next-step, explicit-deferral, and human-decision fixtures produce stable completion decisions |
+
+### M25
+
+| Item | Current Value |
+| --- | --- |
+| Status | done |
+| Goal | build the programmatic Task Pipeline Runner so every non-trivial execution is enqueued before runner-controlled next-task / repair / return / stop |
+| Depends On | M16 + M23 + M24 |
+| Exit Criteria | command-loop, repair-loop, llm-pause, run-argument-enqueue, human-decision, and entry-panel fixtures produce stable pipeline states |
+
+### M26
+
+| Item | Current Value |
+| --- | --- |
+| Status | done |
+| Goal | build the host/message ingress layer so every host/user message can enter the programmatic task loop by default |
+| Depends On | M25 + unified front door + entry panels |
+| Exit Criteria | execution-message, discussion-message, classify-only, front-door, and entry-panel fixtures produce stable message-ingress states |
 
 ## Current Next Step
 
 | Next Move | Why |
 | --- | --- |
-| EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice | This is the first unchecked execution task, so both the roadmap and this plan stay aligned to the same resume point. |
+| Current execution tasks are complete; move to the next slice or release decision | The current execution tasks are complete, so the next move is to enter the next slice or release decision. |

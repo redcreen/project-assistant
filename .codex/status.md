@@ -7,44 +7,47 @@
 
 ## Current Phase
 
-`post-M21 daemon-host baseline active`
+`release packaging prep active`
 
 ## Active Slice
-`stabilize-daemon-host-baseline-for-dogfooding`
+`package-daemon-host-baseline-for-release`
 
 ## Current Execution Line
-- Objective: keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins
-- Plan Link: stabilize-daemon-host-baseline-for-dogfooding
-- Runway: one checkpoint covering runtime hardening, operator docs, and broader adoption evidence capture
-- Progress: 3 / 3 tasks complete
+- Objective: prepare the daemon-host baseline for release-facing installation and update paths
+- Plan Link: package-daemon-host-baseline-for-release
+- Runway: one checkpoint covering release delta check, install/version truth, release-facing docs, gate outputs, and final validation
+- Progress: 5 / 5 tasks complete
 - Stop Conditions:
-  - a runtime or host regression changes the default path
-  - release packaging or host-surface expansion needs human judgment
-  - broader dogfooding shows the daemon-host baseline should not yet be the default fast path
+  - release docs point users at a stale install path
+  - version references disagree across README, install scripts, and roadmap
+  - daemon-host baseline changes are not validated through the fast gate
+  - package-ready status is claimed without checking the current mainline delta
 
 ## Execution Tasks
-- [x] EL-1 harden daemon runtime edges exposed by concurrent startup, shutdown, or status polling in real workspaces
-- [x] EL-2 keep README / architecture / usage / test plan / entry routing aligned with daemon-host as the new default fast path
-- [x] EL-3 collect broader dogfooding evidence before opening the next host surface or any M15 discussion
+- [x] EL-1 inspect current release/version/install references and mainline delta since the last safe install tag
+- [x] EL-2 align README, install instructions, and roadmap around the selected daemon-host baseline release path
+- [x] EL-3 ensure gate outputs and validation commands match the release-facing path
+- [x] EL-4 write release notes or release-prep summary for the daemon-host baseline
+- [x] EL-5 run fast gate and final consistency checks
 
 ## Development Log Capture
 - Trigger Level: high
-- Pending Capture: yes
-- Reason: commits landed after the latest devlog and changed durable repo surfaces; latest examples: Support docs preview for markdown outside workspace
-- Last Entry: `docs/devlog/2026-04-19-restore-accurate-devlog-capture-and-the-devlog-front-door.md`
+- Pending Capture: no
+- Reason: latest devlog already captures the most recent durable reasoning
+- Last Entry: `docs/devlog/2026-05-05-daemon-host-release-prep.md`
 
 ## Architecture Supervision
 - Signal: `green`
-- Signal Basis: `M17-M21` now have working code instead of only planning notes: the repo has a daemon runtime, queue/runtime control surface, a VS Code host shell, manual/one-click continue hooks, dedicated validators, and local plus legacy baseline validation.
-- Root Cause Hypothesis: the main latency pain was orchestration shape, not raw script runtime; the new baseline removes most support work from the foreground write lane by moving queueable work behind a local daemon and host shell.
-- Correct Layer: keep the runtime contract, host shell, queue visibility, and regression coverage aligned; do not reopen chat-box injection or multi-executor scope prematurely.
-- Automatic Review Trigger: when runtime control, host bridge, or dogfooding evidence changes the baseline boundary
+- Signal Basis: M22 governed learning is accepted and active; release-prep now separates the immutable `v0.1.9` stable tag from the mainline daemon-host/PTL-loop release candidate.
+- Root Cause Hypothesis: if release-facing docs mix `v0.1.9` with the mainline release candidate, users can install the wrong capability set.
+- Correct Layer: release notes, install/version references, branch-aware install scripts, README/docs roadmap, and validation gates.
+- Automatic Review Trigger: when version references, install scripts, release notes, or daemon-host baseline validation changes
 - Escalation Gate: continue automatically
 
 ## Current Escalation State
 - Current Gate: continue automatically
-- Reason: `M17-M21` are implemented and validated; the next work is stabilization and adoption evidence, not a blocked design decision.
-- Next Review Trigger: review again when daemon-host dogfooding exposes a new boundary, a release decision is requested, or a broader host surface is proposed
+- Reason: release-prep baseline is complete and validated; publishing a new immutable tag remains a separate clean-tree release action.
+- Next Review Trigger: review again when a new release tag is cut, package version changes, or the mainline install path changes
 
 ## Done
 
@@ -67,6 +70,42 @@
 - M21 `resume-post-m16-rollout-on-daemon-host-baseline` 已完成：
   - `validate_daemon_legacy_rollout.py` 已验证 legacy repo 会先升级，再走 daemon-host 路径输出结构化 continue / progress / handoff
   - `post-M16` rollout 验证现在已在 daemon-host 基线上恢复
+- M23 `ship-ptl-policy-gate-baseline` 已完成：
+  - `scripts/ptl_gate.py` 已能生成 `.codex/ptl-policy/project-policy.json` 与 `.codex/ptl-policy/preflight.json`
+  - `continue_entry.py` 与 `progress_entry.py` 已默认追加 `PTL Preflight` 面板
+  - `scripts/validate_ptl_gate.py` 已覆盖 generic、missing-control、style-engine-like、openclaw-skills-like、entry-activation fixtures
+  - `validate_gate_set.py --profile fast` 已把 PTL gate 纳入统一门禁
+- M24 `ship-completion-gate-stop-semantics` 已完成：
+  - `scripts/completion_gate.py` 已能生成 `.codex/completion-gate.json`，并区分 `allow / require-continue / blocked / requires-human-decision / explicitly-deferred`
+  - `continue_entry.py` 与 `progress_entry.py` 已默认追加 `Completion Gate` 面板
+  - `scripts/validate_completion_gate.py` 已覆盖 complete、open-task、final-text-next-step、explicit-deferred、human-decision fixtures
+  - `validate_gate_set.py --profile fast` 已把 Completion gate 纳入统一门禁
+- M25 `ship-task-pipeline-runner-loop` 已完成：
+  - `scripts/pipeline_runner.py` 已能生成 `.codex/task-pipeline.json`，支持 `run --task`、`enqueue`、`panel`
+  - runner 已支持 command task 自动执行、失败后创建 repair task、repair 后回到原 task、LLM task 暂停成 `awaiting-llm`
+  - `continue_entry.py` 与 `progress_entry.py` 已默认追加 `Task Pipeline` 面板
+  - `project_assistant_entry.py execute` 已路由到 `pipeline_runner.py`
+  - `scripts/validate_pipeline_runner.py` 已覆盖 command-loop、repair-loop、llm-pause、run-argument-enqueue、human-decision、entry-panel fixtures
+  - `validate_gate_set.py --profile fast` 已把 pipeline runner 纳入统一门禁
+- M26 `ship-host-message-ingress-loop` 已完成：
+  - `scripts/message_ingress.py` 已能生成 `.codex/message-ingress.json`，并分类 execution / analysis / progress / generic messages
+  - message ingress 会把非 classify-only 消息入队到 `.codex/task-pipeline.json`，附带 raw message、message id、source 和 intent metadata
+  - `continue_entry.py` 与 `progress_entry.py` 已默认追加 `Message Ingress` 面板
+  - `project_assistant_entry.py message` 已路由到 `message_ingress.py ingest`
+  - `scripts/validate_message_ingress.py` 已覆盖 execution-message、discussion-message、classify-only、front-door、entry-panel fixtures
+  - `validate_gate_set.py --profile fast` 已把 message ingress 纳入统一门禁
+  - `scripts/codex_message_wrapper.py` 与 `scripts/install_codex_message_wrapper.py` 已提供轻量 CLI wrapper，当前已安装到 `~/.local/bin/codex`
+  - `scripts/validate_codex_message_wrapper.py` 已覆盖 initial prompt、`exec` prompt、`app-server` skip 和 disable switch fixtures
+- M22 `connect-ptl-learning-review-to-host` 已完成：
+  - `scripts/ptl_learning.py` 已提供 `scan / panel / status / accept / reject / snooze`
+  - `.codex/ptl-policy/learning-review.json` 已记录 pending candidates，当前本仓库 dogfood 生成了 4 个待 review 候选
+  - accepted rules 写入 `~/.codex/project-assistant/learned-registry.json`，不在 skill 安装目录内，重装不会覆盖
+  - `scripts/ptl_gate.py` 会把 accepted rules 合成为 `learned.*` PTL preflight rules
+  - Codex App hook 会在用户消息进入 loop 时同步扫描 PTL learning review
+  - VS Code host 状态栏和 Tree View 已能显示 pending review，并提供 accept / reject / snooze 命令
+  - `ptl_learning.py` 现在除固定纠错 pattern 外，还会按语义概念对归纳重复纠错候选；候选仍必须走 human review 后才会写入 registry
+  - `scripts/validate_ptl_learning.py` 已覆盖 pending、accept、reject、snooze、registry persistence、semantic induction 和 accepted-rule preflight injection
+  - `validate_gate_set.py --profile fast` 已把 PTL learning 纳入统一门禁
 - daemon startup race 已补强一轮：
   - runtime 现在用 startup lock 收敛并发 ensure，不再依赖“碰巧只启动一次”
   - `send_request` 现在会对 startup / shutdown 窗口里的 transient socket 错误做短重试
@@ -81,19 +120,21 @@
 
 ## In Progress
 
-- `post-M21` 稳定化与 dogfooding 已成为新的当前切片：当前目标不是再讨论 daemon 值不值得做，而是把这条 baseline 保持成真实可用的默认快路径。
-- broader dogfooding evidence 已扩到两个真实本地 repo：`unified-memory-core` 与 `codex limit` 都已通过 clean daemon session 下的 `continue / progress / handoff` 采证，说明 baseline 不再只靠 self-repo 与 fixtures 站立。
-- `.codex/dogfooding-evidence.md` 现在已把 self-repo、runtime、fixture、legacy rollout、VS Code host 与 broader local repos 的证据、缺口和 evidence-gated 决策条件收口成 durable 真相；当前重点转为继续积累 adoption evidence，并保持 release packaging / stronger host surfaces / `M15` evidence-gated。
+- release packaging prep 已完成：`v0.1.9` 被标为 previous stable，daemon-host / PTL-loop 当前通过 mainline release-candidate 命令获取。
+- release gate 已在当前 release-candidate 内容上通过；新 immutable tag 尚未创建，需要 clean-tree release flow 创建。
+- 跨项目 dogfood 已在 `style engine` 与 `openclaw-skills` 上执行：style-engine 命中 image-generation / learned rules；openclaw-skills 正确要求 Phase 6 bridge 前 human review，随后被显式暂停，避免误推进 order 主线。
 
 ## Blockers / Open Decisions
 
 - None currently.
-- Follow-up: daemon-host baseline 的 release 打包与版本发布时间仍未决定。
-- Follow-up: 更重的宿主 UI、web / remote 宿主支持，以及任何 `M15` 讨论都继续保持 evidence-gated。
-- Follow-up: “同仓多宿主前台单写者保护” 已记入 backlog；当前 daemon 有 foreground lease，但 VS Code 宿主还没有把它真正接成硬互斥写入保护，是否需要升主线继续看证据。
+
+## Follow-ups
+
+- 新 release tag 仍需在 clean working tree 上由 release flow 创建。
+- PTL learning 的跨项目自动晋升和规则衰减仍属于后续增强；基础语义归纳已进入当前 release candidate。
 
 ## Next 3 Actions
 
-1. `stabilize-daemon-host-baseline-for-dogfooding`
-2. refresh deeper broader-workspace dogfooding evidence when new repos or repeated operator sessions are available
-3. keep release packaging and broader host expansion evidence-gated until the new baseline proves stable in more workspaces
+1. Commit the current release-candidate changes.
+2. Run `python3 scripts/validate_gate_set.py . --profile release`.
+3. If release validation stays green, run `python3 scripts/release_skill.py patch`.

@@ -26,31 +26,32 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 总体进度 | 3 / 4 execution tasks 完成 |
-| 当前阶段 | `post-M21 daemon-host baseline active` |
-| 当前切片 | `stabilize-daemon-host-baseline-for-dogfooding` |
-| 当前目标 | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins |
-| 当前切片退出条件 | daemon-host baseline 可被更广泛使用，且没有高频 runtime/host 回归 |
-| 明确下一步动作 | EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice |
-| 下一候选切片 | `package-daemon-host-baseline-for-release` |
+| 总体进度 | 5 / 5 execution tasks 完成 |
+| 当前阶段 | `release packaging prep active` |
+| 当前切片 | `package-daemon-host-baseline-for-release` |
+| 当前目标 | prepare the daemon-host baseline for release-facing installation and update paths |
+| 当前切片退出条件 | 用户可以通过明确版本入口获取 daemon-host baseline，而不是只依赖当前仓库 mainline |
+| 明确下一步动作 | 当前 execution tasks 已完成，转向下一切片 |
+| 下一候选切片 | `future-host-expansion-and-m15-evidence` |
 
 ## 当前位置
 
 | 项目 | 当前值 | 说明 |
 | --- | --- | --- |
-| 当前阶段 | `post-M21 daemon-host baseline active` | 当前维护阶段 |
-| 当前切片 | `stabilize-daemon-host-baseline-for-dogfooding` | 当前执行线绑定的切片 |
-| 当前执行线 | keep the newly shipped daemon-host baseline stable and easy to adopt by aligning runtime control truth, host-facing docs, and validation surfaces while broader dogfooding begins | 当前真正要收口的工作 |
-| 当前验证 | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py` 已通过，M17-M21 baseline 已具备可持续回归的自动化入口 | 这条线继续前需要保持为真的验证入口 |
+| 当前阶段 | `release packaging prep active` | 当前维护阶段 |
+| 当前切片 | `package-daemon-host-baseline-for-release` | 当前执行线绑定的切片 |
+| 当前执行线 | prepare the daemon-host baseline for release-facing installation and update paths | 当前真正要收口的工作 |
+| 当前验证 | release-facing docs, install path/version references, `validate_install_scripts.py`, and `validate_gate_set.py --profile fast` agree for the release-prep baseline | 这条线继续前需要保持为真的验证入口 |
 
 ## 执行任务进度
 
 | 顺序 | 任务 | 状态 |
 | --- | --- | --- |
-| 1 | EL-1 harden daemon runtime edges exposed by concurrent startup, shutdown, or status polling in real workspaces | 已完成 |
-| 2 | EL-2 keep README / architecture / usage / test plan / entry routing aligned with daemon-host as the new default fast path | 已完成 |
-| 3 | EL-3 collect broader dogfooding evidence before opening the next host surface or any M15 discussion | 已完成 |
-| 4 | EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice | 下一步 |
+| 1 | EL-1 inspect current release/version/install references and mainline delta since the last safe install tag | 已完成 |
+| 2 | EL-2 align README, install instructions, and roadmap around the selected daemon-host baseline release path | 已完成 |
+| 3 | EL-3 ensure gate outputs and validation commands match the release-facing path | 已完成 |
+| 4 | EL-4 write release notes or release-prep summary for the daemon-host baseline | 已完成 |
+| 5 | EL-5 run fast gate and final consistency checks | 已完成 |
 
 ## 阶段总览
 
@@ -77,22 +78,31 @@
 | M19 | done | 建立宿主 continue 恢复桥，把 `resume-ready` 接成宿主动作 | M18 + Codex runner / 命令契约 | `manual continue` 与保守的 `one-click continue` 可用；不依赖聊天框注入 |
 | M20 | done | 在 daemon-host 基线上完成本地工作区验证与旧功能逐项回归 | M19 + 代表性本地 workspace | daemon-host 基线稳定，且旧能力在新基线上持续重新通过 |
 | M21 | done | 在 daemon-host 基线上恢复 post-M16 rollout verification | M20 | 代表性旧代际仓库继续先升级再输出结构化面板，且体验不再被可避免的同步工作主导 |
-| M22 | later | 增加可 review 的纠错驱动自我学习与稳定规则库 | M18 + M19 + 宿主中立 registry root | 反复纠正能形成 pending candidates，宿主和状态栏可明确 review，accepted rules 持久生效且不被重装覆盖 |
+| M22 | done | 增加可 review 的纠错驱动自我学习与稳定规则库 | M18 + M19 + 宿主中立 registry root | 反复纠正能形成 pending candidates，宿主和状态栏可明确 review，accepted rules 持久生效且不被重装覆盖 |
+| M23 | done | 建立 PTL policy gate baseline，让其它项目进入项目助手时自动生成 policy 并运行 preflight | M13 + M16 + PTL 角色职责文档 | `continue / progress` 自动输出 PTL signal，fixture 覆盖 generic、missing-control、style-engine-like、openclaw-skills-like 场景 |
+| M24 | done | 建立 no-known-required-next-step completion gate，防止项目助手把必做项留成“下一步”后停下 | M16 + M23 + closeout stop taxonomy | final-check、open task、最终答复 next-step、显式延期和人类决策 fixtures 都能稳定给出正确 completion decision |
+| M25 | done | 建立程序化 Task Pipeline Runner，让每次非平凡执行先入队，再由 runner 循环推进 next task / repair / return / stop | M16 + M23 + M24 | command-loop、repair-loop、llm-pause、run-argument-enqueue、human-decision、entry-panel fixtures 都能稳定给出正确 pipeline state |
+| M26 | done | 建立 host/message ingress 层，让每条 host/user message 默认能进入程序化 task loop | M25 + 统一前门 + entry panels | execution-message、discussion-message、classify-only、front-door、entry-panel fixtures 都能稳定给出正确 message-ingress state |
 
 ## 顺序执行队列
 
 | 顺序 | 切片 | 当前状态 | 目标 | 验证 |
 | --- | --- | --- | --- | --- |
 | 1 | `close-m17-through-m21-daemon-host-baseline` | 较早切片 | 把 daemon runtime、VS Code host shell、continue bridge、本地验证、旧功能回归和 post-M16 rollout 恢复一口气收口成可用 baseline | validate_daemon_runtime.py`、`validate_vscode_host_extension.py`、`validate_daemon_host_mvp.py`、`validate_daemon_legacy_rollout.py |
-| 2 | `stabilize-daemon-host-baseline-for-dogfooding` | 当前 | 把刚完成的 daemon-host baseline 稳定成默认快路径，并为更广泛 dogfooding 准备好 operator docs 与采证入口 | validate_gate_set.py --profile deep`、runtime/host smoke、broader workspace dogfooding |
-| 3 | `package-daemon-host-baseline-for-release` | 下一步 / 已排队 | 决定 daemon-host baseline 的 release 叙事、安装说明和版本落点 | release-facing docs、gate outputs 和 install path 对齐 |
-| 4 | `future-host-expansion-and-m15-evidence` | 下一步 / 已排队 | 只在 daemon-host baseline 已稳定、dogfooding 证据充分后，再判断是否扩大到更强宿主表面或重新讨论 `M15 | real adoption evidence + clear write-scope boundaries |
-| 5 | `M17 / build-ptl-daemon-runtime-core` | 下一步 / 已排队 | 建立 daemon runtime、runtime store、queue/event contract，以及最小的 `start/status/stop/queue` 控制面 | validate_daemon_runtime.py |
-| 6 | `M18 / build-vscode-host-shell-and-live-status` | 下一步 / 已排队 | 建立 VS Code 宿主前端壳，至少包含 Tree View、Status Bar、Output channel，以及与 daemon 的连接 | validate_vscode_host_extension.py |
-| 7 | `M19 / wire-manual-and-one-click-continue` | 下一步 / 已排队 | 把 `resume-ready` 事件接成 `manual continue`，并补上保守的 `one-click continue | validate_vscode_host_extension.py` + host continue smoke |
-| 8 | `M20 / validate-daemon-host-mvp-on-local-workspaces` | 下一步 / 已排队 | 在代表性的本地 workspace 上验证 daemon + VS Code host MVP 的状态展示、恢复路径和稳定性 | validate_daemon_host_mvp.py |
-| 9 | `M20 / validate-legacy-feature-set-on-daemon-host-baseline` | 下一步 / 已排队 | 在 daemon-host 基线上按家族逐项回归旧功能，而不是等所有能力都迁完再统一验收 | validate_daemon_host_mvp.py` + `validate_gate_set.py --profile deep |
-| 10 | `M21 / resume-post-m16-rollout-on-daemon-host-baseline` | 下一步 / 已排队 | 在 daemon-host 基线稳定后，恢复 post-M16 rollout verification，并重新评估 host-bridge 证据 | validate_daemon_legacy_rollout.py |
+| 2 | `stabilize-daemon-host-baseline-for-dogfooding` | 较早切片 | 把刚完成的 daemon-host baseline 稳定成默认快路径，并为更广泛 dogfooding 准备好 operator docs 与采证入口 | validate_gate_set.py --profile deep`、runtime/host smoke、broader workspace dogfooding |
+| 3 | `ship-ptl-policy-gate-baseline` | 较早切片 | 把 PTL 角色职责转成其它项目入口默认运行的 policy sync + preflight，并生成可见 PTL signal | validate_ptl_gate.py`、`ptl_gate.py preflight`、`validate_gate_set.py --profile fast |
+| 4 | `ship-completion-gate-stop-semantics` | 较早切片 | 防止 project-assistant 在存在已知必要下一步时停下，把“继续做完”变成 final / closeout 前的 gate | validate_completion_gate.py`、`completion_gate.py final-check`、`validate_gate_set.py --profile fast |
+| 5 | `ship-task-pipeline-runner-loop` | 较早切片 | 把每次非平凡执行请求先入队成 pipeline task，再由程序循环决定下一 task、repair task、回到主线和停止条件 | validate_pipeline_runner.py`、`pipeline_runner.py run --task`、`validate_gate_set.py --profile fast |
+| 6 | `ship-host-message-ingress-loop` | 较早切片 | route host/user messages through message ingress so each message is classified, recorded, enqueued into the task pipeline, and run through the programmatic loop by default | validate_message_ingress.py`、`message_ingress.py ingest`、`project_assistant_entry.py message`、`validate_gate_set.py --profile fast |
+| 7 | `connect-ptl-learning-review-to-host` | 较早切片 | 把 pending review、accept、reject、snooze 接入 VS Code host 与 learned registry | validate_ptl_learning.py`、`validate_vscode_host_extension.py`、`validate_gate_set.py --profile fast |
+| 8 | `package-daemon-host-baseline-for-release` | 刚完成 | 决定 daemon-host baseline 的 release 叙事、安装说明和版本落点 | release-facing docs、gate outputs 和 install path 对齐 |
+| 9 | `future-host-expansion-and-m15-evidence` | 下一步 / 已排队 | 只在 daemon-host baseline 已稳定、dogfooding 证据充分后，再判断是否扩大到更强宿主表面或重新讨论 `M15 | real adoption evidence + clear write-scope boundaries |
+| 10 | `M17 / build-ptl-daemon-runtime-core` | 下一步 / 已排队 | 建立 daemon runtime、runtime store、queue/event contract，以及最小的 `start/status/stop/queue` 控制面 | validate_daemon_runtime.py |
+| 11 | `M18 / build-vscode-host-shell-and-live-status` | 下一步 / 已排队 | 建立 VS Code 宿主前端壳，至少包含 Tree View、Status Bar、Output channel，以及与 daemon 的连接 | validate_vscode_host_extension.py |
+| 12 | `M19 / wire-manual-and-one-click-continue` | 下一步 / 已排队 | 把 `resume-ready` 事件接成 `manual continue`，并补上保守的 `one-click continue | validate_vscode_host_extension.py` + host continue smoke |
+| 13 | `M20 / validate-daemon-host-mvp-on-local-workspaces` | 下一步 / 已排队 | 在代表性的本地 workspace 上验证 daemon + VS Code host MVP 的状态展示、恢复路径和稳定性 | validate_daemon_host_mvp.py |
+| 14 | `M20 / validate-legacy-feature-set-on-daemon-host-baseline` | 下一步 / 已排队 | 在 daemon-host 基线上按家族逐项回归旧功能，而不是等所有能力都迁完再统一验收 | validate_daemon_host_mvp.py` + `validate_gate_set.py --profile deep |
+| 15 | `M21 / resume-post-m16-rollout-on-daemon-host-baseline` | 下一步 / 已排队 | 在 daemon-host 基线稳定后，恢复 post-M16 rollout verification，并重新评估 host-bridge 证据 | validate_daemon_legacy_rollout.py |
 
 ## 里程碑细节
 
@@ -289,13 +299,49 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前状态 | later |
+| 当前状态 | done |
 | 目标 | 增加可 review 的纠错驱动自我学习与稳定规则库 |
 | 依赖 | M18 + M19 + 宿主中立 registry root |
 | 退出条件 | 反复纠正能形成 pending candidates，宿主和状态栏可明确 review，accepted rules 持久生效且不被重装覆盖 |
+
+### M23
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | done |
+| 目标 | 建立 PTL policy gate baseline，让其它项目进入项目助手时自动生成 policy 并运行 preflight |
+| 依赖 | M13 + M16 + PTL 角色职责文档 |
+| 退出条件 | `continue / progress` 自动输出 PTL signal，fixture 覆盖 generic、missing-control、style-engine-like、openclaw-skills-like 场景 |
+
+### M24
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | done |
+| 目标 | 建立 no-known-required-next-step completion gate，防止项目助手把必做项留成“下一步”后停下 |
+| 依赖 | M16 + M23 + closeout stop taxonomy |
+| 退出条件 | final-check、open task、最终答复 next-step、显式延期和人类决策 fixtures 都能稳定给出正确 completion decision |
+
+### M25
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | done |
+| 目标 | 建立程序化 Task Pipeline Runner，让每次非平凡执行先入队，再由 runner 循环推进 next task / repair / return / stop |
+| 依赖 | M16 + M23 + M24 |
+| 退出条件 | command-loop、repair-loop、llm-pause、run-argument-enqueue、human-decision、entry-panel fixtures 都能稳定给出正确 pipeline state |
+
+### M26
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前状态 | done |
+| 目标 | 建立 host/message ingress 层，让每条 host/user message 默认能进入程序化 task loop |
+| 依赖 | M25 + 统一前门 + entry panels |
+| 退出条件 | execution-message、discussion-message、classify-only、front-door、entry-panel fixtures 都能稳定给出正确 message-ingress state |
 
 ## 当前下一步
 
 | 下一步 | 为什么做 |
 | --- | --- |
-| EL-4 keep “single foreground writer per repo” as evidence-gated backlog until real adoption proves it should move from follow-up into a formal slice | 这是当前第一条未完成 execution task；roadmap 与 development plan 都应把人带到同一个恢复点。 |
+| 当前 execution tasks 已完成，转向下一切片或 release 决策 | 当前 execution tasks 已完成，下一步应进入下一切片或下一轮 release 判断。 |
